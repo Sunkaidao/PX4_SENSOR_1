@@ -2,6 +2,12 @@
 
 #include <AP_HAL/AP_HAL_Boards.h>
 
+#if CHARGINGSTATION == ENABLED
+//baiyang added in 20170712
+#include "./config.h"
+//added end
+#endif
+
 // Just so that it's completely clear...
 #define ENABLED                 1
 #define DISABLED                0

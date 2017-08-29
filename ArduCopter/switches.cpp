@@ -594,7 +594,7 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
                 break;
             }
             break;
-    #if PROJECTXIAMEN == ENABLED			
+    #if CHARGINGSTATION == ENABLED			
         //baiyang added in 20170414
         case AUXSW_FLIGHT:
             if (ch_flag == AUX_SWITCH_HIGH) 
