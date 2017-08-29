@@ -41,6 +41,21 @@ struct PACKED log_Parameter {
     float value;
 };
 
+//baiyang modified in 20170621
+//#if DGPS_HEADINGA == ENABLED
+
+struct PACKED log_GPS_HEADINGA {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+	  //baiyang add in 20161117
+	  float    heading;
+	  //added end 
+	  //baiyang add in 20161128
+	  int16_t  rtk_status;
+	  //added end 
+};
+//#endif
+
 struct PACKED log_GPS {
     LOG_PACKET_HEADER;
     uint64_t time_us;
@@ -582,6 +597,20 @@ struct PACKED log_RFND {
     uint8_t orient2;
 };
 
+#if CHARGINGSTATION == ENABLED
+//baiyang added in 20170523
+struct PACKED log_RTBS {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    uint8_t hit;
+	uint8_t btsm;
+	uint8_t lap;
+	int8_t ask;
+	uint8_t msg;
+};
+//added end
+#endif
+
 /*
   terrain log structure
  */
@@ -892,6 +921,10 @@ struct PACKED log_Proximity {
 #define GPS_LABELS "TimeUS,Status,GMS,GWk,NSats,HDop,Lat,Lng,Alt,Spd,GCrs,VZ,U"
 #define GPS_FMT   "QBIHBcLLefffB"
 
+// see "struct GPS_State" and "Log_Write_GPS":
+#define RTK_LABELS "TimeUS,HD,Rs"
+#define RTK_FMT   "Qfh"
+
 #define GYR_LABELS "TimeUS,SampleUS,GyrX,GyrY,GyrZ"
 #define GYR_FMT    "QQfff"
 
@@ -949,6 +982,10 @@ Format characters in the format string for binary log messages
       "GPS",  GPS_FMT, GPS_LABELS }, \
     { LOG_GPS2_MSG, sizeof(log_GPS), \
       "GPS2", GPS_FMT, GPS_LABELS }, \
+    { LOG_GPS_HEADINGA_MSG, sizeof(log_GPS_HEADINGA), \
+      "RTK",  RTK_FMT, RTK_LABELS }, \
+    { LOG_GPS2_HEADINGA_MSG, sizeof(log_GPS_HEADINGA), \
+      "RTK2", RTK_FMT, RTK_LABELS }, \
     { LOG_GPSB_MSG, sizeof(log_GPS), \
       "GPSB", GPS_FMT, GPS_LABELS }, \
     { LOG_GPA_MSG,  sizeof(log_GPA), \
@@ -1295,6 +1332,19 @@ enum LogMessages {
     LOG_AOA_SSA_MSG,
     LOG_BEACON_MSG,
     LOG_PROXIMITY_MSG,
+
+// #if CHARGINGSTATION == ENABLED
+    //baiyang added in 20170523
+    LOG_RTBS_MSG,
+    //added end
+// #endif
+
+//baiyang added in 20170829
+// #if DGPS_HEADINGA == ENABLED
+    LOG_GPS_HEADINGA_MSG,
+    LOG_GPS2_HEADINGA_MSG,
+// #endif
+// added end
 };
 
 enum LogOriginType {

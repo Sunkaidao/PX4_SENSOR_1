@@ -20,6 +20,11 @@
 #include <AP_ServoRelayEvents/AP_ServoRelayEvents.h>
 #include <AP_Camera/AP_Camera.h>
 #include <AP_AdvancedFailsafe/AP_AdvancedFailsafe.h>
+//baiyang added in 20170829
+#if CHARGINGSTATION == ENABLED
+#include <AP_Task/AP_ChargingStation.h>             // ArduPilot chargingStation library
+#endif
+//added end
 
 // check if a message will fit in the payload space available
 #define HAVE_PAYLOAD_SPACE(chan, id) (comm_get_txspace(chan) >= GCS_MAVLINK::packet_overhead_chan(chan)+MAVLINK_MSG_ID_ ## id ## _LEN)
@@ -79,6 +84,9 @@ enum ap_message {
     MSG_BATTERY_STATUS,
     MSG_AOA_SSA,
     MSG_LANDING,
+    //#if CHARGINGSTATION == ENABLED      baiyang added in 20170713
+    MSG_STATION_STATUS,
+    //#endif
     MSG_LAST // MSG_LAST must be the last entry in this enum
 };
 
@@ -170,6 +178,11 @@ public:
 #if AP_AHRS_NAVEKF_AVAILABLE
     void send_opticalflow(AP_AHRS_NavEKF &ahrs, const OpticalFlow &optflow);
 #endif
+//baiyang added in 20170713
+#if CHARGINGSTATION == ENABLED
+	void send_station_status(AP_ChargingStation &chargingStation);
+#endif
+//added end
     void send_autopilot_version(uint8_t major_version, uint8_t minor_version, uint8_t patch_version, uint8_t version_type) const;
     void send_local_position(const AP_AHRS &ahrs) const;
     void send_vibration(const AP_InertialSensor &ins) const;

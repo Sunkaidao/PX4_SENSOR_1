@@ -70,9 +70,24 @@ private:
         _GPS_SENTENCE_RMC = 32,
         _GPS_SENTENCE_GGA = 64,
         _GPS_SENTENCE_VTG = 96,
+        //baiyang added in 20170620
+        //#if DGPS_HEADINGA == ENABLED
+        _GPS_SENTENCE_HEADINGA = 128,
+        //#endif
+        //added end 
         _GPS_SENTENCE_OTHER = 0
     };
 
+    //baiyang added in 20170620
+    #if DGPS_HEADINGA == ENABLED
+        enum _message_types {	   //there are some more than 10 fields in some sentences , thus we have to increase these value.
+        		_GPS_MESSAGE_NMEA = 1,
+        		_GPS_MESSAGE_NOVATEL = 2,
+        		_GPS_MESSAGE_OTHER = 0,
+        };		
+    #endif
+    //added end 
+    
     /// Update the decode state machine with a new character
     ///
     /// @param	c		The next character in the NMEA input stream
@@ -81,13 +96,35 @@ private:
     ///
     bool                        _decode(char c);
 
+    //baiyang modified in 20170621
+    #if DGPS_HEADINGA == ENABLED
+    	
+        /// Return the numeric value of an ascii hex character
+        ///
+        /// @param	a		The character to be converted
+        /// @returns		The value of the character as a hex digit
+        ///
+        static int16_t				_from_hex(char a);
+    	
+    #else
+        /// Return the numeric value of an ascii hex character
+        ///
+        /// @param	a		The character to be converted
+      	/// @returns		The value of the character as a hex digit
+      	///
+        int16_t 					_from_hex(char a);
+    #endif
+    //added end  
+    
+    /*
     /// Return the numeric value of an ascii hex character
     ///
     /// @param	a		The character to be converted
     /// @returns		The value of the character as a hex digit
     ///
     int16_t                     _from_hex(char a);
-
+    */
+    
     /// Parses the @p as a NMEA-style decimal number with
     /// up to 3 decimal digits.
     ///
@@ -118,8 +155,32 @@ private:
 
     /// return true if we have a new set of NMEA messages
     bool _have_new_message(void);
+    
+    //baiyang added in 20170620
+    #if DGPS_HEADINGA == ENABLED
+        /// Parses the current check_CRC as a NOVATEL-style decimal number with  
+        /// up to two decimal digits.	
+        ///
+        /// @returns		The value expressed by the string in _check_CRC,	
+        ///
+        static uint32_t    _parse_CRC();	
+        static uint32_t CalculateBlockCRC32(   unsigned char i);	
+        static uint32_t CRC32Value(int i) ;
+    #endif
+    //added end 
 
-    uint8_t _parity;                                                    ///< NMEA message checksum accumulator
+    //baiyang modify in 20170620
+    #if DGPS_HEADINGA == ENABLED
+        uint32_t _parity;                                           ///< NMEA message checksum accumulator
+        static uint8_t _message_type;                               ///< the Message type currently being processed
+        bool _is_check_term;                                     	///< current term is the checksum
+        #else
+        uint8_t _parity;                                            ///< NMEA message checksum accumulator
+        bool _is_checksum_term;                                     ///< current term is the checksum
+    #endif
+    //modified end
+    
+    // uint8_t _parity;                                                    ///< NMEA message checksum accumulator
     bool _is_checksum_term;                                     ///< current term is the checksum
     char _term[15];                                                     ///< buffer for the current term within the current sentence
     uint8_t _sentence_type;                                     ///< the sentence type currently being processed
@@ -140,6 +201,27 @@ private:
     uint16_t _new_hdop;                                                 ///< HDOP parsed from a term
     uint8_t _new_satellite_count;                       ///< satellite count parsed from a term
 
+    //baiyang added in 20170620
+    #if DGPS_HEADINGA == ENABLED
+        uint16_t _new_rtk_status;									///< rtk_status parsed from a term
+        float _new_heading; 										///< heading parsed from a term
+        static uint8_t _check_CRC_number;							///< check_CRC_number index within the current sentence 
+        		
+        AP_GPS::GPSHead_Status _status;
+        		
+        /// CRC check related parameters
+        /// 
+        static unsigned int ulTemp1;	
+        static unsigned int ulTemp2; 
+        static unsigned int ulCRC; 
+        	
+        uint32_t _last_HEADINGA_ms = 0;
+        		
+        static const char _headinga_string[];
+        static char _check_CRC[8];								   	///< Stored CRC check value
+    #endif
+    //added end
+    
     uint32_t _last_RMC_ms = 0;
     uint32_t _last_GGA_ms = 0;
     uint32_t _last_VTG_ms = 0;

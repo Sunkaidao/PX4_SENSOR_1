@@ -187,7 +187,7 @@ void Copter::init_ardupilot()
     landinggear.init();
 
 #ifdef USERHOOK_INIT
-    USERHOOK_INIT
+    userhook_init();
 #endif
 
 #if HIL_MODE != HIL_MODE_DISABLED

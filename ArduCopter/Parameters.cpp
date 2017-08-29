@@ -886,6 +886,14 @@ const AP_Param::Info Copter::var_info[] = {
     // @Path: Parameters.cpp
     GOBJECT(g2, "",  ParametersG2),
     
+    //baiyang added in 20170413
+    #if CHARGINGSTATION == ENABLED
+      // @Group: CHS_
+      // @Path: ../libraries/AP_chargingStation/AP_chargingStation.cpp
+      GOBJECT(chargingStation, "CHS_", AP_ChargingStation),
+    #endif
+    //added end
+    
     AP_VAREND
 };
 
@@ -1005,7 +1013,7 @@ const AP_Param::GroupInfo ParametersG2::var_info[] = {
 
     // ID 19 reserved for TCAL (PR pending)
     // ID 20 reserved for TX_TYPE (PR pending)
-    
+  
     AP_GROUPEND
 };
 

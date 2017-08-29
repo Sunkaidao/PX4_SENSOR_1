@@ -645,3 +645,39 @@
 #ifndef ADVANCED_FAILSAFE
 # define ADVANCED_FAILSAFE DISABLED
 #endif
+
+//baiyang added in 20170620
+///////////////////////////////////////////////////////////////////////////////
+//DGPS relate
+//
+
+//Use GPS #HEADINGA messages
+#ifndef DGPS_HEADINGA
+  #  define DGPS_HEADINGA          ENABLED
+#endif
+
+//Use the #HEADINGA message to resolve the heading
+#ifndef GPS_HEADINGA_ATT_CAL
+  #  define GPS_HEADINGA_ATT_CAL          DISABLED
+#endif
+//added end
+
+//baiyang added in 20170712
+///////////////////////////////////////////////////////////////////////////////
+//XIAMEN DNK PROJECT
+//
+#ifndef CHARGINGSTATION
+  #  define CHARGINGSTATION	ENABLED
+#endif
+
+#ifndef TASK
+#  define TASK	ENABLED
+#endif
+
+//baiyang added in 20170829
+//Enabled UserCode.cpp
+#define USERHOOK_INIT
+#define USERHOOK_MEDIUMLOOP
+
+
+

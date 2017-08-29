@@ -66,7 +66,17 @@ bool Copter::set_mode(control_mode_t mode, mode_reason_t reason)
             break;
 
         case RTL:
-            success = rtl_init(ignore_checks);
+            // success = rtl_init(ignore_checks);
+//baiyang modified in 20170622
+#if CHARGINGSTATION == ENABLED
+     			  if(chargingStation.get_Bstation_use()){ 
+     				      success = chargingStation.do_gotostation();				
+     			  }else
+     				     success = rtl_init(ignore_checks);
+#else
+     			  success = rtl_init(ignore_checks);
+#endif
+//modified end
             break;
 
         case DRIFT:
@@ -203,7 +213,17 @@ void Copter::update_flight_mode()
             break;
 
         case RTL:
+            // rtl_run();
+//baiyang modified in 20170724 
+#if PROJECTXIAMEN == ENABLED
+            if(chargingStation.get_Bstation_use())
+            			guided_pos_control_run();
+            else	
+                  rtl_run();
+#else
             rtl_run();
+#endif
+//modified end
             break;
 
         case DRIFT:

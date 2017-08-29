@@ -5,6 +5,7 @@ void Copter::userhook_init()
 {
     // put your initialisation code here
     // this will be called once at start-up
+    task.init();
 }
 #endif
 
@@ -26,6 +27,7 @@ void Copter::userhook_50Hz()
 void Copter::userhook_MediumLoop()
 {
     // put your 10Hz code here
+    task.update();
 }
 #endif
 

@@ -2105,6 +2105,31 @@ bool GCS_MAVLINK::try_send_gps_message(const enum ap_message id)
     return ret;
 }
 
+//baiyang added in 20170713
+#if CHARGINGSTATION == ENABLED
+void GCS_MAVLINK::send_station_status(AP_ChargingStation &chargingStation)
+{
+	static uint8_t num = 3; 
+    if(num == 0){
+		num = 3;
+		chargingStation.reset_CMD_MSG();
+	}
+		
+	if(chargingStation.CMD_MSG.command_result == 2 ||chargingStation.CMD_MSG.command_result == 3){
+    	num--;
+	}
+	   
+	mavlink_msg_station_status_send(chan,
+									chargingStation.get_timeout(),
+									chargingStation.CMD_MSG.station_status,
+									chargingStation.CMD_MSG.command,
+									chargingStation.CMD_MSG.command_status,
+									chargingStation.CMD_MSG.command_result,
+									chargingStation.get_repeat()
+	                                );
+}
+#endif
+//added end
 
 bool GCS_MAVLINK::try_send_camera_message(const enum ap_message id)
 {

@@ -132,6 +132,16 @@
 #include <SITL/SITL.h>
 #endif
 
+//baiyang added in 20170829
+#if TASK == ENABLED
+#include <AP_Task/AP_Task.h>             // ArduPilot chargingStation library
+#endif
+//added end
+//baiyang added in 20170829
+#if CHARGINGSTATION == ENABLED
+#include <AP_Task/AP_ChargingStation.h>             // ArduPilot chargingStation library
+#endif
+//added end
 
 class Copter : public AP_HAL::HAL::Callbacks {
 public:
@@ -145,7 +155,12 @@ public:
     friend class AP_AdvancedFailsafe_Copter;
 #endif
     friend class AP_Arming_Copter;
-
+#if CHARGINGSTATION == ENABLED
+    friend class AP_ChargingStation;             // ArduPilot chargingStation library
+#endif
+#if TASK == ENABLED
+    friend class AP_Task;
+#endif
     Copter(void);
 
     // HAL::Callbacks implementation.
@@ -586,6 +601,16 @@ private:
 #if FRAME_CONFIG == HELI_FRAME
     AC_InputManager_Heli input_manager;
 #endif
+
+//baiyang added in 20170829
+#if TASK == ENABLED
+    AP_Task task;
+    
+    #if CHARGINGSTATION == ENABLED
+        AP_ChargingStation chargingStation;
+    #endif
+#endif
+//added end
 
     AP_ADSB adsb {ahrs};
 

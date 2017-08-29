@@ -505,6 +505,16 @@ void DataFlash_Class::Log_Write_Mode(uint8_t mode, uint8_t reason)
     FOR_EACH_BACKEND(Log_Write_Mode(mode, reason));
 }
 
+#if CHARGINGSTATION == ENABLED
+//	added by baiyang to log RTBS state
+void DataFlash_Class::Log_Write_RTBS(bool reached_wp_destination,bool back_to_station_midair,bool land_alternate_posMidair,int8_t ask,uint8_t msg)
+{
+    FOR_EACH_BACKEND(Log_Write_RTBS(reached_wp_destination,back_to_station_midair,land_alternate_posMidair,ask,msg));
+}
+
+//	added end
+#endif
+
 void DataFlash_Class::Log_Write_Parameter(const char *name, float value)
 {
     FOR_EACH_BACKEND(Log_Write_Parameter(name, value));

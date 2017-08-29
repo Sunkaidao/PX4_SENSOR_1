@@ -367,6 +367,12 @@ public:
         k_param_DataFlash = 253, // 253 - Logging Group
 
         // 254,255: reserved
+        
+        #if TASK == ENABLED
+        //baiyang added in 20170413
+        k_param_chargingStation = 254,              //chargingStation
+       //added end
+        #endif
 
         // the k_param_* space is 9-bits in size
         // 511: reserved

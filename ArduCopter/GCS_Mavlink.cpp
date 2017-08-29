@@ -468,6 +468,14 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
     case MSG_BATTERY_STATUS:
         send_battery_status(copter.battery);
         break;
+        //baiyang added in 20170713
+    #if PROJECTXIAMEN == ENABLED
+    case MSG_STATION_STATUS:
+    		CHECK_PAYLOAD_SIZE(STATION_STATUS);
+    		send_station_status(copter.chargingStation);
+    		break;
+    #endif
+    //added end
     default:
         return GCS_MAVLINK::try_send_message(id);
     }
@@ -609,6 +617,11 @@ GCS_MAVLINK_Copter::data_stream_send(void)
         send_message(MSG_GPS2_RTK);
         send_message(MSG_NAV_CONTROLLER_OUTPUT);
         send_message(MSG_FENCE_STATUS);
+        //baiyang added in 20170713
+#if CHARGINGSTATION == ENABLED
+		    send_message(MSG_STATION_STATUS);
+#endif
+        //added end
     }
 
     if (copter.gcs_out_of_time) return;
@@ -1253,7 +1266,19 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
                 result = MAV_RESULT_ACCEPTED;
             }
             break;
-
+//baiyang added in 20170713
+#if PROJECTXIAMEN == ENABLED
+        case MAV_CMD_OPEN_COVER:
+            static uint64_t last_time = 0;
+            			
+            if((AP_HAL::millis64()-last_time)>1000)
+            			copter.chargingStation.set_blastoff_flag();
+            			
+            last_time = AP_HAL::millis64();
+            result = MAV_RESULT_ACCEPTED;
+            break;
+#endif
+            //added end
         default:
             result = handle_command_long_message(packet);
             break;

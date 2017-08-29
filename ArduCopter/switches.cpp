@@ -594,6 +594,34 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
                 break;
             }
             break;
+    #if PROJECTXIAMEN == ENABLED			
+        //baiyang added in 20170414
+        case AUXSW_FLIGHT:
+            if (ch_flag == AUX_SWITCH_HIGH) 
+                chargingStation.fly();
+            else if(ch_flag == AUX_SWITCH_LOW)
+            		chargingStation.landed();
+            else
+            	  chargingStation.reset_flight_status();
+            break;
+        case AUXSW_BLASTOFF:
+            if (ch_flag == AUX_SWITCH_LOW)
+            		chargingStation.set_blastoff_flag();
+            else if(ch_flag == AUX_SWITCH_HIGH)
+            		chargingStation.start_communication();
+            else if(ch_flag == AUX_SWITCH_MIDDLE)
+            		chargingStation.reset();
+            break;
+        //added end
+
+        //baiyang added in 20170612
+        case AUXSW_DO_TAKEOFF:
+            if (ch_flag == AUX_SWITCH_HIGH) 
+            		chargingStation.do_takeoff();
+            break;
+        //added end
+    #endif			
+
     }
 }
 

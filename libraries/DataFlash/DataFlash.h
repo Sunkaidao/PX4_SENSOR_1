@@ -140,6 +140,12 @@ public:
     void Log_Write_Compass(const Compass &compass, uint64_t time_us=0);
     void Log_Write_Mode(uint8_t mode, uint8_t reason = 0);
 
+    #if CHARGINGSTATION == ENABLED
+    	//baiyang added in 20170523
+    	void Log_Write_RTBS(bool reached_wp_destination,bool back_to_station_midair,bool land_alternate_posMidair,int8_t ask,uint8_t msg);
+    	//added end
+    #endif
+
     void Log_Write_EntireMission(const AP_Mission &mission);
     void Log_Write_Mission_Cmd(const AP_Mission &mission,
                                const AP_Mission::Mission_Command &cmd);

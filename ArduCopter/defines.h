@@ -72,6 +72,14 @@ enum aux_sw_func {
     AUXSW_PRECISION_LOITER =    39,  // enable precision loiter
     AUXSW_AVOID_PROXIMITY =     40,  // enable object avoidance using proximity sensors (ie. horizontal lidar)
     AUXSW_ARMDISARM =           41,  // arm or disarm vehicle
+#if CHARGINGSTATION == ENABLED
+    //baiyang added in 20170414
+    AUXSW_FLIGHT =				79, //For Xiamen simulation flight test communication protocol
+    AUXSW_BLASTOFF = 			80,
+    //added end
+    //baiyang added in 20170510
+    AUXSW_DO_TAKEOFF		 =	83,  //Returns the alternate location specified height
+#endif
     AUXSW_SWITCH_MAX,
 };
 

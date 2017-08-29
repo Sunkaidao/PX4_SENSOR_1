@@ -212,6 +212,18 @@ void AP_SerialManager::init()
                                          AP_SERIALMANAGER_ULANDING_BUFSIZE_RX,
                                          AP_SERIALMANAGER_ULANDING_BUFSIZE_TX);
                     break;
+      #if CHARGINGSTATION == ENABLED
+      				  //baiyang added in 20170612
+      				  case SerialProtocol_ChargingStation:
+          					// Note baudrate is hardcoded to 38400
+          					state[i].baud = AP_SERIALMANAGER_CHARGINGSTATION_BAUD / 1000;	// update baud param in case user looks at it
+          					state[i].uart->begin(map_baudrate(state[i].baud),
+          										AP_SERIALMANAGER_CHARGINGSTATION_BUFSIZE_RX,
+          										AP_SERIALMANAGER_CHARGINGSTATION_BUFSIZE_TX);
+          					state[i].uart->set_flow_control(AP_HAL::UARTDriver::FLOW_CONTROL_DISABLE);
+          					break;
+                //added end
+      #endif
             }
         }
     }

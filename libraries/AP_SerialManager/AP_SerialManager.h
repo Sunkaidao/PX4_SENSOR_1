@@ -48,11 +48,29 @@
 #define AP_SERIALMANAGER_FRSKY_BUFSIZE_RX       0
 #define AP_SERIALMANAGER_FRSKY_BUFSIZE_TX       0
 
+/*
 // GPS default baud rates and buffer sizes
 // we need a 256 byte buffer for some GPS types (eg. UBLOX)
 #define AP_SERIALMANAGER_GPS_BAUD               38400
 #define AP_SERIALMANAGER_GPS_BUFSIZE_RX         256
 #define AP_SERIALMANAGER_GPS_BUFSIZE_TX         16
+*/
+
+//baiyang modify in 20170620
+#if DGPS_HEADINGA == ENABLED
+// GPS default baud rates and buffer sizes
+// we need a 256 byte buffer for some GPS types (eg. NMEA)
+#define AP_SERIALMANAGER_GPS_BAUD               57600
+#define AP_SERIALMANAGER_GPS_BUFSIZE_RX         512
+#define AP_SERIALMANAGER_GPS_BUFSIZE_TX         128
+#else
+// GPS default baud rates and buffer sizes
+// we need a 256 byte buffer for some GPS types (eg. UBLOX)
+#define AP_SERIALMANAGER_GPS_BAUD               38400
+#define AP_SERIALMANAGER_GPS_BUFSIZE_RX         256
+#define AP_SERIALMANAGER_GPS_BUFSIZE_TX         16
+#endif
+//ended end
 
 // AlexMos Gimbal protocol default baud rates and buffer sizes
 #define AP_SERIALMANAGER_ALEXMOS_BAUD           115200
@@ -69,6 +87,13 @@
 #define AP_SERIALMANAGER_ULANDING_BUFSIZE_RX     128
 #define AP_SERIALMANAGER_ULANDING_BUFSIZE_TX     128
 
+#if CHARGINGSTATION == ENABLED
+//biayang added in 20170612
+#define AP_SERIALMANAGER_CHARGINGSTATION_BAUD   		38400
+#define AP_SERIALMANAGER_CHARGINGSTATION_BUFSIZE_RX     128
+#define AP_SERIALMANAGER_CHARGINGSTATION_BUFSIZE_TX     128
+//added end 
+#endif
 
 class AP_SerialManager {
 
@@ -89,7 +114,13 @@ public:
         SerialProtocol_FrSky_SPort_Passthrough = 10, // FrSky SPort Passthrough (OpenTX) protocol (X-receivers)
         SerialProtocol_Lidar360 = 11,                // Lightware SF40C or TeraRanger Tower
         SerialProtocol_Aerotenna_uLanding      = 12, // Ulanding support
-        SerialProtocol_Beacon = 13
+        SerialProtocol_Beacon = 13,
+        
+        #if PROJECTXIAMEN == ENABLED
+        //biayang added in 20170612
+            SerialProtocol_ChargingStation = 68,         //xiamen Charging Station
+            //added end
+        #endif
     };
 
     // Constructor
