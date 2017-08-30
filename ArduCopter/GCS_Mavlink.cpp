@@ -1003,6 +1003,29 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 #endif
             break;
 
+            //baiyang added in 20170830
+            #if PTZ_CONTROL == ENABLED
+            		case MAV_CMD_DO_AUX_CONTROL:
+            			//	added by ZhangYong 20170306
+            			//static uint8_t lcl_cnt;
+            			//	added end
+            			uint16_t para1, para2, para3, para4;
+            		
+            			//printf("%d\n", lcl_cnt++);
+            					
+            			para1 = (uint16_t)packet.param1;
+            			para2 = (uint16_t)packet.param2;
+            			para3 = (uint16_t)packet.param3;
+            			para4 = (uint16_t)packet.param4;
+            			//printf("%d %d %d %d\n", para1, para2, para3, para4);
+            			//baiyang added in 20170720
+            			copter.PtzControl.set_servo_pwm( para1, para2, para3, para4);		
+            			//added end
+            			result = MAV_RESULT_ACCEPTED;
+            			break;
+            #endif
+            //added end
+            
         case MAV_CMD_MISSION_START:
             if (copter.motors->armed() && copter.set_mode(AUTO, MODE_REASON_GCS_COMMAND)) {
                 copter.set_auto_armed(true);

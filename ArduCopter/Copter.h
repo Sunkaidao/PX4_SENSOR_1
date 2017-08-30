@@ -143,6 +143,12 @@
 #endif
 //added end
 
+//baiyang added in 20170712
+#if PTZ_CONTROL == ENABLED
+#include <AP_PTZcontrol/AP_PTZcontrol.h>                       //xiamen dnk camera PTZ
+#endif
+//added end
+
 class Copter : public AP_HAL::HAL::Callbacks {
 public:
     friend class GCS_MAVLINK_Copter;
@@ -642,6 +648,12 @@ private:
     #if CHARGINGSTATION == ENABLED
         AP_ChargingStation chargingStation;
     #endif
+#endif
+//added end
+
+//baiyang added in 20170830
+#if PTZ_CONTROL == ENABLED
+    AP_PtzControl PtzControl;
 #endif
 //added end
 

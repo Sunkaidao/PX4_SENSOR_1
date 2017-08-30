@@ -674,8 +674,18 @@
 #  define RF_TASK	ENABLED
 #endif
 
+// baiyang added in 20170830
+//////////////////////////////////////////////////////////////////////////////
+//roflying fence
 #ifndef RF_FENCE
 #  define RF_FENCE	ENABLED
+#endif
+
+// baiyang added in 20170830
+//////////////////////////////////////////////////////////////////////////////
+//roflying fence
+#ifndef PTZ_CONTROL
+#  define PTZ_CONTROL	ENABLED
 #endif
 
 //	added by zhangYong 20161109 for auth
@@ -718,6 +728,7 @@ struct current_gps_week_ms
 //	added end
 
 //baiyang added in 20170829
+/////////////////////////////////////////////////////////////////////////////////////
 //Enabled UserCode.cpp
 #define USERHOOK_INIT
 #define USERHOOK_MEDIUMLOOP

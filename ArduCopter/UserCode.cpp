@@ -66,10 +66,9 @@ void Copter::userhook_init()
     // }
 
     #endif
-  
-    
 
     task.init();
+    PtzControl.init();
 }
 #endif
 
@@ -84,6 +83,13 @@ void Copter::userhook_FastLoop()
 void Copter::userhook_50Hz()
 {
     // put your 50Hz code here
+    
+    //baiyang added in 20170804
+#if PTZ_CONTROL == ENABLED
+	  PtzControl.update();
+#endif
+    //added end
+
 }
 #endif
 

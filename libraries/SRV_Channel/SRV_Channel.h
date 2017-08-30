@@ -116,6 +116,14 @@ public:
         k_motor12               = 85,
         k_dspoilerLeft2         = 86,           ///< differential spoiler 2 (left wing)
         k_dspoilerRight2        = 87,           ///< differential spoiler 2 (right wing)
+        // #if PTZ_CONTROL == ENABLED
+        //baiyang added in 20170720
+        k_ptz_pitch             = 95,
+	      k_ptz_yaw               = 96,
+		    k_ptz_photograph        = 97,
+		    k_ptz_focus             = 98,
+		    //added end
+        // #endif
         k_nr_aux_servo_functions         ///< This must be the last enum value (only add new values _before_ this one)
     } Aux_servo_function_t;
 

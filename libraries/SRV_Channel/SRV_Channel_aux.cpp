@@ -123,6 +123,19 @@ void SRV_Channel::aux_servo_function_setup(void)
     case k_throttleRight:
         // fixed wing throttle
         set_range(100);
+
+#if PTZ_CONTROL == ENABLED
+//baiyang added in 20170720
+    case k_ptz_pitch:
+    case k_ptz_yaw:                  
+    case k_ptz_focus:
+        set_output_pwm(1500);
+        break;
+    case k_ptz_photograph:     
+        set_output_pwm(1100);
+        break;
+//added end
+#endif
         break;
     default:
         break;
