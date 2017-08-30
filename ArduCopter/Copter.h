@@ -161,6 +161,12 @@ public:
 #if TASK == ENABLED
     friend class AP_Task;
 #endif
+#if RF_FENCE == ENABLED
+    //baiyang added in 20170717
+	  friend class AC_Fence;
+	  //added end
+#endif 
+
     Copter(void);
 
     // HAL::Callbacks implementation.
@@ -1161,6 +1167,12 @@ private:
     void dataflash_periodic(void);
     void accel_cal_update(void);
 
+    #if RF_FENCE == ENABLED
+      //baiyang added in 20170717
+    	bool get_ralative_postion(float *x, float *y, int32_t para_lat, int32_t para_lng);
+      //added end
+    #endif
+    
 public:
     void mavlink_delay_cb();
     void failsafe_check();

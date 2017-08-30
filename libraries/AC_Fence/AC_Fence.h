@@ -32,6 +32,20 @@
 #define AC_FENCE_GIVE_UP_DISTANCE                   100.0f  // distance outside the fence at which we should give up and just land.  Note: this is not used by library directly but is intended to be used by the main code
 #define AC_FENCE_MANUAL_RECOVERY_TIME_MIN           10000   // pilot has 10seconds to recover during which time the autopilot will not attempt to re-take control
 
+#if RF_FENCE == ENABLED
+//	added by ZhangYong 20161122
+#define AC_FENCE_TYPE_FIXORG                        8       // fixed gps coordination as origianl position, center of fence
+//	added end
+
+//	added by ZhangYong 20161122
+#define AC_FENCE_ACTION_BACKAWAY_AND_HOVER			2		// back away from uncertainly aera
+#define AC_FENCE_ACTION_BACKAWAY_AND_LAND           3      	// back away from uncertainly aera and land
+//	added end
+
+#define AC_FENCE_FIXORG_CIRCLE_RADIUS_BACKUP_DISTANCE      20.0f   // after fence is broken we recreate the fence 20m further out
+
+#endif
+
 class AC_Fence
 {
 public:
@@ -94,6 +108,28 @@ public:
     ///     has no effect if no breaches have occurred
     void manual_recovery_start();
 
+    //baiyang migrated in 20170830
+    #if RF_FENCE == ENABLED
+    	void change_fixorg_distance(float para_distance);
+    	float get_fixorg_distance() {return _fixorg_distance;}
+    	float get_fixorg_circle_radius_backup() {return _fixorg_circle_radius_backup;}
+    	float get_fixorg_circle_breach_distance() {return _fixorg_circle_breach_distance;}
+    
+    
+    	Vector3f calc_backaway_destination(Vector3f curr_ralative, Vector2f fixorg_ralative, float distance);
+      
+      int32_t return_fixorg_lat() {return _fixorg_lat.get(); }
+	    int32_t return_fixorg_lng() {return _fixorg_lng.get(); }
+      
+      //baiyang added in 20170802
+	    void set_fixorg_pos();
+
+	    void clear_fixorg_pos();
+	    //added end
+    
+    #endif
+    // migrated end
+    
     ///
     /// time saving methods to piggy-back on main code's calculations
     ///
@@ -141,6 +177,20 @@ private:
     AP_Float        _margin;                // distance in meters that autopilot's should maintain from the fence to avoid a breach
     AP_Int8         _total;                 // number of polygon points saved in eeprom
 
+    //	added by zhangyong for projectxmdnt
+    #if RF_FENCE == ENABLED
+    	AP_Int32		_fixorg_lat;			//	Latitude * 10**7
+    	AP_Int32		_fixorg_lng;			//	Longitude * 10**7	
+    	AP_Float        _retreat_dis;           //  @Units: m
+    	
+    	float			_fixorg_distance;		//	
+    	float			_fixorg_circle_breach_distance;
+    	float			_fixorg_circle_radius_backup;
+      
+      bool is_alt_breached;
+    #endif
+    //	added end
+    
     // backup fences
     float           _alt_max_backup;        // backup altitude upper limit in meters used to refire the breach if the vehicle continues to move further away
     float           _circle_radius_backup;  // backup circle fence radius in meters used to refire the breach if the vehicle continues to move further away

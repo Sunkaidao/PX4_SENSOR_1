@@ -664,7 +664,7 @@
 
 //baiyang added in 20170712
 ///////////////////////////////////////////////////////////////////////////////
-//XIAMEN DNK PROJECT
+//charging Station
 //
 #ifndef CHARGINGSTATION
   #  define CHARGINGSTATION	ENABLED
@@ -674,10 +674,15 @@
 #  define TASK	ENABLED
 #endif
 
+#ifndef RF_FENCE
+#  define RF_FENCE	ENABLED
+#endif
+
 //baiyang added in 20170829
 //Enabled UserCode.cpp
 #define USERHOOK_INIT
 #define USERHOOK_MEDIUMLOOP
+
 
 
 
