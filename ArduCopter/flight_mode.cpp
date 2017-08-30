@@ -215,7 +215,7 @@ void Copter::update_flight_mode()
         case RTL:
             // rtl_run();
 //baiyang modified in 20170724 
-#if PROJECTXIAMEN == ENABLED
+#if CHARGINGSTATION == ENABLED
             if(chargingStation.get_Bstation_use())
             			guided_pos_control_run();
             else	

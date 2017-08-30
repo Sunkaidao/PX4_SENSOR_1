@@ -116,10 +116,10 @@ public:
         SerialProtocol_Aerotenna_uLanding      = 12, // Ulanding support
         SerialProtocol_Beacon = 13,
         
-        #if PROJECTXIAMEN == ENABLED
+        #if CHARGINGSTATION == ENABLED
         //biayang added in 20170612
-            SerialProtocol_ChargingStation = 68,         //xiamen Charging Station
-            //added end
+        SerialProtocol_ChargingStation = 68,         //xiamen Charging Station
+        //added end
         #endif
     };
 

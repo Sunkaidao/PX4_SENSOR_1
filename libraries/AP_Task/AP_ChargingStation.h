@@ -111,10 +111,7 @@ public:
 		uint8_t station_status;    //station ststus,open or close
 	}CMD_MSG;
 	
-	AP_ChargingStation() {
-	  AP_Param::setup_object_defaults(this, var_info);
-	  _initialised = false;
-	}
+	AP_ChargingStation() ;
 	void init_data(void);
 	void init_station_pos();
 	void sendCMD(uint8_t CMD_Data_H,uint8_t CMD_Data_L);

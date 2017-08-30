@@ -178,6 +178,13 @@ const AP_Param::GroupInfo AP_ChargingStation::var_info[] = {
 //   _initialised = false;
 // }
 
+
+AP_ChargingStation::AP_ChargingStation()
+{
+  AP_Param::setup_object_defaults(this, var_info);
+  _initialised = false;
+}
+
 bool AP_ChargingStation::init() {
   _port = copter.serial_manager.find_serial(
       AP_SerialManager::SerialProtocol_ChargingStation, 0);

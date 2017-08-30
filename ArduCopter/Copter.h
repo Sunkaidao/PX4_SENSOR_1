@@ -133,7 +133,7 @@
 #endif
 
 //baiyang added in 20170829
-#if TASK == ENABLED
+#if RF_TASK == ENABLED
 #include <AP_Task/AP_Task.h>             // ArduPilot chargingStation library
 #endif
 //added end
@@ -158,7 +158,7 @@ public:
 #if CHARGINGSTATION == ENABLED
     friend class AP_ChargingStation;             // ArduPilot chargingStation library
 #endif
-#if TASK == ENABLED
+#if RF_TASK == ENABLED
     friend class AP_Task;
 #endif
 #if RF_FENCE == ENABLED
@@ -609,7 +609,7 @@ private:
 #endif
 
 //baiyang added in 20170829
-#if TASK == ENABLED
+#if RF_TASK == ENABLED
     AP_Task task;
     
     #if CHARGINGSTATION == ENABLED

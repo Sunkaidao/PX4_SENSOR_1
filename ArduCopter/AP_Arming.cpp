@@ -68,7 +68,7 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
     // }
 
     //baiyang modified in 20170705
-    #if PROJECTXIAMEN== ENABLED
+    #if CHARGINGSTATION== ENABLED
     		// exit immediately if we've already successfully performed the pre-arm check
     		if (copter.ap.pre_arm_check) {
     			// run gps checks because results may change and affect LED colour

@@ -670,8 +670,8 @@
   #  define CHARGINGSTATION	ENABLED
 #endif
 
-#ifndef TASK
-#  define TASK	ENABLED
+#ifndef RF_TASK
+#  define RF_TASK	ENABLED
 #endif
 
 #ifndef RF_FENCE

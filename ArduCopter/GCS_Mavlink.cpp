@@ -469,7 +469,7 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
         send_battery_status(copter.battery);
         break;
         //baiyang added in 20170713
-    #if PROJECTXIAMEN == ENABLED
+    #if CHARGINGSTATION == ENABLED
     case MSG_STATION_STATUS:
     		CHECK_PAYLOAD_SIZE(STATION_STATUS);
     		send_station_status(copter.chargingStation);
@@ -1267,7 +1267,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
             }
             break;
 //baiyang added in 20170713
-#if PROJECTXIAMEN == ENABLED
+#if CHARGINGSTATION == ENABLED
         case MAV_CMD_OPEN_COVER:
             static uint64_t last_time = 0;
             			
