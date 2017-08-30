@@ -109,6 +109,13 @@ public:
     void        set_snoop(void (*_msg_snoop)(const mavlink_message_t* msg)) {
         msg_snoop = _msg_snoop;
     }
+
+#if FXTX_AUTH == ENABLED   
+    //	added by ZhangYong for request item int
+  	void 		queued_waypoint_int_send();
+  	//	added end
+#endif
+
     // packetReceived is called on any successful decode of a mavlink message
     virtual void packetReceived(const mavlink_status_t &status,
                                 mavlink_message_t &msg);

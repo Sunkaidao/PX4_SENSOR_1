@@ -169,6 +169,32 @@ GCS_MAVLINK::queued_waypoint_send()
     }
 }
 
+#if FXTX_AUTH == ENABLED
+//	added by ZhangYong 20170425 for int item request
+void
+GCS_MAVLINK::queued_waypoint_int_send()
+{
+	//	added by ZhangYong for debug 
+//	printf("queued_waypoint_int_send\n");
+	//	added end
+
+	if (initialised &&
+        waypoint_receiving &&
+        waypoint_request_i <= waypoint_request_last) {
+
+//		printf("%d %d %d %d\n", chan, waypoint_dest_sysid, waypoint_dest_compid, waypoint_request_i);
+		
+        mavlink_msg_mission_request_int_send(
+            chan,
+            waypoint_dest_sysid,
+            waypoint_dest_compid,
+            waypoint_request_i,
+            MAV_MISSION_TYPE_MISSION);
+    }
+}
+//	added end
+#endif
+
 void GCS_MAVLINK::send_meminfo(void)
 {
     unsigned __brkval = 0;
@@ -738,6 +764,11 @@ bool GCS_MAVLINK::handle_mission_item(mavlink_message_t *msg, AP_Mission &missio
         // if we have enough space, then send the next WP immediately
         if (HAVE_PAYLOAD_SPACE(chan, MISSION_ITEM)) {
             queued_waypoint_send();
+            //baiyang added in 20170830
+            #if FXTX_AUTH == ENABLED
+              queued_waypoint_int_send();
+            #endif
+            //added end
         } else {
             send_message(MSG_NEXT_WAYPOINT);
         }
@@ -2047,6 +2078,11 @@ bool GCS_MAVLINK::try_send_mission_message(const enum ap_message id)
     case MSG_NEXT_WAYPOINT:
         CHECK_PAYLOAD_SIZE(MISSION_REQUEST);
         queued_waypoint_send();
+        //baiyang added in 20170830
+        #if FXTX_AUTH == ENABLED
+          queued_waypoint_int_send();
+        #endif
+        //added end
         ret = true;
         break;
     default:
