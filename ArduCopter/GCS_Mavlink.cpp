@@ -716,6 +716,16 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 {
     uint8_t result = MAV_RESULT_FAILED;         // assume failure.  Each messages id is responsible for return ACK or NAK if required
 
+    //	added by ZhangYong
+    #if FXTX_AUTH == 1
+    	union auth_id_para id_para;
+    
+    	static uint8_t lcl_counter = 0;
+    	memset(&id_para, 0, sizeof(union auth_id_para));
+
+    #endif
+    //	added end
+    	
     switch (msg->msgid) {
 
     case MAVLINK_MSG_ID_HEARTBEAT:      // MAV ID: 0
@@ -1003,6 +1013,49 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
             }
             break;
 
+            //	added by ZhangYong 20170705
+        #if FXTX_AUTH == 1
+        case MAV_CMD_AUTH_PROTOCAL:	
+            id_para.serial[0] = packet.param1;
+            id_para.serial[1] = packet.param2;
+            id_para.serial[2] = packet.param3;
+            id_para.serial[3] = packet.param4;
+            id_para.serial[4] = packet.param5;
+            
+            for(lcl_counter = 0; lcl_counter < 12; lcl_counter++)
+            {            
+            		if(id_para.data[lcl_counter] != copter.auth_id[lcl_counter])
+            		break;
+            }
+            
+            if(lcl_counter != 12)
+            {
+            	  result = MAV_RESULT_FAILED;
+            }
+            else
+            {
+            	  result = MAV_RESULT_ACCEPTED;
+            
+            		if(copter.curr_gps_week_ms.time_week > (uint16_t)id_para.serial[3])
+            		{
+            				result = MAV_RESULT_DENIED;
+            		}
+            		else
+            		{
+            				if(copter.curr_gps_week_ms.time_week == (uint16_t)id_para.serial[3])
+            		    {
+            				  if(copter.curr_gps_week_ms.time_week_ms > (uint32_t)id_para.serial[4])
+            					{
+            							result = MAV_RESULT_DENIED;
+            					}
+            		    }
+            	  }
+            }
+            break;
+         //		added end	
+         #endif
+         //	added end
+
         case MAV_CMD_PREFLIGHT_CALIBRATION:
             // exit immediately if armed
             if (copter.motors->armed()) {
@@ -1287,6 +1340,26 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
         // send ACK or NAK
         mavlink_msg_command_ack_send_buf(msg, chan, packet.command, result);
 
+        #if FXTX_AUTH == ENABLED
+        //	added by ZhangYong
+        if(MAV_CMD_AUTH_PROTOCAL == packet.command)
+        {
+            if(MAV_RESULT_FAILED == result)
+            {
+          			send_text(MAV_SEVERITY_CRITICAL, copter.auth_msg);
+          	}
+          	else if(MAV_RESULT_DENIED == result)
+          	{
+          			copter.auth_state_ms = auth_state_denied;
+          	}
+          	else
+          	{
+          			copter.auth_state_ms = auth_state_success;
+          	}	
+        }
+        //	added end
+        #endif	
+        
         break;
     }
 
@@ -1718,6 +1791,15 @@ void Copter::mavlink_delay_cb()
  */
 void Copter::gcs_data_stream_send(void)
 {
+  
+  //	added by Zhangyong for auth process
+	//	if want to connect to common mission planer
+	//	should sheild this state
+#if FXTX_AUTH == 1
+	  if(!(auth_state_ms == auth_state_success))
+        return;
+#endif
+
     gcs().data_stream_send();
 }
 

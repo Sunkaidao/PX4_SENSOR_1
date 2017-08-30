@@ -678,6 +678,45 @@
 #  define RF_FENCE	ENABLED
 #endif
 
+//	added by zhangYong 20161109 for auth
+//////////////////////////////////////////////////////////////////////////////
+// AUTH (),ENABLED LICENSE
+//
+#ifndef FXTX_AUTH
+ #define FXTX_AUTH  ENABLED
+#endif
+
+#if FXTX_AUTH == ENABLED
+#define AUTH_KEY_POS	0
+#define AUTH_KEY_LEN	10
+#define AUTH_ID_POS		(AUTH_KEY_POS + AUTH_KEY_LEN)
+#define AUTH_ID_LEN		20
+#define AUTH_ENTER_POS	(AUTH_ID_POS + AUTH_ID_LEN)
+#define AUTH_ID_ARRAY_LEN	(AUTH_ENTER_POS + 4)
+
+enum auth_state {
+	auth_state_failed = 0,
+	auth_state_denied = 1,
+	auth_state_success = 2
+};
+
+union auth_id_para {
+	float	serial[5];
+	uint8_t 	 data[20];
+};
+
+//	added by ZhangYong globle variable
+struct current_gps_week_ms
+{
+	uint32_t time_week_ms;              ///< GPS time (milliseconds from start of GPS week)
+	uint16_t time_week;                 ///< GPS week number
+};
+
+#endif
+//	
+//#endif
+//	added end
+
 //baiyang added in 20170829
 //Enabled UserCode.cpp
 #define USERHOOK_INIT

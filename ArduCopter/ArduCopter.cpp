@@ -497,6 +497,21 @@ void Copter::one_hz_loop()
     // indicates that the sensor or subsystem is present but not
     // functioning correctly
     update_sensor_status_flags();
+    
+    //		added by ZhangYong 20161110
+    #if FXTX_AUTH == ENABLED
+    	if(gps.status() >=	AP_GPS::GPS_OK_FIX_3D)
+    	{
+    		//	added for debug 20161110
+    		
+    		//	added end
+    		curr_gps_week_ms.time_week = gps.time_week();
+    		curr_gps_week_ms.time_week_ms = gps.time_week_ms();
+    	}	
+    
+    //	printf("A. %d, %d, %d, &%d\n", gps.status(), curr_gps_week_ms.time_week, gps.time_week_ms(), &curr_gps_week_ms);
+    #endif
+
 }
 
 // called at 50hz

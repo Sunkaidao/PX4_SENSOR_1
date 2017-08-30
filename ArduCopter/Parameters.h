@@ -368,7 +368,7 @@ public:
 
         // 254,255: reserved
         
-        #if TASK == ENABLED
+        #if CHARGINGSTATION == ENABLED
         //baiyang added in 20170413
         k_param_chargingStation = 254,              //chargingStation
        //added end

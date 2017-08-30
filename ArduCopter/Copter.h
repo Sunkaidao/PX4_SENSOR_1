@@ -546,6 +546,33 @@ private:
     // Used to exit the roll and pitch auto trim function
     uint8_t auto_trim_counter;
 
+    //	added end by ZhangYong 20161109
+  #if FXTX_AUTH == ENABLED
+  	struct current_gps_week_ms curr_gps_week_ms;
+  
+  	char 	auth_msg[100];
+  
+  	char auth_id[AUTH_ID_LEN];
+  
+  //	union auth_id_para id_para;
+  
+  	auth_state auth_state_ms = auth_state_failed;
+  
+  
+  //	char test_reserved[50];
+  
+    //	added by ZhangYong 20170731
+  	/*
+  	edit_management.data.major_edition = 2;
+  	edit_management.data.project_edition = 2;
+  	edit_management.data.minor_edition = 3;
+  	edit_management.data.revision_edition = 4;
+  	edit_management.words = 0x403021
+  	*/
+  	// Edition_management edit_management;
+  
+  #endif
+  
     // Reference to the relay object
     AP_Relay relay;
 
@@ -1112,6 +1139,13 @@ private:
     const char* get_frame_string();
     bool current_mode_has_user_takeoff(bool must_navigate);
     bool do_user_takeoff(float takeoff_alt_cm, bool must_navigate);
+
+    //baiyang added in 20170809
+    #if CHARGINGSTATION == ENABLED
+    bool do_user_takeoff_rof(float takeoff_alt_cm, bool must_navigate);
+    #endif
+    //added end
+    
     void takeoff_timer_start(float alt_cm);
     void takeoff_stop();
     void takeoff_get_climb_rates(float& pilot_climb_rate, float& takeoff_climb_rate);

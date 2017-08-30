@@ -186,9 +186,9 @@ void Copter::init_ardupilot()
     // initialise landing gear position
     landinggear.init();
 
-#ifdef USERHOOK_INIT
-    userhook_init();
-#endif
+// #ifdef USERHOOK_INIT
+//     userhook_init();
+// #endif
 
 #if HIL_MODE != HIL_MODE_DISABLED
     while (barometer.get_last_update() == 0) {
@@ -257,6 +257,10 @@ void Copter::init_ardupilot()
 
     // disable safety if requested
     BoardConfig.init_safety();
+
+    #ifdef USERHOOK_INIT
+        userhook_init();
+    #endif
 
     hal.console->printf("\nReady to FLY ");
 

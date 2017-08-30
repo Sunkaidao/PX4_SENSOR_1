@@ -91,7 +91,18 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
     		}
     #endif
     //modified end
-    
+
+    #if FXTX_AUTH == 1
+        //	added by Zhangyong for license
+    	if(auth_state_denied == copter.auth_state_ms)
+        {
+        	set_pre_arm_check(false);
+        	gcs().send_text(MAV_SEVERITY_CRITICAL, "PreArm: license expired!\n");
+        	return false;
+        }
+        //	added end
+    #endif	
+  
     // succeed if pre arm checks are disabled
     if (checks_to_perform == ARMING_CHECK_NONE) {
         set_pre_arm_check(true);
