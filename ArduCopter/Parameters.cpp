@@ -92,6 +92,20 @@ const AP_Param::Info Copter::var_info[] = {
     // @Bitmask: 0:Feedback from mid stick,1:High throttle cancels landing,2:Disarm on land detection
     GSCALAR(throttle_behavior, "PILOT_THR_BHV", 0),
 
+#if FXTX_AUTH == ENABLED
+    // added by ZhangYong 20170721 for edition control
+   	// @Param: 
+   	// @DisplayName: Edition management
+   	// @Description: Edition management
+   	// @Range: 
+   	// @User: Advanced
+   	// @bits[31-28] major edition	   0002
+   	// @bits[27-20] project edition	   0000 0001
+   	// @bits[19-12] minor edition	   0000 0010
+   	// @bits[11-00] revision edition    0000 0000 0100
+   	GSCALAR(edition_management,	 "ED_MANAGE",	  0x402012),
+#endif
+
     // @Group: SERIAL
     // @Path: ../libraries/AP_SerialManager/AP_SerialManager.cpp
     GOBJECT(serial_manager, "SERIAL",   AP_SerialManager),
