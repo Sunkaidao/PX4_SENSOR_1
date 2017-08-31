@@ -671,6 +671,12 @@ private:
     // last valid RC input time
     uint32_t last_radio_update_ms;
 
+#if FXTX_AUTH == ENABLED
+    //	added by ZhangYong 20170407
+    uint32_t local_flight_time_sec = 0;
+    //	added end
+#endif
+    
     // last esc calibration notification update
     uint32_t esc_calibration_notify_update_ms;
 

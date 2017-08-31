@@ -87,6 +87,9 @@ enum ap_message {
     //#if CHARGINGSTATION == ENABLED      baiyang added in 20170713
     MSG_STATION_STATUS,
     //#endif
+    // #if FXTX_AUTH == ENABLED
+    MSG_FLIGHT_TIME,
+    // #endif
     MSG_LAST // MSG_LAST must be the last entry in this enum
 };
 
@@ -199,6 +202,15 @@ public:
     static void send_collision_all(const AP_Avoidance::Obstacle &threat, MAV_COLLISION_ACTION behaviour);
     void send_accelcal_vehicle_position(uint32_t position);
 
+#if FXTX_AUTH == ENABLED
+    //baiyang added in 20170831
+    static void send_flight_time_thismav(mavlink_channel_t chan, \
+    														int16_t para_flight_time_hour, \
+    														int16_t para_flight_time_sec, \
+    														uint32_t local_flight_time_sec);
+    //added end
+#endif
+    
     // return a bitmap of active channels. Used by libraries to loop
     // over active channels to send to all active channels    
     static uint8_t active_channel_mask(void) { return mavlink_active; }

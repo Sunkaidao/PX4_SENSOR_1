@@ -34,6 +34,13 @@ bool AP_Arming_Copter::all_checks_passing(bool arming_from_gcs)
 // NOTE: this does *NOT* call AP_Arming::pre_arm_checks() yet!
 bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
 {
+  
+#if FXTX_AUTH == ENABLED
+    //	added by Zhangyong to inform the mission palnner
+	  bool return_value;
+	  //	added end
+#endif
+
     // exit immediately if already armed
     if (copter.motors->armed()) {
         return true;
@@ -107,10 +114,15 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
     if (checks_to_perform == ARMING_CHECK_NONE) {
         set_pre_arm_check(true);
         set_pre_arm_rc_check(true);
+// #if FXTX_AUTH == ENABLED
+        //	added by ZhangYong 20170406  to inform the mission palnner
+        gcs().send_text(MAV_SEVERITY_CRITICAL, "PreArm: succeed");
+        //	added end
+// #endif
         return true;
     }
 
-    return barometer_checks(display_failure)
+    return_value = barometer_checks(display_failure)
         & rc_calibration_checks(display_failure)
         & compass_checks(display_failure)
         & gps_checks(display_failure)
@@ -125,6 +137,34 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
         & chargingStation_checks(display_failure)
 #endif
         ;
+        
+    // #if FXTX_AUTH == ENABLED
+    // baiyang added in 20170831
+    if(return_value){
+    	gcs().send_text(MAV_SEVERITY_CRITICAL, "PreArm: succeed");
+    }
+    // added end
+    // #endif
+    
+#if FXTX_AUTH == ENABLED
+
+	  //	added by ZhangYong 20160907
+  	if((checks_to_perform == ARMING_CHECK_ALL) || (checks_to_perform == (~ARMING_CHECK_INS)))
+  	{
+  		if((copter.g.flight_time_hour_shold > 0)&&(copter.g.flight_time_hour >= copter.g.flight_time_hour_shold))
+  		{
+  			if (display_failure) 
+  			{
+  				 gcs().send_text(MAV_SEVERITY_CRITICAL, "PreArm: Flight time exceed");
+  			}
+  			return false;
+  		}
+  	}
+	  //	added end
+#endif
+  
+    return return_value;
+
 }
 
 bool AP_Arming_Copter::rc_calibration_checks(bool display_failure)

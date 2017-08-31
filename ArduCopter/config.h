@@ -733,7 +733,7 @@ struct current_gps_week_ms
 #define USERHOOK_INIT
 #define USERHOOK_MEDIUMLOOP
 #define USERHOOK_50HZLOOP
-
+#define USERHOOK_SUPERSLOWLOOP
 
 
 

@@ -92,21 +92,6 @@ const AP_Param::Info Copter::var_info[] = {
     // @Bitmask: 0:Feedback from mid stick,1:High throttle cancels landing,2:Disarm on land detection
     GSCALAR(throttle_behavior, "PILOT_THR_BHV", 0),
 
-#if FXTX_AUTH == ENABLED
-    // added by ZhangYong 20170721 for edition control
-    // @Param: 
-    // @DisplayName: Edition management
-    // @Description: Edition management
-    // @Range: 
-    // @User: Advanced
-    // @bits[31-28] major edition	   0002
-    // @bits[27-20] project edition	   0000 0001
-    // @bits[19-12] minor edition	   0000 0010
-    // @bits[11-00] revision edition    0000 0000 0100
-    GSCALAR(edition_management,	 "ED_MANAGE",	  0x402012),
-    // added end
-#endif
-        
     // @Group: SERIAL
     // @Path: ../libraries/AP_SerialManager/AP_SerialManager.cpp
     GOBJECT(serial_manager, "SERIAL",   AP_SerialManager),
@@ -120,6 +105,38 @@ const AP_Param::Info Copter::var_info[] = {
     // @Increment: 1
     GSCALAR(telem_delay,            "TELEM_DELAY",     0),
 
+#if FXTX_AUTH == ENABLED
+    //	added by ZhangYong 20170731 for uav flight timer
+	  // @Param: FLIGHT_TIME_HOUR
+    // @DisplayName: TOTAL FLIGNT TIME OF THIS MAV IN HOUR
+    // @Description: The amount of time (in hours) this mav has been flight
+    // @User: Advanced
+    // @Units: hours
+    // @Range: 0 32768
+    // @Increment: 1
+    GSCALAR(flight_time_hour,            "FT_HOUR",     0),
+
+
+	  // @Param: FLIGHT_TIME_HOUR_SHOLD
+    // @DisplayName: FLIGNT TIME SHRESHOLD OF THIS MAV IN HOUR, IF EXCEEDS THIS VALUE, ALARM 
+    // @Description: The shreshold of this amount of time (in hours), if exceeds this value, alarm 
+    // @User: Advanced
+    // @Units: hours
+    // @Range: 0 32768
+    // @Increment: 1
+    GSCALAR(flight_time_hour_shold,            "FT_HOUR_SHOLD",     0),
+
+
+	  // @Param: FLIGHT_TIME_SECOND
+    // @DisplayName: TOTAL FLIGNT TIME OF THIS MAV IN SECOND
+    // @Description: The amount of time (in seconds) this mav has been flight
+    // @User: Advanced
+    // @Units: seconds
+    // @Range: 0 10
+    // @Increment: 1
+    GSCALAR(flight_time_sec,            "FT_SEC",     0),
+#endif
+    
     // @Param: GCS_PID_MASK
     // @DisplayName: GCS PID tuning mask
     // @Description: bitmask of PIDs to send MAVLink PID_TUNING messages for

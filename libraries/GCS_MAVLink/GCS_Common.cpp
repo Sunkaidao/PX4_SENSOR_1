@@ -371,6 +371,24 @@ void GCS_MAVLINK::send_ahrs2(AP_AHRS &ahrs)
 #endif
 }
 
+#if FXTX_AUTH == ENABLED
+//baiyang add in 20170801
+void GCS_MAVLINK::send_flight_time_thismav(mavlink_channel_t chan, \
+														int16_t para_flight_time_hour, \
+														int16_t para_flight_time_sec, \
+														uint32_t local_flight_time_sec)
+{
+//	static uint8_t lcl_cnt = 0;
+
+	mavlink_msg_flight_time_thismav_send(chan, \
+										AP_HAL::millis(), \
+										para_flight_time_hour, \
+										para_flight_time_sec, \
+										local_flight_time_sec);
+}
+//added end		
+#endif
+
 /*
   handle a MISSION_REQUEST_LIST mavlink packet
  */

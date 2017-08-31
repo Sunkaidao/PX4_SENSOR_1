@@ -469,13 +469,25 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
         send_battery_status(copter.battery);
         break;
         //baiyang added in 20170713
-    #if CHARGINGSTATION == ENABLED
+#if CHARGINGSTATION == ENABLED
     case MSG_STATION_STATUS:
     		CHECK_PAYLOAD_SIZE(STATION_STATUS);
     		send_station_status(copter.chargingStation);
     		break;
-    #endif
+#endif
+    
+#if FXTX_AUTH == ENABLED
+    //baiyang added in 20170831
+  	case MSG_FLIGHT_TIME:
+  		CHECK_PAYLOAD_SIZE(FLIGHT_TIME_THISMAV);
+  		send_flight_time_thismav(chan, \
+  								copter.g.flight_time_hour.get(), \
+  								copter.g.flight_time_sec.get(), \
+  								copter.local_flight_time_sec);
+  		break;
     //added end
+#endif
+
     default:
         return GCS_MAVLINK::try_send_message(id);
     }
@@ -617,13 +629,18 @@ GCS_MAVLINK_Copter::data_stream_send(void)
         send_message(MSG_GPS2_RTK);
         send_message(MSG_NAV_CONTROLLER_OUTPUT);
         send_message(MSG_FENCE_STATUS);
-        //baiyang added in 20170713
 #if CHARGINGSTATION == ENABLED
+        //baiyang added in 20170713
 		    send_message(MSG_STATION_STATUS);
-#endif
         //added end
+#endif
+#if FXTX_AUTH == ENABLED
+        //baiyang added in 20170802
+		    send_message(MSG_FLIGHT_TIME);
+		    //added end
+#endif
     }
-
+    
     if (copter.gcs_out_of_time) return;
 
     if (stream_trigger(STREAM_POSITION)) {
