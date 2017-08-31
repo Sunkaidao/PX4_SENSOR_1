@@ -161,6 +161,12 @@ public:
     void Log_Write_Beacon(AP_Beacon &beacon);
     void Log_Write_Proximity(AP_Proximity &proximity);
 
+#if FXTX_AUTH == ENABLED
+    //	added by ZhangYong 20170731
+    void Log_Write_CD(int32_t para_home_dis, float para_communicat_drops);
+    //	added end
+#endif
+    
     void Log_Write(const char *name, const char *labels, const char *fmt, ...);
 
     // This structure provides information on the internal member data of a PID for logging purposes

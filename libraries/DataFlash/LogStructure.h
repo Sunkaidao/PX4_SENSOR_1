@@ -611,6 +611,18 @@ struct PACKED log_RTBS {
 //added end
 #endif
 
+#if FXTX_AUTH == ENABLED
+//	added by ZhangYong 20170731
+struct PACKED log_Communication_drops {
+    LOG_PACKET_HEADER;
+    uint64_t timestamp;
+	  int32_t  home_distances;
+    float  communication_drops;
+};
+
+//	added end
+#endif
+
 /*
   terrain log structure
  */
@@ -911,6 +923,10 @@ struct PACKED log_Proximity {
 #define BARO_LABELS "TimeUS,Alt,Press,Temp,CRt,SMS,Offset,GndTemp"
 #define BARO_FMT   "QffcfIff"
 
+// see "log_Communication_drops GPS_State" and "Log_Write_CD":
+#define CD_LABELS "TMS,D2H,CD" 
+#define CD_FMT  "Qif"
+
 #define ESC_LABELS "TimeUS,RPM,Volt,Curr,Temp"
 #define ESC_FMT   "Qcccc"
 
@@ -921,7 +937,7 @@ struct PACKED log_Proximity {
 #define GPS_LABELS "TimeUS,Status,GMS,GWk,NSats,HDop,Lat,Lng,Alt,Spd,GCrs,VZ,U"
 #define GPS_FMT   "QBIHBcLLefffB"
 
-// see "struct GPS_State" and "Log_Write_GPS":
+// see "struct log_RTBS" and "Log_Write_RTBS":
 #define RTK_LABELS "TimeUS,HD,Rs"
 #define RTK_FMT   "Qfh"
 
@@ -1006,6 +1022,8 @@ Format characters in the format string for binary log messages
       "RSSI",  "Qf",     "TimeUS,RXRSSI" }, \
     { LOG_BARO_MSG, sizeof(log_BARO), \
       "BARO",  BARO_FMT, BARO_LABELS }, \
+    { LOG_CD_MSG, sizeof(log_Communication_drops), \
+  	  "CD", CD_FMT, CD_LABELS }, \
     { LOG_POWR_MSG, sizeof(log_POWR), \
       "POWR","QffH","TimeUS,Vcc,VServo,Flags" },  \
     { LOG_CMD_MSG, sizeof(log_Cmd), \
@@ -1345,6 +1363,10 @@ enum LogMessages {
     LOG_GPS2_HEADINGA_MSG,
 // #endif
 // added end
+    
+//baiyang added in 20170831
+    LOG_CD_MSG,
+//added end
 };
 
 enum LogOriginType {

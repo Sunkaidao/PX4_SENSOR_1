@@ -1742,6 +1742,14 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
         break;
 #endif // AC_FENCE == ENABLED
 
+#if FXTX_AUTH == ENABLED
+    //baiyang added in 20170831
+	  case MAVLINK_MSG_ID_COMMUNICATION_DROPS:		//	190
+        handle_communication_drops(msg, copter.home_distance, copter.DataFlash, true);
+        break;
+    //added end
+#endif
+
 #if MOUNT == ENABLED
     //deprecated. Use MAV_CMD_DO_MOUNT_CONFIGURE
     case MAVLINK_MSG_ID_MOUNT_CONFIGURE:        // MAV ID: 204

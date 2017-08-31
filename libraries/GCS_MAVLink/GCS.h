@@ -209,6 +209,11 @@ public:
     														int16_t para_flight_time_sec, \
     														uint32_t local_flight_time_sec);
     //added end
+    
+    //	added by zhangYong 20170725
+	  void handle_communication_drops(mavlink_message_t *msg, int32_t para_home_dist, DataFlash_Class &dataflash, bool log_cd);
+	  //	added end
+  
 #endif
     
     // return a bitmap of active channels. Used by libraries to loop

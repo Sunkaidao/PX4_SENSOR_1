@@ -1814,6 +1814,25 @@ MAV_RESULT GCS_MAVLINK::handle_command_camera(const mavlink_command_long_t &pack
     return result;
 }
 
+#if FXTX_AUTH == ENABLED
+//	added by ZhangYong 20170725
+void GCS_MAVLINK::handle_communication_drops(mavlink_message_t *msg, int32_t para_home_dist, DataFlash_Class &dataflash, bool log_cd)
+{
+    mavlink_communication_drops_t packet;
+    mavlink_msg_communication_drops_decode(msg, &packet);
+
+    // record if the GCS has been receiving radio messages from
+    // the aircraft//
+//   printf("%4.2f\n", packet.dropped_packets);
+
+    //log rssi, noise, etc if logging Performance monitoring data
+     if (log_cd) {
+        dataflash.Log_Write_CD(para_home_dist, packet.dropped_packets);
+    }
+}
+//added end
+#endif
+
 /*
   handle messages which don't require vehicle specific data
  */

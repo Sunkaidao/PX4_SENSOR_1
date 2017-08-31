@@ -2006,3 +2006,21 @@ void DataFlash_Class::Log_Write_Proximity(AP_Proximity &proximity)
     };
     WriteBlock(&pkt_proximity, sizeof(pkt_proximity));
 }
+
+#if FXTX_AUTH == ENABLED
+//	added by ZhangYong 20170731
+// Write communication drop packets rate
+void DataFlash_Class::Log_Write_CD(int32_t para_home_dis, float para_communicat_drops)
+{
+
+	struct log_Communication_drops pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_CD_MSG),
+		timestamp         		: AP_HAL::micros64(),
+        home_distances      	: para_home_dis,
+        communication_drops		: para_communicat_drops
+    };
+    WriteBlock(&pkt, sizeof(pkt));
+}
+
+//	added end
+#endif
