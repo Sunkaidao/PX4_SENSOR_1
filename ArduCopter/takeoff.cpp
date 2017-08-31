@@ -22,6 +22,41 @@ bool Copter::current_mode_has_user_takeoff(bool must_navigate)
     }
 }
 
+#if FXTX_AUTH == ENABLED
+// initiate user takeoff - called when MAVLink TAKEOFF command is received
+bool Copter::do_user_takeoff_rof(float takeoff_alt_cm, bool must_navigate)
+{
+    if (motors->armed() && current_mode_has_user_takeoff(must_navigate) && takeoff_alt_cm > current_loc.alt) {
+
+#if FRAME_CONFIG == HELI_FRAME
+        // Helicopters should return false if MAVlink takeoff command is received while the rotor is not spinning
+        if (!motors->rotor_runup_complete()) {
+            return false;
+        }
+#endif
+
+        switch(control_mode) {
+            case GUIDED:
+                if (guided_takeoff_start(takeoff_alt_cm)) {
+                    set_auto_armed(true);
+                    return true;
+                }
+                return false;
+            case LOITER:
+            case POSHOLD:
+            case ALT_HOLD:
+            case SPORT:
+                set_auto_armed(true);
+                takeoff_timer_start(takeoff_alt_cm);
+                return true;
+            default:
+                return false;
+        }
+    }
+    return false;
+}
+#endif
+
 // initiate user takeoff - called when MAVLink TAKEOFF command is received
 bool Copter::do_user_takeoff(float takeoff_alt_cm, bool must_navigate)
 {

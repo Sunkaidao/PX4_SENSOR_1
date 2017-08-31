@@ -897,11 +897,38 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 
             float takeoff_alt = packet.param7 * 100;      // Convert m to cm
 
-            if(copter.do_user_takeoff(takeoff_alt, is_zero(packet.param3))) {
-                result = MAV_RESULT_ACCEPTED;
-            } else {
-                result = MAV_RESULT_FAILED;
-            }
+            // if(copter.do_user_takeoff(takeoff_alt, is_zero(packet.param3))) {
+            //     result = MAV_RESULT_ACCEPTED;
+            // } else {
+            //     result = MAV_RESULT_FAILED;
+            // }
+            
+            //baiyang added in 20170831
+            #if FXTX_AUTH == ENABLED
+              if(is_equal(packet.param1,1.0f)){
+          				if(copter.do_user_takeoff_rof(takeoff_alt, is_zero(packet.param3))) {
+          					  copter.chargingStation.set_receive_takeoff();
+          	          result = MAV_RESULT_ACCEPTED;
+                  } else {
+          	          result = MAV_RESULT_FAILED;
+                  }
+        			}else{
+          				if(copter.do_user_takeoff(takeoff_alt, is_zero(packet.param3))) {
+                      copter.chargingStation.set_receive_takeoff();
+          	          result = MAV_RESULT_ACCEPTED;
+                  } else {
+          	          result = MAV_RESULT_FAILED;
+                  }
+      			}
+            #else
+              if(copter.do_user_takeoff(takeoff_alt, is_zero(packet.param3))) {
+                  result = MAV_RESULT_ACCEPTED;
+              } else {
+                  result = MAV_RESULT_FAILED;
+              }
+            #endif
+            //added end
+            
             break;
         }
 
