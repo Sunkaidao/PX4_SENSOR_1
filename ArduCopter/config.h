@@ -732,6 +732,7 @@ struct current_gps_week_ms
 //Enabled UserCode.cpp
 #define USERHOOK_INIT
 #define USERHOOK_MEDIUMLOOP
+#define USERHOOK_50HZLOOP
 
 
 

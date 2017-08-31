@@ -63,23 +63,12 @@ AP_PtzControl::set_servo_pwm(uint16_t pitch,uint16_t yaw,uint16_t photograph,uin
 	if(!_initialised){
        return;
 	}
-	/*
-	SRV_Channels::get_channel_for(SRV_Channel::k_ptz_pitch, -1)->set_output_pwm(pitch);
-	SRV_Channels::get_channel_for(SRV_Channel::k_ptz_yaw, -1)->set_output_pwm(yaw);
-	SRV_Channels::get_channel_for(SRV_Channel::k_ptz_photograph, -1)->set_output_pwm(photograph);
-	SRV_Channels::get_channel_for(SRV_Channel::k_ptz_focus, -1)->set_output_pwm(focus);
-    */
-
+  
 	PTZ_Control._pitch = pitch;
 	PTZ_Control._yaw = yaw;
 	PTZ_Control._photograph = photograph;
 	PTZ_Control._focus = focus;
-	/*
-	printf("PTZ_Control._pitch %d\n", PTZ_Control._pitch);
-	printf("PTZ_Control._yaw %d\n", PTZ_Control._yaw);
-	printf("PTZ_Control._photograph %d\n", PTZ_Control._photograph);
-	printf("PTZ_Control._focus %d\n", PTZ_Control._focus);
-	*/
+
 }
 
 void AP_PtzControl::update()
