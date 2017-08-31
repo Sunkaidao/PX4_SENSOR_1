@@ -575,7 +575,7 @@ private:
   	edit_management.data.revision_edition = 4;
   	edit_management.words = 0x403021
   	*/
-  	// Edition_management edit_management;
+  	Edition_management edit_management;
   
   #endif
   

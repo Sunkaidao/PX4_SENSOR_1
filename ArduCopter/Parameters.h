@@ -56,7 +56,10 @@ public:
         k_param_g2, // 2nd block of parameters
         k_param_NavEKF3,
         k_param_BoardConfig_CAN,
-
+#if FXTX_AUTH == ENABLED
+        //	added by ZhangYong for 
+        k_param_edition_management = 9,
+#endif            
         // simulation
         k_param_sitl = 10,
 
@@ -378,6 +381,12 @@ public:
         // 511: reserved
     };
 
+    #if FXTX_AUTH == ENABLED
+    //	added by ZhangYong 20170721 for edition control
+    AP_Int32 		edition_management;
+    //added end
+    #endif  
+      
     AP_Int16        format_version;
     AP_Int8         software_type;
 

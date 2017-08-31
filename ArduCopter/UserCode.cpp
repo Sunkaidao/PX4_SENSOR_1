@@ -37,8 +37,8 @@ void Copter::userhook_init()
     // 	//	added end
     
     #elif FXTX_AUTH == 1
-    	printf("License Enabled\n");	
-    	
+    
+    printf("License Enabled\n");	
     // 	//	added by ZhangYong 20170705 for item_int
     // 	gcs_chan[0].set_mission_item_int(true);
     // 	gcs_chan[1].set_mission_item_int(true);
@@ -47,23 +47,24 @@ void Copter::userhook_init()
     // #endif
     // 	//	added end
 
-    // //	added by ZhangYong 20170705
-    // printf("Mavlink capabilities %x\n", hal.util->get_capabilities());
-    // //	added end
-    // 
-    // edit_management.words = g.edition_management;
-    // 
-    // printf("major_edition = 0x%x\n", edit_management.data.major_edition);
-    // printf("project_edition = 0x%x\n", edit_management.data.project_edition);
-    // printf("minor_edition = 0x%x\n", edit_management.data.minor_edition);
-    // printf("revision_edition = 0x%x\n", edit_management.data.revision_edition);
-    // 
-    // if(1 != edit_management.data.major_edition)
-    // {
-    // 	edit_management.data.major_edition = 2;
-    // 
-    // 	g.edition_management.set_and_save(edit_management.words);
-    // }
+    //	added by ZhangYong 20170705
+    printf("Mavlink capabilities %x\n", hal.util->get_capabilities());
+    //	added end
+    
+    edit_management.words = g.edition_management;
+    
+    printf("major_edition = 0x%x\n", edit_management.data.major_edition);
+    printf("project_edition = 0x%x\n", edit_management.data.project_edition);
+    printf("minor_edition = 0x%x\n", edit_management.data.minor_edition);
+    printf("revision_edition = 0x%x\n", edit_management.data.revision_edition);
+    
+    if(1 != edit_management.data.major_edition)
+    {
+    	edit_management.data.major_edition = 2;
+    
+    	g.edition_management.set_and_save(edit_management.words);
+    }
+
 
     #endif
 
