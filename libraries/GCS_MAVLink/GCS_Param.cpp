@@ -89,7 +89,7 @@ GCS_MAVLINK::queued_param_send()
         _queued_parameter = AP_Param::next_scalar(&_queued_parameter_token, &_queued_parameter_type);
         _queued_parameter_index++;
 
-        if (AP_HAL::micros() - tstart > 1000) {
+        if (AP_HAL::micros() - tstart > 1000000) {
             // don't use more than 1ms sending blocks of parameters
             break;
         }
