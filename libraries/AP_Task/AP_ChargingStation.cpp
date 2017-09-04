@@ -1,5 +1,5 @@
 #include "AP_ChargingStation.h"
-#include "./../arducopter/Copter.h"
+#include "./../ArduCopter/Copter.h"
 #include <AP_Param/AP_Param.h>
 #include <GCS_MAVLink/GCS.h>
 

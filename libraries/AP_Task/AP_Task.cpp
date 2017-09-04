@@ -16,7 +16,7 @@
 #include "AP_Task.h"
 
 #include "AP_ChargingStation.h"
-#include "./../arducopter/Copter.h"
+#include "./../ArduCopter/Copter.h"
 #include "TaskDevice.h"
 #include <stdio.h>
 

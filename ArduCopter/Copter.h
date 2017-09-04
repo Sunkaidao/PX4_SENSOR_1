@@ -146,7 +146,7 @@
 
 //baiyang added in 20170712
 #if PTZ_CONTROL == ENABLED
-#include <AP_PTZcontrol/AP_PTZcontrol.h>                       //xiamen dnk camera PTZ
+#include <AP_PtzControl/AP_PtzControl.h>                       //xiamen dnk camera PTZ
 #endif
 //added end
 

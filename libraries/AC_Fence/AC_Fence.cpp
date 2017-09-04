@@ -5,7 +5,7 @@
 
 //baiyang added in 20170830
 #if RF_FENCE == ENABLED
-#include "./../arducopter/Copter.h"
+#include "./../ArduCopter/Copter.h"
 #endif 
 //added end
 
