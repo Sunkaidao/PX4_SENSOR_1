@@ -55,12 +55,14 @@ public:
     // void send_text(const char *str);
     // const char* get_text() const { return _send_text; }
 
+    AP_ChargingStation &get_chargingStation() {return chargingStation;}
     static const struct AP_Param::GroupInfo var_info[];
 
 private:
 
     static AP_Task *_instance;
-
+    
+    AP_ChargingStation chargingStation;
     // // parameters
     // AP_Int8 _rgb_led_brightness;
     // AP_Int8 _rgb_led_override;

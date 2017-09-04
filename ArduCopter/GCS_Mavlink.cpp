@@ -472,7 +472,7 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
 #if CHARGINGSTATION == ENABLED
     case MSG_STATION_STATUS:
     		CHECK_PAYLOAD_SIZE(STATION_STATUS);
-    		send_station_status(copter.chargingStation);
+    		send_station_status(copter.task.get_chargingStation());
     		break;
 #endif
     
@@ -924,14 +924,14 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
             #if FXTX_AUTH == ENABLED
               if(is_equal(packet.param1,1.0f)){
           				if(copter.do_user_takeoff_rof(takeoff_alt, is_zero(packet.param3))) {
-          					  copter.chargingStation.set_receive_takeoff();
+          					  copter.task.get_chargingStation().set_receive_takeoff();
           	          result = MAV_RESULT_ACCEPTED;
                   } else {
           	          result = MAV_RESULT_FAILED;
                   }
         			}else{
           				if(copter.do_user_takeoff(takeoff_alt, is_zero(packet.param3))) {
-                      copter.chargingStation.set_receive_takeoff();
+                      copter.task.get_chargingStation().set_receive_takeoff();
           	          result = MAV_RESULT_ACCEPTED;
                   } else {
           	          result = MAV_RESULT_FAILED;
@@ -1392,7 +1392,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
             static uint64_t last_time = 0;
             			
             if((AP_HAL::millis64()-last_time)>1000)
-            			copter.chargingStation.set_blastoff_flag();
+            			copter.task.get_chargingStation().set_blastoff_flag();
             			
             last_time = AP_HAL::millis64();
             result = MAV_RESULT_ACCEPTED;

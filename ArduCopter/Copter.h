@@ -133,13 +133,14 @@
 #endif
 
 //baiyang added in 20170829
-#if RF_TASK == ENABLED
-#include <AP_Task/AP_Task.h>             // ArduPilot chargingStation library
-#endif
-//added end
-//baiyang added in 20170829
 #if CHARGINGSTATION == ENABLED
 #include <AP_Task/AP_ChargingStation.h>             // ArduPilot chargingStation library
+#endif
+//added end
+
+//baiyang added in 20170829
+#if RF_TASK == ENABLED
+#include <AP_Task/AP_Task.h>             // ArduPilot chargingStation library
 #endif
 //added end
 
@@ -645,9 +646,9 @@ private:
 #if RF_TASK == ENABLED
     AP_Task task;
     
-    #if CHARGINGSTATION == ENABLED
-        AP_ChargingStation chargingStation;
-    #endif
+    // #if CHARGINGSTATION == ENABLED
+    //     AP_ChargingStation chargingStation;
+    // #endif
 #endif
 //added end
 

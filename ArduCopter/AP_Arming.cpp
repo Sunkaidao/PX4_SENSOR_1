@@ -567,8 +567,8 @@ bool AP_Arming_Copter::pre_arm_terrain_check(bool display_failure)
 bool AP_Arming_Copter::pre_chargingStation_check(bool display_failure)
 {
     // check fence is initialised
-    if (copter.chargingStation.get_Bstation_use()) {
-		if(!copter.chargingStation.get_flight_permit()){
+    if (copter.task.get_chargingStation().get_Bstation_use()) {
+		if(!copter.task.get_chargingStation().get_flight_permit()){
 	        if (display_failure) {
 	            gcs().send_text(MAV_SEVERITY_CRITICAL,"PreArm: ChargingStation close");
 	        }

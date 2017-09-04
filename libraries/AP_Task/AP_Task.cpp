@@ -188,7 +188,7 @@ void AP_Task::init()
     // AP_Task::flags.external_leds = enable_external_leds;
 
 #if CHARGINGSTATION == ENABLED
-    _devices[0] = &copter.chargingStation;
+    _devices[0] = &chargingStation;
 #endif
   
     

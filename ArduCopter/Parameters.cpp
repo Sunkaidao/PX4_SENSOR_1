@@ -936,7 +936,7 @@ const AP_Param::Info Copter::var_info[] = {
     #if CHARGINGSTATION == ENABLED
       // @Group: CHS_
       // @Path: ../libraries/AP_chargingStation/AP_chargingStation.cpp
-      GOBJECT(chargingStation, "CHS_", AP_ChargingStation),
+      GOBJECTN(task.get_chargingStation(), chargingStation,"CHS_", AP_ChargingStation),
     #endif
     //added end
     

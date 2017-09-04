@@ -598,26 +598,26 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
         //baiyang added in 20170414
         case AUXSW_FLIGHT:
             if (ch_flag == AUX_SWITCH_HIGH) 
-                chargingStation.fly();
+                task.get_chargingStation().fly();
             else if(ch_flag == AUX_SWITCH_LOW)
-            		chargingStation.landed();
+            		task.get_chargingStation().landed();
             else
-            	  chargingStation.reset_flight_status();
+            	  task.get_chargingStation().reset_flight_status();
             break;
         case AUXSW_BLASTOFF:
             if (ch_flag == AUX_SWITCH_LOW)
-            		chargingStation.set_blastoff_flag();
+            		task.get_chargingStation().set_blastoff_flag();
             else if(ch_flag == AUX_SWITCH_HIGH)
-            		chargingStation.start_communication();
+            		task.get_chargingStation().start_communication();
             else if(ch_flag == AUX_SWITCH_MIDDLE)
-            		chargingStation.reset();
+            		task.get_chargingStation().reset();
             break;
         //added end
 
         //baiyang added in 20170612
         case AUXSW_DO_TAKEOFF:
             if (ch_flag == AUX_SWITCH_HIGH) 
-            		chargingStation.do_takeoff();
+            		task.get_chargingStation().do_takeoff();
             break;
         //added end
     #endif			
