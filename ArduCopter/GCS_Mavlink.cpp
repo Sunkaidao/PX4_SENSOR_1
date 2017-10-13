@@ -886,6 +886,42 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
                 result = MAV_RESULT_ACCEPTED;
                 break;
             }
+			case MAV_CMD_SET_STA_POS: {
+                // param1 : /* empty */
+                // param2 : /* empty */
+                // param3 : /* empty */
+                // param4 : /* empty */
+                // x : lat
+                // y : lon
+                // z : /* empty */
+                // sanity check location
+                if (!check_latlng(packet.x, packet.y)) {
+                    break;
+                }
+				
+                copter.task.get_chargingStation().set_lat_station(packet.x);
+				copter.task.get_chargingStation().set_lng_station(packet.y);
+                result = MAV_RESULT_ACCEPTED;
+                break;
+            }
+			case MAV_CMD_RECEIVE_STA_POS: {
+                // param1 : /* empty */
+                // param2 : /* empty */
+                // param3 : /* empty */
+                // param4 : /* empty */
+                // x : lat
+                // y : lon
+                // z : /* empty */
+                // sanity check location
+                mavlink_command_int_t *packet_temp = &packet;
+				packet_temp->x = copter.task.get_chargingStation().get_lat_station();
+				packet_temp->y = copter.task.get_chargingStation().get_lng_station();
+				
+                mavlink_msg_command_int_send_struct(chan,packet_temp);
+				
+                result = MAV_RESULT_ACCEPTED;
+                break;
+			}
             default:
                 result = MAV_RESULT_UNSUPPORTED;
                 break;

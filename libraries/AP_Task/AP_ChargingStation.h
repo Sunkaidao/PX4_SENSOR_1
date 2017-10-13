@@ -128,6 +128,8 @@ public:
 	void start_communication(){blastoff_flag = 2;}
 	int32_t get_lat_station(){return lat_station.get();}
 	int32_t get_lng_station(){return lng_station.get();}
+	void set_lat_station(int32_t lat){lat_station.set_and_save_ifchanged(lat);}
+    void set_lng_station(int32_t lng){lng_station.set_and_save_ifchanged(lng);}
 	bool get_flight_permit();
 	uint8_t get_repeat(){return repeat;}
 	void reset(){blastoff_flag = -1;}//printf("%d\n",6);

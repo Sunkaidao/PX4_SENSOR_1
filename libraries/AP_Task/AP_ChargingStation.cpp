@@ -105,13 +105,13 @@ const AP_Param::GroupInfo AP_ChargingStation::var_info[] = {
     // @DisplayName: station longitude
     // @Description: Charging base station latitude
     // @unit: degree
-    AP_GROUPINFO("LNG", 10, AP_ChargingStation, lng_station, LNG_default),
+    //AP_GROUPINFO("LNG", 10, AP_ChargingStation, lng_station, LNG_default),
 
     // @Param: LAT
     // @DisplayName: station latitude
     // @Description: Charging base station longitude
     // @unit: degree
-    AP_GROUPINFO("LAT", 11, AP_ChargingStation, lat_station, LAT_default),
+    //AP_GROUPINFO("LAT", 11, AP_ChargingStation, lat_station, LAT_default),
 
     // @Param: COMM_ALT
     // @DisplayName: Establish communication height
