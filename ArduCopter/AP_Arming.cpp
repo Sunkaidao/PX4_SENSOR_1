@@ -35,11 +35,11 @@ bool AP_Arming_Copter::all_checks_passing(bool arming_from_gcs)
 bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
 {
   
-#if FXTX_AUTH == ENABLED
+//#if FXTX_AUTH == ENABLED
     //	added by Zhangyong to inform the mission palnner
-	  bool return_value;
-	  //	added end
-#endif
+	bool return_value;
+	//	added end
+//#endif
 
     // exit immediately if already armed
     if (copter.motors->armed()) {
