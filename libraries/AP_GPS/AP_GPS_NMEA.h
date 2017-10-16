@@ -70,11 +70,14 @@ private:
         _GPS_SENTENCE_RMC = 32,
         _GPS_SENTENCE_GGA = 64,
         _GPS_SENTENCE_VTG = 96,
-        //baiyang added in 20170620
         //#if DGPS_HEADINGA == ENABLED
+        //baiyang added in 20170620
         _GPS_SENTENCE_HEADINGA = 128,
-        //#endif
         //added end 
+        //baiyang added in 20170620
+        _GPS_SENTENCE_HEADING3A = 160,
+        //added end 
+		//#endif
         _GPS_SENTENCE_OTHER = 0
     };
 
@@ -216,7 +219,11 @@ private:
         static unsigned int ulCRC; 
         	
         uint32_t _last_HEADINGA_ms = 0;
-        		
+		//baiyang added in 20171016
+        uint32_t _last_HEADING3A_ms = 0;
+	    bool is_no_fix = true;
+        //added end
+        
         static const char _headinga_string[];
         static char _check_CRC[8];								   	///< Stored CRC check value
     #endif

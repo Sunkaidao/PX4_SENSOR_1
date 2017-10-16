@@ -405,6 +405,15 @@ uint32_t AP_GPS_NMEA::_parse_degrees()
  */
 bool AP_GPS_NMEA::_have_new_message()
 {
+
+#if DGPS_HEADINGA == ENABLED
+   //baiyang added in 20171016
+    if(is_no_fix){
+		return true;
+	}
+	//added end
+#endif
+
     if (_last_RMC_ms == 0 ||
         _last_GGA_ms == 0) {
         return false;
@@ -454,6 +463,11 @@ bool AP_GPS_NMEA::_term_complete()
 			  }
         if (checksum == _parity) {
             if (_gps_data_good) {
+				#if DGPS_HEADINGA == ENABLED 
+				//baiyang added in 20171016
+				is_no_fix = false;
+				//added end
+				#endif
                 uint32_t now = AP_HAL::millis();
                 switch (_sentence_type) {
                 case _GPS_SENTENCE_RMC:
@@ -474,10 +488,10 @@ bool AP_GPS_NMEA::_term_complete()
                     // baiyang added in 20170829
                     #if DGPS_HEADINGA == ENABLED
                         if(state.rtk_status == 400)
-    						            state.status 		   = AP_GPS::GPS_OK_FIX_3D_RTK_FIXED;
-    					          else
-    	                      // To-Do: add support for proper reporting of 2D and 3D fix
-    	                      state.status       = AP_GPS::GPS_OK_FIX_3D;
+    						 state.status = AP_GPS::GPS_OK_FIX_3D_RTK_FIXED;
+    					else
+    	                     // To-Do: add support for proper reporting of 2D and 3D fix
+    	                     state.status = AP_GPS::GPS_OK_FIX_3D;
                     #else 
                         // To-Do: add support for proper reporting of 2D and 3D fix
                         state.status           = AP_GPS::GPS_OK_FIX_3D;
@@ -500,16 +514,16 @@ bool AP_GPS_NMEA::_term_complete()
                     // baiyang added in 20170829
                     #if DGPS_HEADINGA == ENABLED
                         //baiyagn add in 20161117 
-    					          state.rtk_status    = _new_rtk_status;
-    					          //added end
+    					state.rtk_status    = _new_rtk_status;
+    					//added end
                         if(state.rtk_status == 400)
-    						            state.status 		= AP_GPS::GPS_OK_FIX_3D_RTK_FIXED;
-    					          else
-    	                      // To-Do: add support for proper reporting of 2D and 3D fix
-    	                      state.status    = AP_GPS::GPS_OK_FIX_3D;
+    					   state.status = AP_GPS::GPS_OK_FIX_3D_RTK_FIXED;
+    					else
+    	                   // To-Do: add support for proper reporting of 2D and 3D fix
+    	                   state.status = AP_GPS::GPS_OK_FIX_3D;
                     #else
                         // To-Do: add support for proper reporting of 2D and 3D fix
-                        state.status        = AP_GPS::GPS_OK_FIX_3D;
+                        state.status = AP_GPS::GPS_OK_FIX_3D;
                     #endif
                     //added end
                     break;
@@ -523,10 +537,17 @@ bool AP_GPS_NMEA::_term_complete()
                 // baiyang added in 20170829
                 #if DGPS_HEADINGA == ENABLED
                 case _GPS_SENTENCE_HEADINGA:     
-					          _last_HEADINGA_ms   = now;	
-					          state.heading       = _new_heading/100;    
-					          state.HeadStatus    = _status;
-					          break;
+					_last_HEADINGA_ms   = now;	
+					state.heading       = _new_heading/100;    
+					state.HeadStatus    = _status;
+					break;
+				//baiyang added in 20171016
+				case _GPS_SENTENCE_HEADING3A:     
+					_last_HEADING3A_ms = now;	
+					state.heading       = _new_heading/100;    
+					state.HeadStatus    = _status;
+					break;  
+				//added end
                 #endif  
                 // added end
                 }
@@ -537,6 +558,12 @@ bool AP_GPS_NMEA::_term_complete()
                     // Only these sentences give us information about
                     // fix status.
                     state.status = AP_GPS::NO_FIX;
+				
+				#if DGPS_HEADINGA == ENABLED
+   					//baiyang added in 20171016
+                    is_no_fix = true;
+					//added end
+				#endif
                 }
             }
             // see if we got a good message
@@ -572,9 +599,10 @@ bool AP_GPS_NMEA::_term_complete()
         //baiyang added in 20170829
         #if DGPS_HEADINGA == ENABLED
         else if (!strcmp(_term, _headinga_string)) {   
-	          _sentence_type = _GPS_SENTENCE_HEADINGA;		
-			      _gps_data_good = true; 
-		    }
+	        _sentence_type = _GPS_SENTENCE_HEADINGA;		 
+		}else if (!strcmp(_term, "HEADING3A")) {   
+	        _sentence_type = _GPS_SENTENCE_HEADING3A;		
+		}
         #endif
         // added end
         else {
@@ -655,27 +683,55 @@ bool AP_GPS_NMEA::_term_complete()
         case _GPS_SENTENCE_VTG + 1: // Course (VTG)
             _new_course = _parse_decimal_100(_term);
             break;
-            
-        #if DGPS_HEADINGA == ENABLED
-            // heading		
-            //		
-            case _GPS_SENTENCE_HEADINGA + 13: // heading (HEADINGA)		
+
+#if DGPS_HEADINGA == ENABLED
+        // heading		
+        //		
+        case _GPS_SENTENCE_HEADINGA + 13: // heading (HEADINGA)		
             _new_heading = _parse_decimal_100(_term);	
             break;
             
-           //baiyang added in 20170119
-           case _GPS_SENTENCE_HEADINGA + 11:
-           if(strcmp(_term, "NONE") == 0)
-              _status = AP_GPS::NONE;
-           else if(strcmp(_term, "L1_FLOAT") == 0)
-             _status = AP_GPS::L1_FLOAT;
-           else if(strcmp(_term, "NARROW_FLOAT") == 0)
-             _status = AP_GPS::NARROW_FLOAT;
-           else if(strcmp(_term, "NARROW_INT") == 0)
-             _status = AP_GPS::NARROW_INT;
-           break;
-           //added end
-        #endif 
+        //baiyang added in 20170119
+        case _GPS_SENTENCE_HEADINGA + 11:
+			if(strcmp(_term, "NONE") == 0)
+				_status = AP_GPS::NONE;
+			else if(strcmp(_term, "L1_FLOAT") == 0){
+				_status = AP_GPS::L1_FLOAT;
+			    _gps_data_good = true;
+			}else if(strcmp(_term, "NARROW_FLOAT") == 0){
+				_status = AP_GPS::NARROW_FLOAT;
+			    _gps_data_good = true;
+			}else if(strcmp(_term, "NARROW_INT") == 0){
+				_status = AP_GPS::NARROW_INT;
+			    _gps_data_good = true;
+			}
+			break;
+        //added end
+
+		//deading3a
+		//
+		
+		//baiyang added in 20171016
+		case _GPS_SENTENCE_HEADING3A + 13: // heading (HEADINGA)		
+			_new_heading = _parse_decimal_100(_term);	
+			break;
+				
+		case _GPS_SENTENCE_HEADING3A + 11:
+			if(strcmp(_term, "NONE") == 0)
+				_status = AP_GPS::NONE;
+			else if(strcmp(_term, "L1_FLOAT") == 0){
+				_status = AP_GPS::L1_FLOAT;
+			    _gps_data_good = true;
+			}else if(strcmp(_term, "NARROW_FLOAT") == 0){
+				_status = AP_GPS::NARROW_FLOAT;
+			    _gps_data_good = true;
+			}else if(strcmp(_term, "NARROW_INT") == 0){
+				_status = AP_GPS::NARROW_INT;
+			    _gps_data_good = true;
+			}
+			break;
+		//added end
+#endif 
         }        
     }
 
