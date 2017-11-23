@@ -308,6 +308,27 @@ void DataFlash_Class::Log_Write_GPS(const AP_GPS &gps, uint8_t i, uint64_t time_
 
 }
 
+#if ABMODE == ENABLED
+//baiyang added in 20171102
+void DataFlash_Class::Log_Write_Target_WP(const Location &target_loc,int32_t index,int8_t direction,float ab_yaw,const Location& home_loc)
+{
+	struct log_TWP pkt = {
+        LOG_PACKET_HEADER_INIT((uint8_t)(LOG_TWP_MSG)),
+        time_us       : AP_HAL::micros64(),
+        lat           : target_loc.lat,
+        lng     	  : target_loc.lng,
+        alt 		  : target_loc.alt,
+        alt_type      : target_loc.options,
+        idx           : index,
+        dir           : direction,
+        yaw           : ab_yaw,
+        home_lat      : home_loc.lat,
+        home_lng      : home_loc.lng
+    };
+    WriteCriticalBlock(&pkt, sizeof(pkt));
+}
+//added end
+#endif
 
 // Write an RFND (rangefinder) packet
 void DataFlash_Class::Log_Write_RFND(const RangeFinder &rangefinder)

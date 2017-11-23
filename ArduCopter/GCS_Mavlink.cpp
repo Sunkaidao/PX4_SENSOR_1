@@ -922,6 +922,27 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
                 result = MAV_RESULT_ACCEPTED;
                 break;
 			}
+			case MAV_CMD_SEND_ABMODE_POS: {
+                // param1 : direction
+                // param2 : waypoint index
+                // param3 : /* empty */
+                // param4 : /* empty */
+                // x : lat
+                // y : lon
+                // z : alt
+                // sanity check location
+                mavlink_command_int_t *packet_temp = &packet;
+				packet_temp->x = copter.task.get_abmode().get_wp_loc().lat;
+				packet_temp->y = copter.task.get_abmode().get_wp_loc().lng;
+				packet_temp->z = copter.task.get_abmode().get_wp_loc().alt;
+				packet_temp->param1 = copter.task.get_abmode().get_abmode_direction();
+				packet_temp->param2 = copter.task.get_abmode().get_wp_mavlink_index();
+				
+                mavlink_msg_command_int_send_struct(chan,packet_temp);
+				
+                result = MAV_RESULT_ACCEPTED;
+                break;
+			}
             default:
                 result = MAV_RESULT_UNSUPPORTED;
                 break;
@@ -1449,7 +1470,8 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
         {
             if(MAV_RESULT_FAILED == result)
             {
-          			send_text(MAV_SEVERITY_CRITICAL, copter.auth_msg);
+          			gcs().send_statustext(MAV_SEVERITY_CRITICAL,0xFF, copter.auth_msg);
+					copter.notify.send_text(copter.auth_msg);
           	}
           	else if(MAV_RESULT_DENIED == result)
           	{

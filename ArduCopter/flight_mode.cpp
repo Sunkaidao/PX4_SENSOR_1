@@ -118,6 +118,14 @@ bool Copter::set_mode(control_mode_t mode, mode_reason_t reason)
         case GUIDED_NOGPS:
             success = guided_nogps_init(ignore_checks);
             break;
+		
+//baiyang added in 20171027
+#if ABMODE == ENABLED
+		case ABMODE_RF:
+			success = abmode_init(ignore_checks);
+			break;
+#endif
+//added end
 
         default:
             success = false;
@@ -265,6 +273,14 @@ void Copter::update_flight_mode()
         case GUIDED_NOGPS:
             guided_nogps_run();
             break;
+		
+//baiyang added in 20171027
+#if ABMODE == ENABLED
+		case ABMODE_RF:
+			abmode_run();
+			break;
+#endif
+//added end
 
         default:
             break;
@@ -317,6 +333,36 @@ void Copter::exit_mode(control_mode_t old_control_mode, control_mode_t new_contr
         }
     }
 #endif //HELI_FRAME
+
+//baiyang added in 20171027
+#if ABMODE == ENABLED
+	if (old_control_mode == ABMODE_RF \
+		&& motors->armed())
+	{
+		task.get_abmode().record_break_point();
+		task.get_abmode().abmode_reset();
+	}
+
+	if(old_control_mode == ABMODE_RF \
+		&& motors->armed() \
+		&&(new_control_mode == STABILIZE \
+		|| new_control_mode == ALT_HOLD \
+		|| new_control_mode == LOITER))
+	{
+		task.get_abmode().set_break_mode(2);
+		task.get_abmode().set_relay_spray();
+	}
+	else if(old_control_mode == ABMODE_RF \
+		&& motors->armed() \
+		&& (new_control_mode == RTL \
+		|| new_control_mode == AUTO))
+	{
+		task.get_abmode().set_break_mode(1);
+		task.get_abmode().set_relay_spray();
+	}
+#endif
+//added end
+
 }
 
 // returns true or false whether mode requires GPS
@@ -333,6 +379,11 @@ bool Copter::mode_requires_GPS(control_mode_t mode)
         case BRAKE:
         case AVOID_ADSB:
         case THROW:
+//baiyang added in 20171027
+#if ABMODE == ENABLED
+		case ABMODE_RF:
+#endif
+//added end
             return true;
         default:
             return false;
@@ -355,7 +406,7 @@ bool Copter::mode_has_manual_throttle(control_mode_t mode)
 //  arming_from_gcs should be set to true if the arming request comes from the ground station
 bool Copter::mode_allows_arming(control_mode_t mode, bool arming_from_gcs)
 {
-    if (mode_has_manual_throttle(mode) || mode == LOITER || mode == ALT_HOLD || mode == POSHOLD || mode == DRIFT || mode == SPORT || mode == THROW || (arming_from_gcs && (mode == GUIDED || mode == GUIDED_NOGPS))) {
+    if (mode_has_manual_throttle(mode) || mode == LOITER || mode == ALT_HOLD || mode == POSHOLD || mode == DRIFT || mode == SPORT || mode == THROW || (arming_from_gcs && (mode == GUIDED || mode == GUIDED_NOGPS)) || mode == ABMODE_RF) {
         return true;
     }
     return false;
@@ -374,6 +425,11 @@ void Copter::notify_flight_mode(control_mode_t mode)
         case AVOID_ADSB:
         case GUIDED_NOGPS:
         case LAND:
+//baiyang added in 20171027
+#if ABMODE == ENABLED
+		case ABMODE_RF:
+#endif
+//added end
             // autopilot modes
             AP_Notify::flags.autopilot_mode = true;
             break;
@@ -439,6 +495,14 @@ void Copter::notify_flight_mode(control_mode_t mode)
         case GUIDED_NOGPS:
             notify.set_flight_mode_str("GNGP");
             break;
+//baiyang added in 20171027
+#if ABMODE == ENABLED
+		case ABMODE_RF:
+			notify.set_flight_mode_str("ABMO");
+			break;
+#endif
+//added end
+
         default:
             notify.set_flight_mode_str("----");
             break;

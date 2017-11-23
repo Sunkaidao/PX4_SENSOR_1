@@ -15,6 +15,7 @@
 
 #include "AP_Task.h"
 
+#include "AP_ABMode.h"
 #include "AP_ChargingStation.h"
 #include "./../ArduCopter/Copter.h"
 #include "TaskDevice.h"
@@ -26,42 +27,6 @@ AP_Task *AP_Task::_instance;
 
 // table of user settable parameters
 const AP_Param::GroupInfo AP_Task::var_info[] = {
-
-    // // @Param: LED_BRIGHT
-    // // @DisplayName: LED Brightness
-    // // @Description: Select the RGB LED brightness level. When USB is connected brightness will never be higher than low regardless of the setting.
-    // // @Values: 0:Off,1:Low,2:Medium,3:High
-    // // @User: Advanced
-    // AP_GROUPINFO("LED_BRIGHT", 0, AP_Task, _rgb_led_brightness, RGB_LED_HIGH),
-    // 
-    // // @Param: BUZZ_ENABLE
-    // // @DisplayName: Buzzer enable
-    // // @Description: Enable or disable the buzzer. Only for Linux and PX4 based boards.
-    // // @Values: 0:Disable,1:Enable
-    // // @User: Advanced
-    // AP_GROUPINFO("BUZZ_ENABLE", 1, AP_Task, _buzzer_enable, BUZZER_ON),
-    // 
-    // // @Param: LED_OVERRIDE
-    // // @DisplayName: Setup for MAVLink LED override
-    // // @Description: This sets up the board RGB LED for override by MAVLink. Normal notify LED control is disabled
-    // // @Values: 0:Disable,1:Enable
-    // // @User: Advanced
-    // AP_GROUPINFO("LED_OVERRIDE", 2, AP_Task, _rgb_led_override, 0),
-    // 
-    // // @Param: DISPLAY_TYPE
-    // // @DisplayName: Type of on-board I2C display
-    // // @Description: This sets up the type of on-board I2C display. Disabled by default.
-    // // @Values: 0:Disable,1:ssd1306,2:sh1106
-    // // @User: Advanced
-    // AP_GROUPINFO("DISPLAY_TYPE", 3, AP_Task, _display_type, 0),
-    // 
-    // // @Param: OREO_THEME
-    // // @DisplayName: OreoLED Theme
-    // // @Description: Enable/Disable Solo Oreo LED driver, 0 to disable, 1 for Aircraft theme, 2 for Rover theme
-    // // @Values: 0:Disabled,1:Aircraft,2:Rover
-    // // @User: Advanced
-    // AP_GROUPINFO("OREO_THEME", 4, AP_Task, _oreo_theme, 0),
-
     AP_GROUPEND
 };
 
@@ -75,122 +40,21 @@ AP_Task::AP_Task()
     _instance = this;
 }
 
-// // static flags, to allow for direct class update from device drivers
-// struct AP_Task::notify_flags_and_values_type AP_Task::flags;
-// struct AP_Task::notify_events_type AP_Task::events;
-
 TaskDevice *AP_Task::_devices[] = {nullptr, nullptr, nullptr, nullptr, nullptr};
-
 
 // initialisation
 void AP_Task::init()
 {
 
-
-// // Notify devices for PX4 boards
-// #if CONFIG_HAL_BOARD == HAL_BOARD_PX4
-//     #if CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_PX4_V3 // Has enough memory for Oreo LEDs
-//         _devices[0] = new AP_BoardLED();
-//         _devices[1] = new ToshibaLED_I2C();
-//         _devices[2] = new ToneAlarm_PX4();
-//         _devices[3] = new Display();
-// 
-//         // Oreo LED enable/disable by NTF_OREO_THEME parameter
-//         if (_oreo_theme) {
-//             _devices[4] = new OreoLED_PX4(_oreo_theme);
-//         }
-// 
-//     #elif CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_PX4_V4 // Has its own LED board
-//         _devices[0] = new PixRacerLED();
-//         _devices[1] = new ToshibaLED_I2C();
-//         _devices[2] = new ToneAlarm_PX4();
-//         _devices[3] = new Display();
-// 
-//     #else   // All other px4 boards use standard devices.
-//         _devices[0] = new AP_BoardLED();
-//         _devices[1] = new ToshibaLED_I2C();
-//         _devices[2] = new ToneAlarm_PX4();
-//         _devices[3] = new Display();
-//     #endif
-// 
-// // Notify devices for VRBRAIN boards
-// #elif CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN  
-//     #if CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_VRBRAIN_V45 // Uses px4 LED board
-//         _devices[0] = new AP_BoardLED();
-//         _devices[1] = new ToshibaLED_I2C();
-//         _devices[2] = new ToneAlarm_PX4();
-//         _devices[3] = new ExternalLED();
-//     #else
-//         _devices[0] = new VRBoard_LED();
-//         _devices[1] = new ToshibaLED_I2C();
-//         _devices[2] = new ToneAlarm_PX4();
-//         _devices[3] = new ExternalLED();
-//     #endif
-// 
-// // Notify devices for linux boards    
-// #elif CONFIG_HAL_BOARD == HAL_BOARD_LINUX
-//     #if CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_NAVIO
-//         _devices[0] = new NavioLED_I2C();
-//         _devices[1] = new ToshibaLED_I2C();
-// 
-//     #elif CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_NAVIO2
-//         _devices[0] = new DiscreteRGBLed(4, 27, 6, false);
-//         _devices[1] = new ToshibaLED_I2C();
-// 
-//     #elif CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_BBBMINI
-//         _devices[0] = new AP_BoardLED();
-//         _devices[1] = new Buzzer();
-//         _devices[2] = new Display();
-//         
-//     #elif CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_BLUE
-//         _devices[0] = new AP_BoardLED();
-//         _devices[1] = new Display();
-// 
-//     #elif CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_RASPILOT
-//         _devices[0] = new ToshibaLED_I2C();
-//         _devices[1] = new ToneAlarm_Linux();
-// 
-//     #elif CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_MINLURE
-//         _devices[0] = new RCOutputRGBLedOff(15, 13, 14, 255);
-// 
-//     #elif CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_ERLEBRAIN2 ||
-//       CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_PXFMINI
-//         _devices[0] = new AP_BoardLED();
-// 
-//     #elif CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_BH
-//         _devices[0] = new AP_BoardLED();
-//         _devices[1] = new RCOutputRGBLed(HAL_RCOUT_RGBLED_RED, HAL_RCOUT_RGBLED_GREEN, HAL_RCOUT_RGBLED_BLUE);
-// 
-//     #elif CONFIG_HAL_BOARD_SUBTYPE == HAL_BOARD_SUBTYPE_LINUX_DISCO
-//         _devices[0] = new DiscoLED();
-//         _devices[1] = new ToneAlarm_Linux();
-// 
-//     #else
-//         _devices[0] = new AP_BoardLED();
-//         _devices[1] = new ToshibaLED_I2C();
-//         _devices[2] = new ToneAlarm_Linux();
-//     #endif
-// 
-// #else
-//     _devices[0] = new AP_BoardLED();
-//     _devices[1] = new ToshibaLED_I2C();
-// #endif
-// 
-//     // clear all flags and events
-//     memset(&AP_Task::flags, 0, sizeof(AP_Task::flags));
-//     memset(&AP_Task::events, 0, sizeof(AP_Task::events));
-// 
-//     // clear flight mode string and text buffer
-//     memset(_flight_mode_str, 0, sizeof(_flight_mode_str));
-//     memset(_send_text, 0, sizeof(_send_text));
-    // _send_text_updated_millis = 0;
-
-    // AP_Task::flags.external_leds = enable_external_leds;
-
 #if CHARGINGSTATION == ENABLED
     _devices[0] = &chargingStation;
 #endif
-  
+
+//baiyang added in 20171025
+#if ABMODE == ENABLED
+		_devices[1] = &abmode;
+#endif
+//added end
     
     for (uint8_t i = 0; i < CONFIG_NOTIFY_DEVICES_COUNT; i++) {
         if (_devices[i] != nullptr) {
@@ -208,41 +72,4 @@ void AP_Task::update(void)
             _devices[i]->update();
         }
     }
-
-    // //reset the events
-    // memset(&AP_Task::events, 0, sizeof(AP_Task::events));
 }
-// 
-// // handle a LED_CONTROL message
-// void AP_Task::handle_led_control(mavlink_message_t *msg)
-// {
-//     for (uint8_t i = 0; i < CONFIG_NOTIFY_DEVICES_COUNT; i++) {
-//         if (_devices[i] != nullptr) {
-//             _devices[i]->handle_led_control(msg);
-//         }
-//     }
-// }
-// 
-// // handle a PLAY_TUNE message
-// void AP_Task::handle_play_tune(mavlink_message_t *msg)
-// {
-//     for (uint8_t i = 0; i < CONFIG_NOTIFY_DEVICES_COUNT; i++) {
-//         if (_devices[i] != nullptr) {
-//             _devices[i]->handle_play_tune(msg);
-//         }
-//     }
-// }
-// 
-// // set flight mode string
-// void AP_Task::set_flight_mode_str(const char *str)
-// {
-//     strncpy(_flight_mode_str, str, 4);
-//     _flight_mode_str[sizeof(_flight_mode_str)-1] = 0;
-// }
-// 
-// void AP_Task::send_text(const char *str)
-// {
-//     strncpy(_send_text, str, sizeof(_send_text));
-//     _send_text[sizeof(_send_text)-1] = 0;
-//     _send_text_updated_millis = AP_HAL::millis();
-// }

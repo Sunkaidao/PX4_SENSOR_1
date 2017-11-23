@@ -86,6 +86,17 @@ enum aux_sw_func {
     //baiyang added in 20170510
     AUXSW_DO_TAKEOFF		 =	83,  //Returns the alternate location specified height
 #endif
+#if ABMODE == ENABLED
+	//baiyang added in 20171030
+	AUXSW_RECORD_AB =			84,  //Record AB points
+	AUXSW_MODE_DIR_AB = 		85,  //Trigger AB mode and set AB direction
+	//added end
+	//baiyang added in 20171107
+	AUXSW_DIR_AB =				86,  //Set AB direction
+	AUXSW_SET_ABMODE =			87,  //Trigger AB mode
+	//added end
+#endif
+
     AUXSW_SWITCH_MAX,
 };
 
@@ -118,6 +129,7 @@ enum control_mode_t {
     THROW =        18,  // throw to launch mode using inertial/GPS system, no pilot input
     AVOID_ADSB =   19,  // automatic avoidance of obstacles in the macro scale - e.g. full-sized aircraft
     GUIDED_NOGPS = 20,  // guided mode but only accepts attitude and altitude
+    ABMODE_RF =    21,  // abmode 
 };
 
 enum mode_reason_t {
@@ -138,6 +150,7 @@ enum mode_reason_t {
     MODE_REASON_AVOIDANCE,
     MODE_REASON_AVOIDANCE_RECOVERY,
     MODE_REASON_THROW_COMPLETE,
+    MODE_REASON_ABMODE_FAILSAFE,
 };
 
 // Tuning enumeration

@@ -620,7 +620,61 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
             		task.get_chargingStation().do_takeoff();
             break;
         //added end
-    #endif			
+    #endif
+
+	#if ABMODE == ENABLED
+		case AUXSW_RECORD_AB:
+            switch (ch_flag) {
+	            case AUX_SWITCH_HIGH:
+	                task.get_abmode().abmode_set_pos_b();
+	                break;
+	            case AUX_SWITCH_LOW:
+	                task.get_abmode().abmode_set_pos_a();
+	                break;
+            }
+            break;
+	#endif
+	
+	#if ABMODE == ENABLED
+		case AUXSW_MODE_DIR_AB:
+            switch (ch_flag) {
+	            case AUX_SWITCH_HIGH:
+	                set_mode(ABMODE_RF, MODE_REASON_TX_COMMAND);
+	                break;
+	            case AUX_SWITCH_LOW:
+	                task.get_abmode().invert_direction(SEMIAUTO);
+	                break;
+	            }
+            break;
+	#endif
+	
+    #if ABMODE == ENABLED
+		case AUXSW_DIR_AB:
+            switch (ch_flag) {
+	            case AUX_SWITCH_HIGH:
+	                task.get_abmode().invert_direction(MANUAL,ISLIFT);
+	                break;
+	            case AUX_SWITCH_LOW:
+	                task.get_abmode().invert_direction(MANUAL,ISRIGHT);
+	                break;
+	            }
+            break;
+	#endif
+	#if ABMODE == ENABLED
+		case AUXSW_SET_ABMODE:
+            switch (ch_flag) {
+	            case AUX_SWITCH_HIGH:
+	                set_mode(ABMODE_RF, MODE_REASON_TX_COMMAND);
+					break;
+			    case AUX_SWITCH_MIDDLE:
+			    case AUX_SWITCH_LOW:
+					if (control_mode == ABMODE_RF) {
+                    	reset_control_switch();
+                	}
+	                break;
+	            }
+            break;
+	#endif
 
     }
 }

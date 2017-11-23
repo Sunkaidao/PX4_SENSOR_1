@@ -939,6 +939,14 @@ const AP_Param::Info Copter::var_info[] = {
       GOBJECTN(task.get_chargingStation(), chargingStation,"CHS_", AP_ChargingStation),
     #endif
     //added end
+
+	//baiyang added in 20171026
+    #if ABMODE == ENABLED
+    // @Group: ABMODE_
+    // @Path: ../libraries/AP_chargingStation/AP_chargingStation.cpp
+    GOBJECTN(task.get_abmode(), abmode,"ABMODE_", AP_ABMode),
+    #endif
+    //added end
     
     AP_VAREND
 };

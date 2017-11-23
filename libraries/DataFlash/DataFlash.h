@@ -111,6 +111,9 @@ public:
 
     void Log_Write_Parameter(const char *name, float value);
     void Log_Write_GPS(const AP_GPS &gps, uint8_t instance, uint64_t time_us=0);
+#if ABMODE == ENABLE
+	void Log_Write_Target_WP(const Location &target_loc,int32_t index,int8_t direction,float ab_yaw,const Location& home_loc);
+#endif
     void Log_Write_RFND(const RangeFinder &rangefinder);
     void Log_Write_IMU(const AP_InertialSensor &ins);
     void Log_Write_IMUDT(const AP_InertialSensor &ins, uint64_t time_us, uint8_t imu_mask);

@@ -19,6 +19,7 @@
 #include <GCS_MAVLink/GCS_MAVLink.h>
 #include "AP_ChargingStation.h"
 #include "TaskDevice.h"
+#include "AP_ABMode.h"
 
 
 class AP_Task
@@ -38,24 +39,10 @@ public:
 
     /// update - allow updates of leds that cannot be updated during a timed interrupt
     void update(void);
-    // 
-    // // handle a LED_CONTROL message
-    // static void handle_led_control(mavlink_message_t* msg);
-    // 
-    // // handle a PLAY_TUNE message
-    // static void handle_play_tune(mavlink_message_t* msg);
-    // 
-    // bool buzzer_enabled() const { return _buzzer_enable; }
-    // 
-    // // set flight mode string
-    // void set_flight_mode_str(const char *str);
-    // const char* get_flight_mode_str() const { return _flight_mode_str; }
-    // 
-    // // send text to display
-    // void send_text(const char *str);
-    // const char* get_text() const { return _send_text; }
 
     AP_ChargingStation &get_chargingStation() {return chargingStation;}
+	AP_ABMode &get_abmode() {return abmode;}
+	
     static const struct AP_Param::GroupInfo var_info[];
 
 private:
@@ -63,16 +50,7 @@ private:
     static AP_Task *_instance;
     
     AP_ChargingStation chargingStation;
-    // // parameters
-    // AP_Int8 _rgb_led_brightness;
-    // AP_Int8 _rgb_led_override;
-    // AP_Int8 _buzzer_enable;
-    // AP_Int8 _display_type;
-    // AP_Int8 _oreo_theme;
-    // 
-    // char _send_text[NOTIFY_TEXT_BUFFER_SIZE];
-    // uint32_t _send_text_updated_millis; // last time text changed
-    // char _flight_mode_str[5];
+	AP_ABMode abmode;
 
     static TaskDevice* _devices[];
 };

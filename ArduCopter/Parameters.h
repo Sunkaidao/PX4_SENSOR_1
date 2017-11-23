@@ -384,6 +384,12 @@ public:
        //added end
         #endif
 
+		#if ABMODE == ENABLED
+        //baiyang added in 20171026
+        k_param_abmode = 255,              //abmode
+        //added end
+        #endif
+		
         // the k_param_* space is 9-bits in size
         // 511: reserved
     };

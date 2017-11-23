@@ -170,9 +170,14 @@ public:
 #endif
 #if RF_FENCE == ENABLED
     //baiyang added in 20170717
-	  friend class AC_Fence;
-	  //added end
+	friend class AC_Fence;
+	//added end
 #endif 
+#if ABMODE == ENABLE
+	//baiyang added in 20171027
+	friend class AP_ABMode;
+	//added end
+#endif
 
     Copter(void);
 
@@ -854,6 +859,12 @@ private:
     void get_pilot_desired_angle_rates(int16_t roll_in, int16_t pitch_in, int16_t yaw_in, float &roll_out, float &pitch_out, float &yaw_out);
     bool althold_init(bool ignore_checks);
     void althold_run();
+	//baiyang added in 20171026
+#if ABMODE == ENABLED
+	bool abmode_init(bool ignore_checks);
+	void abmode_run();
+#endif
+	//added end
     bool auto_init(bool ignore_checks);
     void auto_run();
     void auto_takeoff_start(const Location& dest_loc);
@@ -1176,6 +1187,11 @@ private:
 
     Location_Class terrain_adjusted_location(const AP_Mission::Mission_Command& cmd) const;
 
+	//baiyang added in 20171027
+#if ABMODE == ENABLED
+	bool do_abmode(const AP_Mission::Mission_Command& cmd);
+#endif
+	//added end
     bool do_guided(const AP_Mission::Mission_Command& cmd);
     void do_takeoff(const AP_Mission::Mission_Command& cmd);
     void do_nav_wp(const AP_Mission::Mission_Command& cmd);

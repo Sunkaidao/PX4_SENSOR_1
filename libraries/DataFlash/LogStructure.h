@@ -611,6 +611,24 @@ struct PACKED log_RTBS {
 //added end
 #endif
 
+#if ABMODE == ENABLED
+//baiyang added in 20171102
+struct PACKED log_TWP {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    int32_t lat;
+	int32_t lng;
+	int32_t alt;
+	uint8_t alt_type;
+	int32_t idx;
+	int8_t  dir;
+	float yaw;
+	int32_t home_lat;
+	int32_t home_lng;
+};
+//added end
+#endif
+
 #if FXTX_AUTH == ENABLED
 //	added by ZhangYong 20170731
 struct PACKED log_Communication_drops {
@@ -941,6 +959,10 @@ struct PACKED log_Proximity {
 #define RTK_LABELS "TimeUS,HD,Rs"
 #define RTK_FMT   "Qfh"
 
+// see "struct log_TWP" and "Log_Write_TWP":
+#define TWP_LABELS "TimeUS,lat,lng,alt,a_type,index,dir,yaw,Hlat,Hlng"
+#define TWP_FMT   "QiiiBibfii"
+
 #define GYR_LABELS "TimeUS,SampleUS,GyrX,GyrY,GyrZ"
 #define GYR_FMT    "QQfff"
 
@@ -1002,6 +1024,8 @@ Format characters in the format string for binary log messages
       "RTK",  RTK_FMT, RTK_LABELS }, \
     { LOG_GPS2_HEADINGA_MSG, sizeof(log_GPS_HEADINGA), \
       "RTK2", RTK_FMT, RTK_LABELS }, \
+    { LOG_TWP_MSG, sizeof(log_TWP), \
+      "TWP",  TWP_FMT, TWP_LABELS }, \
     { LOG_GPSB_MSG, sizeof(log_GPS), \
       "GPSB", GPS_FMT, GPS_LABELS }, \
     { LOG_GPA_MSG,  sizeof(log_GPA), \
@@ -1367,6 +1391,11 @@ enum LogMessages {
 //baiyang added in 20170831
     LOG_CD_MSG,
 //added end
+
+//#if ABMODE == ENABLED
+	LOG_TWP_MSG,
+//#endif
+
 };
 
 enum LogOriginType {

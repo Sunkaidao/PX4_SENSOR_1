@@ -217,7 +217,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //  OPTICAL_FLOW & VISUAL ODOMETRY
 #ifndef OPTFLOW
- # define OPTFLOW       ENABLED
+ # define OPTFLOW       DISABLED
 #endif
 #ifndef VISUAL_ODOMETRY_ENABLED
 # define VISUAL_ODOMETRY_ENABLED ENABLED
@@ -226,7 +226,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //  Auto Tuning
 #ifndef AUTOTUNE_ENABLED
- # define AUTOTUNE_ENABLED  ENABLED
+ # define AUTOTUNE_ENABLED  DISABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -250,7 +250,7 @@
 //////////////////////////////////////////////////////////////////////////////
 // Parachute release
 #ifndef PARACHUTE
- # define PARACHUTE ENABLED
+ # define PARACHUTE DISABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -352,14 +352,14 @@
 // CAMERA TRIGGER AND CONTROL
 //
 #ifndef CAMERA
- # define CAMERA        ENABLED
+ # define CAMERA        DISABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
 // MOUNT (ANTENNA OR CAMERA)
 //
 #ifndef MOUNT
- # define MOUNT         ENABLED
+ # define MOUNT         DISABLED
 #endif
 
 
@@ -639,7 +639,7 @@
 
 //use this to completely disable FRSKY TELEM
 #ifndef FRSKY_TELEM_ENABLED
-  #  define FRSKY_TELEM_ENABLED          ENABLED
+  #  define FRSKY_TELEM_ENABLED          DISABLED
 #endif
 
 #ifndef ADVANCED_FAILSAFE
@@ -686,6 +686,14 @@
 //roflying fence
 #ifndef PTZ_CONTROL
 #  define PTZ_CONTROL	ENABLED
+#endif
+
+//baiyang added in 20170712
+///////////////////////////////////////////////////////////////////////////////
+//AB Mode
+//
+#ifndef ABMODE
+  #  define ABMODE	ENABLED
 #endif
 
 //	added by zhangYong 20161109 for auth
