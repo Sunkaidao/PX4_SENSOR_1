@@ -217,7 +217,7 @@ void AC_PrecLand::handle_msg(mavlink_message_t* msg)
 
 //
 // Private methods
-//
+////
 
 void AC_PrecLand::run_estimator(float rangefinder_alt_m, bool rangefinder_alt_valid)
 {

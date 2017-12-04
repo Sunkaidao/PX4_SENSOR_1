@@ -15,6 +15,22 @@ bool Copter::rtl_init(bool ignore_checks)
         wp_nav->wp_and_spline_init();
         rtl_build_path(!failsafe.terrain);
         rtl_climb_start();
+
+		//	added by ZhangYong 20161027 
+//	to end the payload operation
+#if SPRAYER == ENABLED
+	if(1 == sprayer.get_enabled())
+	{
+		if(1 == sprayer.get_running())
+			sprayer.run(false);
+
+		if(1 == sprayer.get_testing())
+			sprayer.test_pump(false);
+	}
+#endif
+//	added end
+
+		
         return true;
     }else{
         return false;

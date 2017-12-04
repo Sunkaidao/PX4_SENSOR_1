@@ -105,6 +105,26 @@
 #if SPRAYER == ENABLED
 #include <AC_Sprayer/AC_Sprayer.h>         // crop sprayer library
 #endif
+
+#if FLOWMETER == ENABLED
+#include <AP_Flowmeter/AP_Flowmeter.h> 
+#endif
+
+#if BCBMONITOR == ENABLED
+#include <AC_BCBMonitor/AC_BCBMonitor.h> 
+#endif
+
+#if BCBPMBUS == ENABLED
+#include <AC_BCBPMBus/AC_BCBPMBus.h> 
+#endif
+
+//	added end
+#if PJTPASSOSD == ENABLED
+#include <AP_PassOSD/AP_PassOSD.h>
+#endif
+//	added end
+
+
 #if GRIPPER_ENABLED == ENABLED
 #include <AP_Gripper/AP_Gripper.h>             // gripper stuff
 #endif
@@ -244,6 +264,11 @@ private:
 
     // GCS selection
     AP_SerialManager serial_manager;
+	//	added by ZhangYong 20170731 for flight time
+	uint32_t local_flight_time_sec = 0;
+	//	added end
+
+	
     static const uint8_t num_gcs = MAVLINK_COMM_NUM_BUFFERS;
 
     GCS_MAVLINK_Copter gcs_chan[MAVLINK_COMM_NUM_BUFFERS];
@@ -335,7 +360,13 @@ private:
         uint32_t last_heartbeat_ms;      // the time when the last HEARTBEAT message arrived from a GCS - used for triggering gcs failsafe
         uint32_t terrain_first_failure_ms;  // the first time terrain data access failed - used to calculate the duration of the failure
         uint32_t terrain_last_failure_ms;   // the most recent time terrain data access failed
-    } failsafe;
+
+		//	added by ZhangYong for GKXN flowmeter failsafe
+		uint8_t payload;
+		//	added end
+
+
+	} failsafe;
 
     // sensor health for logging
     struct {
@@ -522,6 +553,36 @@ private:
     // Used to exit the roll and pitch auto trim function
     uint8_t auto_trim_counter;
 
+
+	//	added end by ZhangYong 20161109
+#if FXTX_AUTH == ENABLED
+	struct current_gps_week_ms curr_gps_week_ms;
+
+	char 	auth_msg[100];
+
+	char auth_id[AUTH_ID_LEN];
+
+//	union auth_id_para id_para;
+
+	auth_state auth_state_ms = auth_state_failed;
+
+
+//	char test_reserved[50];
+
+#endif
+
+	//	added by ZhangYong 20170731
+	/*
+	edit_management.data.major_edition = 2;
+	edit_management.data.project_edition = 2;
+	edit_management.data.minor_edition = 3;
+	edit_management.data.revision_edition = 4;
+	edit_management.words = 0x403021
+	*/
+	Edition_management edit_management;
+	//	added end
+
+
     // Reference to the relay object
     AP_Relay relay;
 
@@ -559,6 +620,13 @@ private:
     AC_Sprayer sprayer;
 #endif
 
+	//	added by ZhangYong 
+#if PJTPASSOSD == ENABLED
+	AP_PassOSD passosd;
+#endif
+	//	added end
+
+
     // Parachute release
 #if PARACHUTE == ENABLED
     AP_Parachute parachute;
@@ -576,6 +644,8 @@ private:
 #if PRECISION_LANDING == ENABLED
     AC_PrecLand precland;
 #endif
+
+
 
     // Pilot Input Management Library
     // Only used for Helicopter for AC3.3, to be expanded to include Multirotor
@@ -598,8 +668,33 @@ private:
     // last valid RC input time
     uint32_t last_radio_update_ms;
 
+	//	added by ZhangYong 20171114
+	//	symbol for height replace in auto mode
+	uint8_t height_replace_switch;
+	//	height want to replace centimeter
+	int32_t height_replace_alt;
+	//	added end
+
+#if PROJECTGKXN == ENABLED
+	//	added by ZhangYong 20170407
+	
+	AP_Flowmeter flowmeter;
+	//	added end
+#endif
+
+#if BCBMONITOR == ENABLED
+	AC_BCBMonitor bcbmonitor;
+#endif
+
+	
+
     // last esc calibration notification update
     uint32_t esc_calibration_notify_update_ms;
+
+	//	added by ZhangYong 20170915
+//	uint32_t duration_cnt;
+	//	added end
+
 
 #if VISUAL_ODOMETRY_ENABLED == ENABLED
     // last visual odometry update time
@@ -640,6 +735,14 @@ private:
     static const AP_Param::Info var_info[];
     static const struct LogStructure log_structure[];
 
+	//	added by ZhangYong 20171101
+	//	in order to save time when transmit mission_item in common mission plan
+	//	in order to not block the telemetry data when ABMission plan
+	//	0: common mission plan
+	//	1: ABMission plan
+	bool ABMission_switch;
+	//	added end
+
     void compass_accumulate(void);
     void compass_cal_update(void);
     void barometer_accumulate(void);
@@ -666,6 +769,10 @@ private:
     void set_auto_armed(bool b);
     void set_simple_mode(uint8_t b);
     void set_failsafe_radio(bool b);
+	//	added by ZhangYong 20170719 for payload failsafe
+	void set_failsafe_payload(FAILSAFE_PLD_TYPE failsafe_pyaload_type, bool b);
+  	bool get_failsafe_payload(FAILSAFE_PLD_TYPE failsafe_pyaload_type);
+	//	added end
     void set_failsafe_battery(bool b);
     void set_failsafe_gcs(bool b);
     void set_land_complete(bool b);
@@ -699,10 +806,16 @@ private:
     void send_nav_controller_output(mavlink_channel_t chan);
     void send_simstate(mavlink_channel_t chan);
     void send_hwstatus(mavlink_channel_t chan);
+
+	
+
+	
     void send_vfr_hud(mavlink_channel_t chan);
     void send_current_waypoint(mavlink_channel_t chan);
     void send_proximity(mavlink_channel_t chan, uint16_t count_max);
     void send_rpm(mavlink_channel_t chan);
+
+
     void rpm_update();
     void button_update();
     void init_proximity();
@@ -710,6 +823,12 @@ private:
     void stats_update();
     void init_beacon();
     void update_beacon();
+//	added by ZhangYong
+#if BCBPMBUS == ENABLE
+	void init_bcbpmbus();
+	void update_bcbpmbus();
+#endif	
+//	added end
     void init_visual_odom();
     void update_visual_odom();
     void send_pid_tuning(mavlink_channel_t chan);
@@ -721,6 +840,9 @@ private:
     void do_erase_logs(void);
     void Log_Write_AutoTune(uint8_t axis, uint8_t tune_step, float meas_target, float meas_min, float meas_max, float new_gain_rp, float new_gain_rd, float new_gain_sp, float new_ddt);
     void Log_Write_AutoTuneDetails(float angle_cd, float rate_cds);
+	//	added by ZhangYong 20170405
+	void Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_dist, uint8_t para_fm_warn, uint8_t para_pk_cnt);
+	//	added end
     void Log_Write_Current();
     void Log_Write_Optflow();
     void Log_Write_Nav_Tuning();
@@ -748,6 +870,14 @@ private:
     void Log_Write_Throw(ThrowModeStage stage, float velocity, float velocity_z, float accel, float ef_accel_z, bool throw_detect, bool attitude_ok, bool height_ok, bool position_ok);
     void Log_Write_Proximity();
     void Log_Write_Beacon();
+
+//	added by ZhangYong
+#if BCBPMBUS == ENABLED
+	void Log_Write_BCBPMBus(uint8_t msg_type);
+	void Log_Write_BCBPMBus_Components();
+#endif
+//	added end
+	
     void Log_Write_Vehicle_Startup_Messages();
     void Log_Read(uint16_t log_num, uint16_t start_page, uint16_t end_page);
     void start_logging() ;
@@ -963,6 +1093,10 @@ private:
     void failsafe_radio_on_event();
     void failsafe_radio_off_event();
     void failsafe_battery_event(void);
+	//	added by ZhangYong 20170406
+	void failsafe_payload_on_event(void);
+	void failsafe_payload_off_event(void);
+	//	added end
     void failsafe_gcs_check();
     void failsafe_gcs_off_event(void);
     void failsafe_terrain_check();
@@ -1138,6 +1272,12 @@ private:
 #if GRIPPER_ENABLED == ENABLED
     void do_gripper(const AP_Mission::Mission_Command& cmd);
 #endif
+	//	added by ZhangYong 20151008
+#if SPRAYER == ENABLED
+	void do_sprayer(const AP_Mission::Mission_Command& cmd);
+#endif
+		//	added end
+
     bool verify_nav_wp(const AP_Mission::Mission_Command& cmd);
     bool verify_circle(const AP_Mission::Mission_Command& cmd);
     bool verify_spline_wp(const AP_Mission::Mission_Command& cmd);

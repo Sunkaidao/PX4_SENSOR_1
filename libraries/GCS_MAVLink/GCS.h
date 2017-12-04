@@ -22,6 +22,12 @@
 #define CHECK_PAYLOAD_SIZE(id) if (comm_get_txspace(chan) < packet_overhead()+MAVLINK_MSG_ID_ ## id ## _LEN) return false
 #define CHECK_PAYLOAD_SIZE2(id) if (!HAVE_PAYLOAD_SPACE(chan, id)) return false
 
+
+//	added by ZhangYong for accuray int gps location improvement
+
+//	added end
+
+
 //  GCS Message ID's
 /// NOTE: to ensure we never block on sending MAVLink messages
 /// please keep each MSG_ to a single MAVLink message. If need be
@@ -73,6 +79,11 @@ enum ap_message {
     MSG_BATTERY_STATUS,
     MSG_AOA_SSA,
     MSG_LANDING,
+//#if PROJECTGKXN == ENABLED
+	MSG_PLD_STATUS,
+	MSG_FLIGHT_TIME,
+//#endif
+
     MSG_RETRY_DEFERRED // this must be last
 };
 
@@ -91,8 +102,18 @@ public:
     void        send_message(enum ap_message id);
     void        send_text(MAV_SEVERITY severity, const char *str);
     virtual void        data_stream_send(void) = 0;
-    void        queued_param_send();
+	//	modified by ZhangYong 20171117
+    //	void        queued_param_send();
+	//	modified end
+	void        queued_param_send(bool armed);
     void        queued_waypoint_send();
+	//	added by ZhangYong for request item int
+	void 		queued_waypoint_int_send();
+	//	added end
+
+	void 		set_mission_item_int(bool para_item_int) {_mission_item_int = para_item_int; }
+	bool 		get_mission_item_int()	{return _mission_item_int; }
+	
     void        set_snoop(void (*_msg_snoop)(const mavlink_message_t* msg)) {
         msg_snoop = _msg_snoop;
     }
@@ -156,8 +177,14 @@ public:
     void send_ahrs2(AP_AHRS &ahrs);
     bool send_gps_raw(AP_GPS &gps);
     void send_system_time(AP_GPS &gps);
-    void send_radio_in(uint8_t receiver_rssi);
-    void send_raw_imu(const AP_InertialSensor &ins, const Compass &compass);
+	//	modified by ZhangYong
+#if BCBPMBUS == DISABLED	
+   	void send_radio_in(uint8_t receiver_rssi);
+	//	modified end
+#else
+	void send_radio_in(uint8_t receiver_rssi, uint16_t temp0, uint16_t temp1, uint16_t temp2);
+#endif
+	void send_raw_imu(const AP_InertialSensor &ins, const Compass &compass);
     void send_scaled_pressure(AP_Baro &barometer);
     void send_sensor_offsets(const AP_InertialSensor &ins, const Compass &compass, AP_Baro &barometer);
     void send_ahrs(AP_AHRS &ahrs);
@@ -174,6 +201,19 @@ public:
     void send_servo_output_raw(bool hil);
     static void send_collision_all(const AP_Avoidance::Obstacle &threat, MAV_COLLISION_ACTION behaviour);
     void send_accelcal_vehicle_position(uint32_t position);
+
+//	added by ZhangYong 20170406
+#if PROJECTGKXN == ENABLED
+	void send_payload_status(AC_Sprayer *sprayer, AP_Flowmeter *flowmeter) ;
+#endif
+	
+//#if PROJECTGKXN == ENABLED
+	void send_flight_time_thismav(int16_t para_flight_time_hour, \
+														int16_t para_flight_time_sec, \
+														uint32_t local_flight_time_sec);
+	
+//#endif
+	//	added end	
 
     // return a bitmap of active channels. Used by libraries to loop
     // over active channels to send to all active channels    
@@ -272,6 +312,12 @@ protected:
     void handle_device_op_write(mavlink_message_t *msg);
 
     void handle_timesync(mavlink_message_t *msg);
+
+#if PROJECTGKXN == ENABLED
+		//	added by zhangYong 20170725
+	void handle_communication_drops(mavlink_message_t *msg, int32_t para_home_dist, DataFlash_Class &dataflash, bool log_cd);
+	//	added end
+#endif
     
 private:
 
@@ -295,6 +341,7 @@ private:
                                                          // queued send
     uint32_t                    _queued_parameter_send_time_ms;
 
+	bool 						_mission_item_int;
     /// Count the number of reportable parameters.
     ///
     /// Not all parameters can be reported via MAVlink.  We count the number
@@ -317,6 +364,7 @@ private:
     uint32_t        waypoint_timelast_receive; // milliseconds
     uint32_t        waypoint_timelast_request; // milliseconds
     const uint16_t  waypoint_receive_timeout = 8000; // milliseconds
+
 
     // number of 50Hz ticks until we next send this stream
     uint8_t         stream_ticks[NUM_STREAMS];

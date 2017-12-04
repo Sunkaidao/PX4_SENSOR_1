@@ -29,6 +29,7 @@ void AC_AttitudeControl::control_monitor_update(void)
     control_monitor_filter_pid(iroll.D,             _control_monitor.rms_roll_D);
 
     const DataFlash_Class::PID_Info &ipitch = get_rate_pitch_pid().get_pid_info();
+	//	maybe this is a bug, marked by ZhangYong 20170703
     control_monitor_filter_pid(ipitch.P + iroll.FF,  _control_monitor.rms_pitch_P);
     control_monitor_filter_pid(ipitch.D,             _control_monitor.rms_pitch_D);
 

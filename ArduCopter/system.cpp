@@ -1,6 +1,10 @@
 #include "Copter.h"
 #include "version.h"
 
+//	added by ZhangYong 20170705
+#include <stdio.h>
+//	added end
+
 /*****************************************************************************
 *   The init_ardupilot function processes everything we need for an in - air restart
 *        We will determine later if we are actually on the ground and process a
@@ -137,8 +141,9 @@ void Copter::init_ardupilot()
     notify.init(true);
     notify_flight_mode(control_mode);
 
-    // initialise battery monitor
-    battery.init();
+    // initialise battery monitor 
+    //	remove later for debug purpose
+	//    battery.init();
 
     // Init RSSI
     rssi.init();
@@ -150,10 +155,17 @@ void Copter::init_ardupilot()
     ap.usb_connected = true;
     check_usb_mux();
 
+	
+
     // setup telem slots with serial ports
     for (uint8_t i = 1; i < MAVLINK_COMM_NUM_BUFFERS; i++) {
         gcs_chan[i].setup_uart(serial_manager, AP_SerialManager::SerialProtocol_MAVLink, i);
+		//	added by zhangYong 20171124
+		//printf("gcs_chan[%d] txspace %d\n", i, gcs_chan[i].get_uart()->txspace());
+		//	added end
     }
+
+	//printf("gcs_chan[%d] txspace %d\n", 0, gcs_chan[0].get_uart()->txspace());
 
 #if FRSKY_TELEM_ENABLED == ENABLED
     // setup frsky, and pass a number of parameters to the library
@@ -230,10 +242,37 @@ void Copter::init_ardupilot()
     // init the optical flow sensor
     init_optflow();
 
+	//	added by ZhangYong 20170809
+    // initialise battery monitor
+    battery.init();
+	//	added end
+
 #if MOUNT == ENABLED
     // initialise camera mount
     camera_mount.init(&DataFlash, serial_manager);
 #endif
+
+//	added by ZhangYong
+	//	get board id
+#if FXTX_AUTH == 1
+	memset(auth_msg, 0, 50);
+	memset(auth_id, 0, AUTH_ID_LEN);
+
+	memset(&curr_gps_week_ms, 0, sizeof(struct current_gps_week_ms));
+//	memset(&id_para, 0, sizeof(union auth_id_para));
+
+	
+	(void)hal.util->get_system_id(auth_id);
+
+	sprintf(auth_msg, "0123456789%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n",	\
+		     (unsigned)auth_id[0], (unsigned)auth_id[1], (unsigned)auth_id[2], (unsigned)auth_id[3], (unsigned)auth_id[4], (unsigned)auth_id[5],	\
+		     (unsigned)auth_id[6], (unsigned)auth_id[7], (unsigned)auth_id[8], (unsigned)auth_id[9], (unsigned)auth_id[10], (unsigned)auth_id[11]);
+	
+
+#endif	
+	
+    //	added end 
+
 
 #if PRECISION_LANDING == ENABLED
     // initialise precision landing
@@ -326,6 +365,121 @@ void Copter::init_ardupilot()
     // disable safety if requested
     BoardConfig.init_safety();
 
+#if FXTX_AUTH == 0
+	printf("License Disabled\n");
+	//	added by ZhangYong 20170705 for item_int
+	gcs_chan[0].set_mission_item_int(false);
+	gcs_chan[1].set_mission_item_int(false);
+#if MAVLINK_COMM_NUM_BUFFERS > 2
+	gcs_chan[2].set_mission_item_int(false);
+#endif
+	//	added end
+
+#elif FXTX_AUTH == 1
+	printf("License Enabled\n");	
+	
+	//	added by ZhangYong 20170705 for item_int
+	gcs_chan[0].set_mission_item_int(true);
+	gcs_chan[1].set_mission_item_int(true);
+#if MAVLINK_COMM_NUM_BUFFERS > 2
+	gcs_chan[2].set_mission_item_int(true);
+#endif
+	//	added end
+
+#endif
+
+	//	added by ZhangYong 20170712
+#if PJTPASSOSD == ENABLED
+	if(nullptr != (serial_manager.find_serial(AP_SerialManager::SerialProtocol_PassOSD, 0)))
+	{
+		passosd.init(serial_manager);
+	}
+	else
+	{
+		
+	}
+#endif
+
+#if PROJECTGKXN == ENABLED
+	if(nullptr != (serial_manager.find_serial(AP_SerialManager::SerialProtocol_FlowMeter_GKXN,0)))
+	{
+		flowmeter.init(serial_manager);
+	}
+
+	//height_replace = 0;
+	
+#endif
+
+#if BCBMONITOR == ENABLED
+
+	if(nullptr != (serial_manager.find_serial(AP_SerialManager::SerialProtocol_BCBMonitor,0)))
+	{
+		bcbmonitor.init(serial_manager);
+	}
+	
+#endif
+
+#if BCBPMBUS == ENABLED
+	printf("PROJECTBCB\n");
+	printf("PMBUS\n");
+	
+	if(nullptr !=  serial_manager.find_serial(AP_SerialManager::SerialProtocol_BCBPMBus,0))
+	{
+		init_bcbpmbus();
+	}
+#endif
+
+#if PJTPASSOSD == ENABLED
+	printf("PJTPASSOSD\n");
+#endif
+
+
+
+#if PROJECTGKXN == ENABLED
+	printf("PROJECTGKXN\n");
+#endif
+
+
+	//	added ebd
+
+	//	added by ZhangYong 20170705
+	printf("Mavlink capabilities %x\n", hal.util->get_capabilities());
+	//	added end
+
+	edit_management.words = g.edition_management;
+
+	if(edit_management.data.major_edition != 2)
+	{
+		edit_management.data.major_edition = 2;
+	}
+
+#if PROJECTGKXN == ENABLED
+	if(edit_management.data.project_edition != 1)
+	{
+		edit_management.data.project_edition = 1;
+	}
+#endif	
+
+	//	improve the minor edition from 2 to 3
+	//	failsafe rc gcs
+	if(edit_management.data.minor_edition <= 2)
+	{	
+		edit_management.data.minor_edition = 3;
+	}
+
+	g.edition_management.set_and_save(edit_management.words);
+
+	printf("major_edition = 0x%x\n", edit_management.data.major_edition);
+	printf("project_edition = 0x%x\n", edit_management.data.project_edition);
+	printf("minor_edition = 0x%x\n", edit_management.data.minor_edition);
+	printf("revision_edition = 0x%x\n", edit_management.data.revision_edition);
+
+
+
+
+//	duration_cnt = 0;
+
+	
     cliSerial->printf("\nReady to FLY ");
 
     // flag that initialisation has completed

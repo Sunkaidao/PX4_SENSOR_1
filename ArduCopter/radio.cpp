@@ -88,6 +88,9 @@ void Copter::read_radio()
     uint32_t tnow_ms = millis();
 
     if (hal.rcin->new_input()) {
+	//	printf("read_radio A\n");
+
+	
         ap.new_radio_frame = true;
         RC_Channels::set_pwm_all();
 
@@ -105,7 +108,10 @@ void Copter::read_radio()
         float dt = (tnow_ms - last_radio_update_ms)*1.0e-3f;
         rc_throttle_control_in_filter.apply(channel_throttle->get_control_in(), dt);
         last_radio_update_ms = tnow_ms;
-    }else{
+    }
+	else
+	{
+	//	printf("read_radio B\n");
         uint32_t elapsed = tnow_ms - last_radio_update_ms;
         // turn on throttle failsafe if no update from the RC Radio for 500ms or 2000ms if we are using RC_OVERRIDE
         if (((!failsafe.rc_override_active && (elapsed >= FS_RADIO_TIMEOUT_MS)) || (failsafe.rc_override_active && (elapsed >= FS_RADIO_RC_OVERRIDE_TIMEOUT_MS))) &&

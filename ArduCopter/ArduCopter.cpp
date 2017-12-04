@@ -363,15 +363,20 @@ void Copter::update_batt_compass(void)
             DataFlash.Log_Write_Compass(compass);
         }
     }
+
+
 }
 
 // Full rate logging of attitude, rate and pid loops
 // should be run at 400hz
 void Copter::fourhundred_hz_logging()
 {
-    if (should_log(MASK_LOG_ATTITUDE_FAST)) {
-        Log_Write_Attitude();
-    }
+//	modifified by ZhangYong to store data as less as possible
+//	if (should_log(MASK_LOG_ATTITUDE_FAST)) {
+//        Log_Write_Attitude();
+//    }
+//	modifified end
+    
 }
 
 // ten_hz_logging_loop
@@ -391,6 +396,12 @@ void Copter::ten_hz_logging_loop()
         if (rssi.enabled()) {
             DataFlash.Log_Write_RSSI(rssi);
         }
+
+		//	added by ZhangYong for land detector log 20170703
+//		land_dt_log.override = hal.rcin->get_override_valid();
+//		land_dt_log.active =  failsafe.rc_override_active;
+//		DataFlash.Log_Write_LD(&land_dt_log);
+		//	added end
     }
     if (should_log(MASK_LOG_RCOUT)) {
         DataFlash.Log_Write_RCOUT();
@@ -402,13 +413,37 @@ void Copter::ten_hz_logging_loop()
         DataFlash.Log_Write_Vibration(ins);
     }
     if (should_log(MASK_LOG_CTUN)) {
-        attitude_control->control_monitor_log();
+		//	modified by ZhangYong 20170515
+//        attitude_control->control_monitor_log();
+		//	modified end
         Log_Write_Proximity();
         Log_Write_Beacon();
     }
 #if FRAME_CONFIG == HELI_FRAME
     Log_Write_Heli();
 #endif
+
+
+#if BCBMONITOR == ENABLED
+	if(nullptr != (serial_manager.find_serial(AP_SerialManager::SerialProtocol_BCBMonitor,0)))
+	{
+		printf("%8d, A:%3d, B:%3d, B1V:%4.1f, C:%4.1f, P:%6.1f, B2V:%4.1f, C:%4.1f, P:%6.1f\n", \
+																				(AP_HAL::millis()), \
+																				(bcbmonitor.voltageA() / 100), \
+																				(bcbmonitor.voltageB() / 100), \
+																				battery.voltage(), \
+																				battery.current_amps(), \
+																				(battery.voltage() * battery.current_amps()), \
+																				battery.voltage(1), \
+																				battery.current_amps(1), \
+																				(battery.voltage(1) * battery.current_amps(1)));
+	}	
+#endif
+
+//	added by ZhangYong 20170809
+//	printf("%d: %4.2f\n", battery.num_instances(), battery.voltage(1));
+//	added end
+
 }
 
 // twentyfive_hz_logging - should be run at 25hz
@@ -420,10 +455,16 @@ void Copter::twentyfive_hz_logging()
 #endif
 
 #if HIL_MODE == HIL_MODE_DISABLED
-    if (should_log(MASK_LOG_ATTITUDE_FAST)) {
-        Log_Write_EKF_POS();
-    }
+	//	modified by ZhangYong 20170915
+	//if (should_log(MASK_LOG_ATTITUDE_FAST)) {
+    //    Log_Write_EKF_POS();
+    //}
 
+    // log IMU data if we're not already logging at the higher rate
+    //if (should_log(MASK_LOG_IMU) && !should_log(MASK_LOG_IMU_RAW)) {
+    //    DataFlash.Log_Write_IMU(ins);
+    //}
+	//	modified end
     // log IMU data if we're not already logging at the higher rate
     if (should_log(MASK_LOG_IMU) && !should_log(MASK_LOG_IMU_RAW)) {
         DataFlash.Log_Write_IMU(ins);
@@ -456,14 +497,99 @@ void Copter::three_hz_loop()
 #endif // AC_FENCE_ENABLED
 
 #if SPRAYER == ENABLED
-    sprayer.update();
+
+	//	update vpvs timely
+	//	added by ZhangYong 20171011
+	if(sprayer.get_enabled())
+	{
+		if(sprayer.get_running())
+		{
+			if(1 == sprayer.get_vpvs_enable())
+			{
+				sprayer.test_pump(!motors->armed());
+			}
+			else
+			{
+				sprayer.test_pump(true);
+			}
+		}
+	}
+	//	added end
+
+
+
+    sprayer.update(control_mode, wp_distance);
+
+
+#if PROJECTGKXN == ENABLED 
+	Log_Write_Sprayer(sprayer, wp_distance, flowmeter.get_warning(), flowmeter.get_packet_cnt());
+#else
+	Log_Write_Sprayer(sprayer, wp_distance, 1, 0);
 #endif
+#endif
+
+
 
     update_events();
 
+	//	//	shielded by ZhangYong to meet 20170627 20170705
     // update ch6 in flight tuning
-    tuning();
+    //	tuning();
+    //	shielded end
+
+#if PROJECTGKXN == ENABLED
+	flowmeter.update(serial_manager);
+
+
+	/*	to do zhangyong 20160920
+	//	printf("%d, %d, %d, %d\n", !ap.usb_connected, \
+	//								failsafe.payload, \
+	//								flowmeter.exhausted(), \
+	//								motors.armed());
+	*/
+	//	to set payload failsafe true
+	if(\
+		(!ap.usb_connected) && \
+		(0 == get_failsafe_payload(FAILSAFE_PLD_TYPE_FM)) && \
+		flowmeter.exhausted() && \
+		motors->armed()\
+		)
+	{
+		//printf("here!\n");
+		set_failsafe_payload(FAILSAFE_PLD_TYPE_FM, true);
+	//		sprayer.enable(false);
+
+		sprayer.run(false);
+		sprayer.test_pump(false);
+
+	}
+
+	if(\
+		(!ap.usb_connected) && \
+		(0 == motors->armed()) && \
+		(1 == get_failsafe_payload(FAILSAFE_PLD_TYPE_FM))\
+	)
+	{
+		set_failsafe_payload(FAILSAFE_PLD_TYPE_FM, false);
+	
+	}
+
+	
+#endif	
+
+#if BCBMONITOR == ENABLE
+	bcbmonitor.read();
+#endif
+
+#if BCBPMBUS == ENABLE
+	update_bcbpmbus();
+
+	
+#endif
+	
 }
+
+
 
 // one_hz_loop - runs at 1Hz
 void Copter::one_hz_loop()
@@ -507,6 +633,72 @@ void Copter::one_hz_loop()
     // indicates that the sensor or subsystem is present but not
     // functioning correctly
     update_sensor_status_flags();
+
+		//		added by ZhangYong 20161110
+#if FXTX_AUTH == ENABLED
+	if(gps.status() >=	AP_GPS::GPS_OK_FIX_3D)
+	{
+		//	added for debug 20161110
+		
+		//	added end
+		curr_gps_week_ms.time_week = gps.time_week();
+		curr_gps_week_ms.time_week_ms = gps.time_week_ms();
+	}	
+
+//	printf("A. %d, %d, %d, &%d\n", gps.status(), curr_gps_week_ms.time_week, gps.time_week_ms(), &curr_gps_week_ms);
+#endif
+
+#if PROJECTGKXN == ENABLED
+	if(motors->armed())
+	{
+		local_flight_time_sec++;
+		
+	}//	added end
+#endif
+
+
+//		added by ZhangYong
+#if PJTPASSOSD == ENABLED
+	
+	PassOSD_data_status lcl_data, *lcl_data_ptr;
+	lcl_data_ptr = &lcl_data;
+
+	//	fill the contend of data
+	lcl_data_ptr->data.voltage_battery = battery.voltage();
+	lcl_data_ptr->data.current_total_mah = battery.current_total_mah();
+	lcl_data_ptr->data.fix_type = gps.status();
+	lcl_data_ptr->data.num_sats = gps.num_sats();
+	lcl_data_ptr->data.control_mode = control_mode;
+	lcl_data_ptr->data.velocity = inertial_nav.get_velocity_xy();
+	lcl_data_ptr->data.climbrate = inertial_nav.get_velocity_z();
+	lcl_data_ptr->data.altitude = inertial_nav.get_altitude();
+	lcl_data_ptr->data.flight_time_sec = 0x09;
+	lcl_data_ptr->data.yaw = ahrs.yaw;
+	
+/*	lcl_data_ptr->data.voltage_battery = 1;
+	lcl_data_ptr->data.current_total_mah = 2;
+	lcl_data_ptr->data.fix_type = 3;
+	lcl_data_ptr->data.num_sats = 4;
+	lcl_data_ptr->data.control_mode = 5;
+	lcl_data_ptr->data.velocity = 6;
+	lcl_data_ptr->data.climbrate = 7;
+	lcl_data_ptr->data.altitude = 8;
+	lcl_data_ptr->data.flight_time_sec = 9;
+	lcl_data_ptr->data.yaw = 10;
+*/	
+
+
+	passosd.send_message(lcl_data_ptr);
+#endif
+//		added end
+
+	//	added by ZhangYong 20170915 for duration test
+//	printf("%d\n", duration_cnt++);
+
+	//	added by ZhangYong 20171013 debug
+	//printf("one_hz_loop %d %4.2f\n", channel_throttle->get_control_in(), motors->get_spin_arm());
+	//	added end
+
 }
 
 // called at 50hz

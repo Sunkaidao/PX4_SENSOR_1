@@ -16,6 +16,16 @@ const AP_Param::GroupInfo AC_PosControl::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("_ACC_XY_FILT", 1, AC_PosControl, _accel_xy_filt_hz, POSCONTROL_ACCEL_FILTER_HZ),
 
+	//	added by ZhangYong for micro adjustment
+
+	// @Param: THR_HOVER
+    // @DisplayName: Throttle Hover
+    // @Description: The autopilot's estimate of the throttle required to maintain a level hover.  Calculated automatically from the pilot's throttle input while in stabilize mode
+    // @Range: 0 1000
+    // @Units: Percent*10
+    // @User: Advanced
+    AP_GROUPINFO("_TAP",       2, AC_PosControl, _thr_accel_p, 0.75),
+
     AP_GROUPEND
 };
 
@@ -473,6 +483,11 @@ void AC_PosControl::accel_to_throttle(float accel_target_z)
     // set input to PID
     _pid_accel_z.set_input_filter_all(_accel_error.z);
     _pid_accel_z.set_desired_rate(accel_target_z);
+
+	//	added by ZhangYong for PID debug
+	_pid_accel_z.set_actual_rate(z_accel_meas);
+	_pid_accel_z.set_error_rate(_accel_error.z);
+	//	added end
 
     // separately calculate p, i, d values for logging
     p = _pid_accel_z.get_p();

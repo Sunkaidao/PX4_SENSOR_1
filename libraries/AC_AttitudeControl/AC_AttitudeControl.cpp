@@ -92,6 +92,24 @@ const AP_Param::GroupInfo AC_AttitudeControl::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("ANG_LIM_TC", 16, AC_AttitudeControl, _angle_limit_tc, AC_ATTITUDE_CONTROL_ANGLE_LIMIT_TC_DEFAULT),
 
+	//	added by ZhangYong for paramenter minor adjustment
+	
+	// @Param: RATE_FF_ENAB
+	// @DisplayName: Rate Feedforward Enable
+	// @Description: Controls whether body-frame rate feedfoward is enabled or disabled
+	// @Values: 0:Disabled, 1:Enabled
+	// @User: Advanced
+	AP_GROUPINFO("STB_PIT_P", 17, AC_AttitudeControl, _stb_pit_p, 4.5),
+
+	// @Param: RATE_FF_ENAB
+	// @DisplayName: Rate Feedforward Enable
+	// @Description: Controls whether body-frame rate feedfoward is enabled or disabled
+	// @Values: 0:Disabled, 1:Enabled
+	// @User: Advanced
+	AP_GROUPINFO("STB_RLL_P", 18, AC_AttitudeControl, _stb_rll_p, 4.5),
+	//	added end
+	
+
     AP_GROUPEND
 };
 
@@ -624,6 +642,11 @@ float AC_AttitudeControl::rate_target_to_motor_roll(float rate_actual_rads, floa
     get_rate_roll_pid().set_input_filter_d(rate_error_rads);
     get_rate_roll_pid().set_desired_rate(rate_target_rads);
 
+	//	added by ZhangYong 20170313 for tunning
+	get_rate_roll_pid().set_actual_rate(rate_actual_rads);
+	get_rate_roll_pid().set_error_rate(rate_error_rads);
+	//	added end
+
     float integrator = get_rate_roll_pid().get_integrator();
 
     // Ensure that integrator can only be reduced if the output is saturated
@@ -647,6 +670,11 @@ float AC_AttitudeControl::rate_target_to_motor_pitch(float rate_actual_rads, flo
     get_rate_pitch_pid().set_input_filter_d(rate_error_rads);
     get_rate_pitch_pid().set_desired_rate(rate_target_rads);
 
+	//	added by ZhangYong 20170313
+	get_rate_pitch_pid().set_actual_rate(rate_actual_rads);
+	get_rate_pitch_pid().set_error_rate(rate_error_rads);
+	//	added end
+
     float integrator = get_rate_pitch_pid().get_integrator();
 
     // Ensure that integrator can only be reduced if the output is saturated
@@ -669,6 +697,11 @@ float AC_AttitudeControl::rate_target_to_motor_yaw(float rate_actual_rads, float
     // pass error to PID controller
     get_rate_yaw_pid().set_input_filter_all(rate_error_rads);
     get_rate_yaw_pid().set_desired_rate(rate_target_rads);
+
+	//	added by ZhangYong 20170313 for tunning
+	get_rate_yaw_pid().set_actual_rate(rate_actual_rads);
+	get_rate_yaw_pid().set_error_rate(rate_error_rads);
+	//	added end
 
     float integrator = get_rate_yaw_pid().get_integrator();
 

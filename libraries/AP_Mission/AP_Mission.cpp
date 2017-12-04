@@ -526,6 +526,9 @@ MAV_MISSION_RESULT AP_Mission::mavlink_int_to_mission_cmd(const mavlink_mission_
     switch (cmd.id) {
 
     case 0:
+		//	added by Zhang Yong for mavlink debug 20170707	
+		//printf("MAV_MISSION_INVALID\n");
+		//	added end
         // this is reserved for storing 16 bit command IDs
         return MAV_MISSION_INVALID;
         
@@ -779,7 +782,19 @@ MAV_MISSION_RESULT AP_Mission::mavlink_int_to_mission_cmd(const mavlink_mission_
         copy_location = true;
         break;
 
+	//	added by ZhangYong 20170717
+#if SPRAYER == ENABLED	
+	case MAV_CMD_DO_SPRAYER:
+		cmd.p1 = packet.param1; 
+		break;
+	//	added end
+#endif
+
     default:
+		//	added by ZhangYong for denbug purpose 20170706
+		//printf("MAV_MISSION_UNSUPPORTED\n");
+		//	added end
+		
         // unrecognised command
         return MAV_MISSION_UNSUPPORTED;
     }
@@ -799,6 +814,10 @@ MAV_MISSION_RESULT AP_Mission::mavlink_int_to_mission_cmd(const mavlink_mission_
         if (fabsf(packet.z) >= LOCATION_ALT_MAX_M) {
             return MAV_MISSION_INVALID_PARAM7;
         }
+
+		//	added by ZhangYong for denbug purpose 20170706
+		//printf("copy_location %d packet.frame %d\n", copy_location, packet.frame);
+		//	added end
 
         switch (packet.frame) {
 
@@ -1228,6 +1247,15 @@ bool AP_Mission::mission_cmd_to_mavlink_int(const AP_Mission::Mission_Command& c
         copy_location = true;
         packet.param1 = cmd.p1/100.0f; // copy max-descend parameter (m->cm)
         break;
+
+	//	added by ZhangYong
+#if SPRAYER == ENABLED
+	case MAV_CMD_DO_SPRAYER:
+		packet.param1 = cmd.p1;
+		break;
+
+#endif	
+	//	added end
 
     default:
         // unrecognised command

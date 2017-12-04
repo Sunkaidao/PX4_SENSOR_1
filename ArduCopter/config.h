@@ -84,6 +84,12 @@
 // Rangefinder
 //
 
+//	modified by ZhangYong 20170915
+//#ifndef RANGEFINDER_ENABLED
+// # define RANGEFINDER_ENABLED 
+//#endif
+//	modified end
+
 #ifndef RANGEFINDER_ENABLED
  # define RANGEFINDER_ENABLED ENABLED
 #endif
@@ -123,6 +129,13 @@
 //////////////////////////////////////////////////////////////////////////////
 // Proximity sensor
 //
+//	modified by ZhangYong 20170915
+//#ifndef PROXIMITY_ENABLED
+// # define PROXIMITY_ENABLED ENABLED
+//#endif
+
+//	modified end
+
 #ifndef PROXIMITY_ENABLED
  # define PROXIMITY_ENABLED ENABLED
 #endif
@@ -158,7 +171,7 @@
 
 // GCS failsafe
 #ifndef FS_GCS
- # define FS_GCS                        DISABLED
+ # define FS_GCS                        ENABLED
 #endif
 #ifndef FS_GCS_TIMEOUT_MS
  # define FS_GCS_TIMEOUT_MS             5000    // gcs failsafe triggers after 5 seconds with no GCS heartbeat
@@ -216,47 +229,164 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //  OPTICAL_FLOW & VISUAL ODOMETRY
+//	modified by ZhangYong 20170915
+//#ifndef OPTFLOW
+// # define OPTFLOW       ENABLED
+//#endif
+//#ifndef VISUAL_ODOMETRY_ENABLED
+//# define VISUAL_ODOMETRY_ENABLED ENABLED
+//#endif
+
+//	modified end
+//	
+
+//	noted by ZhangYong 2017110
+//	if we disabled optflow firmware will die after boot 
 #ifndef OPTFLOW
  # define OPTFLOW       ENABLED
 #endif
 #ifndef VISUAL_ODOMETRY_ENABLED
-# define VISUAL_ODOMETRY_ENABLED ENABLED
+# define VISUAL_ODOMETRY_ENABLED DISABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
 //  Auto Tuning
+//	modified by ZhangYong 20170915
+//#ifndef AUTOTUNE_ENABLED
+// # define AUTOTUNE_ENABLED  ENABLED
+//#endif
+//#endif
+//	modified end
+
 #ifndef AUTOTUNE_ENABLED
- # define AUTOTUNE_ENABLED  ENABLED
+ # define AUTOTUNE_ENABLED  DISABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
 //  Crop Sprayer
+//	modified by ZhangYong 20170915
+
+//#ifndef SPRAYER
+// # define SPRAYER  ENABLED
+//#endif
+//	endif
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+//  Pass OSD
+//	added by ZhangYong 20170712
+#ifndef PJTPASSOSD
+ # define PJTPASSOSD DISABLED
+#endif
+//	added ebd
+
+
+//////////////////////////////////////////////////////////////////////////////
+//  PROJECT GKXN
+//	added by ZhangYong 20170712
+#ifndef PROJECTGKXN
+ # define PROJECTGKXN ENABLED
+#endif
+//	added ebd
+
+//////////////////////////////////////////////////////////////////////////////
+//  RADAR NALEI
+
+#ifndef RNGRADAR
+ # define RNGRADAR ENABLED
+#endif 
+
+
 #ifndef SPRAYER
  # define SPRAYER  ENABLED
 #endif
 
+
+//////////////////////////////////////////////////////////////////////////////
+//  PROJECT BCB
+
+
+
+//	added by ZhangYong 20170720
+#ifndef PROJECTBCB
+ # define PROJECTBCB DISABLED
+#endif
+
+#if PROJECTBCB == ENABLED
+#ifndef BCBMONITOR
+ # define BCBMONITOR DISABLED
+#endif
+
+#ifndef BCBPMBUS
+ # define BCBPMBUS DISABLED
+#endif
+#endif
+
+//	added ebd
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+//  GKXN FLOWMETER
+#if PROJECTGKXN == ENABLED
+#ifndef FLOWMETER
+ # define FLOWMETER  ENABLED
+#endif
+#endif
+
+
+
 //////////////////////////////////////////////////////////////////////////////
 // Precision Landing with companion computer or IRLock sensor
+//	modified by ZhangYong 20170915
+//#ifndef PRECISION_LANDING
+// # define PRECISION_LANDING ENABLED
+//#endif
+
+//	modified
 #ifndef PRECISION_LANDING
- # define PRECISION_LANDING ENABLED
+ # define PRECISION_LANDING DISABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
 //	gripper
+//	modified by ZhangYong 20170915
+//#ifndef GRIPPER_ENABLED
+// # define GRIPPER_ENABLED ENABLED
+//#endif
+
+//	modified end
+
 #ifndef GRIPPER_ENABLED
- # define GRIPPER_ENABLED ENABLED
+ # define GRIPPER_ENABLED DISABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
 // Parachute release
+//	modified by ZhangYong 20170915
+//#ifndef PARACHUTE
+// # define PARACHUTE ENABLED
+//#endif
+
+//	modified end
+
 #ifndef PARACHUTE
- # define PARACHUTE ENABLED
+ # define PARACHUTE  DISABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
 // ADSB support
+//	modified by ZhangYong 20170915
+//#ifndef ADSB_ENABLED
+// # define ADSB_ENABLED ENABLED
+//#endif
+
 #ifndef ADSB_ENABLED
-# define ADSB_ENABLED ENABLED
+# define ADSB_ENABLED DISABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -351,16 +481,168 @@
 //////////////////////////////////////////////////////////////////////////////
 // CAMERA TRIGGER AND CONTROL
 //
+//	modified by ZhangYong 20170915
+//#ifndef CAMERA
+// # define CAMERA        ENABLED
+//#endif
+
+//	modified end
 #ifndef CAMERA
- # define CAMERA        ENABLED
+ # define CAMERA        DISABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
 // MOUNT (ANTENNA OR CAMERA)
 //
+//	modified by ZhangYong 20170915
+//#ifndef MOUNT
+// # define MOUNT        ENABLED
+//#endif
+
 #ifndef MOUNT
- # define MOUNT         ENABLED
+ # define MOUNT         DISABLED
 #endif
+
+
+//	added by zhangYong 20161109 for auth
+//////////////////////////////////////////////////////////////////////////////
+// AUTH ()
+//
+#ifndef FXTX_AUTH
+ #define FXTX_AUTH 	ENABLED
+#endif
+
+#if FXTX_AUTH == ENABLED
+#define AUTH_KEY_POS	0
+#define AUTH_KEY_LEN	10
+#define AUTH_ID_POS		(AUTH_KEY_POS + AUTH_KEY_LEN)
+#define AUTH_ID_LEN		20
+#define AUTH_ENTER_POS	(AUTH_ID_POS + AUTH_ID_LEN)
+#define AUTH_ID_ARRAY_LEN	(AUTH_ENTER_POS + 4)
+
+enum auth_state {
+	auth_state_failed = 0,
+	auth_state_denied = 1,
+	auth_state_success = 2
+};
+
+union auth_id_para {
+	float	serial[5];
+	uint8_t 	 data[20];
+};
+
+//	added by ZhangYong globle variable
+struct current_gps_week_ms
+{
+	uint32_t time_week_ms;              ///< GPS time (milliseconds from start of GPS week)
+	uint16_t time_week;                 ///< GPS week number
+};
+
+#endif
+
+//	
+
+
+
+
+//#endif
+
+
+
+//	added end
+
+//	added by ZhangYong for land detector log 20161114
+
+struct land_detector_log
+{
+	uint8_t motor_at_lower;
+	uint8_t acc_stationary;
+	uint8_t descent_rate;
+	uint8_t rngfnd_check;
+	uint8_t disarm_onland_cfg;
+	uint8_t mode_disarm_onland;
+	uint8_t land_cmplete;
+	uint8_t override;
+	uint8_t active;
+//	bool acc_stationary;
+//	bool descent_rate;
+//	bool rngfnd_check;
+//	bool disarm_onland_cfg;
+//	bool mode_disarm_onland;
+//	bool land_cmplete;
+	uint32_t cnt;
+};
+
+//	added end
+
+
+//	added by ZhangYong to log the motor calculation
+
+struct MTR_log
+{
+	
+float rc_roll_log;
+	float rc_pitch_log;
+	float rc_throttle_log;
+	float rc_yaw_log;
+	float throttle_avg_max_log;
+	float yaw_allowed_log;
+	float yaw_allowedd_log;
+	float rp_low_log;
+	float rp_high_log;
+	float thr_thrust_best_rpy_log;
+	float thr_adj_log;
+	float thr_adjj_log;
+	float rpy_scale_log;
+};
+
+
+struct PACKED PassOSD_data_struct {
+	uint8_t stx0;							//	0
+	uint8_t stx1;							//	1
+	uint8_t len;							//	2
+	uint8_t seq;							//	3
+		
+	uint16_t source_id;						//	4-5
+	uint16_t destination_id;				//	6-7
+
+	uint8_t comp_id;						//	8
+
+	uint8_t message_id;						//	9-10
+		
+	float voltage_battery;					//	11-14
+	float current_total_mah;				//	15-18
+
+	uint8_t fix_type;						//	19
+	uint8_t num_sats;						//	20
+
+	uint8_t control_mode;					//	21
+
+	float velocity;							//	22-25
+	float climbrate;						//	26-29
+
+	float altitude;							//	30-33
+
+	uint32_t flight_time_sec;				//	34-37
+	float yaw;								//	38-41
+
+	uint8_t crc0;							//	42
+	uint8_t crc1;							//	43
+
+	uint8_t etx0;							//	44
+	uint8_t etx1;							//	45
+
+};
+
+union PACKED PassOSD_data_status {
+	PassOSD_data_struct data;
+	uint8_t bytes[];
+};
+
+//	added 
+
+
+
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -610,12 +892,30 @@
  #define AC_FENCE ENABLED
 #endif
 
+//	modified by ZhangYong 20170915
+//#ifndef AC_RALLY
+// #define AC_RALLY   ENABLED
+//#endif
+
+//#ifndef AC_TERRAIN
+//#define AC_TERRAIN ENABLED
+//#endif
+
+//#if AC_TERRAIN && !AC_RALLY
+// #error Terrain relies on Rally which is disabled
+//#endif
+
+//#ifndef AC_AVOID_ENABLED
+// #define AC_AVOID_ENABLED   ENABLED
+//#endif
+
+//	modified end
 #ifndef AC_RALLY
- #define AC_RALLY   ENABLED
+ #define AC_RALLY   DISABLED
 #endif
 
 #ifndef AC_TERRAIN
- #define AC_TERRAIN ENABLED
+ #define AC_TERRAIN DISABLED
 #endif
 
 #if AC_TERRAIN && !AC_RALLY
@@ -643,8 +943,14 @@
 #endif
 
 //use this to completely disable FRSKY TELEM
+//	modified by ZhangYong 20170915
+//fndef FRSKY_TELEM_ENABLED
+//#  define FRSKY_TELEM_ENABLED          ENABLED
+//ndif
+
+//	modified end
 #ifndef FRSKY_TELEM_ENABLED
-  #  define FRSKY_TELEM_ENABLED          ENABLED
+  #  define FRSKY_TELEM_ENABLED          DISABLE
 #endif
 
 #ifndef ADVANCED_FAILSAFE

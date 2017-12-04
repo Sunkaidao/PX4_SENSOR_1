@@ -21,7 +21,11 @@
 #include <AP_SerialManager/AP_SerialManager.h>
 
 // Maximum number of range finder instances available on this platform
-#define RANGEFINDER_MAX_INSTANCES 2
+//	modified by ZhangYong 20171031
+//#define RANGEFINDER_MAX_INSTANCES 2
+//	modified end
+#define RANGEFINDER_MAX_INSTANCES 3
+
 #define RANGEFINDER_GROUND_CLEARANCE_CM_DEFAULT 10
 #define RANGEFINDER_PREARM_ALT_MAX_CM           200
 #define RANGEFINDER_PREARM_REQUIRED_CHANGE_CM   50
@@ -53,7 +57,12 @@ public:
         RangeFinder_TYPE_MBSER  = 13,
         RangeFinder_TYPE_TRONE  = 14,
         RangeFinder_TYPE_PLI2CV3= 15,
-        RangeFinder_TYPE_VL53L0X = 16
+        RangeFinder_TYPE_VL53L0X = 16,
+        //	added by ZhangYong 20170929
+#if RNGRADAR == ENABLED        
+        RangeFinder_TYPE_Radar=17
+#endif
+        //	added end
     };
 
     enum RangeFinder_Function {

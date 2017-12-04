@@ -27,6 +27,8 @@ bool PX4RCInput::new_input()
 {
     pthread_mutex_lock(&rcin_mutex);
     bool valid = _rcin.timestamp_last_signal != _last_read;
+	//printf("new_input %" PRIu64 "\n", (_rcin.timestamp_last_signal));
+	
     if (_rcin.rc_failsafe) {
         // don't consider input valid if we are in RC failsafe.
         valid = false;

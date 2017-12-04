@@ -71,7 +71,8 @@ void PX4RCOutput::init()
 #endif
 
     // ensure not to write zeros to disabled channels
-    for (uint8_t i=0; i < PX4_NUM_OUTPUT_CHANNELS; i++) {
+    for (uint8_t i=0; i < PX4_NUM_OUTPUT_CHANNELS; i++) 
+	{
         _period[i] = PWM_IGNORE_THIS_CHANNEL;
         _last_sent[i] = PWM_IGNORE_THIS_CHANNEL;
     }
@@ -91,10 +92,16 @@ void PX4RCOutput::_init_alt_channels(void)
         hal.console->printf("RCOutput: Unable to setup alt IO arming OK\n");
         return;
     }
-    if (ioctl(_alt_fd, PWM_SERVO_GET_COUNT, (unsigned long)&_alt_servo_count) != 0) {
-        hal.console->printf("RCOutput: Unable to get servo count\n");        
+    if (ioctl(_alt_fd, PWM_SERVO_GET_COUNT, (unsigned long)&_alt_servo_count) != 0) 
+	{
+        hal.console->printf("RCOutput: Unable to get servo count\n");
     }
-}
+	
+/*	else
+//	{
+//		printf("_init_alt_channels _alt_servo_count %d\n", _alt_servo_count);
+/	}
+*/}
 
 /*
   set output frequency on outputs associated with fd
@@ -459,8 +466,14 @@ void PX4RCOutput::_send_outputs(void)
         _need_update = false;
         perf_begin(_perf_rcout);
         uint8_t to_send = _max_channel<_servo_count?_max_channel:_servo_count;
+
+		//	added by ZhangYong 20170926
+		//printf("_max_channel %d _servo_count %d\n", _max_channel, _servo_count); 16 8
+		//	added end
+		
         if (_sbus_enabled) {
             to_send = _max_channel;
+			
         }
         if (to_send > 0) {
             for (int i=to_send-1; i >= 0; i--) {
@@ -471,11 +484,22 @@ void PX4RCOutput::_send_outputs(void)
                 }
             }
         }
+
+		//	added by ZhangYong
+		//	printf("_sbus_enabled %d to_send %d\n", _sbus_enabled, to_send); 1 16
+		//	added end
+		
         if (to_send > 0) {
             _arm_actuators(true);
 
             ::write(_pwm_fd, _period, to_send*sizeof(_period[0]));
+	//		printf("0: %d 1: %d 2:%d 3:%d 4:%d\n", _period[0], _period[1], _period[2], _period[3], _period[4]);
+	//		printf("7: %d 8: %d 9:%d 10:%d 11:%d\n", _period[7], _period[8], _period[9], _period[10], _period[11]);
+	//		printf("0: %d 1: %d 2:%d 3:%d 4:%d\n", _period[0], _period[1], _period[2], _period[3], _period[4]);
         }
+
+//		printf("7: %d 8: %d 9:%d 10:%d 11:%d\n", _period[7], _period[8], _period[9], _period[10], _period[11]);	
+		
         if (_max_channel > _servo_count) {
             // maybe send updates to alt_fd
             if (_alt_fd != -1 && _alt_servo_count > 0) {

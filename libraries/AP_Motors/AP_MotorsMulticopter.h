@@ -53,6 +53,11 @@ public:
     void                update_throttle_hover(float dt);
     virtual float       get_throttle_hover() const { return _throttle_hover; }
 
+
+	//	added by ZhangYong 20171013
+	float get_spin_arm() {return _spin_arm.get();}
+	//	added end
+
     // spool up states
     enum spool_up_down_mode {
         SHUT_DOWN = 0,                      // all motors stop

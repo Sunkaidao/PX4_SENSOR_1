@@ -29,6 +29,14 @@
 #include "AP_RangeFinder_trone.h"
 #include "AP_RangeFinder_VL53L0X.h"
 #include <AP_BoardConfig/AP_BoardConfig.h>
+//	added by ZhangYong 20170818
+#include "AP_RangeFinder_PX4.h"
+
+#if RNGRADAR==ENABLE
+#include "AP_RangeFinder_Radar.h"
+#endif
+//	added end
+
 
 extern const AP_HAL::HAL &hal;
 
@@ -639,7 +647,17 @@ void RangeFinder::detect_instance(uint8_t instance)
         }
         break;
 #if CONFIG_HAL_BOARD == HAL_BOARD_PX4  || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
-    case RangeFinder_TYPE_PX4_PWM:
+	//	added by ZhangYong 20170818
+	case RangeFinder_TYPE_PX4:
+		if (AP_RangeFinder_PX4::detect(*this, instance)) 
+		{
+            state[instance].instance = instance;
+            drivers[instance] = new AP_RangeFinder_PX4(*this, instance, state[instance]);
+		}
+		break;
+	//	added end	
+
+	case RangeFinder_TYPE_PX4_PWM:
         if (AP_RangeFinder_PX4_PWM::detect(*this, instance)) {
             state[instance].instance = instance;
             drivers[instance] = new AP_RangeFinder_PX4_PWM(*this, instance, state[instance]);
@@ -700,6 +718,14 @@ void RangeFinder::detect_instance(uint8_t instance)
             drivers[instance] = new AP_RangeFinder_analog(*this, instance, state[instance]);
         }
         break;
+#if RNGRADAR == ENABLED
+		case RangeFinder_TYPE_Radar:
+        if (AP_RangeFinder_Radar::detect(*this, instance, serial_manager)) {
+            state[instance].instance = instance;
+            drivers[instance] = new AP_RangeFinder_Radar(*this, instance, state[instance], serial_manager);
+        }
+        break;
+#endif
     default:
         break;
     }

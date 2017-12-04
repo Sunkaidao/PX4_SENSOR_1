@@ -34,6 +34,10 @@ bool AP_Arming_Copter::all_checks_passing(bool arming_from_gcs)
 // NOTE: this does *NOT* call AP_Arming::pre_arm_checks() yet!
 bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
 {
+	//	added by Zhangyong to inform the mission palnner
+	bool return_value;
+	//	added end
+
     // exit immediately if already armed
     if (copter.motors->armed()) {
         return true;
@@ -67,13 +71,32 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
         return true;
     }
 
+#if FXTX_AUTH == 1
+    //	added by Zhangyong for license
+	if(auth_state_denied == copter.auth_state_ms)
+    {
+    	set_pre_arm_check(false);
+    	gcs_send_text(MAV_SEVERITY_CRITICAL, "PreArm: license expired!\n");
+    	return false;
+    }
+    //	added end
+#endif	
+
     // succeed if pre arm checks are disabled
     if (checks_to_perform == ARMING_CHECK_NONE) {
         set_pre_arm_check(true);
         set_pre_arm_rc_check(true);
+
+		//	added by ZhangYong 20170406  to inform the mission palnner
+		gcs_send_text(MAV_SEVERITY_CRITICAL, "PreArm: succeed");
+		//	added end
+
+		
         return true;
     }
 
+	//	modified by ZhangYong to inform the mission palnner
+	/*
     return barometer_checks(display_failure)
         & rc_calibration_checks(display_failure)
         & compass_checks(display_failure)
@@ -84,7 +107,46 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
         & logging_checks(display_failure)
         & parameter_checks(display_failure)
         & motor_checks(display_failure)
+        & pilot_throttle_checks(display_failure);*/
+
+
+	return_value =  barometer_checks(display_failure)
+        & rc_calibration_checks(display_failure)
+        & compass_checks(display_failure)
+        & gps_checks(display_failure)
+        & fence_checks(display_failure)
+        & ins_checks(display_failure)
+        & board_voltage_checks(display_failure)
+        & logging_checks(display_failure)
+        & parameter_checks(display_failure)
+        & motor_checks(display_failure)
         & pilot_throttle_checks(display_failure);
+
+	if(return_value)
+	{
+		gcs_send_text(MAV_SEVERITY_CRITICAL, "PreArm: succeed");
+	
+	}
+
+
+	//	added by ZhangYong 20160907
+
+	if((checks_to_perform == ARMING_CHECK_ALL) || (checks_to_perform == (~ARMING_CHECK_INS)))
+	{
+		if((copter.g.flight_time_hour_shold > 0)&&(copter.g.flight_time_hour >= copter.g.flight_time_hour_shold))
+		{
+			if (display_failure) 
+			{
+   	             gcs_send_text(MAV_SEVERITY_CRITICAL, "PreArm: Flight time exceed");
+   	     	}
+   	     	return false;
+		}
+	}
+	//	added end
+
+	return return_value;
+	
+	//	modified end
 }
 
 bool AP_Arming_Copter::rc_calibration_checks(bool display_failure)

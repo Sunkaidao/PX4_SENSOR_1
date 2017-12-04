@@ -163,6 +163,23 @@ const AP_Param::GroupInfo AC_AttitudeControl_Multi::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("THR_MIX_MAN", 6, AC_AttitudeControl_Multi, _thr_mix_man, AC_ATTITUDE_CONTROL_MAN_DEFAULT),
 
+	//	added by ZhangYong for paramenter minor adjustment
+	
+	// @Param: RATE_FF_ENAB
+	// @DisplayName: Rate Feedforward Enable
+	// @Description: Controls whether body-frame rate feedfoward is enabled or disabled
+	// @Values: 0:Disabled, 1:Enabled
+	// @User: Advanced
+	//AP_GROUPINFO("STB_PIT_P", 7, AC_AttitudeControl_Multi, _stb_pit_p, 4.5),
+
+	// @Param: RATE_FF_ENAB
+	// @DisplayName: Rate Feedforward Enable
+	// @Description: Controls whether body-frame rate feedfoward is enabled or disabled
+	// @Values: 0:Disabled, 1:Enabled
+	// @User: Advanced
+	//AP_GROUPINFO("STB_RLL_P", 8, AC_AttitudeControl_Multi, _stb_rll_p, 4.5),
+	//	added end
+
     AP_GROUPEND
 };
 

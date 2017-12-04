@@ -56,6 +56,9 @@ public:
         k_param_g2, // 2nd block of parameters
         k_param_NavEKF3,
 
+		//	added by ZhangYong for 
+		k_param_edition_management = 9,
+
         // simulation
         k_param_sitl = 10,
 
@@ -187,6 +190,10 @@ public:
 
         // 97: RSSI
         k_param_rssi = 97,
+
+		//	added by ZhangYong for flowmeter 20170718
+		k_param_flowmeter = 98,
+		//	added end
                 
         //
         // 100: Inertial Nav
@@ -217,12 +224,29 @@ public:
         k_param_gcs3,
         k_param_gcs_pid_mask,    // 126
 
+		//	added by ZhangYong 20160905
+		k_param_flight_time_hour,	//	127
+		k_param_flight_time_hour_shold,	//	128
+		k_param_flight_time_sec,		//129
+
+		//	added by ZhangYong
+		//k_param_bcbpmbus,
+		//	added end
+
+		
+
         //
         // 135 : reserved for Solo until features merged with master
         //
         k_param_rtl_speed_cms = 135,
         k_param_fs_batt_curr_rtl,
         k_param_rtl_cone_slope, // 137
+
+
+		//	added by ZhangYong for GKXN payload failsafe
+		k_param_failsafe_pld_type,		//138
+		k_param_failsafe_pld_action,	//139
+        //  added end
 
         //
         // 140: Sensor parameters
@@ -378,6 +402,24 @@ public:
     //
     AP_Int16        sysid_this_mav;
     AP_Int16        sysid_my_gcs;
+
+	//	added by ZhangYong 20170721 for edition control
+	AP_Int32 		edition_management;
+
+	//	added by ZhangYong for flight time 20170731
+	
+	AP_Int16 flight_time_hour;
+	AP_Int16 flight_time_hour_shold;
+	AP_Int16 flight_time_sec;
+	//	added emd
+
+	//	added by ZhangYong for payload failsafe
+	AP_Int16 failsafe_pld_type;		//123
+	AP_Int8	 failsafe_pld_action;	//124
+	//	added end
+
+
+	
     AP_Int8         telem_delay;
 #if CLI_ENABLED == ENABLED
     AP_Int8         cli_enabled;
@@ -569,6 +611,11 @@ public:
     
     // control over servo output ranges
     SRV_Channels servo_channels;
+
+#if BCBPMBUS == ENABLED
+	AC_BCBPMBus bcbpmbus;
+#endif
+
 };
 
 extern const AP_Param::Info        var_info[];

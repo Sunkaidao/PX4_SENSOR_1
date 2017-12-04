@@ -71,6 +71,215 @@ void Copter::failsafe_battery_event(void)
 
 }
 
+
+//	added by ZhangYong for payload failsafe 20160918
+/**/
+void Copter::failsafe_payload_on_event(void)
+{
+	//	added by ZhangYong 20170214
+	//	added end
+
+//	printf("failsafe_payload_on_event, 0x%d\n", failsafe.payload);
+
+    // return immediately if low battery event has already been triggered
+//    if (failsafe.payload) 
+//	{
+//        return;
+//    }
+/*	printf("failsafe_payload_on_event, 0x%x, 0x%x, 0x%x\n", \
+											g.failsafe_pld_type, \
+											g.failsafe_pld_action, \
+											motors.armed());
+*/	
+
+    // failsafe check
+    if (\
+			(\
+				((g.failsafe_pld_type & FS_PLD_FM_BIT) != FS_PLD_NONE) || \
+				((g.failsafe_pld_type & FS_PLD_PMBUS_BIT) != FS_PLD_NONE) \
+			) && \
+			(g.failsafe_pld_action != FS_PLD_DISABLE) && \
+			(motors->armed()) \
+		) 
+	{
+        switch(control_mode) 
+		{
+            case STABILIZE:
+            case ACRO:
+                // if throttle is zero OR vehicle is landed disarm motors
+                if (should_disarm_on_failsafe()) 
+				{
+                    init_disarm_motors();
+                }
+				else
+				{
+                    // set mode to RTL or LAND
+                    if (g.failsafe_pld_action == FS_PLD_ENABLED_ALWAYS_RTL) 
+					{
+//						printf("0x%x %4.6f\n", home_distance, wp_nav.get_wp_radius());
+						//	modified by ZhangYong 20170214
+//						reenter_mode = true;
+//						return_to_fixorg = false;
+//						rtl_last_state = Land;
+						
+            			set_mode_RTL_or_land_with_pause(MODE_REASON_PAYLOAD_FAILSAFE);
+                    }
+					else
+					{
+                        set_mode_land_with_pause(MODE_REASON_PAYLOAD_FAILSAFE);
+                    }
+                }
+                break;
+            case AUTO:	
+				if (should_disarm_on_failsafe()) 
+				{
+                    init_disarm_motors();
+	            } 
+				else
+                {
+					switch(g.failsafe_pld_action)
+					{
+						case FS_PLD_ENABLED_ALWAYS_LAND:
+						case FS_PLD_ENABLED_ALWAYS_RTL:
+							
+							//	modified by ZhangYong 20170214
+//							reenter_mode = true;
+//							return_to_fixorg = false;
+//							rtl_last_state = Land;
+								
+            				set_mode_RTL_or_land_with_pause(MODE_REASON_PAYLOAD_FAILSAFE);
+                		
+							break;
+							
+/*							case FS_PLD_PREDEFINED_ROUTING_RTL:
+								
+								//printf("Predefined routing Battery RTL\n");
+						if (home_distance > wp_nav.get_wp_radius()) 
+							{
+								if(0 == (uint16_t)g.failsafe_prrtl_wpnum)
+								{
+									//	modified by ZhangYong 20170214
+//									reenter_mode = true;
+//									return_to_fixorg = false;
+//									rtl_last_state = Land;
+									
+            						return_value = set_mode(RTL);
+									//	modified end
+								
+						
+			if (!return_value) 
+									{
+                       					set_mode_land_with_pause();
+                    				}
+								}
+								else
+								{
+                    				if (!mission.set_current_cmd((uint16_t)g.failsafe_prrtl_wpnum)) 
+									{
+										//	modified by ZhangYong 20170214
+										reenter_mode = true;
+										return_to_fixorg = false;
+										rtl_last_state = Land;
+										
+            							return_value = set_mode(RTL);
+										//	modified end
+									
+                       					if (!return_value) 
+										{
+                       						set_mode_land_with_pause();
+                    					}
+                    				}
+								}	
+                			}
+							else
+							{
+                    			// We are very close to home so we will land
+                    			set_mode_land_with_pause();
+                			}	
+							break;
+
+						case FS_PLD_REVERSE_ROUTING_RTL:
+							//	printf("Reverse routing Battery RTL\n");
+							if (home_distance > wp_nav.get_wp_radius()) 
+							{
+                   		 		mission.set_inverted_waypoint(true);						
+                			}
+							else
+							{
+                    			// We are very close to home so we will land
+                    			set_mode_land_with_pause();
+                			}
+							break;
+*/
+						default:
+							break;
+						
+					}
+				}
+                break;
+            default:
+            	//	added by ZhangYong
+            	//printf("ap.land_complete %d\n", ap.land_complete);
+				//printf("home_distance %d\n", home_distance);
+            	
+              	if (should_disarm_on_failsafe()) 
+				{
+                    init_disarm_motors();
+
+                // set mode to RTL or LAND
+                }
+				else 
+				{
+					switch(g.failsafe_pld_action)
+					{
+						case FS_PLD_ENABLED_ALWAYS_LAND:
+						case FS_PLD_ENABLED_ALWAYS_RTL:
+							
+							//	modified by ZhangYong 20170214
+//							reenter_mode = true;
+//							return_to_fixorg = false;
+//							rtl_last_state = Land;
+
+							set_mode_RTL_or_land_with_pause(MODE_REASON_PAYLOAD_FAILSAFE);
+								
+            				
+							break;
+						default:
+							break;
+						
+					}
+				}
+				break;
+		}
+    }
+    
+
+    // warn the ground station and log to dataflash
+    gcs_send_text(MAV_SEVERITY_CRITICAL, "payload emergency!");
+    
+    Log_Write_Error(ERROR_SUBSYSTEM_FAILSAFE_PLD, ERROR_CODE_FAILSAFE_OCCURRED);
+/*
+//    printf("failsafe_payload_on_event, 0x%x, 0x%x\n", \
+//										ERROR_SUBSYSTEM_FAILSAFE_PLD, \
+//										ERROR_CODE_FAILSAFE_OCCURRED);
+*/
+
+}
+
+
+
+void Copter::failsafe_payload_off_event(void)
+{
+	Log_Write_Error(ERROR_SUBSYSTEM_FAILSAFE_PLD, ERROR_CODE_FAILSAFE_RESOLVED);
+
+/*	printf("failsafe_payload_off_event, 0x%x, 0x%x\n", \
+										ERROR_SUBSYSTEM_FAILSAFE_PLD, \
+										ERROR_CODE_FAILSAFE_RESOLVED);
+*/}
+
+//	added end
+
+
 // failsafe_gcs_check - check for ground station failsafe
 void Copter::failsafe_gcs_check()
 {
@@ -109,6 +318,14 @@ void Copter::failsafe_gcs_check()
     // clear overrides so that RC control can be regained with radio.
     hal.rcin->clear_overrides();
     failsafe.rc_override_active = false;
+
+	//	added by ZhangYong to pull the throttle to bottom, and reset roll, pitch, and yaw to trim;
+	channel_roll->set_pwm(channel_roll->get_radio_trim());
+	channel_pitch->set_pwm(channel_pitch->get_radio_trim());
+	channel_throttle->set_pwm(channel_throttle->get_radio_min());
+	channel_yaw->set_pwm(channel_yaw->get_radio_trim());
+	
+//	g2.rc_channels
 
     if (should_disarm_on_failsafe()) {
         init_disarm_motors();

@@ -17,6 +17,16 @@
  # define AP_BATT_CURR_PIN                  3
  # define AP_BATT_VOLTDIVIDER_DEFAULT       10.1f
  # define AP_BATT_CURR_AMP_PERVOLT_DEFAULT  17.0f
+
+//	added by ZhangYong for BCB
+//#if PROJECT
+# define AP_AUX_BATT_VOLT_PIN					13
+# define AP_AUX_BATT_CURR_PIN					14
+# define AP_AUX_BATT_VOLTDIVIDER_DEFAULT		10.1f
+# define AP_AUX_BATT_CURR_AMP_PERVOLT_DEFAULT	17.0f
+
+//	aadded end
+ 
 #elif CONFIG_HAL_BOARD == HAL_BOARD_SITL
  # define AP_BATT_VOLT_PIN                  13
  # define AP_BATT_CURR_PIN                  12

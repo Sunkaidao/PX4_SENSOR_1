@@ -212,6 +212,44 @@ void AP_SerialManager::init()
                                          AP_SERIALMANAGER_ULANDING_BUFSIZE_RX,
                                          AP_SERIALMANAGER_ULANDING_BUFSIZE_TX);
                     break;
+
+				case SerialProtocol_PassOSD:
+					state[i].baud = AP_SERIALMANAGER_PASSOSD_BAUD / 1000;	 // update baud param in case user looks at it
+					state[i].uart->begin(map_baudrate(state[i].baud),
+										AP_SERIALMANAGER_PASSOSD_BUFSIZE_RX,
+										AP_SERIALMANAGER_PASSOSD_BUFSIZE_TX);
+					break;
+
+				case SerialProtocol_BCBMonitor:
+					state[i].baud = AP_SERIALMANAGER_BCBMONITOR_BAUD / 1000;	 // update baud param in case user looks at it
+					state[i].uart->begin(map_baudrate(state[i].baud),
+										AP_SERIALMANAGER_BCBMONITOR_BUFSIZE_RX,
+										AP_SERIALMANAGER_BCBMONITOR_BUFSIZE_TX);
+					break;	
+
+#if RNGRADAR == ENABLE
+				case SerialProtocol_Radar:
+					state[i].baud = AP_SERIALMANAGER_RADAR_BAUD / 1000;
+					state[i].uart->begin(map_baudrate(state[i].baud),
+										AP_SERIALMANAGER_RADAR_BUFSIZE_RX,
+										AP_SERIALMANAGER_RADAR_BUFSIZE_TX);
+					break;	
+#endif
+					
+#if BCBPMBUS == ENABLE
+
+				case SerialProtocol_BCBPMBus:
+					state[i].baud = AP_SERIALMANAGER_BCBPMBUS_BAUD / 1000;	 // update baud param in case user looks at it
+					state[i].uart->begin(map_baudrate(state[i].baud),
+										AP_SERIALMANAGER_BCBPMBUS_BUFSIZE_RX,
+										AP_SERIALMANAGER_BCBPMBUS_BUFSIZE_TX);
+					break;	
+#endif
+				default:
+					//	added by ZhangYong
+					printf("Error! unsupportted serial port %d protocol %d!\n", i, state[i].protocol);
+					//	added by ZhangYong
+					break;
             }
         }
     }
@@ -228,7 +266,7 @@ AP_HAL::UARTDriver *AP_SerialManager::find_serial(enum SerialProtocol protocol, 
     for(uint8_t i=0; i<SERIALMANAGER_NUM_PORTS; i++) {
         if (protocol_match(protocol, (enum SerialProtocol)state[i].protocol.get())) {
             if (found_instance == instance) {
-                return state[i].uart;
+				return state[i].uart;
             }
             found_instance++;
         }

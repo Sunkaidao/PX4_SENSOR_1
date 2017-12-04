@@ -100,16 +100,24 @@ void Copter::auto_disarm_check()
         bool thr_low;
         if (mode_has_manual_throttle(control_mode) || !sprung_throttle_stick) {
             thr_low = ap.throttle_zero;
+			//	added by ZhangYong 20171122
+//			printf("1 ");
+			//	added end
         } else {
             float deadband_top = channel_throttle->get_control_mid() + g.throttle_deadzone;
             thr_low = channel_throttle->get_control_in() <= deadband_top;
+//			printf("2 ");
         }
+
+//		printf("thr %d ", thr_low);
 
         if (!thr_low || !ap.land_complete) {
             // reset timer
             auto_disarm_begin = tnow_ms;
         }
     }
+
+//	printf("%d\n", auto_disarm_begin);
 
     // disarm once timer expires
     if ((tnow_ms-auto_disarm_begin) >= disarm_delay_ms) {
@@ -152,6 +160,17 @@ bool Copter::init_arm_motors(bool arming_from_gcs)
     // reset battery failsafe
     set_failsafe_battery(false);
 
+#if BCBPMBUS == ENABLED
+	//	added by ZhangYong 
+	if(1 == get_failsafe_payload(FAILSAFE_PLD_TYPE_PMBUS))
+	{
+		set_failsafe_payload(FAILSAFE_PLD_TYPE_PMBUS, false);
+	
+	}
+#endif	
+
+	//	added end
+	
     // notify that arming will occur (we do this early to give plenty of warning)
     AP_Notify::flags.armed = true;
     // call update_notify a few times to ensure the message gets out
@@ -222,6 +241,10 @@ bool Copter::init_arm_motors(bool arming_from_gcs)
 // init_disarm_motors - disarm motors
 void Copter::init_disarm_motors()
 {
+	//	adde by ZhangYong 20170731 for mav flight time
+	uint16_t lcl_flight_time_hour;
+	uint32_t lcl_flight_time_sec;
+
     // return immediately if we are already disarmed
     if (!motors->armed()) {
         return;
@@ -266,6 +289,26 @@ void Copter::init_disarm_motors()
     hal.util->set_soft_armed(false);
 
     ap.in_arming_delay = false;
+
+	//	added by ZhangYong for mav flight 20170731
+	lcl_flight_time_sec = local_flight_time_sec;
+	
+    lcl_flight_time_sec += g.flight_time_sec;
+
+	
+	if(lcl_flight_time_sec >= 3600)
+	{
+		g.flight_time_sec.set_and_save(lcl_flight_time_sec % 3600);
+
+		lcl_flight_time_hour = g.flight_time_hour;
+		
+		g.flight_time_hour.set_and_save((lcl_flight_time_hour + lcl_flight_time_sec / 3600));
+	}
+	else
+	{
+		g.flight_time_sec.set_and_save(lcl_flight_time_sec);
+	}
+	
 }
 
 // motors_output - send output to motors library which will adjust and send to ESCs and servos

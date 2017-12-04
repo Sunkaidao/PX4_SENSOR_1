@@ -13,7 +13,11 @@
 #define MAVLINK_SEND_UART_BYTES(chan, buf, len) comm_send_buffer(chan, buf, len)
 
 // allow five telemetry ports
-#define MAVLINK_COMM_NUM_BUFFERS 5
+//	modified by ZhangYong 20171011
+//#define MAVLINK_COMM_NUM_BUFFERS 5
+
+//	modified end
+#define MAVLINK_COMM_NUM_BUFFERS 2
 
 /*
   The MAVLink protocol code generator does its own alignment, so

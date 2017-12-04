@@ -21,6 +21,9 @@
 #include <AP_HAL/AP_HAL.h>
 #include <DataFlash/DataFlash.h>
 #include <GCS_MAVLink/GCS.h> // for LOG_ENTRY
+#include <inttypes.h>
+#include <stdio.h> 
+
 
 extern const AP_HAL::HAL& hal;
 
@@ -47,15 +50,27 @@ void DataFlash_Class::handle_log_message(GCS_MAVLINK &link, mavlink_message_t *m
     }
     switch (msg->msgid) {
     case MAVLINK_MSG_ID_LOG_REQUEST_LIST:
+		//	added by ZhangYong 20171112
+//		printf("MAVLINK_MSG_ID_LOG_REQUEST_LIST\n");
+		//	added end
         handle_log_request_list(link, msg);
         break;
     case MAVLINK_MSG_ID_LOG_REQUEST_DATA:
-        handle_log_request_data(link, msg);
+		//	added by ZhangYong 20171112
+//		printf("MAVLINK_MSG_ID_LOG_REQUEST_DATA\n");
+		//	added end
+		handle_log_request_data(link, msg);
         break;
     case MAVLINK_MSG_ID_LOG_ERASE:
+		//	added by ZhangYong 20171112
+//		printf("MAVLINK_MSG_ID_LOG_ERASE\n");
+		//	added end
         handle_log_request_erase(link, msg);
         break;
     case MAVLINK_MSG_ID_LOG_REQUEST_END:
+		//	added by ZhangYong 20171112
+//		printf("MAVLINK_MSG_ID_LOG_REQUEST_END\n");
+		//	added end
         handle_log_request_end(link, msg);
         break;
     }
@@ -66,30 +81,81 @@ void DataFlash_Class::handle_log_message(GCS_MAVLINK &link, mavlink_message_t *m
  */
 void DataFlash_Class::handle_log_request_list(GCS_MAVLINK &link, mavlink_message_t *msg)
 {
+	//	added by ZhangYong 20171123
+	uint8_t lcl_cnt;
+	//	added end
     mavlink_log_request_list_t packet;
     mavlink_msg_log_request_list_decode(msg, &packet);
 
-    _log_listing = false;
-    _log_sending = false;
+	//	modified end by ZhangYong 220171122
+    //	_log_listing = false;
+    //	_log_sending = false;
+	//	modified end
+	for(lcl_cnt = 0; lcl_cnt < MAVLINK_COMM_NUM_BUFFERS; lcl_cnt ++)
+	{
+		_log_listing[lcl_cnt] = false;
+		_log_sending[lcl_cnt] = false;
+		
+	}
+	
+	
 
     _log_num_logs = get_num_logs();
     if (_log_num_logs == 0) {
-        _log_next_list_entry = 0;
-        _log_last_list_entry = 0;        
+		//	modified by ZhangYong 20171122
+		//_log_next_list_entry = 0;
+		//	modified end
+		for(lcl_cnt = 0; lcl_cnt < MAVLINK_COMM_NUM_BUFFERS; lcl_cnt ++)
+		{
+        	_log_next_list_entry[lcl_cnt] = 0;
+		}
+		_log_last_list_entry = 0;        
     } else {
-        _log_next_list_entry = packet.start;
+		//	modified by ZhangYong 20171122
+		//_log_next_list_entry = packet.start;
+		// 	modified end 
+		for(lcl_cnt = 0; lcl_cnt < MAVLINK_COMM_NUM_BUFFERS; lcl_cnt ++)
+		{
+        	_log_next_list_entry[lcl_cnt] = packet.start;
+		}
         _log_last_list_entry = packet.end;
 
         if (_log_last_list_entry > _log_num_logs) {
             _log_last_list_entry = _log_num_logs;
         }
-        if (_log_next_list_entry < 1) {
+		// modified by zhangyong 20171122
+		
+		/*if (_log_next_list_entry < 1) {
             _log_next_list_entry = 1;
         }
+        */
+        // modified end
+        for(lcl_cnt = 0; lcl_cnt < MAVLINK_COMM_NUM_BUFFERS; lcl_cnt ++)
+		{
+			
+			if (_log_next_list_entry[lcl_cnt] < 1) 
+			{
+				_log_next_list_entry[lcl_cnt] = 1;
+			}
+        }
+      
     }
 
-    _log_listing = true;
-    handle_log_send_listing(link);
+/*	printf("handle_log_request_list num %d start %d stop %d ls %d ll %d\n", _log_num_logs, \
+																			packet.start, \
+																			packet.end, \
+																			_log_next_list_entry[link.get_chan()], \
+																			_log_last_list_entry);
+*/	//	modified by ZhangYong 20171122 
+    //_log_listing = true;
+    //	handle_log_send_listing(link);
+	//	mdoified end
+	if(link.get_chan() < MAVLINK_COMM_NUM_BUFFERS)
+	{
+		_log_listing[link.get_chan()] = true;
+	
+		handle_log_send_listing(link);
+	}
 }
 
 
@@ -98,14 +164,33 @@ void DataFlash_Class::handle_log_request_list(GCS_MAVLINK &link, mavlink_message
  */
 void DataFlash_Class::handle_log_request_data(GCS_MAVLINK &link, mavlink_message_t *msg)
 {
+	//	added by ZhangYong 20171123
+	uint8_t lcl_cnt;
+	//	added end
+
     mavlink_log_request_data_t packet;
     mavlink_msg_log_request_data_decode(msg, &packet);
 
     _in_log_download = true;
 
-    _log_listing = false;
-    if (!_log_sending || _log_num_data != packet.id) {
-        _log_sending = false;
+	//	modified by ZhangYong 20171122
+    //	_log_listing = false;
+	//	modified end
+	for(lcl_cnt = 0; lcl_cnt < MAVLINK_COMM_NUM_BUFFERS; lcl_cnt ++)
+	{
+		_log_listing[lcl_cnt] = false;
+	}
+
+	//	modified by ZhangYong 20171123
+	//if (!_log_sending || _log_num_data != packet.id) {
+    //    _log_sending = false;
+	//	modified end
+
+//	printf("%64d %d %d\n", AP_HAL::millis(), (packet.count), packet.ofs);
+
+	
+	if (!_log_sending[link.get_chan()] || _log_num_data != packet.id) {
+        _log_sending[link.get_chan()] = false;
 
         uint16_t num_logs = get_num_logs();
         if (packet.id > num_logs || packet.id < 1) {
@@ -130,7 +215,12 @@ void DataFlash_Class::handle_log_request_data(GCS_MAVLINK &link, mavlink_message
     if (_log_data_remaining > packet.count) {
         _log_data_remaining = packet.count;
     }
-    _log_sending = true;
+
+	//	modified by zhangYong 20171123
+	//_log_sending = true;
+	//	modified end
+	
+    _log_sending[link.get_chan()] = true;
 
     handle_log_send(link);
 }
@@ -151,10 +241,20 @@ void DataFlash_Class::handle_log_request_erase(GCS_MAVLINK &link, mavlink_messag
  */
 void DataFlash_Class::handle_log_request_end(GCS_MAVLINK &link, mavlink_message_t *msg)
 {
+	//	added by zhangYong 20171123
+	uint8_t lcl_cnt;
+	//	added end
     mavlink_log_request_end_t packet;
     mavlink_msg_log_request_end_decode(msg, &packet);
     _in_log_download = false;
-    _log_sending = false;
+
+	//modified by zhangYong 20171123
+	//_log_sending = false;
+	//modified end
+	for(lcl_cnt = 0; lcl_cnt < MAVLINK_COMM_NUM_BUFFERS; lcl_cnt++)
+    {
+    	_log_sending[link.get_chan()] = false;
+	}
 }
 
 /**
@@ -162,10 +262,28 @@ void DataFlash_Class::handle_log_request_end(GCS_MAVLINK &link, mavlink_message_
  */
 void DataFlash_Class::handle_log_send(GCS_MAVLINK &link)
 {
-    if (_log_listing) {
-        handle_log_send_listing(link);
-    }
-    if (!_log_sending) {
+	//	added by ZhangYong 20171123
+	uint8_t lcl_cnt;
+	//	added end
+
+	//	modified by ZhangYong 20171122
+    //if (_log_listing) {
+    //    handle_log_send_listing(link);
+    //}
+	//	modified end
+	for(lcl_cnt = 0; lcl_cnt < MAVLINK_COMM_NUM_BUFFERS; lcl_cnt ++)
+	{
+		if (_log_listing[link.get_chan()])
+		{
+        	handle_log_send_listing(link);
+    	}
+	}
+
+
+	//	modified by ZhangYong 20171123
+	//if (!_log_sending) {
+	//	modified end
+    if (!_log_sending[link.get_chan()]) {
         return;
     }
 
@@ -181,13 +299,19 @@ void DataFlash_Class::handle_log_send(GCS_MAVLINK &link)
     #if CONFIG_HAL_BOARD == HAL_BOARD_LINUX
         num_sends = 80;
     #else
-        num_sends = 10;
+		//	modified by zhangyong 20171123
+        //num_sends = 10;
+		//	modified end
+		num_sends = 10;
     #endif
     }
 #endif
 
     for (uint8_t i=0; i<num_sends; i++) {
-        if (_log_sending) {
+		//	modified by zhangyong 20171123
+		//if (_log_sending) {
+		//	modified end
+        if (_log_sending[link.get_chan()]) {
             if (!handle_log_send_data(link)) break;
         }
     }
@@ -198,6 +322,11 @@ void DataFlash_Class::handle_log_send(GCS_MAVLINK &link)
  */
 void DataFlash_Class::handle_log_send_listing(GCS_MAVLINK &link)
 {
+	//	added by ZhangYong 20171123
+	uint8_t lcl_cnt;
+	//	added end
+		
+
     if (!HAVE_PAYLOAD_SPACE(link.get_chan(), LOG_ENTRY)) {
         // no space
         return;
@@ -207,18 +336,47 @@ void DataFlash_Class::handle_log_send_listing(GCS_MAVLINK &link)
         return;
     }
 
+	//	added by ZhangYong 20171122
+	if(false == _log_listing[link.get_chan()])
+	{
+		return;
+	}
+	//	added end
+
+
     uint32_t size, time_utc;
-    if (_log_next_list_entry == 0) {
+    if (_log_next_list_entry[link.get_chan()] == 0) {
         size = 0;
         time_utc = 0;
     } else {
-        get_log_info(_log_next_list_entry, size, time_utc);
+        get_log_info(_log_next_list_entry[link.get_chan()], size, time_utc);
     }
-    mavlink_msg_log_entry_send(link.get_chan(), _log_next_list_entry, _log_num_logs, _log_last_list_entry, time_utc, size);
-    if (_log_next_list_entry == _log_last_list_entry) {
+    mavlink_msg_log_entry_send(link.get_chan(), _log_next_list_entry[link.get_chan()], _log_num_logs, _log_last_list_entry, time_utc, size);
+
+	//	added by ZhangYong 20171122
+//	printf("listing c %d n %d n %d l %d t %d s %d\n", link.get_chan(), _log_next_list_entry[link.get_chan()], _log_num_logs, _log_last_list_entry, time_utc, size);
+	//	added end
+
+	//	modified by ZhangYong 20171122
+	/*if (_log_next_list_entry == _log_last_list_entry) {
         _log_listing = false;
+		
     } else {
         _log_next_list_entry++;
+    }
+	*/
+	//	modified end
+    if (_log_next_list_entry[link.get_chan()] == _log_last_list_entry) 
+	{
+		
+		for(lcl_cnt = 0; lcl_cnt < MAVLINK_COMM_NUM_BUFFERS; lcl_cnt++)
+		{
+			_log_listing[lcl_cnt] = false;
+		}
+        
+
+    } else {
+        _log_next_list_entry[link.get_chan()]++;
     }
 }
 
@@ -227,12 +385,19 @@ void DataFlash_Class::handle_log_send_listing(GCS_MAVLINK &link)
  */
 bool DataFlash_Class::handle_log_send_data(GCS_MAVLINK &link)
 {
+//	printf("handle_log_send_data c %d\n", link.get_chan());
+	//	added by ZhangYong 20171123
+	uint8_t lcl_cnt;
+	//	added end
+
     if (!HAVE_PAYLOAD_SPACE(link.get_chan(), LOG_DATA)) {
         // no space
+//        printf("handle_log_send_data %d\n", comm_get_txspace(link.get_chan()));
         return false;
     }
     if (AP_HAL::millis() - link.get_last_heartbeat_time() > 3000) {
         // give a heartbeat a chance
+ //       printf("get_last_heartbeat_time\n");
         return false;
     }
 
@@ -255,6 +420,11 @@ bool DataFlash_Class::handle_log_send_data(GCS_MAVLINK &link)
     packet.ofs = _log_data_offset;
     packet.id = _log_num_data;
     packet.count = ret;
+
+//	printf("%64d %d %d\n", AP_HAL::millis(), ret, _log_data_offset); 
+	
+
+	
     _mav_finalize_message_chan_send(link.get_chan(), MAVLINK_MSG_ID_LOG_DATA, (const char *)&packet,
                                     MAVLINK_MSG_ID_LOG_DATA_MIN_LEN,
                                     MAVLINK_MSG_ID_LOG_DATA_LEN,
@@ -263,7 +433,13 @@ bool DataFlash_Class::handle_log_send_data(GCS_MAVLINK &link)
     _log_data_offset += len;
     _log_data_remaining -= len;
     if (ret < 90 || _log_data_remaining == 0) {
-        _log_sending = false;
+		//	modified by zhangyong 20171123
+		//_log_sending[[link.get_chan()]] = false;
+		//	modified end
+		for(lcl_cnt = 0 ; lcl_cnt < MAVLINK_COMM_NUM_BUFFERS; lcl_cnt ++)
+        {
+        	_log_sending[lcl_cnt] = false;
+		}
     }
     return true;
 }

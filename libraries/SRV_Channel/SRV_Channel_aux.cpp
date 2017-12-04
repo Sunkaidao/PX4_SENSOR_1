@@ -364,6 +364,11 @@ SRV_Channels::move_servo(SRV_Channel::Aux_servo_function_t function,
         if (ch.function.get() == function) {
             float v2 = ch.get_reversed()? (1-v) : v;
             uint16_t pwm = ch.servo_min + v2 * (ch.servo_max - ch.servo_min);
+
+			//	added by ZhangYong 20171122
+			//printf("value %d, v %4.2f, pwm %d\n", value, v, pwm);
+			//	added end
+			
             ch.set_output_pwm(pwm);
         }
     }

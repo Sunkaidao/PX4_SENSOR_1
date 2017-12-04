@@ -27,6 +27,30 @@
 #include <uORB/topics/esc_status.h>
 #endif
 
+
+//	added by ZhangYong 20170405
+#if SPRAYER == ENABLED
+#include <AC_Sprayer/AC_Sprayer.h>
+#endif
+
+#if FLOWMETER == ENABLED
+#include <AP_Flowmeter/AP_Flowmeter.h> 
+#endif
+
+//	added by ZhangYong 20170720
+#if BCBMONITOR == ENABLED
+#include <AC_BCBMonitor/AC_BCBMonitor.h> 
+#endif
+
+#if BCBPMBUS == ENABLED
+#include <AC_BCBPMBus/AC_BCBPMBus.h> 
+#endif
+
+
+
+//	added end
+
+
 #include "DFMessageWriter.h"
 
 class DataFlash_Backend;
@@ -134,6 +158,11 @@ public:
     void Log_Write_ESC(void);
     void Log_Write_Airspeed(AP_Airspeed &airspeed);
     void Log_Write_Attitude(AP_AHRS &ahrs, const Vector3f &targets);
+
+	//	added by ZhangYong 20170405
+	void Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_dist, uint8_t para_fm_warn, uint8_t para_pck_cnt);
+	//	added end
+	
     void Log_Write_AttitudeView(AP_AHRS_View &ahrs, const Vector3f &targets);
     void Log_Write_Current(const AP_BattMonitor &battery);
     void Log_Write_Compass(const Compass &compass, uint64_t time_us=0);
@@ -152,6 +181,13 @@ public:
     void Log_Write_VisualOdom(float time_delta, const Vector3f &angle_delta, const Vector3f &position_delta, float confidence);
     void Log_Write_AOA_SSA(AP_AHRS &ahrs);
     void Log_Write_Beacon(AP_Beacon &beacon);
+	//	added by ZhangYong 20170731
+	void Log_Write_CD(int32_t para_home_dis, float para_communicat_drops);
+
+#if	BCBPMBUS == ENABLED
+	void Log_Write_BCBPMBus(uint8_t msg_type, AC_BCBPMBus &vp_bcbpmbus);
+#endif
+	//	added end
 
     void Log_Write(const char *name, const char *labels, const char *fmt, ...);
 
@@ -163,6 +199,11 @@ public:
         float D;
         float FF;
         float AFF;
+		//	added by ZhangYong
+		float actual;
+		float error;
+		float scaler;
+//	added end
     };
 
     void Log_Write_PID(uint8_t msg_type, const PID_Info &info);
@@ -271,8 +312,11 @@ private:
     bool _armed;
 
 #if AP_AHRS_NAVEKF_AVAILABLE
-    void Log_Write_EKF2(AP_AHRS_NavEKF &ahrs, bool optFlowEnabled);
-    void Log_Write_EKF3(AP_AHRS_NavEKF &ahrs, bool optFlowEnabled);
+	//	modified by ZhangYong 20170915
+	void Log_Write_EKF2(AP_AHRS_NavEKF &ahrs, bool optFlowEnabled);
+	void Log_Write_EKF3(AP_AHRS_NavEKF &ahrs, bool optFlowEnabled);
+	//	modified end
+    
 #endif
 
     void backend_starting_new_log(const DataFlash_Backend *backend);
@@ -292,14 +336,21 @@ private:
     bool _writes_enabled;
 
     /* support for retrieving logs via mavlink: */
-    uint8_t  _log_listing:1; // sending log list
-    uint8_t  _log_sending:1; // sending log data
-
-    // bolean replicating old vehicle in_log_download flag:
+	//	modified by ZhangYong 20171122
+    //	uint8_t  _log_listing:1; // sending log list
+    //uint8_t  _log_sending:1; // sending log data
+    //	modified end
+    uint8_t  _log_listing[MAVLINK_COMM_NUM_BUFFERS]; // sending log list
+    uint8_t  _log_sending[MAVLINK_COMM_NUM_BUFFERS]; // sending log data
+	
+	// bolean replicating old vehicle in_log_download flag:
     bool _in_log_download:1;
 
     // next log list entry to send
-    uint16_t _log_next_list_entry;
+    ///	modified by ZhangYong 20171122
+    //	uint16_t _log_next_list_entry;
+    //	modified end
+    uint16_t _log_next_list_entry[MAVLINK_COMM_NUM_BUFFERS];
 
     // last log list entry to send
     uint16_t _log_last_list_entry;

@@ -2,6 +2,7 @@
 #include "version.h"
 
 #include "GCS_Mavlink.h"
+#include <stdio.h>
 
 void Copter::gcs_send_heartbeat(void)
 {
@@ -190,6 +191,8 @@ void NOINLINE Copter::send_hwstatus(mavlink_channel_t chan)
         0);
 }
 
+
+
 void NOINLINE Copter::send_vfr_hud(mavlink_channel_t chan)
 {
     mavlink_msg_vfr_hud_send(
@@ -242,9 +245,14 @@ void NOINLINE Copter::send_proximity(mavlink_channel_t chan, uint16_t count_max)
         send_upwards = (count_max > 8);
     }
 
+	
+
     // send upward distance
     float dist_up;
-    if (send_upwards && g2.proximity.get_upward_distance(dist_up)) {
+    if (send_upwards && g2.proximity.get_upward_distance(dist_up)) 
+	{
+//		printf("send_upwards %d %f\n", send_upwards, dist_up);
+		
         mavlink_msg_distance_sensor_send(
             chan,
             AP_HAL::millis(),                                        //  time since system boot
@@ -412,7 +420,16 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
 
     case MSG_RADIO_IN:
         CHECK_PAYLOAD_SIZE(RC_CHANNELS);
-        send_radio_in(copter.receiver_rssi);
+		//	modified by ZhangYong 20171013
+#if BCBPMBUS == DISABLED		
+		send_radio_in(copter.receiver_rssi);
+		//	modified end
+#else		
+        send_radio_in(copter.receiver_rssi, \
+        				copter.g2.bcbpmbus.get_read_temperature(0), \
+        				copter.g2.bcbpmbus.get_read_temperature(1), \
+        				copter.g2.bcbpmbus.get_read_temperature(2));
+#endif
         break;
 
     case MSG_SERVO_OUTPUT_RAW:
@@ -423,6 +440,9 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
     case MSG_VFR_HUD:
         CHECK_PAYLOAD_SIZE(VFR_HUD);
         copter.send_vfr_hud(chan);
+
+
+		
         break;
 
     case MSG_RAW_IMU1:
@@ -447,12 +467,25 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
 
     case MSG_NEXT_PARAM:
         CHECK_PAYLOAD_SIZE(PARAM_VALUE);
-        queued_param_send();
+		//	modified by ZhangYong 20171117
+        //	queued_param_send(bool armed);
+		//	modified end
+		queued_param_send(copter.motors->armed());
         break;
 
     case MSG_NEXT_WAYPOINT:
-        CHECK_PAYLOAD_SIZE(MISSION_REQUEST);
-        queued_waypoint_send();
+		if(true == get_mission_item_int())
+		{
+			CHECK_PAYLOAD_SIZE(MISSION_REQUEST_INT);
+			queued_waypoint_int_send();
+        }
+		else
+		{
+			CHECK_PAYLOAD_SIZE(MISSION_REQUEST);
+			queued_waypoint_send();
+		}
+		
+		
         break;
 
     case MSG_RANGEFINDER:
@@ -585,10 +618,35 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
         CHECK_PAYLOAD_SIZE(ADSB_VEHICLE);
         copter.adsb.send_adsb_vehicle(chan);
         break;
+		
     case MSG_BATTERY_STATUS:
         send_battery_status(copter.battery);
         break;
-    }
+	
+//#if PROJECTGKXN == ENABLED
+	case MSG_FLIGHT_TIME:
+		CHECK_PAYLOAD_SIZE(FLIGHT_TIME_THISMAV);
+		send_flight_time_thismav(copter.g.flight_time_hour.get(), \
+								copter.g.flight_time_sec.get(), \
+								copter.local_flight_time_sec);
+	break;
+//#endif	
+
+		
+
+//	added by ZhangYong 20170719
+#if PROJECTGKXN == ENABLED
+	case MSG_PLD_STATUS:
+		CHECK_PAYLOAD_SIZE(PAYLOAD_STATUS);
+		send_payload_status(&(copter.sprayer), &(copter.flowmeter));
+
+	break;
+#endif
+//	added end
+	
+	default:
+		break;
+	}
 
     return true;
 }
@@ -690,14 +748,36 @@ AP_GROUPEND
 void
 GCS_MAVLINK_Copter::data_stream_send(void)
 {
-    if (waypoint_receiving) {
-        // don't interfere with mission transfer
-        return;
-    }
+	//	modified by ZhangYong 20171011
+	
+    //if (waypoint_receiving) {
+    //    // don't interfere with mission transfer
+    //    return;
+    //}
+	//	modified end
+	//	in AB planer condition, GCS can receive telemetry data when updating mission items
+	if(0 == copter.ABMission_switch)
+	{
+		if (waypoint_receiving) {
+        	// don't interfere with mission transfer
+        	return;
+    	}
+	}
+	
 
     if (!copter.in_mavlink_delay && !copter.motors->armed()) {
         copter.DataFlash.handle_log_send(*this);
     }
+	else
+	{
+//		printf("delay %d armed %d\n", copter.in_mavlink_delay, copter.motors->armed());
+	}
+
+	//	added by ZhangYong 20171123 
+	//	if user are downloading logs, don't trasmit other message
+	if(copter.DataFlash.in_log_download())
+		return;
+	//	added end
 
     copter.gcs_out_of_time = false;
 
@@ -714,6 +794,19 @@ GCS_MAVLINK_Copter::data_stream_send(void)
         send_message(MSG_RAW_IMU1);  // RAW_IMU, SCALED_IMU2, SCALED_IMU3
         send_message(MSG_RAW_IMU2);  // SCALED_PRESSURE, SCALED_PRESSURE2, SCALED_PRESSURE3
         send_message(MSG_RAW_IMU3);  // SENSOR_OFFSETS
+
+//	adde by ZhangYong 20170719
+#if PROJECTGKXN == ENABLED
+		send_message(MSG_PLD_STATUS);
+	//	printf("A\n");
+#endif	
+
+#if FXTX_AUTH == ENABLED
+		send_message(MSG_FLIGHT_TIME);
+#endif
+
+//	added end
+        
     }
 
     if (copter.gcs_out_of_time) return;
@@ -819,6 +912,24 @@ void GCS_MAVLINK_Copter::packetReceived(const mavlink_status_t &status,
 void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 {
     uint8_t result = MAV_RESULT_FAILED;         // assume failure.  Each messages id is responsible for return ACK or NAK if required
+
+
+	//	added by ZhangYong
+	
+	
+#if FXTX_AUTH == 1
+	union auth_id_para id_para;
+
+	static uint8_t lcl_counter = 0;
+	memset(&id_para, 0, sizeof(union auth_id_para));
+
+#endif
+	
+//bool return_value;
+		//	added end
+
+//	printf("handleMessage %d\n", msg->msgid);
+
 
     switch (msg->msgid) {
 
@@ -1236,6 +1347,109 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
             }
             break;
 
+		//	added by ZhangYong 20171101
+		case MAV_CMD_ABMISSION:
+			
+			/*if(1 == packet.param1)
+			{
+				if(1 != copter.ABMission_switch)
+				{
+					copter.ABMission_switch = 1;
+				}
+			}
+			else if(0 == packet.param1)
+			{
+				if(0 != copter.ABMission_switch)
+				{
+					copter.ABMission_switch = 0;
+				}
+			}
+			else
+			{
+				//printf("MAV_CMD_ABMISSION unspport value\n");
+			}*/
+
+			
+			if((1 == packet.param1) || (0 == packet.param1))
+			{
+				copter.ABMission_switch = (bool)packet.param1;
+				result = MAV_RESULT_ACCEPTED;
+			}
+			else
+			{
+				//printf("MAV_CMD_ABMISSION unspport value\n");
+				result = MAV_RESULT_FAILED;
+			}
+
+			
+			break;
+		//	added end
+
+//	added by ZhangYong 20170705
+#if FXTX_AUTH == 1
+        case MAV_CMD_AUTH_PROTOCAL:
+/*        	lcl_counter++;
+        	if(0 == (lcl_counter % 2))
+        	{
+        		result = MAV_RESULT_ACCEPTED;
+        	}
+        	else
+        	{
+        		result = MAV_RESULT_FAILED;
+        	}
+*/
+
+			//	added by ZhangYong 20161117 for duqiang debug 20161226
+			//	printf("\nMAV_CMD_AUTH_PROTOCAL\n");
+			//	added end
+			
+			id_para.serial[0] = packet.param1;
+			id_para.serial[1] = packet.param2;
+			id_para.serial[2] = packet.param3;
+			id_para.serial[3] = packet.param4;
+			id_para.serial[4] = packet.param5;
+
+			
+
+			for(lcl_counter = 0; lcl_counter < 12; lcl_counter++)
+			{
+				
+				//	added by ZhangYong 20161021
+				//printf("%d: %x vs %x\n", lcl_counter, id_para.data[lcl_counter], auth_id[lcl_counter]);
+				//	added	end
+				if(id_para.data[lcl_counter] != copter.auth_id[lcl_counter])
+					break;
+			}
+
+			if(lcl_counter != 12)
+			{
+				result = MAV_RESULT_FAILED;
+			}
+			else
+			{
+				result = MAV_RESULT_ACCEPTED;
+
+				if(copter.curr_gps_week_ms.time_week > (uint16_t)id_para.serial[3])
+				{
+					
+result = MAV_RESULT_DENIED;
+				}
+				else
+				{
+					if(copter.curr_gps_week_ms.time_week == (uint16_t)id_para.serial[3])
+					{
+						if(copter.curr_gps_week_ms.time_week_ms > (uint32_t)id_para.serial[4])
+						{
+							result = MAV_RESULT_DENIED;
+						}
+					}
+				}
+			}
+			break;
+//		added end	
+#endif
+//	added end
+
         case MAV_CMD_PREFLIGHT_CALIBRATION:
             // exit immediately if armed
             if (copter.motors->armed()) {
@@ -1447,6 +1661,10 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
         case MAV_CMD_DO_START_MAG_CAL:
         case MAV_CMD_DO_ACCEPT_MAG_CAL:
         case MAV_CMD_DO_CANCEL_MAG_CAL:
+			//	added by ZhangYong for mag calibration 20170830
+			//printf("handleMessage ");
+			//	added end
+		
             result = copter.compass.handle_mag_cal_command(packet);
 
             break;
@@ -1547,6 +1765,38 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
                 result = MAV_RESULT_ACCEPTED;
             }
             break;
+//	added by ZhangYong 20170717
+#if SPRAYER == ENABLED
+		case MAV_CMD_DO_SPRAYER:
+			result = MAV_RESULT_ACCEPTED;
+			switch ((uint16_t)packet.param1) 
+			{
+                case 0:
+                    copter.sprayer.run(false);
+					copter.sprayer.test_pump(false);
+                    break;
+                case 1:
+                    copter.sprayer.run(true);
+
+                    //	modified by ZhangYong 20170602
+					//	sprayer.test_pump(!motors.armed());
+                    //	modified end
+					if(1 == copter.sprayer.get_vpvs_enable())
+					{
+						copter.sprayer.test_pump(!copter.motors->armed());
+					}
+					else
+					{
+						copter.sprayer.test_pump(true);
+					}
+					break;
+                default:
+                    result = MAV_RESULT_FAILED;
+                    break;
+            }
+			break;
+#endif			
+//	added end			
 
         default:
             result = MAV_RESULT_UNSUPPORTED;
@@ -1555,6 +1805,35 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 
         // send ACK or NAK
         mavlink_msg_command_ack_send_buf(msg, chan, packet.command, result);
+		
+#if FXTX_AUTH == ENABLED
+        //	added by ZhangYong
+        if(MAV_CMD_AUTH_PROTOCAL == packet.command)
+        {
+//			printf("1\n");
+		
+        	if(MAV_RESULT_FAILED == result)
+            {
+ //           	printf("2\n");
+				copter.gcs_send_text(MAV_SEVERITY_CRITICAL, copter.auth_msg);
+            //	send_statustext_all(auth_msg);
+			}
+			else if(MAV_RESULT_DENIED == result)
+			{
+//				printf("3\n");
+				copter.auth_state_ms = auth_state_denied;
+			}
+			else
+			{
+//				printf("4\n");
+				copter.auth_state_ms = auth_state_success;
+			}
+
+			
+        }
+        //	added end
+#endif	
+
 
         break;
     }
@@ -1861,6 +2140,13 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
         break;
 #endif // AC_FENCE == ENABLED
 
+//#if PROJECTGKXN == ENABLED
+	case MAVLINK_MSG_ID_COMMUNICATION_DROPS:		//	190
+        handle_communication_drops(msg, copter.home_distance, copter.DataFlash, true);
+        break;
+//#endif
+
+
 #if CAMERA == ENABLED
     //deprecated.  Use MAV_CMD_DO_DIGICAM_CONFIGURE
     case MAVLINK_MSG_ID_DIGICAM_CONFIGURE:      // MAV ID: 202
@@ -1952,8 +2238,8 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
         break;
     }
 #endif // AC_RALLY == ENABLED
-
-    case MAVLINK_MSG_ID_AUTOPILOT_VERSION_REQUEST:
+	
+    case MAVLINK_MSG_ID_AUTOPILOT_VERSION_REQUEST:			//	183
         send_autopilot_version(FIRMWARE_VERSION);
         break;
 
@@ -2076,11 +2362,23 @@ void Copter::gcs_send_mission_item_reached_message(uint16_t mission_index)
  */
 void Copter::gcs_data_stream_send(void)
 {
-    for (uint8_t i=0; i<num_gcs; i++) {
-        if (gcs_chan[i].initialised) {
-            gcs_chan[i].data_stream_send();
-        }
-    }
+	//	added by Zhangyong for auth process
+	//	if want to connect to common mission planer
+	//	should sheild this state
+#if FXTX_AUTH == 1
+	if(auth_state_ms == auth_state_success)
+#endif
+	{
+	//	added endded
+
+    	for (uint8_t i=0; i<num_gcs; i++) {
+        	if (gcs_chan[i].initialised) {
+            	gcs_chan[i].data_stream_send();
+        	}
+    	}
+//	added by ZhangYong for auth process    	
+	}
+//	end
 }
 
 /*
