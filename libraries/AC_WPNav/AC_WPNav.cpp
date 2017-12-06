@@ -1239,7 +1239,17 @@ bool AC_WPNav::get_vector_NEU(const Location_Class &loc, Vector3f &vec, bool &te
         }
         vec.z = terr_alt;
         terrain_alt = true;
-    } else {
+    }
+	else if(loc.get_alt_frame() == Location_Class::ALT_FRAME_ABOVE_HOME){
+		terrain_alt = false;
+        int32_t temp_alt;
+        if (!loc.get_alt_cm(Location_Class::ALT_FRAME_ABOVE_HOME, temp_alt)) {
+            return false;
+        }
+        vec.z = temp_alt;
+        terrain_alt = false;
+	}  
+	else {
         terrain_alt = false;
         int32_t temp_alt;
         if (!loc.get_alt_cm(Location_Class::ALT_FRAME_ABOVE_ORIGIN, temp_alt)) {
