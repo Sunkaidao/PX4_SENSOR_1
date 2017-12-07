@@ -113,6 +113,28 @@
 
 #endif // APM_BUILD_DIRECTORY
 
+#ifdef GPS_YAW_CAL
+
+//baiyang added in 20170116
+#ifndef HEAD_CONTROL_DEFAULT
+# define HEAD_CONTROL_DEFAULT      0     // default value for HEAD_CONTROL_DEFAULT
+#endif
+//added end
+
+//baiyang added in 20170120
+#ifndef HEAD_INIT_DEFAULT
+# define HEAD_INIT_DEFAULT      1     // default value for HEAD_CONTROL_DEFAULT
+#endif
+//added end
+
+//baiyang added in 20170303
+#define VirMagN_DEFAULT 0.348f
+#define VirMagE_DEFAULT -0.038f
+#define VirMagD_DEFAULT 0.439f
+//added end
+
+#endif
+
 extern const AP_HAL::HAL& hal;
 
 // Define tuning parameters
@@ -549,6 +571,51 @@ const AP_Param::GroupInfo NavEKF2::var_info[] = {
     // @User: Advanced
     // @RebootRequired: True
     AP_GROUPINFO("OGN_HGT_MASK", 49, NavEKF2, _originHgtMode, 0),
+
+#ifdef GPS_YAW_CAL
+	//baiyang added in 20170116
+	// @Param: HEAD_CONTROL
+	// @DisplayName: head_control 
+	// @Description: Head fusion mode control
+	// @Values: 0: Mag fusion,1: GPS head fusion
+	// @User: Advanced
+	AP_GROUPINFO("HEAD_CONTROL", 56, NavEKF2, _head_control, HEAD_CONTROL_DEFAULT),
+	//added end
+
+	//baiyang added in 20170220
+	// @Param: GPSHEAD_DELAY
+    // @DisplayName: GPS HEAD measurement delay (msec)
+    // @Description: This is the number of msec that the GPS HEAD measurements lag behind the inertial measurements.
+    // @Range: 0 250
+    // @Increment: 10
+    // @User: Advanced
+    // @Units: msec
+    AP_GROUPINFO("GPSh_DELAY", 58, NavEKF2, _gpsHeadDelay_ms, 220),
+    //added end
+
+	//baiyang added in 20170303
+	// @Param: VirMagN
+    // @DisplayName: Magnetic compass triaxial virtual value, this parameter is used in dual antenna GPS corrected yaw angle
+    // @Description: this parameter is used in dual antenna GPS corrected yaw angle
+    // @Range: 0 1
+    // @User: Advanced
+    AP_GROUPINFO("VirMagN", 59, NavEKF2, VirMagN, VirMagN_DEFAULT),
+    
+	// @Param: VirMagE
+    // @DisplayName: Magnetic compass triaxial virtual value, this parameter is used in dual antenna GPS corrected yaw angle
+    // @Description: this parameter is used in dual antenna GPS corrected yaw angle
+    // @Range: 0 1
+    // @User: Advanced
+    AP_GROUPINFO("VirMagE", 60, NavEKF2, VirMagE, VirMagE_DEFAULT),
+
+	// @Param: VirMagD
+    // @DisplayName: Magnetic compass triaxial virtual value, this parameter is used in dual antenna GPS corrected yaw angle
+    // @Description: this parameter is used in dual antenna GPS corrected yaw angle
+    // @Range: 0 1
+    // @User: Advanced
+    AP_GROUPINFO("VirMagD", 61, NavEKF2, VirMagD, VirMagD_DEFAULT),
+    //added end
+#endif
 
     AP_GROUPEND
 };

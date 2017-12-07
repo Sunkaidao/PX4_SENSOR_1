@@ -530,6 +530,53 @@ void NavEKF2_core::readGpsData()
     }
 }
 
+#ifdef GPS_YAW_CAL
+//baiyang added in 20170117
+// check for new valid GPS Head data and update stored measurement if available
+void NavEKF2_core::readGpsHeadData()
+{
+    // check for new GPS data
+    // do not accept data at a faster rate than 14Hz to avoid overflowing the FIFO buffer
+    if (_ahrs->get_gps().last_message_time_ms() - lastTimeGpsHeadReceived_ms > 70) {
+        if ((_ahrs->get_gps().status() >= AP_GPS::GPS_OK_FIX_3D)&&(_ahrs->get_gps().Headstatus() >= AP_GPS::NARROW_INT)) {
+            // report GPS fix status
+            gpsHeadCheckStatus.bad_fix = false;
+			gpsHeadDataToFuse = false;
+
+            // store fix time from previous read
+            secondLastGpsHeadTime_ms = lastTimeGpsHeadReceived_ms;
+
+            // get current fix time
+            lastTimeGpsHeadReceived_ms = _ahrs->get_gps().last_message_time_ms();
+
+            // estimate when the GPS fix was valid, allowing for GPS processing and other delays
+            // ideally we should be using a timing signal from the GPS receiver to set this time
+            gpsHeadDataNew.time_ms = lastTimeGpsHeadReceived_ms - frontend->_gpsHeadDelay_ms;
+
+            // Correct for the average intersampling delay due to the filter updaterate
+            gpsHeadDataNew.time_ms -= localFilterTimeStep_ms/2;
+
+            // Prevent time delay exceeding age of oldest IMU data in the buffer
+            gpsHeadDataNew.time_ms = MAX(gpsHeadDataNew.time_ms,imuDataDelayed.time_ms);
+
+            // read the NED velocity from the GPS
+            gpsHeadDataNew.Head= _ahrs->get_gps().heading(0);
+
+			//baiyang added in 20170206
+			storedGPSHead.push(gpsHeadDataNew);
+            // declare GPS available for use
+            gpsHeadNotAvailable = false;
+			//added end
+
+        } else {
+            // report GPS fix status
+            gpsHeadCheckStatus.bad_fix = true;
+        }
+    }
+}
+//added end
+#endif
+
 // read the delta angle and corresponding time interval from the IMU
 // return false if data is not available
 bool NavEKF2_core::readDeltaAngle(uint8_t ins_index, Vector3f &dAng) {

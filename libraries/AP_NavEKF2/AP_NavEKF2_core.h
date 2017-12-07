@@ -403,6 +403,15 @@ private:
         uint32_t    time_ms;     // 6
         uint8_t     sensor_idx;  // 7..9
     };
+	
+#ifdef GPS_YAW_CAL
+	//baiyang added in 20170117
+	struct gpsHead_elements {
+        float       Head;         // 0
+        uint32_t    time_ms;     // 1
+    };
+    //added end
+#endif
 
     struct mag_elements {
         Vector3f    mag;         // 0..2
@@ -555,6 +564,13 @@ private:
 
     // check for new valid GPS data and update stored measurement if available
     void readGpsData();
+
+#ifdef GPS_YAW_CAL
+	//biayang added in 20170117
+	// check for new valid GPS data and update stored measurement if available
+    void readGpsHeadData();
+	//added end
+#endif
 
     // check for new altitude measurement data and update stored measurement if available
     void readBaroData();
@@ -735,12 +751,22 @@ private:
     bool badIMUdata;                // boolean true if the bad IMU data is detected
 
     float gpsNoiseScaler;           // Used to scale the  GPS measurement noise and consistency gates to compensate for operation with small satellite counts
-    Vector28 Kfusion;               // Kalman gain vector
+#ifdef GPS_YAW_CAL
+	//baiyang added in 20170117
+    float gpsHeadNoiseScaler;           // Used to scale the  GPS measurement noise and consistency gates to compensate for operation with small satellite counts
+    //added end
+#endif
+	Vector28 Kfusion;               // Kalman gain vector
     Matrix24 KH;                    // intermediate result used for covariance updates
     Matrix24 KHP;                   // intermediate result used for covariance updates
     Matrix24 P;                     // covariance matrix
     imu_ring_buffer_t<imu_elements> storedIMU;      // IMU data buffer
     obs_ring_buffer_t<gps_elements> storedGPS;      // GPS data buffer
+#ifdef GPS_YAW_CAL
+	//baiyang added in 20170107
+    obs_ring_buffer_t<gpsHead_elements> storedGPSHead;      // GPS heading data buffer
+    //added end
+#endif
     obs_ring_buffer_t<mag_elements> storedMag;      // Magnetometer data buffer
     obs_ring_buffer_t<baro_elements> storedBaro;    // Baro data buffer
     obs_ring_buffer_t<tas_elements> storedTAS;      // TAS data buffer
@@ -785,7 +811,13 @@ private:
     uint32_t lastHgtPassTime_ms;    // time stamp when height measurement last passed innovation consistency check (msec)
     uint32_t lastTasPassTime_ms;    // time stamp when airspeed measurement last passed innovation consistency check (msec)
     uint32_t lastTimeGpsReceived_ms;// last time we received GPS data
-    uint32_t timeAtLastAuxEKF_ms;   // last time the auxiliary filter was run to fuse range or optical flow measurements
+#ifdef GPS_YAW_CAL
+	//baiyang added in 20170117
+    uint32_t lastTimeGpsHeadReceived_ms; // last time we received GPS Head data
+    uint32_t secondLastGpsHeadTime_ms;   // time of second last GPS Head fix used to determine how long since last update
+    //added end
+#endif
+	uint32_t timeAtLastAuxEKF_ms;   // last time the auxiliary filter was run to fuse range or optical flow measurements
     uint32_t secondLastGpsTime_ms;  // time of second last GPS fix used to determine how long since last update
     uint32_t lastHealthyMagTime_ms; // time the magnetometer was last declared healthy
     bool allMagSensorsFailed;       // true if all magnetometer sensors have timed out on this flight and we are no longer using magnetometer data
@@ -808,7 +840,20 @@ private:
     bool inhibitMagStates;          // true when magnetic field states and covariances are to remain constant
     bool gpsNotAvailable;           // bool true when valid GPS data is not available
     uint8_t last_gps_idx;           // sensor ID of the GPS receiver used for the last fusion or reset
-    struct Location EKF_origin;     // LLH origin of the NED axis system
+#ifdef GPS_YAW_CAL
+	 //baiyang added in 20170117
+    bool gpsHeadNotAvailable;           // bool true when valid GPS data is not available
+    //added end
+    //baiyang added in 20170117
+    float gpsHeadSpdAccuracy;           // estimated speed accuracy in m/s returned by the GPS receiver
+    float gpsHeadPosAccuracy;           // estimated position accuracy in m returned by the GPS receiver
+    float gpsHeadHgtAccuracy;           // estimated height accuracy in m returned by the GPS receiver
+    //added end
+    //baiyang added in 20170117
+    bool useGpsHeadVertVel;             // true if GPS vertical velocity should be used
+    //added end
+#endif
+	struct Location EKF_origin;     // LLH origin of the NED axis system
     bool validOrigin;               // true when the EKF origin is valid
     float gpsSpdAccuracy;           // estimated speed accuracy in m/s returned by the GPS receiver
     float gpsPosAccuracy;           // estimated position accuracy in m returned by the GPS receiver
@@ -845,7 +890,19 @@ private:
     uint8_t magStoreIndex;          // Magnetometer data storage index
     gps_elements gpsDataNew;        // GPS data at the current time horizon
     gps_elements gpsDataDelayed;    // GPS data at the fusion time horizon
-    uint8_t gpsStoreIndex;          // GPS data storage index
+#ifdef GPS_YAW_CAL
+	//baiyang added in 20170117
+    gpsHead_elements gpsHeadDataNew;        // GPS Head data at the current time horizon
+    gpsHead_elements gpsHeadDataDelayed;    // GPS Head data at the fusion time horizon
+    //added end
+    //baiyang added in 20170117
+    bool gpsHeadGoodToAlign;        // true when the GPS quality can be used to initialise the navigation system
+    //added end
+    //baiyang added in 20170303
+    Quaternion Quat;                // this parameter is used in dual antenna GPS corrected yaw angle,
+	//added end
+#endif
+	uint8_t gpsStoreIndex;          // GPS data storage index
     output_elements outputDataNew;  // output state data at the current time step
     output_elements outputDataDelayed; // output state data at the current time step
     Vector3f delAngCorrection;      // correction applied to delta angles used by output observer to track the EKF
@@ -954,7 +1011,10 @@ private:
     bool baroDataToFuse;            // true when valid baro height finder data has arrived at the fusion time horizon.
     bool gpsDataToFuse;             // true when valid GPS data has arrived at the fusion time horizon.
     bool magDataToFuse;             // true when valid magnetometer data has arrived at the fusion time horizon
-    Vector2f heldVelNE;             // velocity held when no aiding is available
+#ifdef GPS_YAW_CAL
+	bool gpsHeadDataToFuse;      // true when valid GPS heading data has arrived at the fusion time horizon
+#endif
+	Vector2f heldVelNE;             // velocity held when no aiding is available
     enum AidingMode {AID_ABSOLUTE=0,    // GPS or some other form of absolute position reference aiding is being used (optical flow may also be used in parallel) so position estimates are absolute.
                      AID_NONE=1,       // no aiding is being used so only attitude and height estimates are available. Either constVelMode or constPosMode must be used to constrain tilt drift.
                      AID_RELATIVE=2    // only optical flow aiding is being used so position estimates will be relative
@@ -1052,6 +1112,12 @@ private:
     float yawInnovAtLastMagReset;   // magnetic yaw innovation last time the yaw and mag field states were reset (rad)
     Quaternion quatAtLastMagReset;  // quaternion states last time the mag states were reset
 
+#ifdef GPS_YAW_CAL
+	//baiyang added in 20170119
+	bool gpsHeadResetRequest;
+	//added end
+#endif
+
     // flags indicating severe numerical errors in innovation variance calculation for different fusion operations
     struct {
         bool bad_xmag:1;
@@ -1086,6 +1152,24 @@ private:
         bool bad_fix:1;
         bool bad_horiz_vel:1;
     } gpsCheckStatus;
+
+#ifdef GPS_YAW_CAL
+	//biyang added in 20170117
+	// flags indicating which GPS Head quality checks are failing
+    struct {
+        bool bad_sAcc:1;
+        bool bad_hAcc:1;
+        bool bad_yaw:1;
+        bool bad_sats:1;
+        bool bad_VZ:1;
+        bool bad_horiz_drift:1;
+        bool bad_hdop:1;
+        bool bad_vert_vel:1;
+        bool bad_fix:1;
+        bool bad_horiz_vel:1;
+    } gpsHeadCheckStatus;
+	//added end
+#endif
 
     // states held by magnetomter fusion across time steps
     // magnetometer X,Y,Z measurements are fused across three time steps

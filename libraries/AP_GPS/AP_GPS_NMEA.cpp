@@ -45,6 +45,20 @@ extern const AP_HAL::HAL& hal;
 #include <stdio.h>
 #endif
 
+#if DGPS_HEADINGA == ENABLED
+//
+#define RF_INIT_MSG \
+        "com com1 57600\r\n"    \
+        "com com2 57600\r\n"    \
+        "interfacemode com2 novatelx novatel off\r\n"   \
+        "log com1 gpgga ontime 0.2\r\n"    \
+        "log com1 gprmc ontime 0.2\r\n"    \
+        "log com1 gpvtg ontime 0.2\r\n"    \
+        "log com1 headinga onchanged\r\n"  \
+        "DUALANTENNAALIGN enable 5 1\r\n"  \
+
+const char AP_GPS_NMEA::_initialisation_blob[] = ""; 
+#else
 // SiRF init messages //////////////////////////////////////////////////////////
 //
 // Note that we will only see a SiRF in NMEA mode if we are explicitly configured
@@ -88,7 +102,8 @@ extern const AP_HAL::HAL& hal;
     "$PUBX,40,vtg,0,1,0,0,0,0*7F\r\n"   /* VTG on at one per fix */ \
     "$PUBX,40,rmc,0,0,0,0,0,0*67\r\n"   /* RMC off (XXX suppress other message types?) */
 
-const char AP_GPS_NMEA::_initialisation_blob[] = SIRF_INIT_MSG MTK_INIT_MSG UBLOX_INIT_MSG;
+const char AP_GPS_NMEA::_initialisation_blob[] = SIRF_INIT_MSG MTK_INIT_MSG UBLOX_INIT_MSG;    
+#endif
 
 //baiyang added in 20170620
 #if DGPS_HEADINGA == ENABLED

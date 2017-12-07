@@ -656,11 +656,16 @@
   #  define DGPS_HEADINGA          ENABLED
 #endif
 
-//Use the #HEADINGA message to resolve the heading
-#ifndef GPS_HEADINGA_ATT_CAL
-  #  define GPS_HEADINGA_ATT_CAL          DISABLED
-#endif
+//This macro is defined in AP_NavEKF2_core.h,in this file, AP_NavEKF2_core.h can not be seen AP_NavEKF2.h
+//Use the #HEADINGA message to resolve the heading,can not use this method, this method compile switch does not work
+/*
+* #ifndef GPS_YAW_CAL
+* # define GPS_YAW_CAL   ENABLED
+* #endif
+*/
+
 //added end
+
 
 //baiyang added in 20170712
 ///////////////////////////////////////////////////////////////////////////////
