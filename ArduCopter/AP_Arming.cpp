@@ -486,15 +486,16 @@ bool AP_Arming_Copter::gps_checks(bool display_failure)
     }
 
 #ifdef GPS_YAW_CAL
+
 	//baiyang added in 20171023
-	if(copter.EKF2.get_ekf_heading_mode() == GPS_SUPPLY_HEAD){
+	if(copter.EKF2.get_ekf_heading_mode() == GPS_SUPPLY_HEAD && \
+		copter.gps.Headstatus() < NARROW_INT){
 	   if (display_failure) {
-            if (copter.gps.Headstatus() < NARROW_INT) {
-                gcs().send_text(MAV_SEVERITY_CRITICAL,"PreArm: Need GPS HEADING locking");
-				AP_Notify::flags.pre_arm_gps_check = false;
-        		return false;
-            }
-        }
+            gcs().send_text(MAV_SEVERITY_CRITICAL,"PreArm: Need GPS HEADING locking");
+       }
+	   
+	   AP_Notify::flags.pre_arm_gps_check = false;
+	   return false;	  
 	}
 	//added end
 #endif
