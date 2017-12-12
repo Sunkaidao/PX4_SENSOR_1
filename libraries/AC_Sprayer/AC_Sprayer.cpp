@@ -135,6 +135,7 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 	uint32_t unspray_distance;
 	float lcl_pump_rate;
 	int16_t pump_pct;
+	actual_pump_rate = 0;
 	//	added end
 
 

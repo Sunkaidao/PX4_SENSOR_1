@@ -397,8 +397,11 @@ void GCS_MAVLINK::send_payload_status(AC_Sprayer *sprayer, AP_Flowmeter *flowmet
 
 		payload_status[5] = sprayer->get_testing();
 
-//		printf("run %d spray %d test %d\n", sprayer->get_running(), sprayer->get_spraying(), sprayer->get_testing());
-		
+/*		printf("run %d spray %d test %d, pr %d\n", sprayer->get_running(), \
+													sprayer->get_spraying(), \
+													sprayer->get_testing(), \
+													lcl_int16_t);
+*/		
 	}
 
 	

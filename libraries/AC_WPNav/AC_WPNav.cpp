@@ -1225,14 +1225,29 @@ bool AC_WPNav::get_terrain_offset(float& offset_cm)
 //      returns false if conversion failed (likely because terrain data was not available)
 bool AC_WPNav::get_vector_NEU(const Location_Class &loc, Vector3f &vec, bool &terrain_alt)
 {
+	//	modified by ZhangYong 20171212
+	int32_t terr_alt;
+	int32_t temp_alt;
+	//	modified end
+	
     // convert location to NEU vector3f
+    
+	
     Vector3f res_vec;
     if (!loc.get_vector_xy_from_origin_NEU(res_vec)) {
         return false;
     }
 
-    // convert altitude
-    if (loc.get_alt_frame() == Location_Class::ALT_FRAME_ABOVE_TERRAIN) {
+	/*
+	ALT_FRAME_ABOVE_HOME = 1,
+        ALT_FRAME_ABOVE_ORIGIN = 2,
+        ALT_FRAME_ABOVE_TERRAIN = 3
+	*/
+	//	modified by ZhangYong 
+	//	there is no differences between home and origin
+	//	modified end
+	/*
+	if (loc.get_alt_frame() == Location_Class::ALT_FRAME_ABOVE_TERRAIN) {
         int32_t terr_alt;
         if (!loc.get_alt_cm(Location_Class::ALT_FRAME_ABOVE_TERRAIN, terr_alt)) {
             return false;
@@ -1248,6 +1263,49 @@ bool AC_WPNav::get_vector_NEU(const Location_Class &loc, Vector3f &vec, bool &te
         vec.z = temp_alt;
         terrain_alt = false;
     }
+	*/
+	
+    // convert altitude
+	switch(loc.get_alt_frame())
+	{
+		case Location_Class::ALT_FRAME_ABOVE_TERRAIN:
+			if (!loc.get_alt_cm(Location_Class::ALT_FRAME_ABOVE_TERRAIN, terr_alt)) {
+            	return false;
+        	}
+       	 	vec.z = terr_alt;
+        	terrain_alt = true;
+			
+			break;
+
+		case Location_Class::ALT_FRAME_ABOVE_ORIGIN:
+			if (!loc.get_alt_cm(Location_Class::ALT_FRAME_ABOVE_ORIGIN, temp_alt)) {
+            	return false;
+        	}
+        	vec.z = temp_alt;
+        	terrain_alt = false;
+			
+			break;
+
+		case Location_Class::ALT_FRAME_ABOVE_HOME:
+			if (!loc.get_alt_cm(Location_Class::ALT_FRAME_ABOVE_HOME, temp_alt)) {
+            	return false;
+        	}
+        	vec.z = temp_alt;
+        	terrain_alt = false;
+			
+			break;
+
+		default:
+			if (!loc.get_alt_cm(Location_Class::ALT_FRAME_ABOVE_ORIGIN, temp_alt)) {
+            	return false;
+        	}
+        	vec.z = temp_alt;
+        	terrain_alt = false;
+			
+			break;
+	}
+	
+	
 
     // copy xy (we do this to ensure we do not adjust vector unless the overall conversion is successful
     vec.x = res_vec.x;
