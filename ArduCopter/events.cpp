@@ -283,6 +283,9 @@ void Copter::failsafe_payload_off_event(void)
 // failsafe_gcs_check - check for ground station failsafe
 void Copter::failsafe_gcs_check()
 {
+	//	added by ZhangYong 20171212
+	bool return_value;
+    //	added end
     uint32_t last_gcs_update_ms;
 
     // return immediately if gcs failsafe is disabled, gcs has never been connected or we are not overriding rc controls from the gcs and we are not in guided mode
@@ -325,16 +328,101 @@ void Copter::failsafe_gcs_check()
 	channel_throttle->set_pwm(channel_throttle->get_radio_min());
 	channel_yaw->set_pwm(channel_yaw->get_radio_trim());
 	
+	if((STABILIZE == control_mode) || (ACRO == control_mode) || (SPORT == control_mode))
+    {
+    	
+    	channel_throttle->set_control_in(0);
+		channel_throttle->set_radio_in(0);
+	}
+	else
+	{
+		if(FS_GCS_ENABLED_LOITER != g.failsafe_gcs)
+		{
+			
+			channel_throttle->set_control_in(0);
+			channel_throttle->set_radio_in(0);
+		}
+	}
+	//	added end
+	
 //	g2.rc_channels
 
     if (should_disarm_on_failsafe()) {
         init_disarm_motors();
     } else {
-        if (control_mode == AUTO && g.failsafe_gcs == FS_GCS_ENABLED_CONTINUE_MISSION) {
+    	//	modified by ZhangYong 20171212 to loiter the copter when gcs control signal lose
+        /*if (control_mode == AUTO && g.failsafe_gcs == FS_GCS_ENABLED_CONTINUE_MISSION) {
             // continue mission
         } else if (g.failsafe_gcs != FS_GCS_DISABLED) {
             set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
         }
+        */
+        switch(control_mode)
+        {
+        	case STABILIZE:
+        	case ACRO:
+        	case SPORT:
+				set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
+				break;
+
+			case AUTO:
+				/*
+				enum FS_GCSSrategy
+			//	{
+			//		FS_GCSDisable = 0,
+			//		FS_GCSRTL = 1,
+			//		FS_GCSConAuto = 2,
+			//		FS_GCSLoiter = 4,
+			//		FS_GCSPreRTL = 5,
+			//		FS_GCSRevRTL = 6
+			//	};
+				*/
+				switch(g.failsafe_gcs)
+				{
+					case FS_GCS_DISABLED:
+					case FS_GCS_ENABLED_CONTINUE_MISSION:
+						break;
+
+					case FS_GCS_ENABLED_ALWAYS_RTL:
+						set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
+						break;
+
+					case FS_GCS_ENABLED_LOITER:
+						return_value = set_mode(LOITER, MODE_REASON_GCS_FAILSAFE);
+													
+                		if (!return_value) 
+                		{
+                			set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
+                		}
+						break;
+
+					default:
+						set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
+						break;
+				}
+				
+				break;	//	AUTO
+				
+			default:
+				switch(g.failsafe_gcs)
+				{
+					case FS_GCS_ENABLED_LOITER:
+						return_value = set_mode(LOITER, MODE_REASON_GCS_FAILSAFE);
+													
+                		if (!return_value) 
+                		{
+                			set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
+                		}
+						break;
+
+					default:
+						set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
+						break;
+				}	
+				break;
+				
+        }
+        
     }
 }
 

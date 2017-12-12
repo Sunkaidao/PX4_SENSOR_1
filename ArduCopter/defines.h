@@ -550,6 +550,9 @@ typedef union Edition_management {
 #define FS_GCS_DISABLED                     0
 #define FS_GCS_ENABLED_ALWAYS_RTL           1
 #define FS_GCS_ENABLED_CONTINUE_MISSION     2
+//	added by ZhangYong 20171212
+#define FS_GCS_ENABLED_LOITER				4
+//	added end
 
 // EKF failsafe definitions (FS_EKF_ACTION parameter)
 #define FS_EKF_ACTION_LAND                  1       // switch to LAND mode on EKF failsafe
