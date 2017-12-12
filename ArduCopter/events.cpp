@@ -18,10 +18,63 @@ void Copter::failsafe_radio_on_event()
             // continue mission
         } else if (control_mode == LAND && g.failsafe_battery_enabled == FS_BATT_LAND && failsafe.battery) {
             // continue landing
-        } else {
-            if (g.failsafe_throttle == FS_THR_ENABLED_ALWAYS_LAND) {
+        } else 
+        {
+            if (g.failsafe_throttle == FS_THR_ENABLED_ALWAYS_LAND) 
+			{
                 set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
-            } else {
+            } 
+			else 
+            {
+            	//	modified by ZhangYong 20171212
+            	switch(control_mode)
+				{
+					case STABILIZE:
+        			case ACRO:
+						if(g.failsafe_throttle == FS_THR_ENABLED_CONTINUE_MISSION)
+           				{
+           					if(false == set_mode(GUIDED, MODE_REASON_RADIO_FAILSAFE))
+            				{
+            					set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
+           					}						
+						}
+						else
+						{
+							set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
+						}
+						
+						break;
+
+					case AUTO:
+						if(g.failsafe_throttle == FS_THR_ENABLED_CONTINUE_MISSION)
+           				{
+           					
+						}
+						else
+						{
+							if(false == set_mode(GUIDED, MODE_REASON_RADIO_FAILSAFE))
+            				{
+            					set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
+           					}							
+						}
+						
+						break;
+
+					default:
+						if(g.failsafe_throttle == FS_THR_ENABLED_CONTINUE_MISSION)
+           				{
+           					if(false == set_mode(GUIDED, MODE_REASON_RADIO_FAILSAFE))
+            				{
+            					set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
+           					}						
+						}
+						else
+						{
+							set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
+						}
+						break;
+            	}
+				//	modified end
                 set_mode_RTL_or_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
             }
         }
