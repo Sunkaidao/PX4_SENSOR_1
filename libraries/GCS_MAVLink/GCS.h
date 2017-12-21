@@ -315,8 +315,10 @@ protected:
 
 #if PROJECTGKXN == ENABLED
 		//	added by zhangYong 20170725
-	void handle_communication_drops(mavlink_message_t *msg, int32_t para_home_dist, DataFlash_Class &dataflash, bool log_cd);
+	//void handle_communication_drops(mavlink_message_t *msg, int32_t para_home_dist, DataFlash_Class &dataflash, bool log_cd);
 	//	added end
+	
+	void handle_gcs_capabilities(mavlink_message_t *msg, int32_t para_home_dist, DataFlash_Class &dataflash, bool log_cd, uint32_t &fp_uint32);
 #endif
     
 private:

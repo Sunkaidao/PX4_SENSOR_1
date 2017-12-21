@@ -460,11 +460,11 @@ void Copter::init_ardupilot()
 	}
 #endif	
 
-	//	improve the minor edition from 2 to 3
+	//	improve the minor edition from 3 to 4
 	//	failsafe rc gcs
-	if(edit_management.data.minor_edition <= 2)
+	if(edit_management.data.minor_edition <= 3)
 	{	
-		edit_management.data.minor_edition = 3;
+		edit_management.data.minor_edition = 4;
 	}
 
 	g.edition_management.set_and_save(edit_management.words);

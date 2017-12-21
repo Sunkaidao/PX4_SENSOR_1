@@ -18,14 +18,20 @@ void Copter::read_control_switch()
     uint32_t tnow_ms = millis();
 
     // calculate position of flight mode switch
+    //	modified by ZhangYong 20171220
+    
     int8_t switch_position;
-    uint16_t rc5_in = RC_Channels::rc_channel(CH_5)->get_radio_in();
+    /*uint16_t rc5_in = RC_Channels::rc_channel(CH_5)->get_radio_in();
     if      (rc5_in < 1231) switch_position = 0;
     else if (rc5_in < 1361) switch_position = 1;
     else if (rc5_in < 1491) switch_position = 2;
     else if (rc5_in < 1621) switch_position = 3;
     else if (rc5_in < 1750) switch_position = 4;
     else switch_position = 5;
+	*/
+	//	modified end
+	switch_position = readSwitch();
+	
 
     // store time that switch last moved
     if (control_switch_state.last_switch_position != switch_position) {
@@ -111,6 +117,22 @@ bool Copter::check_duplicate_auxsw(void)
     }
    return false;
 }
+
+//	added by ZhangYong 20171220
+uint8_t Copter::readSwitch()
+{
+	int8_t switch_position;
+    uint16_t rc5_in = RC_Channels::rc_channel(CH_5)->get_radio_in();
+    if      (rc5_in < 1231) switch_position = 0;
+    else if (rc5_in < 1361) switch_position = 1;
+    else if (rc5_in < 1491) switch_position = 2;
+    else if (rc5_in < 1621) switch_position = 3;
+    else if (rc5_in < 1750) switch_position = 4;
+    else switch_position = 5;
+
+	return switch_position;
+}
+//	added end
 
 void Copter::reset_control_switch()
 {

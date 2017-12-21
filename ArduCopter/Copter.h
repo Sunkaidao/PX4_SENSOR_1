@@ -433,6 +433,12 @@ private:
     // Circle
     bool circle_pilot_yaw_override; // true if pilot is overriding yaw
 
+	//	added by ZhangYong 20171220
+#if FXTX_AUTH == ENABLED
+	FAILSAFE_MARKER fs_mk;
+#endif
+	//	added end
+
     // SIMPLE Mode
     // Used to track the orientation of the copter for Simple mode. This value is reset at each arming
     // or in SuperSimple mode when the copter leaves a 20m radius from home.
@@ -1207,6 +1213,9 @@ private:
     void read_control_switch();
     bool check_if_auxsw_mode_used(uint8_t auxsw_mode_check);
     bool check_duplicate_auxsw(void);
+	//	added by ZhangYong 20171220
+	uint8_t readSwitch();
+	//	added end
     void reset_control_switch();
     uint8_t read_3pos_switch(uint8_t chan);
     void read_aux_switches();

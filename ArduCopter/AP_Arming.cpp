@@ -144,6 +144,22 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
 	}
 	//	added end
 
+	//	added by ZhangYong 20170815
+#if PROJECTGKXN == ENABLED
+	if(true == copter.fs_mk.control_present)
+	{
+		if(true == copter.fs_mk.not_consist)
+		{
+			gcs_send_text(MAV_SEVERITY_CRITICAL, "GCS control, failsafe GCS should be set");
+		
+			return false;
+		}
+
+		
+	}
+#endif
+//	added end
+
 	return return_value;
 	
 	//	modified end
@@ -844,6 +860,105 @@ bool AP_Arming_Copter::arm_checks(bool display_failure, bool arming_from_gcs)
             }
         }
     }
+
+
+	//	added by ZhangYong 20171220
+#if FXTX_AUTH == ENABLED
+
+	//printf("111arm_checks %d %d %d\n", fs_mk.control_present, fs_mk.not_consist, fs_mk.gcs_control);
+
+	if(ARM_SOURCE_RC == arming_from_gcs)
+	{
+		if(0 == copter.g.failsafe_throttle)
+		{
+			gcs_send_text(MAV_SEVERITY_CRITICAL, "RC control, failsafe RC should be set");
+
+			return false;
+		}
+	}
+
+
+	if(1 == copter.fs_mk.gcs_control)
+	{
+		if(0 == copter.g.failsafe_gcs)
+		{
+			gcs_send_text(MAV_SEVERITY_CRITICAL, "GCS control, failsafe GCS should be set");
+		
+
+			return false;
+		}
+
+		
+
+		if(copter.ap.rc_receiver_present)
+		{
+			if(0 == copter.g.failsafe_throttle)
+			{
+				gcs_send_text(MAV_SEVERITY_CRITICAL, "GCS control, failsafe RC should also be set");
+
+				return false;
+			}
+			
+			if(LOITER != copter.flight_modes[copter.readSwitch()])
+			{
+			
+				gcs_send_text(MAV_SEVERITY_CRITICAL, "GCS control, set radio control switch to LOITER");
+
+//				printf("GCS control, set radio control switch to LOITER");
+
+				return false;
+			}
+		
+//			printf("arm_checks %d\n", g.rc_3.rc_control_in);
+			
+		
+			if((!copter.failsafe.radio)&&(0 != copter.get_pilot_desired_climb_rate(copter.channel_throttle->get_control_in())))
+			{
+			
+
+				gcs_send_text(MAV_SEVERITY_CRITICAL, "GCS control, RC rc3 should be middle");
+
+//				printf("GCS control, RC rc3 should be middle %d\n", g.rc_3.rc_control_in);
+				return false;
+			}
+
+			
+		}
+	}
+	
+
+
+	if(true == copter.fs_mk.control_present)
+	{
+		if(true == copter.fs_mk.not_consist)
+		{
+			gcs_send_text(MAV_SEVERITY_CRITICAL, "remote control error, reset system");
+		
+			return false;
+		}
+
+		if(1 == copter.fs_mk.gcs_control)
+		{
+			if(ARM_SOURCE_RC == arming_from_gcs)
+			{
+				
+				gcs_send_text(MAV_SEVERITY_CRITICAL, "GCS control, RC arming not allowed");
+
+				return false;
+			}
+
+			//	in this case, pilot will use gcs to control the uav, not use rc to save the uav
+
+			
+		}
+	}
+	/*
+	there is no gcs control information upcoming, there is no gcs connecting,
+	so this must be a radio control version
+	*/
+
+#endif
+	//	added end
 
     // check if safety switch has been pushed
     if (hal.util->safety_switch_state() == AP_HAL::Util::SAFETY_DISARMED) {

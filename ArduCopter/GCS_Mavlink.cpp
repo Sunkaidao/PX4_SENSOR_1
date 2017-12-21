@@ -913,13 +913,15 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 {
     uint8_t result = MAV_RESULT_FAILED;         // assume failure.  Each messages id is responsible for return ACK or NAK if required
 
-
+	
 	//	added by ZhangYong
 	
 	
 #if FXTX_AUTH == 1
-	union auth_id_para id_para;
+	uint32_t lcl_uint32_t;
 
+	union auth_id_para id_para;
+	
 	static uint8_t lcl_counter = 0;
 	memset(&id_para, 0, sizeof(union auth_id_para));
 
@@ -2140,11 +2142,37 @@ result = MAV_RESULT_DENIED;
         break;
 #endif // AC_FENCE == ENABLED
 
-//#if PROJECTGKXN == ENABLED
-	case MAVLINK_MSG_ID_COMMUNICATION_DROPS:		//	190
+#if FXTX_AUTH == ENABLE
+	case MAVLINK_MSG_ID_GCS_CAPABILITIES:		//	183
+        handle_gcs_capabilities(msg, copter.home_distance, copter.DataFlash, true, lcl_uint32_t);
+
+	
+		if(false == copter.fs_mk.control_present)
+		{
+			copter.fs_mk.control_present = true;
+//	
+			copter.fs_mk.gcs_control = (lcl_uint32_t >> REMOTE_CONTROL_GCS_POS_SIF) & 1;
+        }
+        else
+        {
+        	if(copter.fs_mk.gcs_control != ((lcl_uint32_t >> REMOTE_CONTROL_GCS_POS_SIF) & 0x00000001))
+        	{
+				copter.fs_mk.not_consist = true;
+        	}
+        }
+        /*	added by ZhangYong for debug 20170823
+		//	printf("handleMessage MAVLINK_MSG_ID_GCS_CAPABILITIES %d\n", fs_mk.gcs_control);
+		//	added end
+        */
+        break;
+#endif
+
+/*#if PROJECTGKXN == ENABLED
+//	case MAVLINK_MSG_ID_COMMUNICATION_DROPS:		//	190
         handle_communication_drops(msg, copter.home_distance, copter.DataFlash, true);
         break;
-//#endif
+#endif
+*/
 
 
 #if CAMERA == ENABLED

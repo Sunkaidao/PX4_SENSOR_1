@@ -11,21 +11,33 @@ void Copter::failsafe_radio_on_event()
         return;
     }
 
-    if (should_disarm_on_failsafe()) {
+    if (should_disarm_on_failsafe()) 
+	{
         init_disarm_motors();
-    } else {
-        if (control_mode == AUTO && g.failsafe_throttle == FS_THR_ENABLED_CONTINUE_MISSION) {
+		printf("failsafe_radio_on_event init_disarm_motors\n");
+    } 
+	else 
+	{
+        if (control_mode == AUTO && g.failsafe_throttle == FS_THR_ENABLED_CONTINUE_MISSION) 
+		{
+			printf("failsafe_radio_on_event continue mission\n");
             // continue mission
-        } else if (control_mode == LAND && g.failsafe_battery_enabled == FS_BATT_LAND && failsafe.battery) {
+    	} 
+		else if (control_mode == LAND && g.failsafe_battery_enabled == FS_BATT_LAND && failsafe.battery) 
+		{
+			printf("failsafe_radio_on_event continue landing\n");
             // continue landing
-        } else 
+        } 
+		else 
         {
             if (g.failsafe_throttle == FS_THR_ENABLED_ALWAYS_LAND) 
 			{
                 set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
+				printf("failsafe_radio_on_event FS_THR_ENABLED_ALWAYS_LAND\n");
             } 
 			else 
             {
+            	printf("failsafe_radio_on_event else\n");
             	//	modified by ZhangYong 20171212
             	switch(control_mode)
 				{
