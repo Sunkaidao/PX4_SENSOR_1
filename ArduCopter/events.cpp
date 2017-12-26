@@ -35,7 +35,11 @@ void Copter::failsafe_radio_on_event()
                 set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
 			
             } 
-			else 
+			else if(FS_THR_ENABLED_ALWAYS_RTL == g.failsafe_throttle)
+			{
+				set_mode_RTL_or_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
+			}
+			else
             {
             	
             	//	modified by ZhangYong 20171212
@@ -43,17 +47,9 @@ void Copter::failsafe_radio_on_event()
 				{
 					case STABILIZE:
         			case ACRO:
-						if(g.failsafe_throttle == FS_THR_ENABLED_CONTINUE_MISSION)
-           				{
-           					if(false == set_mode(GUIDED, MODE_REASON_RADIO_FAILSAFE))
-            				{
-            					set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
-           					}						
-						}
-						else
-						{
-							set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
-						}
+						
+            			set_mode_RTL_or_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
+           				
 						
 						break;
 
@@ -64,8 +60,9 @@ void Copter::failsafe_radio_on_event()
            				{
            				
 						}
-						else
+						else if(FS_THR_ENABLED_ALWAYS_RTL == g.failsafe_throttle)
 						{
+							
 						
 							if(false == set_mode(GUIDED, MODE_REASON_RADIO_FAILSAFE))
             				{
