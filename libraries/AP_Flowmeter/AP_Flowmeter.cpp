@@ -233,5 +233,20 @@ bool AP_Flowmeter::exhausted()
 }
 
 
+uint8_t AP_Flowmeter::get_packet_cnt()
+{
+	if(0 == _enabled)
+	{
+		return false;
+	}
+
+	if(!_initialised)
+
+	{
+		return false;
+	}
+	
+	return _Flo_data.packet_cnt;
+}
 
 

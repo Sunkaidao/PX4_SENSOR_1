@@ -120,6 +120,36 @@ RC_Channel::set_pwm(int16_t pwm)
     }
 }
 
+
+//	added by ZhangYong 20171222 in order to monitor the 
+void
+RC_Channel::set_pwm(int16_t pwm, bool income_valid)
+{
+	if(true == income_valid)
+	{
+		rc_radio_in = pwm;
+
+		if (type_in == RC_CHANNEL_TYPE_RANGE) 
+		{
+        	rc_control_in = pwm_to_range(rc_radio_in);
+			
+    	} 
+		else 
+    	{
+        	//RC_CHANNEL_TYPE_ANGLE, RC_CHANNEL_TYPE_ANGLE_RAW
+        	rc_control_in = pwm_to_angle(rc_radio_in);
+    	}
+	
+	}
+	else
+	{
+		rc_control_in = 0;
+	
+	}
+//	printf("set_pwm %d %d %d \n", income_valid, pwm, rc_control_in);
+}
+
+
 // read input from APM_RC - create a control_in value, but use a 
 // zero value for the dead zone. When done this way the control_in
 // value can be used as servo_out to give the same output as input
@@ -211,6 +241,27 @@ RC_Channel::pwm_to_angle_dz(uint16_t _dead_zone)
     return pwm_to_angle_dz_trim(_dead_zone, radio_trim);
 }
 
+//	added by zhangyong 20171222 in order to monitor the rc thr channel when in GCS mode
+
+int16_t
+RC_Channel::pwm_to_angle_dz(uint16_t sp_dead_zone, uint16_t sp_rc_radio_in)
+{
+    int16_t radio_trim_high = radio_trim + sp_dead_zone;
+    int16_t radio_trim_low  = radio_trim - sp_dead_zone;
+	
+    // prevent div by 0
+    if ((radio_trim_low - radio_min) == 0 || (radio_max - radio_trim_high) == 0)
+        return 0;
+
+    if(radio_in > radio_trim_high) {
+        return reversed * ((long)high_in * (long)(radio_in - radio_trim_high)) / (long)(radio_max  - radio_trim_high);
+    }else if(radio_in < radio_trim_low) {
+        return reversed * ((long)high_in * (long)(radio_in - radio_trim_low)) / (long)(radio_trim_low - radio_min);
+    }else
+        return 0;
+}
+
+
 /*
   return an "angle in centidegrees" (normally -4500 to 4500) from
   the current radio_in value
@@ -220,6 +271,17 @@ RC_Channel::pwm_to_angle()
 {
 	return pwm_to_angle_dz(dead_zone);
 }
+
+
+//	added by zhangYong in order to monitor the rc thr channel when in GCS mode
+int16_t
+RC_Channel::pwm_to_angle(uint16_t sp_rc_radio_in)
+{
+
+	return pwm_to_angle_dz(dead_zone, sp_rc_radio_in);
+}
+
+
 
 
 /*
@@ -243,6 +305,30 @@ RC_Channel::pwm_to_range_dz(uint16_t _dead_zone)
     return 0;
 }
 
+
+//	added by ZhangYong 20170829
+int16_t
+RC_Channel::pwm_to_range_dz(uint16_t sp_dead_zone, uint16_t sp_rc_radio_in)
+{
+    int16_t r_in = constrain_int16(sp_rc_radio_in, radio_min.get(), radio_max.get());
+
+    if (reversed == -1) {
+	    r_in = radio_max.get() - (r_in - radio_min.get());
+    }
+
+    int16_t radio_trim_low  = radio_min + sp_dead_zone;
+
+    if (r_in > radio_trim_low)
+    {
+    	return (((int32_t)(high_in) * (int32_t)(r_in - radio_trim_low)) / (int32_t)(radio_max - radio_trim_low));
+    //	return (_low + ((long)(_high - _low) * (long)(r_in - radio_trim_low)) / (long)(radio_max - radio_trim_low));
+    }
+	
+	return 0;
+}
+//	added end
+
+
 /*
   convert a pulse width modulation value to a value in the configured
   range
@@ -252,6 +338,18 @@ RC_Channel::pwm_to_range()
 {
     return pwm_to_range_dz(dead_zone);
 }
+
+
+//	added by ZhangYong 20170829 in order to monitor 
+int16_t
+RC_Channel::pwm_to_range(uint16_t sp_rc_radio_in)
+{
+//	printf("pwm_to_range %d", rc_radio_in);
+
+    return pwm_to_range_dz(dead_zone, sp_rc_radio_in);
+}
+//	added end
+
 
 
 int16_t RC_Channel::get_control_in_zero_dz(void)

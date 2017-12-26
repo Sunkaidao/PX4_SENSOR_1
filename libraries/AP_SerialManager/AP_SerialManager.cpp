@@ -212,6 +212,14 @@ void AP_SerialManager::init()
                                          AP_SERIALMANAGER_ULANDING_BUFSIZE_RX,
                                          AP_SERIALMANAGER_ULANDING_BUFSIZE_TX);
                     break;
+				case SerialProtocol_FlowMeter_GKXN:
+				//	printf("SerialProtocol_FlowMeter_GKXN %d\n", AP_SERIALMANAGER_FLOWMETER_GKXN_BAUD);
+
+					state[i].baud = AP_SERIALMANAGER_FLOWMETER_GKXN_BAUD / 1000;   // update baud param in case user looks at it
+					state[i].uart->begin(map_baudrate(state[i].baud),
+										 AP_SERIALMANAGER_FLOWMETER_GKXN_BUFSIZE_RX,
+										 AP_SERIALMANAGER_FLOWMETER_GKXN_BUFSIZE_TX);
+					break;	
 
 				case SerialProtocol_PassOSD:
 					state[i].baud = AP_SERIALMANAGER_PASSOSD_BAUD / 1000;	 // update baud param in case user looks at it

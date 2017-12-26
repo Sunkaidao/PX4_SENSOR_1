@@ -378,30 +378,34 @@ void GCS_MAVLINK::send_payload_status(AC_Sprayer *sprayer, AP_Flowmeter *flowmet
 		payload_type |= 0b00000001;
 		payload_status[0] = flowmeter->get_warning();
 		payload_status[1] = flowmeter->get_packet_cnt();
+	//	printf("waring %d\n", flowmeter->get_warning());
 	}
 	else
 	{
 		payload_type |= 0b00000010;
 
-		lcl_int16_t = sprayer->get_actual_pump_rate();
+		if(true == sprayer->get_enabled())
+		{
+			lcl_int16_t = sprayer->get_actual_pump_rate();
 
-		payload_status[0] = lcl_int16_t & 0x00FF;
+			payload_status[0] = lcl_int16_t & 0x00FF;
 
-		payload_status[1] = lcl_int16_t >> 8;
+			payload_status[1] = lcl_int16_t >> 8;
 
-		payload_status[2] = sprayer->get_enabled();
+			payload_status[2] = sprayer->get_enabled();
 
-		payload_status[3] = sprayer->get_running();
+			payload_status[3] = sprayer->get_running();
 
-		payload_status[4] = sprayer->get_spraying();
+			payload_status[4] = sprayer->get_spraying();
 
-		payload_status[5] = sprayer->get_testing();
+			payload_status[5] = sprayer->get_testing();
 
-/*		printf("run %d spray %d test %d, pr %d\n", sprayer->get_running(), \
+/*			printf("run %d spray %d test %d, pr %d\n", sprayer->get_running(), \
 													sprayer->get_spraying(), \
 													sprayer->get_testing(), \
 													lcl_int16_t);
 */		
+		}
 	}
 
 	
@@ -420,7 +424,7 @@ void GCS_MAVLINK::send_payload_status(AC_Sprayer *sprayer, AP_Flowmeter *flowmet
 
 	lcl_cnt++;
 
-//	printf("%d %d %d %d %d\n", lcl_cnt, payload_type, lcl_int16_t, payload_status[0], payload_status[1]);
+	//printf("%d %d %d %d %d\n", lcl_cnt, payload_type, lcl_int16_t, payload_status[0], payload_status[1]);
 }
 
 #endif

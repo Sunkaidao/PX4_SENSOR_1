@@ -38,7 +38,7 @@ public:
 	void init(const AP_SerialManager& serial_manager);
 
 	uint8_t get_warning();
-	uint8_t get_packet_cnt() {return _Flo_data.packet_cnt;}
+	uint8_t get_packet_cnt();
 
 	bool exhausted();
 

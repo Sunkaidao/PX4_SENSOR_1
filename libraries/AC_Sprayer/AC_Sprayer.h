@@ -100,6 +100,8 @@ public:
 
 	uint32_t get_speed_under_min_time() {return _speed_under_min_time;}
 
+	
+
     static const struct AP_Param::GroupInfo var_info[];
 
 private:

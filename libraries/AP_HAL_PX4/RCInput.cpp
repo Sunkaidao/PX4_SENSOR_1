@@ -21,6 +21,10 @@ void PX4RCInput::init()
     }
     clear_overrides();
     pthread_mutex_init(&rcin_mutex, nullptr);
+
+	//	added by ZhangYong 20171222 in order to monitor the rc thr channel when in GCS mode
+	rc_rc3_radio_in = 0;
+	//	added end
 }
 
 bool PX4RCInput::new_input()
@@ -28,11 +32,27 @@ bool PX4RCInput::new_input()
     pthread_mutex_lock(&rcin_mutex);
     bool valid = _rcin.timestamp_last_signal != _last_read;
 	//printf("new_input %" PRIu64 "\n", (_rcin.timestamp_last_signal));
+
+	//	Modified by ZhangYong 20171225 in order to get rc thr in GCS mode
+	/*if (_rcin.rc_failsafe) {
+        // don't consider input valid if we are in RC failsafe.
+        valid = false;
+
+    }*/
 	
     if (_rcin.rc_failsafe) {
         // don't consider input valid if we are in RC failsafe.
         valid = false;
+		rc_valid = false;
     }
+	else
+	{
+		if(valid)
+		{
+			rc_valid = true;
+		}
+	}
+	
     if (_override_valid) {
         // if we have RC overrides active, then always consider it valid
         valid = true;
@@ -57,6 +77,19 @@ uint16_t PX4RCInput::read(uint8_t ch)
         return 0;
     }
     pthread_mutex_lock(&rcin_mutex);
+
+
+	//	added by ZhangYong 20170829
+	if(1 == rc_valid)
+	{
+		if(2 == ch)
+		{
+			rc_rc3_radio_in = _rcin.values[ch];
+//			printf("rc_rc3_control_in = %d\n", rc_rc3_radio_in);
+		}
+	}
+	//	added end
+	
     if (_override[ch]) {
         uint16_t v = _override[ch];
         pthread_mutex_unlock(&rcin_mutex);
@@ -98,11 +131,22 @@ bool PX4RCInput::set_override(uint8_t channel, int16_t override) {
     if (channel >= RC_INPUT_MAX_CHANNELS) {
         return false;
     }
+
+//	printf("set_override %d %d\n", channel, override);
+	
     _override[channel] = override;
     if (override != 0) {
         _override_valid = true;
         return true;
     }
+	//	added by ZhangYong 20160824 to modified the bug
+	//	clear _override_valid
+	else
+	{
+		_override_valid = false;
+	}
+	//	added end
+	
     return false;
 }
 
@@ -147,5 +191,21 @@ bool PX4RCInput::rc_bind(int dsmMode)
     }
     return true;
 }
+
+
+uint16_t PX4RCInput::get_rc_rc3_radio_in(void)
+{
+	if(rc_valid)
+	{
+		return rc_rc3_radio_in;
+	}
+	else
+	{
+		return 0;
+	
+	}
+}
+
+
 
 #endif
