@@ -14,18 +14,18 @@ void Copter::failsafe_radio_on_event()
     if (should_disarm_on_failsafe()) 
 	{
         init_disarm_motors();
-		printf("failsafe_radio_on_event init_disarm_motors\n");
+		
     } 
 	else 
 	{
         if (control_mode == AUTO && g.failsafe_throttle == FS_THR_ENABLED_CONTINUE_MISSION) 
 		{
-			printf("failsafe_radio_on_event continue mission\n");
+		
             // continue mission
     	} 
 		else if (control_mode == LAND && g.failsafe_battery_enabled == FS_BATT_LAND && failsafe.battery) 
 		{
-			printf("failsafe_radio_on_event continue landing\n");
+			
             // continue landing
         } 
 		else 
@@ -33,11 +33,11 @@ void Copter::failsafe_radio_on_event()
             if (g.failsafe_throttle == FS_THR_ENABLED_ALWAYS_LAND) 
 			{
                 set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
-				printf("failsafe_radio_on_event FS_THR_ENABLED_ALWAYS_LAND\n");
+			
             } 
 			else 
             {
-            	printf("failsafe_radio_on_event else\n");
+            	
             	//	modified by ZhangYong 20171212
             	switch(control_mode)
 				{
@@ -58,12 +58,15 @@ void Copter::failsafe_radio_on_event()
 						break;
 
 					case AUTO:
+						
+					
 						if(g.failsafe_throttle == FS_THR_ENABLED_CONTINUE_MISSION)
            				{
-           					
+           				
 						}
 						else
 						{
+						
 							if(false == set_mode(GUIDED, MODE_REASON_RADIO_FAILSAFE))
             				{
             					set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
@@ -75,19 +78,23 @@ void Copter::failsafe_radio_on_event()
 					default:
 						if(g.failsafe_throttle == FS_THR_ENABLED_CONTINUE_MISSION)
            				{
+           			
+							
            					if(false == set_mode(GUIDED, MODE_REASON_RADIO_FAILSAFE))
             				{
+            			
             					set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
            					}						
 						}
 						else
 						{
+							
 							set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
 						}
 						break;
             	}
 				//	modified end
-                set_mode_RTL_or_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
+                //set_mode_RTL_or_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
             }
         }
     }
@@ -386,6 +393,7 @@ void Copter::failsafe_gcs_check()
     // clear overrides so that RC control can be regained with radio.
     hal.rcin->clear_overrides();
     failsafe.rc_override_active = false;
+//	printf("failsafe_gcs_check false\n");
 
 	//	added by ZhangYong to pull the throttle to bottom, and reset roll, pitch, and yaw to trim;
 	channel_roll->set_pwm(channel_roll->get_radio_trim());
@@ -414,6 +422,7 @@ void Copter::failsafe_gcs_check()
 
     if (should_disarm_on_failsafe()) {
         init_disarm_motors();
+
     } else {
     	//	modified by ZhangYong 20171212 to loiter the copter when gcs control signal lose
         /*if (control_mode == AUTO && g.failsafe_gcs == FS_GCS_ENABLED_CONTINUE_MISSION) {
@@ -442,26 +451,31 @@ void Copter::failsafe_gcs_check()
 			//		FS_GCSRevRTL = 6
 			//	};
 				*/
+	
 				switch(g.failsafe_gcs)
 				{
 					case FS_GCS_DISABLED:
 					case FS_GCS_ENABLED_CONTINUE_MISSION:
+					
+
 						break;
 
 					case FS_GCS_ENABLED_ALWAYS_RTL:
 						set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
+
 						break;
 
-					case FS_GCS_ENABLED_LOITER:
+/*					case FS_GCS_ENABLED_LOITER:
 						return_value = set_mode(LOITER, MODE_REASON_GCS_FAILSAFE);
-													
+						printf("LOITER %d\n", return_value);							
                 		if (!return_value) 
                 		{
                 			set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
                 		}
 						break;
-
+*/
 					default:
+	
 						set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
 						break;
 				}
@@ -469,11 +483,13 @@ void Copter::failsafe_gcs_check()
 				break;	//	AUTO
 				
 			default:
+
 				switch(g.failsafe_gcs)
 				{
-					case FS_GCS_ENABLED_LOITER:
-						return_value = set_mode(LOITER, MODE_REASON_GCS_FAILSAFE);
-													
+					case FS_GCS_ENABLED_CONTINUE_MISSION:
+					//	if(copter.ap.rc_receiver_present && channel_throttle->get_control_in())
+						return_value = set_mode(GUIDED, MODE_REASON_GCS_FAILSAFE);
+						
                 		if (!return_value) 
                 		{
                 			set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
@@ -481,6 +497,7 @@ void Copter::failsafe_gcs_check()
 						break;
 
 					default:
+	
 						set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
 						break;
 				}	
@@ -569,7 +586,10 @@ void Copter::set_mode_RTL_or_land_with_pause(mode_reason_t reason)
 }
 
 bool Copter::should_disarm_on_failsafe() {
-    if (ap.in_arming_delay) {
+//	printf("should_disarm_on_failsafe delay %d, zero %d, complete %d\n", 
+//			ap.in_arming_delay, ap.throttle_zero, ap.land_complete);
+
+	if (ap.in_arming_delay) {
         return true;
     }
 

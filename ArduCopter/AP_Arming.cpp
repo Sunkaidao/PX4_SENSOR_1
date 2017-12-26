@@ -26,6 +26,8 @@ bool AP_Arming_Copter::all_checks_passing(bool arming_from_gcs)
         return false;
     }
 
+	//printf("AP_Arming_Copter all_checks_passing\n");
+
     return copter.ap.pre_arm_check && arm_checks(true, arming_from_gcs);
 }
 
@@ -96,6 +98,7 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
     }
 
 	//	modified by ZhangYong to inform the mission palnner
+	//	if gcs mode without rc radio
 	/*
     return barometer_checks(display_failure)
         & rc_calibration_checks(display_failure)
@@ -110,23 +113,11 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
         & pilot_throttle_checks(display_failure);*/
 
 
-	return_value =  barometer_checks(display_failure)
-        & rc_calibration_checks(display_failure)
-        & compass_checks(display_failure)
-        & gps_checks(display_failure)
-        & fence_checks(display_failure)
-        & ins_checks(display_failure)
-        & board_voltage_checks(display_failure)
-        & logging_checks(display_failure)
-        & parameter_checks(display_failure)
-        & motor_checks(display_failure)
-        & pilot_throttle_checks(display_failure);
-
-	if(return_value)
-	{
-		gcs_send_text(MAV_SEVERITY_CRITICAL, "PreArm: succeed");
 	
-	}
+	/*else
+	{
+		printf("pre_arm_checks %d\n", return_value);
+	}*/
 
 
 	//	added by ZhangYong 20160907
@@ -150,15 +141,35 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
 	{
 		if(true == copter.fs_mk.not_consist)
 		{
-			gcs_send_text(MAV_SEVERITY_CRITICAL, "GCS control, failsafe GCS should be set");
+			gcs_send_text(MAV_SEVERITY_CRITICAL, "remote control error, reset system");
 		
 			return false;
 		}
-
-		
 	}
 #endif
 //	added end
+
+
+	return_value =  barometer_checks(display_failure)
+        & rc_calibration_checks(display_failure)
+        & compass_checks(display_failure)
+        & gps_checks(display_failure)
+        & fence_checks(display_failure)
+        & ins_checks(display_failure)
+        & board_voltage_checks(display_failure)
+        & logging_checks(display_failure)
+        & parameter_checks(display_failure)
+        & motor_checks(display_failure)
+        & ( \
+        	((!copter.ap.rc_receiver_present) && (!pilot_throttle_checks(display_failure))) || \
+        	((copter.ap.rc_receiver_present) && (pilot_throttle_checks(display_failure)))\
+          );
+
+	if(return_value)
+	{
+		gcs_send_text(MAV_SEVERITY_CRITICAL, "PreArm: succeed");
+	
+	}
 
 	return return_value;
 	
@@ -494,17 +505,28 @@ bool AP_Arming_Copter::pre_arm_gps_checks(bool display_failure)
         return true;
     }
 
+	//printf("mode_requires_gps %d fence_requires_gps %d\n", mode_requires_gps, fence_requires_gps);
+
     // ensure GPS is ok
-    if (!copter.position_ok()) {
-        if (display_failure) {
+    if (!copter.position_ok()) 
+	{
+        if (display_failure) 
+		{
             const char *reason = ahrs.prearm_failure_reason();
-            if (reason) {
+            if (reason) 
+			{
+//				printf("reason %s\n", reason);
                 GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_CRITICAL, "PreArm: %s", reason);
-            } else {
-                if (!mode_requires_gps && fence_requires_gps) {
+            } 
+			else 
+			{
+                if (!mode_requires_gps && fence_requires_gps) 
+				{
                     // clarify to user why they need GPS in non-GPS flight mode
                     gcs_send_text(MAV_SEVERITY_CRITICAL,"PreArm: Fence enabled, need 3D Fix");
-                } else {
+                } 
+				else 
+				{
                     gcs_send_text(MAV_SEVERITY_CRITICAL,"PreArm: Need 3D Fix");
                 }
             }
@@ -866,6 +888,7 @@ bool AP_Arming_Copter::arm_checks(bool display_failure, bool arming_from_gcs)
 #if FXTX_AUTH == ENABLED
 
 	//printf("111arm_checks %d %d %d\n", fs_mk.control_present, fs_mk.not_consist, fs_mk.gcs_control);
+//	printf("arming_from_gcs %d gcs_control %d\n", arming_from_gcs, copter.fs_mk.gcs_control);
 
 	if(ARM_SOURCE_RC == arming_from_gcs)
 	{
@@ -911,11 +934,16 @@ bool AP_Arming_Copter::arm_checks(bool display_failure, bool arming_from_gcs)
 		
 //			printf("arm_checks %d\n", g.rc_3.rc_control_in);
 			
-		
-			if((!copter.failsafe.radio)&&(0 != copter.get_pilot_desired_climb_rate(copter.channel_throttle->get_control_in())))
-			{
-			
 
+/*			printf("radio %d, control in %d, rate %4.2f\n", copter.failsafe.radio, \
+//										copter.channel_throttle->get_control_in(), \
+//										copter.get_pilot_desired_climb_rate(copter.channel_throttle->get_rc_control_in()));
+*/			
+			if(\
+				(!copter.failsafe.radio) && \
+				(0 != abs(copter.get_pilot_desired_climb_rate(copter.channel_throttle->get_rc_control_in())))\
+			)
+			{
 				gcs_send_text(MAV_SEVERITY_CRITICAL, "GCS control, RC rc3 should be middle");
 
 //				printf("GCS control, RC rc3 should be middle %d\n", g.rc_3.rc_control_in);

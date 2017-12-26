@@ -692,13 +692,22 @@ void Copter::one_hz_loop()
 #endif
 //		added end
 
+	/*
 	//	added by ZhangYong 20170915 for duration test
 //	printf("%d\n", duration_cnt++);
 
 	//	added by ZhangYong 20171013 debug
 	//printf("one_hz_loop %d %4.2f\n", channel_throttle->get_control_in(), motors->get_spin_arm());
 	//	added end
+	*/
 
+	/*printf("one_hz_loop %d %4.2f\n", channel_throttle->get_control_in(), \
+									get_pilot_desired_climb_rate(channel_throttle->get_rc_control_in()));
+	*/
+	
+//	printf("rp %d, cp %d gcs %d\n", copter.ap.rc_receiver_present, copter.fs_mk.control_present, copter.fs_mk.gcs_control);
+
+//	printf("one_hz_loop rc_valid %d\n",  hal.rcin->get_rc_valid());
 }
 
 // called at 50hz

@@ -763,6 +763,8 @@ GCS_MAVLINK_Copter::data_stream_send(void)
         	return;
     	}
 	}
+
+
 	
 
     if (!copter.in_mavlink_delay && !copter.motors->armed()) {
@@ -773,11 +775,15 @@ GCS_MAVLINK_Copter::data_stream_send(void)
 //		printf("delay %d armed %d\n", copter.in_mavlink_delay, copter.motors->armed());
 	}
 
+	
+
 	//	added by ZhangYong 20171123 
 	//	if user are downloading logs, don't trasmit other message
 	if(copter.DataFlash.in_log_download())
 		return;
 	//	added end
+
+	
 
     copter.gcs_out_of_time = false;
 
@@ -785,10 +791,14 @@ GCS_MAVLINK_Copter::data_stream_send(void)
 
     if (copter.gcs_out_of_time) return;
 
+	
+
     if (copter.in_mavlink_delay) {
         // don't send any other stream types while in the delay callback
         return;
     }
+
+	
 
     if (stream_trigger(STREAM_RAW_SENSORS)) {
         send_message(MSG_RAW_IMU1);  // RAW_IMU, SCALED_IMU2, SCALED_IMU3
@@ -1100,6 +1110,8 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 
         // record that rc are overwritten so we can trigger a failsafe if we lose contact with groundstation
         copter.failsafe.rc_override_active = hal.rcin->set_overrides(v, 8);
+
+//		printf("MAVLINK_MSG_ID_RC_CHANNELS_OVERRIDE %d\n", copter.failsafe.rc_override_active);
 
         // a RC override message is considered to be a 'heartbeat' from the ground station for failsafe purposes
         copter.failsafe.last_heartbeat_ms = AP_HAL::millis();
@@ -2146,6 +2158,7 @@ result = MAV_RESULT_DENIED;
 	case MAVLINK_MSG_ID_GCS_CAPABILITIES:		//	183
         handle_gcs_capabilities(msg, copter.home_distance, copter.DataFlash, true, lcl_uint32_t);
 
+		//printf("MAVLINK_MSG_ID_GCS_CAPABILITIES 0x%x\n", lcl_uint32_t);
 	
 		if(false == copter.fs_mk.control_present)
 		{

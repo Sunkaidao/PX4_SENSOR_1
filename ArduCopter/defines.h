@@ -511,13 +511,13 @@ typedef union Edition_management {
 	uint32_t words;
 } Edition_management;
 
-#define REMOTE_CONTROL_GCS_POS_SIF	1
+#define REMOTE_CONTROL_GCS_POS_SIF	2
 
 
 typedef union FailSafe_Marker{
     struct {
         uint32_t gcs_control         	: 1; // 1,2 // This is the state of simple mode : 0 = disabled ; 1 = SIMPLE ; 2 = SUPERSIMPLE
-        uint32_t control_present    	: 1; // 3   // true if rc input pre-arm checks have been completed successfully
+        uint32_t control_present    	: 1; // 3   // true if MAVLINK_MSG_ID_GCS_CAPABILITIES received and decode successfully
         uint32_t not_consist       		: 1; // 4   // true if all pre-arm checks (rc, accel calibration, gps lock) have been performed
     };
     uint32_t value;
