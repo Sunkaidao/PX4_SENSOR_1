@@ -291,14 +291,12 @@ void DataFlash_Class::Log_Write_GPS(const AP_GPS &gps, uint8_t i, uint64_t time_
 // Write an RFND (rangefinder) packet
 void DataFlash_Class::Log_Write_RFND(const RangeFinder &rangefinder)
 {
-<<<<<<< HEAD
 	//	modified by ZhangYong 20171116
 	/*
-=======
+
     AP_RangeFinder_Backend *s0 = rangefinder.get_backend(0);
     AP_RangeFinder_Backend *s1 = rangefinder.get_backend(1);
 
->>>>>>> d8a9f3afce677a277372563c5fb4d1bfa3eb961c
     struct log_RFND pkt = {
         LOG_PACKET_HEADER_INIT((uint8_t)(LOG_RFND_MSG)),
         time_us       : AP_HAL::micros64(),
@@ -2025,7 +2023,7 @@ void DataFlash_Class::Log_Write_Beacon(AP_Beacon &beacon)
     WriteBlock(&pkt_beacon, sizeof(pkt_beacon));
 }
 
-<<<<<<< HEAD
+
 //	added by ZhangYong 20170731
 // Write communication drop packets rate
 void DataFlash_Class::Log_Write_CD(int32_t para_home_dis, float para_communicat_drops)
@@ -2122,7 +2120,7 @@ void DataFlash_Class::Log_Write_BCBPMBus(uint8_t msg_type, AC_BCBPMBus &vp_bcbpm
 
 
 //	added end
-=======
+
 // Write proximity sensor distances
 void DataFlash_Class::Log_Write_Proximity(AP_Proximity &proximity)
 {
@@ -2160,4 +2158,4 @@ void DataFlash_Class::Log_Write_Proximity(AP_Proximity &proximity)
     };
     WriteBlock(&pkt_proximity, sizeof(pkt_proximity));
 }
->>>>>>> d8a9f3afce677a277372563c5fb4d1bfa3eb961c
+

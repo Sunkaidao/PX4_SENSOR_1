@@ -1946,7 +1946,7 @@ void GCS_MAVLINK::handle_timesync(mavlink_message_t *msg)
         );
 }
 
-<<<<<<< HEAD
+
 //	added by ZhangYong 20170725
 #if FXTX_AUTH == ENABLED
 void GCS_MAVLINK::handle_gcs_capabilities(mavlink_message_t *msg, int32_t para_home_dist, DataFlash_Class &dataflash, bool log_cd, uint32_t &fp_uint32)
@@ -1987,7 +1987,6 @@ void GCS_MAVLINK::handle_gcs_capabilities(mavlink_message_t *msg, int32_t para_h
 }
 */
 
-=======
 void GCS_MAVLINK::handle_statustext(mavlink_message_t *msg)
 {
     DataFlash_Class *df = DataFlash_Class::instance();

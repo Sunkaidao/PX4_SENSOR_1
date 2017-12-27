@@ -102,16 +102,7 @@ void Copter::init_ardupilot()
 	
 
     // setup telem slots with serial ports
-<<<<<<< HEAD
-    for (uint8_t i = 1; i < MAVLINK_COMM_NUM_BUFFERS; i++) {
-        gcs_chan[i].setup_uart(serial_manager, AP_SerialManager::SerialProtocol_MAVLink, i);
-		//	added by zhangYong 20171124
-		//printf("gcs_chan[%d] txspace %d\n", i, gcs_chan[i].get_uart()->txspace());
-		//	added end
-    }
-=======
     gcs().setup_uarts(serial_manager);
->>>>>>> d8a9f3afce677a277372563c5fb4d1bfa3eb961c
 
 	//printf("gcs_chan[%d] txspace %d\n", 0, gcs_chan[0].get_uart()->txspace());
 
@@ -303,7 +294,7 @@ void Copter::init_ardupilot()
     // disable safety if requested
     BoardConfig.init_safety();
 
-<<<<<<< HEAD
+
 #if FXTX_AUTH == 0
 	printf("License Disabled\n");
 	//	added by ZhangYong 20170705 for item_int
@@ -420,9 +411,7 @@ void Copter::init_ardupilot()
 
 	
     cliSerial->printf("\nReady to FLY ");
-=======
-    hal.console->printf("\nReady to FLY ");
->>>>>>> d8a9f3afce677a277372563c5fb4d1bfa3eb961c
+
 
     // flag that initialisation has completed
     ap.initialised = true;

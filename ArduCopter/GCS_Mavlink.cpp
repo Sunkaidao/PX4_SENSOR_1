@@ -1847,7 +1847,6 @@ result = MAV_RESULT_DENIED;
         break;
 #endif // AC_FENCE == ENABLED
 
-<<<<<<< HEAD
 #if FXTX_AUTH == ENABLE
 	case MAVLINK_MSG_ID_GCS_CAPABILITIES:		//	183
         handle_gcs_capabilities(msg, copter.home_distance, copter.DataFlash, true, lcl_uint32_t);
@@ -1894,7 +1893,7 @@ result = MAV_RESULT_DENIED;
         break;
 #endif // CAMERA == ENABLED
 
-=======
+
 >>>>>>> d8a9f3afce677a277372563c5fb4d1bfa3eb961c
 #if MOUNT == ENABLED
     //deprecated. Use MAV_CMD_DO_MOUNT_CONFIGURE
@@ -1914,73 +1913,7 @@ result = MAV_RESULT_DENIED;
 #endif
         break;
 
-<<<<<<< HEAD
-#if AC_RALLY == ENABLED
-    // receive a rally point from GCS and store in EEPROM
-    case MAVLINK_MSG_ID_RALLY_POINT: {
-        mavlink_rally_point_t packet;
-        mavlink_msg_rally_point_decode(msg, &packet);
-
-        if (packet.idx >= copter.rally.get_rally_total() ||
-            packet.idx >= copter.rally.get_rally_max()) {
-            send_text(MAV_SEVERITY_NOTICE,"Bad rally point message ID");
-            break;
-        }
-
-        if (packet.count != copter.rally.get_rally_total()) {
-            send_text(MAV_SEVERITY_NOTICE,"Bad rally point message count");
-            break;
-        }
-
-        // sanity check location
-        if (!check_latlng(packet.lat, packet.lng)) {
-            break;
-        }
-
-        RallyLocation rally_point;
-        rally_point.lat = packet.lat;
-        rally_point.lng = packet.lng;
-        rally_point.alt = packet.alt;
-        rally_point.break_alt = packet.break_alt;
-        rally_point.land_dir = packet.land_dir;
-        rally_point.flags = packet.flags;
-
-        if (!copter.rally.set_rally_point_with_index(packet.idx, rally_point)) {
-            send_text(MAV_SEVERITY_CRITICAL, "Error setting rally point");
-        }
-
-        break;
-    }
-
-    //send a rally point to the GCS
-    case MAVLINK_MSG_ID_RALLY_FETCH_POINT: {
-        mavlink_rally_fetch_point_t packet;
-        mavlink_msg_rally_fetch_point_decode(msg, &packet);
-
-        if (packet.idx > copter.rally.get_rally_total()) {
-            send_text(MAV_SEVERITY_NOTICE, "Bad rally point index");
-            break;
-        }
-
-        RallyLocation rally_point;
-        if (!copter.rally.get_rally_point_with_index(packet.idx, rally_point)) {
-           send_text(MAV_SEVERITY_NOTICE, "Failed to set rally point");
-           break;
-        }
-
-        mavlink_msg_rally_point_send_buf(msg,
-                                         chan, msg->sysid, msg->compid, packet.idx,
-                                         copter.rally.get_rally_total(), rally_point.lat, rally_point.lng,
-                                         rally_point.alt, rally_point.break_alt, rally_point.land_dir,
-                                         rally_point.flags);
-        break;
-    }
-#endif // AC_RALLY == ENABLED
-	
-    case MAVLINK_MSG_ID_AUTOPILOT_VERSION_REQUEST:			//	183
-=======
     case MAVLINK_MSG_ID_AUTOPILOT_VERSION_REQUEST:
->>>>>>> d8a9f3afce677a277372563c5fb4d1bfa3eb961c
         send_autopilot_version(FIRMWARE_VERSION);
         break;
 
@@ -2094,7 +2027,7 @@ void Copter::gcs_check_input(void)
  */
 bool GCS_MAVLINK_Copter::accept_packet(const mavlink_status_t &status, mavlink_message_t &msg)
 {
-<<<<<<< HEAD
+
 	//	added by Zhangyong for auth process
 	//	if want to connect to common mission planer
 	//	should sheild this state
@@ -2112,7 +2045,7 @@ bool GCS_MAVLINK_Copter::accept_packet(const mavlink_status_t &status, mavlink_m
 //	added by ZhangYong for auth process    	
 	}
 //	end
-=======
+
     if (!copter.g2.sysid_enforce) {
         return true;
     }
@@ -2120,7 +2053,7 @@ bool GCS_MAVLINK_Copter::accept_packet(const mavlink_status_t &status, mavlink_m
         return true;
     }
     return (msg.sysid == copter.g.sysid_my_gcs);
->>>>>>> d8a9f3afce677a277372563c5fb4d1bfa3eb961c
+
 }
 
 AP_Mission *GCS_MAVLINK_Copter::get_mission()

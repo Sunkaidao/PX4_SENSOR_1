@@ -775,14 +775,13 @@ void Copter::Log_Write_Heli() {}
 void Copter::Log_Write_Optflow() {}
 #endif
 
-<<<<<<< HEAD
 #if BCBPMBUS == ENABLED
 void Copter::Log_Write_BCBPMBus(uint8_t msg_type) {}
 #endif
 
 void Copter::start_logging() {}
-=======
->>>>>>> d8a9f3afce677a277372563c5fb4d1bfa3eb961c
+
+
 void Copter::log_init(void) {}
 
 #endif // LOGGING_ENABLED

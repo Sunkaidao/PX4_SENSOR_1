@@ -885,7 +885,6 @@ struct PACKED log_Beacon {
     float posz;
 };
 
-<<<<<<< HEAD
 //	added by ZhangYong 20170731
 struct PACKED log_Communication_drops {
     LOG_PACKET_HEADER;
@@ -938,7 +937,7 @@ typedef struct PACKED BCBPMBus_component_info_struct {
 
 //	added end
 
-=======
+
 // proximity sensor logging
 struct PACKED log_Proximity {
     LOG_PACKET_HEADER;
@@ -957,7 +956,7 @@ struct PACKED log_Proximity {
     float closest_dist;
 };
 
->>>>>>> d8a9f3afce677a277372563c5fb4d1bfa3eb961c
+
 // #endif // SBP_HW_LOGGING
 
 #define ACC_LABELS "TimeUS,SampleUS,AccX,AccY,AccZ"
@@ -1410,18 +1409,16 @@ enum LogMessages {
     LOG_VISUALODOM_MSG,
     LOG_AOA_SSA_MSG,
     LOG_BEACON_MSG,
-<<<<<<< HEAD
+
     LOG_SPRAYER_MSG,
 	LOG_CD_MSG,
 #if BCBPMBUS == ENABLED	
 	LOG_PMBUS0_MSG,
 	LOG_PMBUS1_MSG,
 	LOG_PMBUS2_MSG,
-	LOG_PMBUS3_MSG
+	LOG_PMBUS3_MSG,
 #endif	
-=======
     LOG_PROXIMITY_MSG,
->>>>>>> d8a9f3afce677a277372563c5fb4d1bfa3eb961c
 };
 
 enum LogOriginType {

@@ -1085,16 +1085,14 @@ const AP_Param::GroupInfo ParametersG2::var_info[] = {
     AP_SUBGROUPINFO(visual_odom, "VISO", 18, ParametersG2, AP_VisualOdom),
 #endif
 
-<<<<<<< HEAD
 #if BCBPMBUS == ENABLED
 	AP_SUBGROUPINFO(bcbpmbus, "PMBUS", 19, ParametersG2, AC_BCBPMBus),
 #endif
 
-=======
+
     // ID 19 reserved for TCAL (PR pending)
     // ID 20 reserved for TX_TYPE (PR pending)
-    
->>>>>>> d8a9f3afce677a277372563c5fb4d1bfa3eb961c
+
     AP_GROUPEND
 };
 
