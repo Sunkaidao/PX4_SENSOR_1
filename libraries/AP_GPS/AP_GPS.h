@@ -40,7 +40,6 @@
 
 #define UNIX_OFFSET_MSEC (17000ULL * 86400ULL + 52ULL * 10ULL * AP_MSEC_PER_WEEK - GPS_LEAPSECONDS_MILLIS)
 
-class DataFlash_Class;
 class AP_GPS_Backend;
 
 /// @class AP_GPS
@@ -135,18 +134,22 @@ public:
         uint16_t vdop;                      ///< vertical dilution of precision in cm
         uint8_t num_sats;                   ///< Number of visible satellites
         Vector3f velocity;                  ///< 3D velocity in m/s, in NED format
-        float speed_accuracy;               ///< 3D velocity accuracy estimate in m/s
-        float horizontal_accuracy;          ///< horizontal accuracy estimate in m
-        float vertical_accuracy;            ///< vertical accuracy estimate in m
+        float speed_accuracy;               ///< 3D velocity RMS accuracy estimate in m/s
+        float horizontal_accuracy;          ///< horizontal RMS accuracy estimate in m
+        float vertical_accuracy;            ///< vertical RMS accuracy estimate in m
         bool have_vertical_velocity:1;      ///< does GPS give vertical velocity? Set to true only once available.
         bool have_speed_accuracy:1;         ///< does GPS give speed accuracy? Set to true only once available.
         bool have_horizontal_accuracy:1;    ///< does GPS give horizontal position accuracy? Set to true only once available.
         bool have_vertical_accuracy:1;      ///< does GPS give vertical position accuracy? Set to true only once available.
         uint32_t last_gps_time_ms;          ///< the system time we got the last GPS timestamp, milliseconds
+
+        // all the following fields must only all be filled by RTK capable backend drivers
+        uint32_t rtk_age_ms;               ///< GPS age of last baseline correction in milliseconds  (0 when no corrections, 0xFFFFFFFF indicates overflow)
+        uint8_t  rtk_num_sats;             ///< Current number of satellites used for RTK calculation
     };
 
     /// Startup initialisation.
-    void init(DataFlash_Class *dataflash, const AP_SerialManager& serial_manager);
+    void init(const AP_SerialManager& serial_manager);
 
     /// Update GPS state based on possible bytes received from the module.
     /// This routine must be called periodically (typically at 10Hz or
@@ -298,12 +301,28 @@ public:
         return last_message_time_ms(primary_instance);
     }
 
-	// return true if the GPS supports vertical velocity values
+    // return true if the GPS supports vertical velocity values
     bool have_vertical_velocity(uint8_t instance) const {
         return state[instance].have_vertical_velocity;
     }
     bool have_vertical_velocity(void) const {
         return have_vertical_velocity(primary_instance);
+    }
+
+    // return number of satellites used for RTK calculation
+    uint8_t rtk_num_sats(uint8_t instance) const {
+        return state[instance].rtk_num_sats;
+    }
+    uint8_t rtk_num_sats(void) const {
+        return rtk_num_sats(primary_instance);
+    }
+
+    // return age of last baseline correction in milliseconds
+    uint32_t rtk_age_ms(uint8_t instance) const {
+        return state[instance].rtk_age_ms;
+    }
+    uint32_t rtk_age_ms(void) const {
+        return rtk_age_ms(primary_instance);
     }
 
     // the expected lag (in seconds) in the position and velocity readings from the gps
@@ -326,10 +345,6 @@ public:
 
     // lock out a GPS port, allowing another application to use the port
     void lock_port(uint8_t instance, bool locked);
-
-    //Inject a packet of raw binary to a GPS
-    void inject_data(uint8_t *data, uint16_t len);
-    void inject_data(uint8_t instance, uint8_t *data, uint16_t len);
 
     //MAVLink Status Sending
     void send_mavlink_gps_raw(mavlink_channel_t chan);
@@ -358,8 +373,8 @@ public:
     void send_blob_update(uint8_t instance);
 
     // return last fix time since the 1/1/1970 in microseconds
-    uint64_t time_epoch_usec(uint8_t instance);
-    uint64_t time_epoch_usec(void) {
+    uint64_t time_epoch_usec(uint8_t instance) const;
+    uint64_t time_epoch_usec(void) const {
         return time_epoch_usec(primary_instance);
     }
 
@@ -370,10 +385,10 @@ public:
 
     void Write_DataFlash_Log_Startup_messages();
 
-protected:
+    // indicate which bit in LOG_BITMASK indicates gps logging enabled
+    void set_log_gps_bit(uint32_t bit) { _log_gps_bit = bit; }
 
-    // dataflash for logging, if available
-    DataFlash_Class *_DataFlash;
+protected:
 
     // configuration parameters
     AP_Int8 _type[GPS_MAX_RECEIVERS];
@@ -395,9 +410,11 @@ protected:
     AP_Int8 _blend_mask;
     AP_Float _blend_tc;
 
+    uint32_t _log_gps_bit = -1;
+
 private:
     // returns the desired gps update rate in milliseconds
-    // this does not provide any gurantee that the GPS is updating at the requested
+    // this does not provide any guarantee that the GPS is updating at the requested
     // rate it is simply a helper for use in the backends for determining what rate
     // they should be configuring the GPS to run at
     uint16_t get_rate_ms(uint8_t instance) const;
@@ -406,7 +423,7 @@ private:
         // the time we got our last fix in system milliseconds
         uint32_t last_fix_time_ms;
 
-        // the time we got our last fix in system milliseconds
+        // the time we got our last message in system milliseconds
         uint32_t last_message_time_ms;
     };
     // Note allowance for an additional instance to contain blended data
@@ -473,6 +490,12 @@ private:
 
     // re-assemble GPS_RTCM_DATA message
     void handle_gps_rtcm_data(const mavlink_message_t *msg);
+    void handle_gps_inject(const mavlink_message_t *msg);
+
+    //Inject a packet of raw binary to a GPS
+    void inject_data(uint8_t *data, uint16_t len);
+    void inject_data(uint8_t instance, uint8_t *data, uint16_t len);
+
 
     // GPS blending and switching
     Vector2f _NE_pos_offset_m[GPS_MAX_RECEIVERS]; // Filtered North,East position offset from GPS instance to blended solution in _output_state.location (m)

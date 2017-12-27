@@ -21,6 +21,7 @@
 #include <AP_Motors/AP_Motors.h>
 #include <AP_Rally/AP_Rally.h>
 #include <AP_Beacon/AP_Beacon.h>
+#include <AP_Proximity/AP_Proximity.h>
 #include <stdint.h>
 
 #if CONFIG_HAL_BOARD == HAL_BOARD_PX4
@@ -73,8 +74,9 @@ class DataFlash_Class
 public:
     FUNCTOR_TYPEDEF(print_mode_fn, void, AP_HAL::BetterStream*, uint8_t);
     FUNCTOR_TYPEDEF(vehicle_startup_message_Log_Writer, void);
-    DataFlash_Class(const char *firmware_string) :
-        _firmware_string(firmware_string)
+    DataFlash_Class(const char *firmware_string, const AP_Int32 &log_bitmask) :
+        _firmware_string(firmware_string),
+        _log_bitmask(log_bitmask)
         {
             AP_Param::setup_object_defaults(this, var_info);
             if (_instance != nullptr) {
@@ -124,8 +126,7 @@ public:
 
     void setVehicle_Startup_Log_Writer(vehicle_startup_message_Log_Writer writer);
 
-    /* poke backends to start if they're not already started */
-    void StartUnstartedLogging(void);
+    void PrepForArming();
 
     void EnableWrites(bool enable) { _writes_enabled = enable; }
     bool WritesEnabled() const { return _writes_enabled; }
@@ -188,6 +189,8 @@ public:
 	void Log_Write_BCBPMBus(uint8_t msg_type, AC_BCBPMBus &vp_bcbpmbus);
 #endif
 	//	added end
+    void Log_Write_Proximity(AP_Proximity &proximity);
+
 
     void Log_Write(const char *name, const char *labels, const char *fmt, ...);
 
@@ -208,8 +211,8 @@ public:
 
     void Log_Write_PID(uint8_t msg_type, const PID_Info &info);
 
-    // returns true of logging of a message should be attempted
-    bool should_log() const;
+    // returns true if logging of a message should be attempted
+    bool should_log(uint32_t mask) const;
 
     bool logging_started(void);
 
@@ -272,6 +275,7 @@ private:
     uint8_t _next_backend;
     DataFlash_Backend *backends[DATAFLASH_MAX_BACKENDS];
     const char *_firmware_string;
+    const AP_Int32 &_log_bitmask;
 
     void internal_error() const;
 
@@ -372,6 +376,8 @@ private:
 
     // start page of log data
     uint16_t _log_data_page;
+
+    int8_t _log_sending_chan = -1;
 
     bool should_handle_log_message();
     void handle_log_message(class GCS_MAVLINK &, mavlink_message_t *msg);

@@ -483,7 +483,7 @@ AP_GPS_UBLOX::read(void)
 // Private Methods /////////////////////////////////////////////////////////////
 void AP_GPS_UBLOX::log_mon_hw(void)
 {
-    if (gps._DataFlash == nullptr || !gps._DataFlash->logging_started()) {
+    if (!should_df_log()) {
         return;
     }
     struct log_Ubx1 pkt = {
@@ -501,12 +501,12 @@ void AP_GPS_UBLOX::log_mon_hw(void)
         pkt.aPower     = _buffer.mon_hw_68.aPower;
         pkt.agcCnt     = _buffer.mon_hw_68.agcCnt;
     }
-    gps._DataFlash->WriteBlock(&pkt, sizeof(pkt));
+    DataFlash_Class::instance()->WriteBlock(&pkt, sizeof(pkt));
 }
 
 void AP_GPS_UBLOX::log_mon_hw2(void)
 {
-    if (gps._DataFlash == nullptr || !gps._DataFlash->logging_started()) {
+    if (!should_df_log()) {
         return;
     }
 
@@ -519,15 +519,16 @@ void AP_GPS_UBLOX::log_mon_hw2(void)
         ofsQ      : _buffer.mon_hw2.ofsQ,
         magQ      : _buffer.mon_hw2.magQ,
     };
-    gps._DataFlash->WriteBlock(&pkt, sizeof(pkt));
+    DataFlash_Class::instance()->WriteBlock(&pkt, sizeof(pkt));
 }
 
 #if UBLOX_RXM_RAW_LOGGING
 void AP_GPS_UBLOX::log_rxm_raw(const struct ubx_rxm_raw &raw)
 {
-    if (gps._DataFlash == nullptr || !gps._DataFlash->logging_started()) {
+    if (!should_df_log()) {
         return;
     }
+
     uint64_t now = AP_HAL::micros64();
     for (uint8_t i=0; i<raw.numSV; i++) {
         struct log_GPS_RAW pkt = {
@@ -544,15 +545,16 @@ void AP_GPS_UBLOX::log_rxm_raw(const struct ubx_rxm_raw &raw)
             cno        : raw.svinfo[i].cno,
             lli        : raw.svinfo[i].lli
         };
-        gps._DataFlash->WriteBlock(&pkt, sizeof(pkt));
+        DataFlash_Class::instance()->WriteBlock(&pkt, sizeof(pkt));
     }
 }
 
 void AP_GPS_UBLOX::log_rxm_rawx(const struct ubx_rxm_rawx &raw)
 {
-    if (gps._DataFlash == nullptr || !gps._DataFlash->logging_started()) {
+    if (!should_df_log()) {
         return;
     }
+
     uint64_t now = AP_HAL::micros64();
 
     struct log_GPS_RAWH header = {
@@ -564,7 +566,7 @@ void AP_GPS_UBLOX::log_rxm_rawx(const struct ubx_rxm_rawx &raw)
         numMeas    : raw.numMeas,
         recStat    : raw.recStat
     };
-    gps._DataFlash->WriteBlock(&header, sizeof(header));
+    DataFlash_Class::instance()->WriteBlock(&header, sizeof(header));
 
     for (uint8_t i=0; i<raw.numMeas; i++) {
         struct log_GPS_RAWS pkt = {
@@ -583,7 +585,7 @@ void AP_GPS_UBLOX::log_rxm_rawx(const struct ubx_rxm_rawx &raw)
             doStdev    : raw.svinfo[i].doStdev,
             trkStat    : raw.svinfo[i].trkStat
         };
-        gps._DataFlash->WriteBlock(&pkt, sizeof(pkt));
+        DataFlash_Class::instance()->WriteBlock(&pkt, sizeof(pkt));
     }
 }
 #endif // UBLOX_RXM_RAW_LOGGING
@@ -812,7 +814,7 @@ AP_GPS_UBLOX::_parse_gps(void)
             _have_version = true;
             strncpy(_version.hwVersion, _buffer.mon_ver.hwVersion, sizeof(_version.hwVersion));
             strncpy(_version.swVersion, _buffer.mon_ver.swVersion, sizeof(_version.swVersion));
-            GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, 
+            gcs().send_text(MAV_SEVERITY_INFO, 
                                              "u-blox %d HW: %s SW: %s",
                                              state.instance + 1,
                                              _version.hwVersion,
@@ -974,7 +976,7 @@ AP_GPS_UBLOX::_parse_gps(void)
                     state.status = AP_GPS::GPS_OK_FIX_3D_RTK_FIXED;
                 break;
             case 4:
-                GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO,
+                gcs().send_text(MAV_SEVERITY_INFO,
                                 "Unexpected state %d", _buffer.pvt.flags);
                 state.status = AP_GPS::GPS_OK_FIX_3D;
                 break;
@@ -1193,7 +1195,7 @@ AP_GPS_UBLOX::_save_cfg()
     _send_message(CLASS_CFG, MSG_CFG_CFG, &save_cfg, sizeof(save_cfg));
     _last_cfg_sent_time = AP_HAL::millis();
     _num_cfg_save_tries++;
-    GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO,
+    gcs().send_text(MAV_SEVERITY_INFO,
                                      "GPS: u-blox %d saving config",
                                      state.instance + 1);
 }
@@ -1297,7 +1299,7 @@ void
 AP_GPS_UBLOX::broadcast_configuration_failure_reason(void) const {
     for (uint8_t i = 0; i < ARRAY_SIZE(reasons); i++) {
         if (_unconfigured_messages & (1 << i)) {
-            GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "GPS %d: u-blox %s configuration 0x%02x",
+            gcs().send_text(MAV_SEVERITY_INFO, "GPS %d: u-blox %s configuration 0x%02x",
                 state.instance +1, reasons[i], _unconfigured_messages);
             break;
         }
@@ -1335,7 +1337,7 @@ void AP_GPS_UBLOX::Write_DataFlash_Log_Startup_messages() const
     AP_GPS_Backend::Write_DataFlash_Log_Startup_messages();
 
     if (_have_version) {
-        gps._DataFlash->Log_Write_MessageF("u-blox %d HW: %s SW: %s",
+        DataFlash_Class::instance()->Log_Write_MessageF("u-blox %d HW: %s SW: %s",
                                            state.instance+1,
                                            _version.hwVersion,
                                            _version.swVersion);

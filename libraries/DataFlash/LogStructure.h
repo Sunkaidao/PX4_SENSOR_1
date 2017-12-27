@@ -820,20 +820,38 @@ struct PACKED log_SbpHealth {
     uint32_t last_iar_num_hypotheses;
 };
 
-struct PACKED log_SbpRAW1 {
+struct PACKED log_SbpRAWH {
     LOG_PACKET_HEADER;
     uint64_t time_us;
     uint16_t msg_type;
     uint16_t sender_id;
+    uint8_t index;
+    uint8_t pages;
     uint8_t msg_len;
-    uint8_t data1[64];
+    uint8_t res;
+    uint8_t data[48];
 };
 
-struct PACKED log_SbpRAW2 {
+struct PACKED log_SbpRAWM {
     LOG_PACKET_HEADER;
     uint64_t time_us;
     uint16_t msg_type;
-    uint8_t data2[192];
+    uint16_t sender_id;
+    uint8_t index;
+    uint8_t pages;
+    uint8_t msg_len;
+    uint8_t res;
+    uint8_t data[104];
+};
+
+struct PACKED log_SbpEvent {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    uint16_t wn;
+    uint32_t tow;
+    int32_t ns_residual;
+    uint8_t level;
+    uint8_t quality;
 };
 
 struct PACKED log_Rally {
@@ -867,6 +885,7 @@ struct PACKED log_Beacon {
     float posz;
 };
 
+<<<<<<< HEAD
 //	added by ZhangYong 20170731
 struct PACKED log_Communication_drops {
     LOG_PACKET_HEADER;
@@ -919,6 +938,26 @@ typedef struct PACKED BCBPMBus_component_info_struct {
 
 //	added end
 
+=======
+// proximity sensor logging
+struct PACKED log_Proximity {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    uint8_t health;
+    float dist0;
+    float dist45;
+    float dist90;
+    float dist135;
+    float dist180;
+    float dist225;
+    float dist270;
+    float dist315;
+    float distup;
+    float closest_angle;
+    float closest_dist;
+};
+
+>>>>>>> d8a9f3afce677a277372563c5fb4d1bfa3eb961c
 // #endif // SBP_HW_LOGGING
 
 #define ACC_LABELS "TimeUS,SampleUS,AccX,AccY,AccZ"
@@ -1074,7 +1113,9 @@ Format characters in the format string for binary log messages
     { LOG_DF_MAV_STATS, sizeof(log_DF_MAV_Stats), \
       "DMS", "IIIIIBBBBBBBBBB",         "TimeMS,N,Dp,RT,RS,Er,Fa,Fmn,Fmx,Pa,Pmn,Pmx,Sa,Smn,Smx" }, \
     { LOG_BEACON_MSG, sizeof(log_Beacon), \
-      "BCN", "QBBfffffff",  "TimeUS,Health,Cnt,D0,D1,D2,D3,PosX,PosY,PosZ" }
+      "BCN", "QBBfffffff",  "TimeUS,Health,Cnt,D0,D1,D2,D3,PosX,PosY,PosZ" }, \
+    { LOG_PROXIMITY_MSG, sizeof(log_Proximity), \
+      "PRX", "QBfffffffffff", "TimeUS,Health,D0,D45,D90,D135,D180,D225,D270,D315,DUp,CAn,CDis" }
 
 // messages for more advanced boards
 #define LOG_EXTRA_STRUCTURES \
@@ -1232,11 +1273,13 @@ Format characters in the format string for binary log messages
 // #if SBP_HW_LOGGING
 #define LOG_SBP_STRUCTURES \
     { LOG_MSG_SBPHEALTH, sizeof(log_SbpHealth), \
-      "SBPH", "QIII",   "TimeUS,CrcError,LastInject,IARhyp" }, \
-    { LOG_MSG_SBPRAW1, sizeof(log_SbpRAW1), \
-      "SBR1", "QHHBZ",      "TimeUS,msg_type,sender_id,msg_len,d1" }, \
-    { LOG_MSG_SBPRAW2, sizeof(log_SbpRAW2), \
-      "SBR2", "QHZZZ",      "TimeUS,msg_type,d2,d3,d4" }
+      "SBPH", "QIII", "TimeUS,CrcError,LastInject,IARhyp" }, \
+    { LOG_MSG_SBPRAWH, sizeof(log_SbpRAWH), \
+      "SBRH", "QQQQQQQQ", "TimeUS,msg_flag,1,2,3,4,5,6" }, \
+    { LOG_MSG_SBPRAWM, sizeof(log_SbpRAWM), \
+      "SBRM", "QQQQQQQQQQQQQQQ", "TimeUS,msg_flag,1,2,3,4,5,6,7,8,9,10,11,12,13" }, \
+    { LOG_MSG_SBPEVENT, sizeof(log_SbpEvent), \
+      "SBRE", "QHIiBB", "TimeUS,GWk,GMS,ns_residual,level,quality" }
 // #endif
 
 #define LOG_COMMON_STRUCTURES LOG_BASE_STRUCTURES, LOG_EXTRA_STRUCTURES, LOG_SBP_STRUCTURES
@@ -1354,9 +1397,9 @@ enum LogMessages {
     LOG_MSG_SBPBASELINE,
     LOG_MSG_SBPTRACKING1,
     LOG_MSG_SBPTRACKING2,
-    LOG_MSG_SBPRAW1,
-    LOG_MSG_SBPRAW2,
-    LOG_MSG_SBPRAWx,
+    LOG_MSG_SBPRAWH,
+    LOG_MSG_SBPRAWM,
+    LOG_MSG_SBPEVENT,
     LOG_TRIGGER_MSG,
 
     LOG_GIMBAL1_MSG,
@@ -1367,6 +1410,7 @@ enum LogMessages {
     LOG_VISUALODOM_MSG,
     LOG_AOA_SSA_MSG,
     LOG_BEACON_MSG,
+<<<<<<< HEAD
     LOG_SPRAYER_MSG,
 	LOG_CD_MSG,
 #if BCBPMBUS == ENABLED	
@@ -1375,6 +1419,9 @@ enum LogMessages {
 	LOG_PMBUS2_MSG,
 	LOG_PMBUS3_MSG
 #endif	
+=======
+    LOG_PROXIMITY_MSG,
+>>>>>>> d8a9f3afce677a277372563c5fb4d1bfa3eb961c
 };
 
 enum LogOriginType {

@@ -81,9 +81,17 @@ void DataFlash_Class::handle_log_message(GCS_MAVLINK &link, mavlink_message_t *m
  */
 void DataFlash_Class::handle_log_request_list(GCS_MAVLINK &link, mavlink_message_t *msg)
 {
+
 	//	added by ZhangYong 20171123
 	uint8_t lcl_cnt;
 	//	added end
+
+    if (_log_sending_chan >= 0) {
+        link.send_text(MAV_SEVERITY_INFO, "Log download in progress");
+        return;
+    }
+
+
     mavlink_log_request_list_t packet;
     mavlink_msg_log_request_list_decode(msg, &packet);
 
@@ -141,6 +149,7 @@ void DataFlash_Class::handle_log_request_list(GCS_MAVLINK &link, mavlink_message
       
     }
 
+
 /*	printf("handle_log_request_list num %d start %d stop %d ls %d ll %d\n", _log_num_logs, \
 																			packet.start, \
 																			packet.end, \
@@ -156,6 +165,7 @@ void DataFlash_Class::handle_log_request_list(GCS_MAVLINK &link, mavlink_message
 	
 		handle_log_send_listing(link);
 	}
+
 }
 
 
@@ -164,9 +174,22 @@ void DataFlash_Class::handle_log_request_list(GCS_MAVLINK &link, mavlink_message
  */
 void DataFlash_Class::handle_log_request_data(GCS_MAVLINK &link, mavlink_message_t *msg)
 {
+
 	//	added by ZhangYong 20171123
 	uint8_t lcl_cnt;
 	//	added end
+
+    if (_log_sending_chan >= 0) {
+        // some GCS (e.g. MAVProxy) attempt to stream request_data
+        // messages when they're filling gaps in the downloaded logs.
+        // This channel check avoids complaining to them, at the cost
+        // of silently dropping any repeated attempts to start logging
+        if (_log_sending_chan != link.get_chan()) {
+            link.send_text(MAV_SEVERITY_INFO, "Log download in progress");
+        }
+        return;
+    }
+
 
     mavlink_log_request_data_t packet;
     mavlink_msg_log_request_data_decode(msg, &packet);
@@ -216,11 +239,13 @@ void DataFlash_Class::handle_log_request_data(GCS_MAVLINK &link, mavlink_message
         _log_data_remaining = packet.count;
     }
 
+
 	//	modified by zhangYong 20171123
 	//_log_sending = true;
 	//	modified end
 	
     _log_sending[link.get_chan()] = true;
+
 
     handle_log_send(link);
 }
@@ -255,6 +280,7 @@ void DataFlash_Class::handle_log_request_end(GCS_MAVLINK &link, mavlink_message_
     {
     	_log_sending[link.get_chan()] = false;
 	}
+
 }
 
 /**
@@ -433,6 +459,7 @@ bool DataFlash_Class::handle_log_send_data(GCS_MAVLINK &link)
     _log_data_offset += len;
     _log_data_remaining -= len;
     if (ret < 90 || _log_data_remaining == 0) {
+
 		//	modified by zhangyong 20171123
 		//_log_sending[[link.get_chan()]] = false;
 		//	modified end
@@ -440,6 +467,7 @@ bool DataFlash_Class::handle_log_send_data(GCS_MAVLINK &link)
         {
         	_log_sending[lcl_cnt] = false;
 		}
+
     }
     return true;
 }

@@ -3,9 +3,6 @@
 // Internal defines, don't edit and expect things to work
 // -------------------------------------------------------
 
-#define TRUE  1
-#define FALSE 0
-
 // Just so that it's completely clear...
 #define ENABLED  1
 #define DISABLED 0
@@ -14,7 +11,6 @@
 #define ENABLE ENABLED
 #define DISABLE DISABLED
 
-#define DEBUG 0
 #define SERVO_MAX 4500  // This value represents 45 degrees and is just an arbitrary representation of servo max travel.
 
 // CH 7 control
@@ -40,12 +36,6 @@ enum mode {
     INITIALISING = 16
 };
 
-enum GuidedMode {
-    Guided_WP,
-    Guided_Angle,
-    Guided_Velocity
-};
-
 // types of failsafe events
 #define FAILSAFE_EVENT_THROTTLE (1<<0)
 #define FAILSAFE_EVENT_GCS      (1<<1)
@@ -56,15 +46,15 @@ enum GuidedMode {
 #define LOG_NTUN_MSG            0x02
 #define LOG_PERFORMANCE_MSG     0x03
 #define LOG_STARTUP_MSG         0x06
-#define LOG_SONAR_MSG           0x07
+#define LOG_RANGEFINDER_MSG     0x07
 #define LOG_ARM_DISARM_MSG      0x08
 #define LOG_STEERING_MSG        0x0D
 #define LOG_GUIDEDTARGET_MSG    0x0E
+#define LOG_WHEELENCODER_MSG    0x0F
 #define LOG_ERROR_MSG           0x13
 
 #define TYPE_AIRSTART_MSG       0x00
 #define TYPE_GROUNDSTART_MSG    0x01
-#define MAX_NUM_LOGS            100
 
 #define MASK_LOG_ATTITUDE_FAST  (1<<0)
 #define MASK_LOG_ATTITUDE_MED   (1<<1)
@@ -76,7 +66,7 @@ enum GuidedMode {
 #define MASK_LOG_IMU            (1<<7)
 #define MASK_LOG_CMD            (1<<8)
 #define MASK_LOG_CURRENT        (1<<9)
-#define MASK_LOG_SONAR          (1<<10)
+#define MASK_LOG_RANGEFINDER    (1<<10)
 #define MASK_LOG_COMPASS        (1<<11)
 #define MASK_LOG_CAMERA         (1<<12)
 #define MASK_LOG_STEERING       (1<<13)
@@ -100,7 +90,9 @@ enum GuidedMode {
 #define MAVLINK_SET_ATT_TYPE_MASK_ATTITUDE_IGNORE      (1<<7)
 
 // Error message sub systems and error codes
-#define ERROR_SUBSYSTEM_CRASH_CHECK  12
+#define ERROR_SUBSYSTEM_FAILSAFE_FENCE  9
+#define ERROR_SUBSYSTEM_FLIGHT_MODE     10
+#define ERROR_SUBSYSTEM_CRASH_CHECK     12
 // subsystem specific error codes -- crash checker
 #define ERROR_CODE_CRASH_CHECK_CRASH 1
 
@@ -111,3 +103,13 @@ enum fs_crash_action {
 };
 
 #define DISTANCE_HOME_MAX 0.5f  // Distance max to home location before changing it when disarm
+
+enum mode_reason_t {
+    MODE_REASON_INITIALISED = 0,
+    MODE_REASON_TX_COMMAND,
+    MODE_REASON_GCS_COMMAND,
+    MODE_REASON_FAILSAFE,
+    MODE_REASON_MISSION_END,
+    MODE_REASON_CRASH_FAILSAFE,
+    MODE_REASON_MISSION_COMMAND
+};

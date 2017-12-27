@@ -55,6 +55,7 @@ public:
         k_param_NavEKF2,
         k_param_g2, // 2nd block of parameters
         k_param_NavEKF3,
+        k_param_BoardConfig_CAN,
 
 		//	added by ZhangYong for 
 		k_param_edition_management = 9,
@@ -134,7 +135,7 @@ public:
         k_param_optflow,
         k_param_dcmcheck_thresh,        // deprecated - remove
         k_param_log_bitmask,
-        k_param_cli_enabled,
+        k_param_cli_enabled_old,        // deprecated - remove
         k_param_throttle_filt,
         k_param_throttle_behavior,
         k_param_pilot_takeoff_alt, // 64
@@ -421,9 +422,6 @@ public:
 
 	
     AP_Int8         telem_delay;
-#if CLI_ENABLED == ENABLED
-    AP_Int8         cli_enabled;
-#endif
 
     AP_Float        throttle_filt;
     AP_Int16        throttle_behavior;

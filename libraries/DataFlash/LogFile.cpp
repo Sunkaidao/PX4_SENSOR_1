@@ -10,6 +10,7 @@
 #include <AP_Motors/AP_Motors.h>
 #include <AC_AttitudeControl/AC_AttitudeControl.h>
 #include <AC_AttitudeControl/AC_PosControl.h>
+#include <AP_RangeFinder/RangeFinder_Backend.h>
 
 #include "DataFlash.h"
 #include "DataFlash_File.h"
@@ -290,15 +291,21 @@ void DataFlash_Class::Log_Write_GPS(const AP_GPS &gps, uint8_t i, uint64_t time_
 // Write an RFND (rangefinder) packet
 void DataFlash_Class::Log_Write_RFND(const RangeFinder &rangefinder)
 {
+<<<<<<< HEAD
 	//	modified by ZhangYong 20171116
 	/*
+=======
+    AP_RangeFinder_Backend *s0 = rangefinder.get_backend(0);
+    AP_RangeFinder_Backend *s1 = rangefinder.get_backend(1);
+
+>>>>>>> d8a9f3afce677a277372563c5fb4d1bfa3eb961c
     struct log_RFND pkt = {
         LOG_PACKET_HEADER_INIT((uint8_t)(LOG_RFND_MSG)),
         time_us       : AP_HAL::micros64(),
-        dist1         : rangefinder.distance_cm(0),
-        orient1       : rangefinder.get_orientation(0),
-        dist2         : rangefinder.distance_cm(1),
-        orient2       : rangefinder.get_orientation(1)
+        dist1         : s0 ? s0->distance_cm() : (uint16_t)0,
+        orient1       : s0 ? s0->orientation() : ROTATION_NONE,
+        dist2         : s1 ? s1->distance_cm() : (uint16_t)0,
+        orient2       : s1 ? s1->orientation() : ROTATION_NONE,
     };
     */
 	//	modified end
@@ -706,7 +713,6 @@ void DataFlash_Class::Log_Write_POS(AP_AHRS &ahrs)
     }
     float home, origin;
     ahrs.get_relative_position_D_home(home);
-    ahrs.get_relative_position_D_origin(origin);
     struct log_POS pkt = {
         LOG_PACKET_HEADER_INIT(LOG_POS_MSG),
         time_us        : AP_HAL::micros64(),
@@ -714,7 +720,7 @@ void DataFlash_Class::Log_Write_POS(AP_AHRS &ahrs)
         lng            : loc.lng,
         alt            : loc.alt*1.0e-2f,
         rel_home_alt   : -home,
-        rel_origin_alt : -origin
+        rel_origin_alt : ahrs.get_relative_position_D_origin(origin) ? -origin : nanf("ARDUPILOT")
     };
     WriteBlock(&pkt, sizeof(pkt));
 }
@@ -2019,6 +2025,7 @@ void DataFlash_Class::Log_Write_Beacon(AP_Beacon &beacon)
     WriteBlock(&pkt_beacon, sizeof(pkt_beacon));
 }
 
+<<<<<<< HEAD
 //	added by ZhangYong 20170731
 // Write communication drop packets rate
 void DataFlash_Class::Log_Write_CD(int32_t para_home_dis, float para_communicat_drops)
@@ -2115,3 +2122,42 @@ void DataFlash_Class::Log_Write_BCBPMBus(uint8_t msg_type, AC_BCBPMBus &vp_bcbpm
 
 
 //	added end
+=======
+// Write proximity sensor distances
+void DataFlash_Class::Log_Write_Proximity(AP_Proximity &proximity)
+{
+    // exit immediately if not enabled
+    if (proximity.get_status() == AP_Proximity::Proximity_NotConnected) {
+        return;
+    }
+
+    AP_Proximity::Proximity_Distance_Array dist_array {};
+    proximity.get_horizontal_distances(dist_array);
+
+    float dist_up;
+    if (!proximity.get_upward_distance(dist_up)) {
+        dist_up = 0.0f;
+    }
+
+    float close_ang = 0.0f, close_dist = 0.0f;
+    proximity.get_closest_object(close_ang, close_dist);
+
+    struct log_Proximity pkt_proximity = {
+            LOG_PACKET_HEADER_INIT(LOG_PROXIMITY_MSG),
+            time_us         : AP_HAL::micros64(),
+            health          : (uint8_t)proximity.get_status(),
+            dist0           : dist_array.distance[0],
+            dist45          : dist_array.distance[1],
+            dist90          : dist_array.distance[2],
+            dist135         : dist_array.distance[3],
+            dist180         : dist_array.distance[4],
+            dist225         : dist_array.distance[5],
+            dist270         : dist_array.distance[6],
+            dist315         : dist_array.distance[7],
+            distup          : dist_up,
+            closest_angle   : close_ang,
+            closest_dist    : close_dist
+    };
+    WriteBlock(&pkt_proximity, sizeof(pkt_proximity));
+}
+>>>>>>> d8a9f3afce677a277372563c5fb4d1bfa3eb961c

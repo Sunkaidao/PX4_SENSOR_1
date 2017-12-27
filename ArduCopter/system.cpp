@@ -12,66 +12,6 @@
 *
 *****************************************************************************/
 
-#if CLI_ENABLED == ENABLED
-
-// This is the help function
-int8_t Copter::main_menu_help(uint8_t argc, const Menu::arg *argv)
-{
-    cliSerial->printf("Commands:\n"
-                         "  logs\n"
-                         "  setup\n"
-                         "  test\n"
-                         "  reboot\n"
-                         "\n");
-    return(0);
-}
-
-// Command/function table for the top-level menu.
-const struct Menu::command main_menu_commands[] = {
-//   command		function called
-//   =======        ===============
-    {"logs",                MENU_FUNC(process_logs)},
-    {"setup",               MENU_FUNC(setup_mode)},
-    {"test",                MENU_FUNC(test_mode)},
-    {"reboot",              MENU_FUNC(reboot_board)},
-    {"help",                MENU_FUNC(main_menu_help)},
-};
-
-// Create the top-level menu object.
-MENU(main_menu, THISFIRMWARE, main_menu_commands);
-
-int8_t Copter::reboot_board(uint8_t argc, const Menu::arg *argv)
-{
-    hal.scheduler->reboot(false);
-    return 0;
-}
-
-// the user wants the CLI. It never exits
-void Copter::run_cli(AP_HAL::UARTDriver *port)
-{
-    cliSerial = port;
-    Menu::set_port(port);
-    port->set_blocking_writes(true);
-
-    // disable the mavlink delay callback
-    hal.scheduler->register_delay_callback(nullptr, 5);
-
-    // disable main_loop failsafe
-    failsafe_disable();
-
-    // cut the engines
-    if(motors->armed()) {
-        motors->armed(false);
-        motors->output();
-    }
-
-    while (1) {
-        main_menu.run();
-    }
-}
-
-#endif // CLI_ENABLED
-
 static void mavlink_delay_cb_static()
 {
     copter.mavlink_delay_cb();
@@ -100,9 +40,9 @@ void Copter::init_ardupilot()
     // init vehicle capabilties
     init_capabilities();
 
-    cliSerial->printf("\n\nInit " FIRMWARE_STRING
-                         "\n\nFree RAM: %u\n",
-                      (unsigned)hal.util->available_memory());
+    hal.console->printf("\n\nInit " FIRMWARE_STRING
+                        "\n\nFree RAM: %u\n",
+                        (unsigned)hal.util->available_memory());
 
     //
     // Report firmware version code expect on console (check of actual EEPROM format version is done in load_parameters function)
@@ -124,13 +64,17 @@ void Copter::init_ardupilot()
     serial_manager.init();
 
     // setup first port early to allow BoardConfig to report errors
-    gcs_chan[0].setup_uart(serial_manager, AP_SerialManager::SerialProtocol_MAVLink, 0);
+    gcs().chan(0).setup_uart(serial_manager, AP_SerialManager::SerialProtocol_MAVLink, 0);
+
 
     // Register mavlink_delay_cb, which will run anytime you have
     // more than 5ms remaining in your call to hal.scheduler->delay
     hal.scheduler->register_delay_callback(mavlink_delay_cb_static, 5);
     
     BoardConfig.init();
+#if HAL_WITH_UAVCAN
+    BoardConfig_CAN.init();
+#endif
 
     // init cargo gripper
 #if GRIPPER_ENABLED == ENABLED
@@ -158,12 +102,16 @@ void Copter::init_ardupilot()
 	
 
     // setup telem slots with serial ports
+<<<<<<< HEAD
     for (uint8_t i = 1; i < MAVLINK_COMM_NUM_BUFFERS; i++) {
         gcs_chan[i].setup_uart(serial_manager, AP_SerialManager::SerialProtocol_MAVLink, i);
 		//	added by zhangYong 20171124
 		//printf("gcs_chan[%d] txspace %d\n", i, gcs_chan[i].get_uart()->txspace());
 		//	added end
     }
+=======
+    gcs().setup_uarts(serial_manager);
+>>>>>>> d8a9f3afce677a277372563c5fb4d1bfa3eb961c
 
 	//printf("gcs_chan[%d] txspace %d\n", 0, gcs_chan[0].get_uart()->txspace());
 
@@ -217,7 +165,8 @@ void Copter::init_ardupilot()
     ahrs.set_beacon(&g2.beacon);
 
     // Do GPS init
-    gps.init(&DataFlash, serial_manager);
+    gps.set_log_gps_bit(MASK_LOG_GPS);
+    gps.init(serial_manager);
 
     init_compass();
 
@@ -279,28 +228,18 @@ void Copter::init_ardupilot()
     init_precland();
 #endif
 
+    // initialise landing gear position
+    landinggear.init();
+
 #ifdef USERHOOK_INIT
     USERHOOK_INIT
 #endif
-
-#if CLI_ENABLED == ENABLED
-    if (g.cli_enabled) {
-        const char *msg = "\nPress ENTER 3 times to start interactive setup\n";
-        cliSerial->printf("%s\n", msg);
-        if (gcs_chan[1].initialised && (gcs_chan[1].get_uart() != nullptr)) {
-            gcs_chan[1].get_uart()->printf("%s\n", msg);
-        }
-        if (num_gcs > 2 && gcs_chan[2].initialised && (gcs_chan[2].get_uart() != nullptr)) {
-            gcs_chan[2].get_uart()->printf("%s\n", msg);
-        }
-    }
-#endif // CLI_ENABLED
 
 #if HIL_MODE != HIL_MODE_DISABLED
     while (barometer.get_last_update() == 0) {
         // the barometer begins updating when we get the first
         // HIL_STATE message
-        gcs_send_text(MAV_SEVERITY_WARNING, "Waiting for first HIL_STATE message");
+        gcs().send_text(MAV_SEVERITY_WARNING, "Waiting for first HIL_STATE message");
         delay(1000);
     }
 
@@ -353,8 +292,7 @@ void Copter::init_ardupilot()
     // enable CPU failsafe
     failsafe_enable();
 
-    ins.set_raw_logging(should_log(MASK_LOG_IMU_RAW));
-    ins.set_dataflash(&DataFlash);
+    ins.set_log_raw_bit(MASK_LOG_IMU_RAW);
 
     // enable output to motors
     arming.pre_arm_rc_checks(true);
@@ -365,6 +303,7 @@ void Copter::init_ardupilot()
     // disable safety if requested
     BoardConfig.init_safety();
 
+<<<<<<< HEAD
 #if FXTX_AUTH == 0
 	printf("License Disabled\n");
 	//	added by ZhangYong 20170705 for item_int
@@ -481,6 +420,9 @@ void Copter::init_ardupilot()
 
 	
     cliSerial->printf("\nReady to FLY ");
+=======
+    hal.console->printf("\nReady to FLY ");
+>>>>>>> d8a9f3afce677a277372563c5fb4d1bfa3eb961c
 
     // flag that initialisation has completed
     ap.initialised = true;
@@ -645,14 +587,8 @@ void Copter::check_usb_mux(void)
 bool Copter::should_log(uint32_t mask)
 {
 #if LOGGING_ENABLED == ENABLED
-    if (!(mask & g.log_bitmask)) {
-        return false;
-    }
-    if (!DataFlash.should_log()) {
-        return false;
-    }
-    start_logging();
-    return true;
+    ap.logging_started = DataFlash.logging_started();
+    return DataFlash.should_log(mask);
 #else
     return false;
 #endif

@@ -272,7 +272,8 @@ bool AP_Mission::replace_cmd(uint16_t index, Mission_Command& cmd)
 /// is_nav_cmd - returns true if the command's id is a "navigation" command, false if "do" or "conditional" command
 bool AP_Mission::is_nav_cmd(const Mission_Command& cmd)
 {
-    return (cmd.id <= MAV_CMD_NAV_LAST);
+    // NAV commands all have ids below MAV_CMD_NAV_LAST except NAV_SET_YAW_SPEED
+    return (cmd.id <= MAV_CMD_NAV_LAST || cmd.id == MAV_CMD_NAV_SET_YAW_SPEED);
 }
 
 /// get_next_nav_cmd - gets next "navigation" command found at or after start_index
@@ -311,6 +312,14 @@ int32_t AP_Mission::get_next_ground_course_cd(int32_t default_angle)
     Mission_Command cmd;
     if (!get_next_nav_cmd(_nav_cmd.index+1, cmd)) {
         return default_angle;
+    }
+    // special handling for nav commands with no target location
+    if (cmd.id == MAV_CMD_NAV_GUIDED_ENABLE ||
+        cmd.id == MAV_CMD_NAV_DELAY) {
+        return default_angle;
+    }
+    if (cmd.id == MAV_CMD_NAV_SET_YAW_SPEED) {
+        return (_nav_cmd.content.set_yaw_speed.angle_deg * 100);
     }
     return get_bearing_cd(_nav_cmd.content.location, cmd.content.location);
 }
@@ -782,6 +791,7 @@ MAV_MISSION_RESULT AP_Mission::mavlink_int_to_mission_cmd(const mavlink_mission_
         copy_location = true;
         break;
 
+
 	//	added by ZhangYong 20170717
 #if SPRAYER == ENABLED	
 	case MAV_CMD_DO_SPRAYER:
@@ -789,6 +799,13 @@ MAV_MISSION_RESULT AP_Mission::mavlink_int_to_mission_cmd(const mavlink_mission_
 		break;
 	//	added end
 #endif
+
+    case MAV_CMD_NAV_SET_YAW_SPEED:
+        cmd.content.set_yaw_speed.angle_deg = packet.param1;        // target angle in degrees
+        cmd.content.set_yaw_speed.speed = packet.param2;            // speed in meters/second
+        cmd.content.set_yaw_speed.relative_angle = packet.param3;   // 0 = absolute angle, 1 = relative angle
+        break;
+
 
     default:
 		//	added by ZhangYong for denbug purpose 20170706
@@ -1257,6 +1274,13 @@ bool AP_Mission::mission_cmd_to_mavlink_int(const AP_Mission::Mission_Command& c
 #endif	
 	//	added end
 
+    case MAV_CMD_NAV_SET_YAW_SPEED:
+        packet.param1 = cmd.content.set_yaw_speed.angle_deg;        // target angle in degrees
+        packet.param2 = cmd.content.set_yaw_speed.speed;            // speed in meters/second
+        packet.param3 = cmd.content.set_yaw_speed.relative_angle;   // 0 = absolute angle, 1 = relative angle
+        break;
+
+
     default:
         // unrecognised command
         return false;
@@ -1675,10 +1699,10 @@ bool AP_Mission::jump_to_landing_sequence(void)
             resume();
         }
 
-        GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_INFO, "Landing sequence start");
+        gcs().send_text(MAV_SEVERITY_INFO, "Landing sequence start");
         return true;
     }
 
-    GCS_MAVLINK::send_statustext_all(MAV_SEVERITY_WARNING, "Unable to start landing sequence");
+    gcs().send_text(MAV_SEVERITY_WARNING, "Unable to start landing sequence");
     return false;
 }
