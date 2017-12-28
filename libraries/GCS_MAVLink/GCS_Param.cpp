@@ -96,6 +96,7 @@ GCS_MAVLINK::queued_param_send(bool armed)
         _queued_parameter = AP_Param::next_scalar(&_queued_parameter_token, &_queued_parameter_type);
         _queued_parameter_index++;
 
+
 		//	added by ZhangYong 20171117
 		if(1 == armed)
 		{
@@ -109,6 +110,7 @@ GCS_MAVLINK::queued_param_send(bool armed)
 		
 
         if (AP_HAL::micros() - tstart > timeout_threshold) {
+
             // don't use more than 1ms sending blocks of parameters
             break;
         }

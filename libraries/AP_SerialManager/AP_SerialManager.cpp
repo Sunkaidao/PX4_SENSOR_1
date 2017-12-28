@@ -205,6 +205,7 @@ void AP_SerialManager::init()
                                          AP_SERIALMANAGER_SToRM32_BUFSIZE_RX,
                                          AP_SERIALMANAGER_SToRM32_BUFSIZE_TX);
                     break;
+
                 case SerialProtocol_Aerotenna_uLanding:
                     // Note baudrate is hardcoded to 115200
                     state[i].baud = AP_SERIALMANAGER_ULANDING_BAUD / 1000;   // update baud param in case user looks at it
@@ -212,6 +213,7 @@ void AP_SerialManager::init()
                                          AP_SERIALMANAGER_ULANDING_BUFSIZE_RX,
                                          AP_SERIALMANAGER_ULANDING_BUFSIZE_TX);
                     break;
+
 				case SerialProtocol_FlowMeter_GKXN:
 				//	printf("SerialProtocol_FlowMeter_GKXN %d\n", AP_SERIALMANAGER_FLOWMETER_GKXN_BAUD);
 
@@ -245,7 +247,6 @@ void AP_SerialManager::init()
 #endif
 					
 #if BCBPMBUS == ENABLE
-
 				case SerialProtocol_BCBPMBus:
 					state[i].baud = AP_SERIALMANAGER_BCBPMBUS_BAUD / 1000;	 // update baud param in case user looks at it
 					state[i].uart->begin(map_baudrate(state[i].baud),
@@ -253,11 +254,26 @@ void AP_SerialManager::init()
 										AP_SERIALMANAGER_BCBPMBUS_BUFSIZE_TX);
 					break;	
 #endif
+
+#if CHARGINGSTATION == ENABLED
+				//baiyang added in 20170612
+				case SerialProtocol_ChargingStation:
+					// Note baudrate is hardcoded to 38400
+					state[i].baud = AP_SERIALMANAGER_CHARGINGSTATION_BAUD / 1000;	// update baud param in case user looks at it
+					state[i].uart->begin(map_baudrate(state[i].baud),
+										AP_SERIALMANAGER_CHARGINGSTATION_BUFSIZE_RX,
+										AP_SERIALMANAGER_CHARGINGSTATION_BUFSIZE_TX);
+					state[i].uart->set_flow_control(AP_HAL::UARTDriver::FLOW_CONTROL_DISABLE);
+					break;
+				//added end
+#endif
+
 				default:
 					//	added by ZhangYong
 					printf("Error! unsupportted serial port %d protocol %d!\n", i, state[i].protocol);
 					//	added by ZhangYong
 					break;
+
             }
         }
     }

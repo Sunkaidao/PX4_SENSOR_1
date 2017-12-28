@@ -135,6 +135,79 @@ void NavEKF2_core::controlMagYawReset()
             }
         }
     }
+
+#ifdef GPS_YAW_CAL
+	//baiyang added in 20170118
+    // Perform a reset of magnetic field states and reset yaw to corrected magnetic heading
+    if(frontend->_head_control && _ahrs->get_gps().status() >= AP_GPS::GPS_OK_FIX_3D && \
+		(_ahrs->get_gps().Headstatus() >= AP_GPS::NARROW_INT) && gpsHeadResetRequest)
+	{
+			
+	        //baiyang added in 20170303
+	        magFieldLearned = false;
+			//added end
+			
+	        // get the euler angles from the current state estimate
+	        Vector3f eulerAngles;
+	        stateStruct.quat.to_euler(eulerAngles.x, eulerAngles.y, eulerAngles.z);
+
+	        // Use the Euler angles and magnetometer measurement to update the magnetic field states
+	        // and get an updated quaternion
+	        Quaternion newQuat = calcQuatAndFieldStates(eulerAngles.x, eulerAngles.y);
+			
+			//baiyang added in 20170119
+            magYawResetRequest = true;
+			//added end
+			
+	        // if a yaw reset has been requested, apply the updated quaternion to the current state
+	        if (magYawResetRequest) {
+	            // previous value used to calculate a reset delta
+	            Quaternion prevQuat = stateStruct.quat;
+
+	            // update the quaternion states using the new yaw angle
+	            stateStruct.quat = newQuat;
+
+	            // calculate the change in the quaternion state and apply it to the ouput history buffer
+	            prevQuat = stateStruct.quat/prevQuat;
+	            StoreQuatRotate(prevQuat);
+				
+				//baiyang added in 20170216
+				gcs().send_text(MAV_SEVERITY_INFO, "EKF2 GPS initial yaw alignment complete");
+				//added end
+
+				//baiyang added in 20170216
+				if (!yawAlignComplete) {
+	                gcs().send_text(MAV_SEVERITY_INFO, "EKF2 GPS initial yaw alignment complete");
+	            }
+				//added end
+				
+	            // send in-flight yaw alignment status to console
+	            if (finalResetRequest) {
+	                gcs().send_text(MAV_SEVERITY_INFO, "EKF2 IMU%u in-flight yaw alignment complete",(unsigned)imu_index);
+	            } else if (interimResetRequest) {
+	               gcs().send_text(MAV_SEVERITY_WARNING, "EKF2 IMU%u ground mag anomaly, yaw re-aligned",(unsigned)imu_index);
+	            }
+
+	            // update the yaw reset completed status
+	            recordYawReset();
+
+	            // clear the yaw reset request flag
+	            magYawResetRequest = false;
+				
+				//baiyang added in 20170119
+			    gpsHeadResetRequest = false;
+			    //added end 			
+
+	            // clear the complete flags if an interim reset has been performed to allow subsequent
+	            // and final reset to occur
+	            if (interimResetRequest) {
+	                finalInflightYawInit = false;
+	                finalInflightMagInit = false;
+	            }
+	        }
+	    }
+	//added end
+#endif	
 }
 
 // this function is used to do a forced re-alignment of the yaw angle to align with the horizontal velocity
@@ -207,6 +280,12 @@ void NavEKF2_core::SelectMagFusion()
     // check for and read new magnetometer measurements
     readMagData();
 
+#ifdef GPS_YAW_CAL
+	//baiyang added in 20170120 dagaishijian 
+	readGpsHeadData();        
+	//added end
+#endif
+
     // If we are using the compass and the magnetometer has been unhealthy for too long we declare a timeout
     if (magHealth) {
         magTimeout = false;
@@ -218,14 +297,33 @@ void NavEKF2_core::SelectMagFusion()
     // check for availability of magnetometer data to fuse
     magDataToFuse = storedMag.recall(magDataDelayed,imuDataDelayed.time_ms);
 
-    // Control reset of yaw and magnetic field states if we are using compass data
-    if (magDataToFuse && use_compass()) {
+#ifdef GPS_YAW_CAL
+	if(frontend->_head_control){
+		// check for availability of gps heading data to fuse
+		gpsHeadDataToFuse = storedGPSHead.recall(gpsHeadDataDelayed,imuDataDelayed.time_ms);
+	}
+#endif
+
+#ifdef GPS_YAW_CAL
+
+	if ((magDataToFuse||gpsHeadDataToFuse) && (use_compass() || frontend->_head_control)){
+	     controlMagYawReset();
+	}
+
+    // determine if conditions are right to start a new fusion cycle
+    // wait until the EKF time horizon catches up with the measurement or gps
+    bool dataReady = ((magDataToFuse||gpsHeadDataToFuse) && statesInitialised && (use_compass() || frontend->_head_control) && yawAlignComplete);
+#else
+	// Control reset of yaw and magnetic field states if we are using compass data
+    if (magDataToFuse && use_compass()){
         controlMagYawReset();
     }
 
-    // determine if conditions are right to start a new fusion cycle
+	// determine if conditions are right to start a new fusion cycle
     // wait until the EKF time horizon catches up with the measurement
     bool dataReady = (magDataToFuse && statesInitialised && use_compass() && yawAlignComplete);
+#endif
+
     if (dataReady) {
         // use the simple method of declination to maintain heading if we cannot use the magnetic field states
         if(inhibitMagStates || magStateResetRequest || !magStateInitComplete) {
@@ -340,6 +438,18 @@ void NavEKF2_core::FuseMagnetometer()
         magYbias = stateStruct.body_magfield[1];
         magZbias = stateStruct.body_magfield[2];
 
+#ifdef GPS_YAW_CAL
+		//biayang added in 20170303
+		Quat.from_euler(stateStruct.quat.get_euler_roll(),stateStruct.quat.get_euler_pitch(),wrap_PI(radians(gpsHeadDataDelayed.Head)));
+        ftype &Q0 = Quat[0];
+        ftype &Q1 = Quat[1];
+        ftype &Q2 = Quat[2];
+        ftype &Q3 = Quat[3];
+		Matrix3f QDCM;
+		Vector3f QMagPred;
+		//added end
+#endif
+
         // rotate predicted earth components into body axes and calculate
         // predicted measurements
         DCM[0][0] = q0*q0 + q1*q1 - q2*q2 - q3*q3;
@@ -355,10 +465,40 @@ void NavEKF2_core::FuseMagnetometer()
         MagPred[1] = DCM[1][0]*magN + DCM[1][1]*magE  + DCM[1][2]*magD + magYbias;
         MagPred[2] = DCM[2][0]*magN + DCM[2][1]*magE  + DCM[2][2]*magD + magZbias;
 
+#ifdef GPS_YAW_CAL
+		//baiyang added in20170303
+        QDCM[0][0] = Q0*Q0 + Q1*Q1 - Q2*Q2 - Q3*Q3;
+        QDCM[0][1] = 2.0f*(Q1*Q2 + Q0*Q3);
+        QDCM[0][2] = 2.0f*(Q1*Q3-Q0*Q2);
+        QDCM[1][0] = 2.0f*(Q1*Q2 - Q0*Q3);
+        QDCM[1][1] = Q0*Q0 - Q1*Q1 + Q2*Q2 - Q3*Q3;
+        QDCM[1][2] = 2.0f*(Q2*Q3 + Q0*Q1);
+        QDCM[2][0] = 2.0f*(Q1*Q3 + Q0*Q2);
+        QDCM[2][1] = 2.0f*(Q2*Q3 - Q0*Q1);
+        QDCM[2][2] = Q0*Q0 - Q1*Q1 - Q2*Q2 + Q3*Q3;
+        QMagPred[0] = QDCM[0][0]*magN + QDCM[0][1]*magE  + QDCM[0][2]*magD + magXbias;
+        QMagPred[1] = QDCM[1][0]*magN + QDCM[1][1]*magE  + QDCM[1][2]*magD + magYbias;
+        QMagPred[2] = QDCM[2][0]*magN + QDCM[2][1]*magE  + QDCM[2][2]*magD + magZbias;
+		//added end
+
+		if(frontend-> _head_control && (_ahrs->get_gps().Headstatus()>= AP_GPS::NARROW_INT)){
+			//calculate the measurement innovation for each axis
+			for (uint8_t i = 0; i<=2; i++) {
+                innovMag[i] = MagPred[i] - QMagPred[i];
+            }
+		}else{
+			// calculate the measurement innovation for each axis
+	        for (uint8_t i = 0; i<=2; i++) {
+	            innovMag[i] = MagPred[i] - magDataDelayed.mag[i];
+	        }
+		}
+#else
+
         // calculate the measurement innovation for each axis
         for (uint8_t i = 0; i<=2; i++) {
             innovMag[i] = MagPred[i] - magDataDelayed.mag[i];
         }
+#endif
 
         // scale magnetometer observation error with total angular rate to allow for timing errors
         R_MAG = sq(constrain_float(frontend->_magNoise, 0.01f, 0.5f)) + sq(frontend->magVarRateScale*delAngCorrected.length() / imuDataDelayed.delAngDT);
@@ -830,8 +970,22 @@ void NavEKF2_core::fuseEulerYaw()
         measured_yaw = predicted_yaw;
     }
 
+#ifdef GPS_YAW_CAL
+	//baiyang added in 20170116
+	float innovation;
+	if(frontend->_head_control && (_ahrs->get_gps().status() >= AP_GPS::GPS_OK_FIX_3D) &&\
+		(_ahrs->get_gps().Headstatus() >= AP_GPS::NARROW_INT)){
+		// Calculate the innovation
+        innovation = wrap_PI(predicted_yaw-wrap_PI(radians(gpsHeadDataDelayed.Head)) );
+		
+	}else{
+	    innovation = wrap_PI(predicted_yaw - measured_yaw);	
+	}
+	//added end
+#else
     // Calculate the innovation
     float innovation = wrap_PI(predicted_yaw - measured_yaw);
+#endif
 
     // Copy raw value to output variable used for data logging
     innovYaw = innovation;
@@ -1088,6 +1242,19 @@ void NavEKF2_core::alignMagStateDeclination()
 
     // get the magnetic declination
     float magDecAng = use_compass() ? _ahrs->get_compass()->get_declination() : 0;
+
+#ifdef GPS_YAW_CAL
+
+	//baiyang added in 20170303
+	if(frontend -> _head_control && (_ahrs-> get_gps().Headstatus()>= AP_GPS::NARROW_INT)){
+		if(is_zero(stateStruct.earth_magfield.x) && is_zero(stateStruct.earth_magfield.y) && is_zero(stateStruct.earth_magfield.z)){
+			stateStruct.earth_magfield.x = frontend->VirMagN;
+	        stateStruct.earth_magfield.y = frontend->VirMagE;
+	        stateStruct.earth_magfield.z = frontend->VirMagD;
+		}
+	}
+	//added end 
+#endif
 
     // rotate the NE values so that the declination matches the published value
     Vector3f initMagNED = stateStruct.earth_magfield;

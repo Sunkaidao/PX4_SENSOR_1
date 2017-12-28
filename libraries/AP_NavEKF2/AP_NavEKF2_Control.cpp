@@ -343,6 +343,7 @@ void NavEKF2_core::checkAttitudeAlignmentStatus()
     }
 
     // submit yaw and magnetic field reset requests depending on whether we have compass data
+    // control Yaw reset--baiyang 
     if (tiltAlignComplete && !yawAlignComplete) {
         if (use_compass()) {
             magYawResetRequest = true;

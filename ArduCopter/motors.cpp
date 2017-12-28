@@ -241,6 +241,7 @@ bool Copter::init_arm_motors(bool arming_from_gcs)
 // init_disarm_motors - disarm motors
 void Copter::init_disarm_motors()
 {
+
 	//	adde by ZhangYong 20170731 for mav flight time
 	uint16_t lcl_flight_time_hour;
 	uint32_t lcl_flight_time_sec;
@@ -288,6 +289,27 @@ void Copter::init_disarm_motors()
     ahrs.set_correct_centrifugal(false);
     hal.util->set_soft_armed(false);
 
+#if FXTX_AUTH == ENABLED
+    //	added by ZhangYong for mav flight 20170731
+    lcl_flight_time_sec = local_flight_time_sec;
+    lcl_flight_time_sec += g.flight_time_sec;
+    
+    	
+    if(lcl_flight_time_sec >= 3600)
+    {
+    	 g.flight_time_sec.set_and_save(lcl_flight_time_sec % 3600);
+    
+    	 lcl_flight_time_hour = g.flight_time_hour;
+    		
+    	 g.flight_time_hour.set_and_save((lcl_flight_time_hour + lcl_flight_time_sec / 3600));
+    }
+    else
+    {
+    	 g.flight_time_sec.set_and_save(lcl_flight_time_sec);
+    }
+    //added end
+#endif
+      
     ap.in_arming_delay = false;
 
 	//	added by ZhangYong for mav flight 20170731

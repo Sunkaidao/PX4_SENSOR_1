@@ -222,9 +222,9 @@ void Copter::init_ardupilot()
     // initialise landing gear position
     landinggear.init();
 
-#ifdef USERHOOK_INIT
-    USERHOOK_INIT
-#endif
+// #ifdef USERHOOK_INIT
+//     userhook_init();
+// #endif
 
 #if HIL_MODE != HIL_MODE_DISABLED
     while (barometer.get_last_update() == 0) {
@@ -293,7 +293,6 @@ void Copter::init_ardupilot()
 
     // disable safety if requested
     BoardConfig.init_safety();
-
 
 #if FXTX_AUTH == 0
 	printf("License Disabled\n");
@@ -410,6 +409,12 @@ void Copter::init_ardupilot()
 //	duration_cnt = 0;
 
 	
+
+    #ifdef USERHOOK_INIT
+        userhook_init();
+    #endif
+
+
     hal.console->printf("\nReady to FLY ");
 
 

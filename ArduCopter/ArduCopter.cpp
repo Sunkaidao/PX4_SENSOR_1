@@ -624,6 +624,7 @@ void Copter::one_hz_loop()
     // functioning correctly
     update_sensor_status_flags();
 
+
 		//		added by ZhangYong 20161110
 #if FXTX_AUTH == ENABLED
 	if(gps.status() >=	AP_GPS::GPS_OK_FIX_3D)
@@ -698,6 +699,8 @@ void Copter::one_hz_loop()
 //	printf("rp %d, cp %d gcs %d\n", copter.ap.rc_receiver_present, copter.fs_mk.control_present, copter.fs_mk.gcs_control);
 
 //	printf("one_hz_loop rc_valid %d\n",  hal.rcin->get_rc_valid());
+
+
 }
 
 // called at 50hz

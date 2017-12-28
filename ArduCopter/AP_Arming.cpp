@@ -1,5 +1,13 @@
 #include "Copter.h"
 
+#ifdef GPS_YAW_CAL
+//baiyang added in 20171023
+#define NARROW_INT 3
+#define GPS_SUPPLY_HEAD 1
+#define COMPASS_SUPPLY_HEAD 0
+//added end
+#endif
+
 // performs pre-arm checks. expects to be called at 1hz.
 void AP_Arming_Copter::update(void)
 {
@@ -36,9 +44,16 @@ bool AP_Arming_Copter::all_checks_passing(bool arming_from_gcs)
 // NOTE: this does *NOT* call AP_Arming::pre_arm_checks() yet!
 bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
 {
-	//	added by Zhangyong to inform the mission palnner
+
+
+
+  
+//#if FXTX_AUTH == ENABLED
+    //	added by Zhangyong to inform the mission palnner
 	bool return_value;
 	//	added end
+//#endif
+
 
     // exit immediately if already armed
     if (copter.motors->armed()) {
@@ -65,6 +80,7 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
         return false;
     }
 
+
     // exit immediately if we've already successfully performed the pre-arm check
     if (copter.ap.pre_arm_check) {
         // run gps checks because results may change and affect LED colour
@@ -73,16 +89,33 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
         return true;
     }
 
-#if FXTX_AUTH == 1
-    //	added by Zhangyong for license
-	if(auth_state_denied == copter.auth_state_ms)
-    {
-    	set_pre_arm_check(false);
-    	gcs().send_text(MAV_SEVERITY_CRITICAL, "PreArm: license expired!\n");
-    	return false;
-    }
-    //	added end
-#endif	
+	//baiyang modified in 20170705
+    #if CHARGINGSTATION== ENABLED
+    		// exit immediately if we've already successfully performed the pre-arm check
+    		if (copter.ap.pre_arm_check) {
+    			// run gps checks because results may change and affect LED colour
+    			// no need to display failures because arm_checks will do that if the pilot tries to arm
+    			gps_checks(false);
+    			if(checks_to_perform == ARMING_CHECK_NONE||chargingStation_checks(display_failure))
+    				return true;
+    			else
+    				set_pre_arm_check(false);
+    				return false;
+    		   
+    		}
+    #else
+    		// exit immediately if we've already successfully performed the pre-arm check
+    		if (copter.ap.pre_arm_check) {
+    			// run gps checks because results may change and affect LED colour
+    			// no need to display failures because arm_checks will do that if the pilot tries to arm
+    			gps_checks(false);
+    			return true;
+    		}
+    #endif
+    //modified end
+
+ 
+  
 
     // succeed if pre arm checks are disabled
     if (checks_to_perform == ARMING_CHECK_NONE) {
@@ -167,17 +200,18 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
         & ( \
         	((!copter.ap.rc_receiver_present) && (!pilot_throttle_checks(display_failure))) || \
         	((copter.ap.rc_receiver_present) && (pilot_throttle_checks(display_failure)))\
-          );
+          )
+#if CHARGINGSTATION == ENABLED
+        & chargingStation_checks(display_failure)
+#endif
+		;
 
 	if(return_value)
 	{
 		gcs().send_text(MAV_SEVERITY_CRITICAL, "PreArm: succeed");
-	
 	}
-
-	return return_value;
 	
-	//	modified end
+	return return_value;
 }
 
 bool AP_Arming_Copter::rc_calibration_checks(bool display_failure)
@@ -495,6 +529,21 @@ bool AP_Arming_Copter::gps_checks(bool display_failure)
         }
     }
 
+#ifdef GPS_YAW_CAL
+
+	//baiyang added in 20171023
+	if(copter.EKF2.get_ekf_heading_mode() == GPS_SUPPLY_HEAD && \
+		copter.gps.Headstatus() < NARROW_INT){
+	   if (display_failure) {
+            gcs().send_text(MAV_SEVERITY_CRITICAL,"PreArm: Need GPS HEADING locking");
+       }
+	   
+	   AP_Notify::flags.pre_arm_gps_check = false;
+	   return false;	  
+	}
+	//added end
+#endif
+
     // check EKF compass variance is below failsafe threshold
     float vel_variance, pos_variance, hgt_variance, tas_variance;
     Vector3f mag_variance;
@@ -579,6 +628,36 @@ bool AP_Arming_Copter::pre_arm_terrain_check(bool display_failure)
     return true;
 #endif
 }
+
+//baiyang added in 20170703
+#if CHARGINGSTATION ==ENABLED
+bool AP_Arming_Copter::pre_chargingStation_check(bool display_failure)
+{
+    // check fence is initialised
+    if (copter.task.get_chargingStation().get_Bstation_use()) {
+		if(!copter.task.get_chargingStation().get_flight_permit()){
+	        if (display_failure) {
+	            gcs().send_text(MAV_SEVERITY_CRITICAL,"PreArm: ChargingStation close");
+	        }
+	        return false;
+		}else
+			return true;
+    }
+	
+    return true;
+}
+
+bool AP_Arming_Copter::chargingStation_checks(bool display_failure)
+{
+	// check chargingStation
+    if (!pre_chargingStation_check(display_failure)) {
+        return false;
+    }
+    return true;
+}
+
+#endif
+//added end
 
 // check nothing is too close to vehicle
 bool AP_Arming_Copter::pre_arm_proximity_check(bool display_failure)

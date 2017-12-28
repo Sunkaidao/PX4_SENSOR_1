@@ -45,6 +45,20 @@ extern const AP_HAL::HAL& hal;
 #include <stdio.h>
 #endif
 
+#if DGPS_HEADINGA == ENABLED
+//
+#define RF_INIT_MSG \
+        "com com1 57600\r\n"    \
+        "com com2 57600\r\n"    \
+        "interfacemode com2 novatelx novatel off\r\n"   \
+        "log com1 gpgga ontime 0.2\r\n"    \
+        "log com1 gprmc ontime 0.2\r\n"    \
+        "log com1 gpvtg ontime 0.2\r\n"    \
+        "log com1 headinga onchanged\r\n"  \
+        "DUALANTENNAALIGN enable 5 1\r\n"  \
+
+const char AP_GPS_NMEA::_initialisation_blob[] = ""; 
+#else
 // SiRF init messages //////////////////////////////////////////////////////////
 //
 // Note that we will only see a SiRF in NMEA mode if we are explicitly configured
@@ -88,7 +102,28 @@ extern const AP_HAL::HAL& hal;
     "$PUBX,40,vtg,0,1,0,0,0,0*7F\r\n"   /* VTG on at one per fix */ \
     "$PUBX,40,rmc,0,0,0,0,0,0*67\r\n"   /* RMC off (XXX suppress other message types?) */
 
-const char AP_GPS_NMEA::_initialisation_blob[] = SIRF_INIT_MSG MTK_INIT_MSG UBLOX_INIT_MSG;
+const char AP_GPS_NMEA::_initialisation_blob[] = SIRF_INIT_MSG MTK_INIT_MSG UBLOX_INIT_MSG;    
+#endif
+
+//baiyang added in 20170620
+#if DGPS_HEADINGA == ENABLED
+// NMEA message identifiers ////////////////////////////////////////////////////
+//
+const char AP_GPS_NMEA::_headinga_string[] = "HEADINGA";
+
+char AP_GPS_NMEA :: _check_CRC[8]={0};                               ///< Stored CRC check value
+uint8_t AP_GPS_NMEA ::  _check_CRC_number = 0;                       ///< check_CRC_number index within the current sentence
+
+/// CRC check related parameters   
+/// 
+unsigned int AP_GPS_NMEA ::  ulTemp1 = 0;  
+unsigned int AP_GPS_NMEA ::  ulTemp2 = 0;  
+unsigned int AP_GPS_NMEA ::  ulCRC = 0;
+
+//
+uint8_t AP_GPS_NMEA ::  _message_type = 0;
+#endif
+//added end
 
 // Convenience macros //////////////////////////////////////////////////////////
 //
@@ -98,7 +133,13 @@ const char AP_GPS_NMEA::_initialisation_blob[] = SIRF_INIT_MSG MTK_INIT_MSG UBLO
 AP_GPS_NMEA::AP_GPS_NMEA(AP_GPS &_gps, AP_GPS::GPS_State &_state, AP_HAL::UARTDriver *_port) :
     AP_GPS_Backend(_gps, _state, _port),
     _parity(0),
+// baiyang add in 20170829
+#if DGPS_HEADINGA == ENABLED
+    _is_check_term(false),
+#else
     _is_checksum_term(false),
+#endif
+// added end
     _sentence_type(0),
     _term_number(0),
     _term_offset(0),
@@ -136,11 +177,11 @@ bool AP_GPS_NMEA::read(void)
 bool AP_GPS_NMEA::_decode(char c)
 {
     bool valid_sentence = false;
-
+/*
     switch (c) {
     case ',': // term terminators
         _parity ^= c;
-        /* no break */
+        //no break 
     case '\r':
     case '\n':
     case '*':
@@ -167,9 +208,126 @@ bool AP_GPS_NMEA::_decode(char c)
         _term[_term_offset++] = c;
     if (!_is_checksum_term)
         _parity ^= c;
+*/
+
+//baiyang modified in 20170620
+#if DGPS_HEADINGA == ENABLED
+	switch (c) {
+	case ';': // term terminators	
+	case ',': // term terminators
+		if(_message_type == _GPS_MESSAGE_NMEA){   
+			_parity ^= c;  
+		}else if(_message_type == _GPS_MESSAGE_NOVATEL) 		
+			_parity = CalculateBlockCRC32(c);
+		/* no break */
+	case '\r':
+	case '\n':
+	case '*':
+		if(_message_type == _GPS_MESSAGE_NMEA){    
+			if (_term_offset < sizeof(_term)) { 	
+				_term[_term_offset] = 0;			
+				valid_sentence = _term_complete();	
+			}		
+			++_term_number; 	
+			_term_offset = 0;	   
+			_is_check_term = c == '*';	
+			return valid_sentence;
+		}else if(_message_type == _GPS_MESSAGE_NOVATEL){
+			if (_term_offset < sizeof(_term)) { 	
+				_term[_term_offset] = 0;			
+				valid_sentence = _term_complete();		
+				}				
+			++_term_number; 		
+			_term_offset = 0;		
+			_is_check_term = c == '*';		
+			return valid_sentence;	
+			}
+	case '$': // sentence begin
+		_message_type = _GPS_MESSAGE_NMEA;
+		_term_number = _term_offset = 0;
+		_parity = 0;
+		_sentence_type = _GPS_SENTENCE_OTHER;
+		_is_check_term = false;
+		_gps_data_good = false;
+		return valid_sentence;
+	case '#': // sentence begin  
+		_message_type = _GPS_MESSAGE_NOVATEL;	
+		_term_number = _term_offset = 0;		
+		_parity = 0;				
+		ulTemp1 = ulTemp2 = 0;	
+		ulCRC = 0;			
+		_sentence_type = _GPS_SENTENCE_OTHER;	
+		_is_check_term = false; 	
+		_gps_data_good = false; 	
+		return valid_sentence;
+	}
+	
+	// ordinary characters 
+	if(_message_type == _GPS_MESSAGE_NMEA){
+		if (_term_offset < sizeof(_term) - 1)	 
+			_term[_term_offset++] = c;	   
+		if (!_is_check_term)	  
+			_parity ^= c;	
+	}else if(_message_type == _GPS_MESSAGE_NOVATEL){  
+		if (_term_offset < sizeof(_term) - 1)		
+			_term[_term_offset++] = c;		
+		if (!_is_check_term)			
+			_parity = CalculateBlockCRC32(c);  
+	}	 
+#else
+	switch (c) {
+	case ',': // term terminators
+		_parity ^= c;
+		/* no break */
+	case '\r':
+	case '\n':
+	case '*':
+		if (_term_offset < sizeof(_term)) {
+			_term[_term_offset] = 0;
+			valid_sentence = _term_complete();
+		}
+		++_term_number;
+		_term_offset = 0;
+		_is_checksum_term = c == '*';
+		return valid_sentence;
+	
+	case '$': // sentence begin
+		_term_number = _term_offset = 0;
+		_parity = 0;
+		_sentence_type = _GPS_SENTENCE_OTHER;
+		_is_checksum_term = false;
+		_gps_data_good = false;
+		return valid_sentence;
+	}
+	
+	// ordinary characters
+	if (_term_offset < sizeof(_term) - 1)
+		_term[_term_offset++] = c;
+	if (!_is_checksum_term)
+		_parity ^= c;
+#endif
+//modified end
 
     return valid_sentence;
 }
+
+//baiyang added in 20170620
+#if DGPS_HEADINGA == ENABLED
+
+uint32_t AP_GPS_NMEA::_parse_CRC()
+{	
+	uint32_t ret =   268435456*_from_hex(_check_CRC[0])+
+		16777216*_from_hex(_check_CRC[1])+	
+		1048576*_from_hex(_check_CRC[2])+	
+		65536*_from_hex(_check_CRC[3])+		
+		4096*_from_hex(_check_CRC[4])+		
+		256*_from_hex(_check_CRC[5])+			
+		16*_from_hex(_check_CRC[6])+		
+		_from_hex(_check_CRC[7]); 
+	return ret;
+}
+#endif
+// added end
 
 //
 // internal utilities
@@ -262,6 +420,15 @@ uint32_t AP_GPS_NMEA::_parse_degrees()
  */
 bool AP_GPS_NMEA::_have_new_message()
 {
+
+#if DGPS_HEADINGA == ENABLED
+   //baiyang added in 20171016
+    if(is_no_fix){
+		return true;
+	}
+	//added end
+#endif
+
     if (_last_RMC_ms == 0 ||
         _last_GGA_ms == 0) {
         return false;
@@ -289,10 +456,33 @@ bool AP_GPS_NMEA::_have_new_message()
 bool AP_GPS_NMEA::_term_complete()
 {
     // handle the last term in a message
-    if (_is_checksum_term) {
-        uint8_t checksum = 16 * _from_hex(_term[0]) + _from_hex(_term[1]);
+    #if DGPS_HEADINGA == ENABLED
+      if (_is_check_term) {
+    #else
+      if (_is_checksum_term) {
+    #endif
+        // uint8_t checksum = 16 * _from_hex(_term[0]) + _from_hex(_term[1]);
+        uint32_t checksum = 0;	
+			  if(_message_type == _GPS_MESSAGE_NMEA){  
+				   checksum = 16 * _from_hex(_term[0]) +	
+					 _from_hex(_term[1]);	
+				}else if(_message_type == _GPS_MESSAGE_NOVATEL){     
+					checksum =  268435456*_from_hex(_term[0])+		
+						16777216*_from_hex(_term[1])+				
+						1048576*_from_hex(_term[2])+				
+						65536*_from_hex(_term[3])+				
+						4096*_from_hex(_term[4])+				
+						256*_from_hex(_term[5])+				
+						16*_from_hex(_term[6])+					
+						_from_hex(_term[7]);
+			  }
         if (checksum == _parity) {
             if (_gps_data_good) {
+				#if DGPS_HEADINGA == ENABLED 
+				//baiyang added in 20171016
+				is_no_fix = false;
+				//added end
+				#endif
                 uint32_t now = AP_HAL::millis();
                 switch (_sentence_type) {
                 case _GPS_SENTENCE_RMC:
@@ -305,8 +495,23 @@ bool AP_GPS_NMEA::_term_complete()
                     state.ground_course    = wrap_360(_new_course*0.01f);
                     make_gps_time(_new_date, _new_time * 10);
                     state.last_gps_time_ms = now;
+                    /*
                     // To-Do: add support for proper reporting of 2D and 3D fix
                     state.status           = AP_GPS::GPS_OK_FIX_3D;
+                    */
+                    
+                    // baiyang added in 20170829
+                    #if DGPS_HEADINGA == ENABLED
+                        if(state.rtk_status == 400)
+    						 state.status = AP_GPS::GPS_OK_FIX_3D_RTK_FIXED;
+    					else
+    	                     // To-Do: add support for proper reporting of 2D and 3D fix
+    	                     state.status = AP_GPS::GPS_OK_FIX_3D;
+                    #else 
+                        // To-Do: add support for proper reporting of 2D and 3D fix
+                        state.status           = AP_GPS::GPS_OK_FIX_3D;
+                    #endif
+                    // added end
                     fill_3d_velocity();
                     break;
                 case _GPS_SENTENCE_GGA:
@@ -316,8 +521,26 @@ bool AP_GPS_NMEA::_term_complete()
                     state.location.lng  = _new_longitude;
                     state.num_sats      = _new_satellite_count;
                     state.hdop          = _new_hdop;
+                    /*
                     // To-Do: add support for proper reporting of 2D and 3D fix
                     state.status        = AP_GPS::GPS_OK_FIX_3D;
+                    */
+                    
+                    // baiyang added in 20170829
+                    #if DGPS_HEADINGA == ENABLED
+                        //baiyagn add in 20161117 
+    					state.rtk_status    = _new_rtk_status;
+    					//added end
+                        if(state.rtk_status == 400)
+    					   state.status = AP_GPS::GPS_OK_FIX_3D_RTK_FIXED;
+    					else
+    	                   // To-Do: add support for proper reporting of 2D and 3D fix
+    	                   state.status = AP_GPS::GPS_OK_FIX_3D;
+                    #else
+                        // To-Do: add support for proper reporting of 2D and 3D fix
+                        state.status = AP_GPS::GPS_OK_FIX_3D;
+                    #endif
+                    //added end
                     break;
                 case _GPS_SENTENCE_VTG:
                     _last_VTG_ms = now;
@@ -326,6 +549,22 @@ bool AP_GPS_NMEA::_term_complete()
                     fill_3d_velocity();
                     // VTG has no fix indicator, can't change fix status
                     break;
+                // baiyang added in 20170829
+                #if DGPS_HEADINGA == ENABLED
+                case _GPS_SENTENCE_HEADINGA:     
+					_last_HEADINGA_ms   = now;	
+					state.heading       = _new_heading/100;    
+					state.HeadStatus    = _status;
+					break;
+				//baiyang added in 20171016
+				case _GPS_SENTENCE_HEADING3A:     
+					_last_HEADING3A_ms = now;	
+					state.heading       = _new_heading/100;    
+					state.HeadStatus    = _status;
+					break;  
+				//added end
+                #endif  
+                // added end
                 }
             } else {
                 switch (_sentence_type) {
@@ -334,6 +573,12 @@ bool AP_GPS_NMEA::_term_complete()
                     // Only these sentences give us information about
                     // fix status.
                     state.status = AP_GPS::NO_FIX;
+				
+				#if DGPS_HEADINGA == ENABLED
+   					//baiyang added in 20171016
+                    is_no_fix = true;
+					//added end
+				#endif
                 }
             }
             // see if we got a good message
@@ -365,7 +610,17 @@ bool AP_GPS_NMEA::_term_complete()
             // VTG may not contain a data qualifier, presume the solution is good
             // unless it tells us otherwise.
             _gps_data_good = true;
-        } else {
+        }
+        //baiyang added in 20170829
+        #if DGPS_HEADINGA == ENABLED
+        else if (!strcmp(_term, _headinga_string)) {   
+	        _sentence_type = _GPS_SENTENCE_HEADINGA;		 
+		}else if (!strcmp(_term, "HEADING3A")) {   
+	        _sentence_type = _GPS_SENTENCE_HEADING3A;		
+		}
+        #endif
+        // added end
+        else {
             _sentence_type = _GPS_SENTENCE_OTHER;
         }
         return false;
@@ -381,6 +636,13 @@ bool AP_GPS_NMEA::_term_complete()
             break;
         case _GPS_SENTENCE_GGA + 6: // Fix data (GGA)
             _gps_data_good = _term[0] > '0';
+            
+            //baiyang added in 20170829
+            #if DGPS_HEADINGA == ENABLED
+            _new_rtk_status = _parse_decimal_100(_term);
+            #endif
+            //added end
+            
             break;
         case _GPS_SENTENCE_VTG + 9: // validity (VTG) (we may not see this field)
             _gps_data_good = _term[0] != 'N';
@@ -436,7 +698,56 @@ bool AP_GPS_NMEA::_term_complete()
         case _GPS_SENTENCE_VTG + 1: // Course (VTG)
             _new_course = _parse_decimal_100(_term);
             break;
-        }
+
+#if DGPS_HEADINGA == ENABLED
+        // heading		
+        //		
+        case _GPS_SENTENCE_HEADINGA + 13: // heading (HEADINGA)		
+            _new_heading = _parse_decimal_100(_term);	
+            break;
+            
+        //baiyang added in 20170119
+        case _GPS_SENTENCE_HEADINGA + 11:
+			if(strcmp(_term, "NONE") == 0)
+				_status = AP_GPS::NONE;
+			else if(strcmp(_term, "L1_FLOAT") == 0){
+				_status = AP_GPS::L1_FLOAT;
+			    _gps_data_good = true;
+			}else if(strcmp(_term, "NARROW_FLOAT") == 0){
+				_status = AP_GPS::NARROW_FLOAT;
+			    _gps_data_good = true;
+			}else if(strcmp(_term, "NARROW_INT") == 0){
+				_status = AP_GPS::NARROW_INT;
+			    _gps_data_good = true;
+			}
+			break;
+        //added end
+
+		//deading3a
+		//
+		
+		//baiyang added in 20171016
+		case _GPS_SENTENCE_HEADING3A + 13: // heading (HEADINGA)		
+			_new_heading = _parse_decimal_100(_term);	
+			break;
+				
+		case _GPS_SENTENCE_HEADING3A + 11:
+			if(strcmp(_term, "NONE") == 0)
+				_status = AP_GPS::NONE;
+			else if(strcmp(_term, "L1_FLOAT") == 0){
+				_status = AP_GPS::L1_FLOAT;
+			    _gps_data_good = true;
+			}else if(strcmp(_term, "NARROW_FLOAT") == 0){
+				_status = AP_GPS::NARROW_FLOAT;
+			    _gps_data_good = true;
+			}else if(strcmp(_term, "NARROW_INT") == 0){
+				_status = AP_GPS::NARROW_INT;
+			    _gps_data_good = true;
+			}
+			break;
+		//added end
+#endif 
+        }        
     }
 
     return false;
@@ -480,3 +791,36 @@ AP_GPS_NMEA::_detect(struct NMEA_detect_state &state, uint8_t data)
     }
     return false;
 }
+
+//baiyang added in 20170620
+#if DGPS_HEADINGA == ENABLED
+
+/*Calculate a CRC value to be used by CRC calculation functions. */
+#define CRC32_POLYNOMIAL   0xEDB88320L 
+uint32_t
+AP_GPS_NMEA ::CRC32Value(int i)
+{   
+	int j;      
+	uint32_t CRC;   
+	CRC = i;   
+	for ( j = 8 ; j > 0; j-- )  
+	{     
+		if ( CRC & 1 )      
+			CRC = ( CRC >> 1 ) ^ CRC32_POLYNOMIAL;   
+		else         	
+			CRC >>= 1;   
+	}      
+	return CRC; 
+}
+/* Calculates the CRC-32 of a block of data all at once*/ 
+uint32_t
+AP_GPS_NMEA ::CalculateBlockCRC32(   unsigned char i)
+{  
+	ulTemp1 = ( ulCRC >> 8 ) & 0x00FFFFFFL;  	
+	ulTemp2 = CRC32Value( ((int) ulCRC ^ i ) & 0xff );    
+	ulCRC = ulTemp1 ^ ulTemp2;  
+	
+	return( ulCRC );
+}
+#endif
+//added end

@@ -71,6 +71,13 @@ bool NavEKF2_core::setup_core(NavEKF2 *_frontend, uint8_t _imu_index, uint8_t _c
     if(!storedGPS.init(OBS_BUFFER_LENGTH)) {
         return false;
     }
+#ifdef GPS_YAW_CAL
+	//biayang added in 20170117
+	if(!storedGPSHead.init(OBS_BUFFER_LENGTH)) {
+        return false;
+    }
+	//added end
+#endif
     if(!storedMag.init(OBS_BUFFER_LENGTH)) {
         return false;
     }
@@ -128,6 +135,12 @@ void NavEKF2_core::InitialiseVariables()
     lastSynthYawTime_ms = imuSampleTime_ms;
     lastTimeGpsReceived_ms = 0;
     secondLastGpsTime_ms = 0;
+#ifdef GPS_YAW_CAL
+	//baiyang added in 20170117
+	lastTimeGpsHeadReceived_ms = 0;
+	secondLastGpsHeadTime_ms = 0;
+	//added end
+#endif
     lastDecayTime_ms = imuSampleTime_ms;
     timeAtLastAuxEKF_ms = imuSampleTime_ms;
     flowValidMeaTime_ms = imuSampleTime_ms;
@@ -224,6 +237,11 @@ void NavEKF2_core::InitialiseVariables()
     innovationIncrement = 0;
     lastInnovation = 0;
     memset(&gpsCheckStatus, 0, sizeof(gpsCheckStatus));
+#ifdef GPS_YAW_CAL
+	//baiyang added in 20170117
+	memset(&gpsHeadCheckStatus, 0, sizeof(gpsHeadCheckStatus));
+	//added end
+#endif
     gpsSpdAccPass = false;
     ekfInnovationsPass = false;
     sAccFilterState1 = 0.0f;
@@ -261,6 +279,11 @@ void NavEKF2_core::InitialiseVariables()
     magStateInitComplete = false;
     magYawResetRequest = false;
     gpsYawResetRequest = false;
+#ifdef GPS_YAW_CAL
+	//baiyang aaded in 20170119
+	gpsHeadResetRequest = true;
+	//added end
+#endif
     posDownAtLastMagReset = stateStruct.position.z;
     yawInnovAtLastMagReset = 0.0f;
     quatAtLastMagReset = stateStruct.quat;
@@ -320,6 +343,11 @@ void NavEKF2_core::InitialiseVariables()
     // zero data buffers
     storedIMU.reset();
     storedGPS.reset();
+#ifdef GPS_YAW_CAL
+	//baiyang added in 20170117
+	storedGPSHead.reset();
+	//added end
+#endif
     storedMag.reset();
     storedBaro.reset();
     storedTAS.reset();
@@ -355,6 +383,12 @@ bool NavEKF2_core::InitialiseFilterBootstrap(void)
 
     // read the magnetometer data
     readMagData();
+
+#ifdef GPS_YAW_CAL
+	//baiyang added in 20170206
+    readGpsHeadData();
+    //added end
+#endif
 
     // normalise the acceleration vector
     float pitch=0, roll=0;
@@ -1441,9 +1475,21 @@ Quaternion NavEKF2_core::calcQuatAndFieldStates(float roll, float pitch)
 
         // get the magnetic declination
         float magDecAng = use_compass() ? _ahrs->get_compass()->get_declination() : 0;
-
+		
+#ifdef GPS_YAW_CAL
+		//baiyang added in 20170116
+		float gpsHead =wrap_PI(radians(_ahrs->get_gps().heading(0)));   //_ahrs->get_gps().heading(0) gpsHeadDataDelayed.Head
+        if(frontend->_head_control && (_ahrs->get_gps().Headstatus() >= AP_GPS::NARROW_INT)){
+	        yaw = gpsHead;    
+        }else{
+			// calculate yaw angle rel to true north
+	        yaw = magDecAng - magHeading;
+        }
+        // added end
+#else
         // calculate yaw angle rel to true north
         yaw = magDecAng - magHeading;
+#endif
 
         // calculate initial filter quaternion states using yaw from magnetometer
         // store the yaw change so that it can be retrieved externally for use by the control loops to prevent yaw disturbances following a reset

@@ -135,6 +135,9 @@ public:
 
     void Log_Write_Parameter(const char *name, float value);
     void Log_Write_GPS(const AP_GPS &gps, uint8_t instance, uint64_t time_us=0);
+#if ABMODE == ENABLE
+	void Log_Write_Target_WP(const Location &target_loc,int32_t index,int8_t direction,float ab_yaw,const Location& home_loc);
+#endif
     void Log_Write_RFND(const RangeFinder &rangefinder);
     void Log_Write_IMU(const AP_InertialSensor &ins);
     void Log_Write_IMUDT(const AP_InertialSensor &ins, uint64_t time_us, uint8_t imu_mask);
@@ -169,6 +172,12 @@ public:
     void Log_Write_Compass(const Compass &compass, uint64_t time_us=0);
     void Log_Write_Mode(uint8_t mode, uint8_t reason = 0);
 
+    #if CHARGINGSTATION == ENABLED
+    	//baiyang added in 20170523
+    	void Log_Write_RTBS(bool reached_wp_destination,bool back_to_station_midair,bool land_alternate_posMidair,int8_t ask,uint8_t msg);
+    	//added end
+    #endif
+
     void Log_Write_EntireMission(const AP_Mission &mission);
     void Log_Write_Mission_Cmd(const AP_Mission &mission,
                                const AP_Mission::Mission_Command &cmd);
@@ -191,7 +200,16 @@ public:
 	//	added end
     void Log_Write_Proximity(AP_Proximity &proximity);
 
+<<<<<<< HEAD
 
+=======
+#if FXTX_AUTH == ENABLED
+    //	added by ZhangYong 20170731
+    void Log_Write_CD(int32_t para_home_dis, float para_communicat_drops);
+    //	added end
+#endif
+    
+>>>>>>> 7fa0e920c649e712078de6d2dd375d1873b3a85f
     void Log_Write(const char *name, const char *labels, const char *fmt, ...);
 
     // This structure provides information on the internal member data of a PID for logging purposes

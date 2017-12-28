@@ -1,4 +1,3 @@
-//
 #pragma once
 
 //////////////////////////////////////////////////////////////////////////////
@@ -951,3 +950,73 @@ union PACKED PassOSD_data_status {
 #ifndef ADVANCED_FAILSAFE
 # define ADVANCED_FAILSAFE DISABLED
 #endif
+
+
+//baiyang added in 20170620
+///////////////////////////////////////////////////////////////////////////////
+//DGPS relate
+//
+
+//Use GPS #HEADINGA messages
+#ifndef DGPS_HEADINGA
+  #  define DGPS_HEADINGA          ENABLED
+#endif
+
+//This macro is defined in AP_NavEKF2_core.h,in this file, AP_NavEKF2_core.h can not be seen AP_NavEKF2.h
+//Use the #HEADINGA message to resolve the heading,can not use this method, this method compile switch does not work
+/*
+* #ifndef GPS_YAW_CAL
+* # define GPS_YAW_CAL   ENABLED
+* #endif
+*/
+
+//added end
+
+
+//baiyang added in 20170712
+///////////////////////////////////////////////////////////////////////////////
+//charging Station
+//
+#ifndef CHARGINGSTATION
+  #  define CHARGINGSTATION	ENABLED
+#endif
+
+#ifndef RF_TASK
+#  define RF_TASK	ENABLED
+#endif
+
+// baiyang added in 20170830
+//////////////////////////////////////////////////////////////////////////////
+//roflying fence
+#ifndef RF_FENCE
+#  define RF_FENCE	ENABLED
+#endif
+
+// baiyang added in 20170830
+//////////////////////////////////////////////////////////////////////////////
+//roflying fence
+#ifndef PTZ_CONTROL
+#  define PTZ_CONTROL	ENABLED
+#endif
+
+//baiyang added in 20170712
+///////////////////////////////////////////////////////////////////////////////
+//AB Mode
+//
+#ifndef ABMODE
+  #  define ABMODE	ENABLED
+#endif
+
+
+//baiyang added in 20170829
+/////////////////////////////////////////////////////////////////////////////////////
+//Enabled UserCode.cpp
+#define USERHOOK_INIT
+#define USERHOOK_MEDIUMLOOP
+#define USERHOOK_50HZLOOP
+#define USERHOOK_SUPERSLOWLOOP
+
+
+
+
+

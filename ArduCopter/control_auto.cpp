@@ -416,16 +416,46 @@ void Copter::auto_rtl_start()
 {
     auto_mode = Auto_RTL;
 
+    // // call regular rtl flight mode initialisation and ask it to ignore checks
+    // rtl_init(true);
+    
+//baiyang modified in 20170628
+#if CHARGINGSTATION == ENABLED
+
+    if(task.get_chargingStation().get_Bstation_use())
+		    task.get_chargingStation().do_gotostation();
+	  else
+		    rtl_init(true);
+#else
+
     // call regular rtl flight mode initialisation and ask it to ignore checks
     rtl_init(true);
+#endif
+//modified end
+
 }
 
 // auto_rtl_run - rtl in AUTO flight mode
 //      called by auto_run at 100hz or more
 void Copter::auto_rtl_run()
 {
+    // // call regular rtl flight mode run function
+    // rtl_run();
+    
+    //baiyang modified in 20170628
+#if CHARGINGSTATION == ENABLED
+
+	 if(task.get_chargingStation().get_Bstation_use())
+		  guided_pos_control_run();
+	 else	
+    	rtl_run();
+#else
+
     // call regular rtl flight mode run function
     rtl_run();
+#endif
+//modified end
+
 }
 
 // auto_circle_movetoedge_start - initialise waypoint controller to move to edge of a circle with it's center at the specified location

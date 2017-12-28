@@ -251,7 +251,8 @@ void Copter::init_aux_switch_function(int8_t ch_option, uint8_t ch_flag)
 void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
 {
 
-    switch(ch_function) {
+    switch(ch_function) 
+	{
         case AUXSW_FLIP:
             // flip if switch is on, positive throttle and we're actually flying
             if (ch_flag == AUX_SWITCH_HIGH) {
@@ -649,6 +650,7 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
             }
             break;
 
+
 		case AUXSW_FS_PLD:
 			if (ch_flag == AUX_SWITCH_HIGH) 
 			{
@@ -682,6 +684,94 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
 			}
 			break;
 
+#if CHARGINGSTATION == ENABLED			
+        //baiyang added in 20170414
+        case AUXSW_FLIGHT:
+            if (ch_flag == AUX_SWITCH_HIGH) 
+                task.get_chargingStation().fly();
+            else if(ch_flag == AUX_SWITCH_LOW)
+            		task.get_chargingStation().landed();
+            else
+            	  task.get_chargingStation().reset_flight_status();
+            break;
+        case AUXSW_BLASTOFF:
+            if (ch_flag == AUX_SWITCH_LOW)
+            		task.get_chargingStation().set_blastoff_flag();
+            else if(ch_flag == AUX_SWITCH_HIGH)
+            		task.get_chargingStation().start_communication();
+            else if(ch_flag == AUX_SWITCH_MIDDLE)
+            		task.get_chargingStation().reset();
+            break;
+        //added end
+
+        //baiyang added in 20170612
+        case AUXSW_DO_TAKEOFF:
+            if (ch_flag == AUX_SWITCH_HIGH) 
+            		task.get_chargingStation().do_takeoff();
+            break;
+        //added end
+    #endif
+
+#if ABMODE == ENABLED
+		case AUXSW_RECORD_AB:
+            switch (ch_flag) 
+			{
+	            case AUX_SWITCH_HIGH:
+	                task.get_abmode().abmode_set_pos_b();
+	                break;
+	            case AUX_SWITCH_LOW:
+	                task.get_abmode().abmode_set_pos_a();
+	                break;
+            }
+            break;
+#endif
+	
+#if ABMODE == ENABLED
+		case AUXSW_MODE_DIR_AB:
+            switch (ch_flag) 
+			{
+	            case AUX_SWITCH_HIGH:
+	                set_mode(ABMODE_RF, MODE_REASON_TX_COMMAND);
+	                break;
+	            case AUX_SWITCH_LOW:
+	                task.get_abmode().invert_direction(SEMIAUTO);
+	                break;
+	            }
+            break;
+#endif
+	
+#if ABMODE == ENABLED
+		case AUXSW_DIR_AB:
+            switch (ch_flag) 
+			{
+	            case AUX_SWITCH_HIGH:
+	                task.get_abmode().invert_direction(MANUAL,ISLIFT);
+	                break;
+	            case AUX_SWITCH_LOW:
+	                task.get_abmode().invert_direction(MANUAL,ISRIGHT);
+	                break;
+	        }
+            break;
+#endif
+
+#if ABMODE == ENABLED
+		case AUXSW_SET_ABMODE:
+            switch (ch_flag) 
+			{
+	            case AUX_SWITCH_HIGH:
+	                set_mode(ABMODE_RF, MODE_REASON_TX_COMMAND);
+					break;
+			    case AUX_SWITCH_MIDDLE:
+			    case AUX_SWITCH_LOW:
+					if (control_mode == ABMODE_RF) {
+                    	reset_control_switch();
+                	}
+	                break;
+	        }
+            break;
+#endif
+		default:
+			break;
     }
 }
 

@@ -285,8 +285,50 @@ void DataFlash_Class::Log_Write_GPS(const AP_GPS &gps, uint8_t i, uint64_t time_
         sample_ms     : gps.last_message_time_ms(i)
     };
     WriteBlock(&pkt2, sizeof(pkt2));
+
+// baiyang added in 20170829
+//#if DGPS_HEADINGA == ENABLED
+    static bool heading_ready = false;
+    if (!heading_ready) {
+      if (!is_zero(gps.heading(i))) {
+        heading_ready = true;
+      }
+      return;
+    }
+    
+    struct log_GPS_HEADINGA pkt3 = {
+        LOG_PACKET_HEADER_INIT((uint8_t)(LOG_GPS_HEADINGA_MSG+i)),
+        time_us       : time_us,
+        heading       : gps.heading(i),
+        rtk_status    : (int16_t)(gps.RTK_status(i)/100)
+    };
+    WriteBlock(&pkt3, sizeof(pkt3));
+//#endif 
+//added end 
+
 }
 
+#if ABMODE == ENABLED
+//baiyang added in 20171102
+void DataFlash_Class::Log_Write_Target_WP(const Location &target_loc,int32_t index,int8_t direction,float ab_yaw,const Location& home_loc)
+{
+	struct log_TWP pkt = {
+        LOG_PACKET_HEADER_INIT((uint8_t)(LOG_TWP_MSG)),
+        time_us       : AP_HAL::micros64(),
+        lat           : target_loc.lat,
+        lng     	  : target_loc.lng,
+        alt 		  : target_loc.alt,
+        alt_type      : target_loc.options,
+        idx           : index,
+        dir           : direction,
+        yaw           : ab_yaw,
+        home_lat      : home_loc.lat,
+        home_lng      : home_loc.lng
+    };
+    WriteCriticalBlock(&pkt, sizeof(pkt));
+}
+//added end
+#endif
 
 // Write an RFND (rangefinder) packet
 void DataFlash_Class::Log_Write_RFND(const RangeFinder &rangefinder)
@@ -1821,6 +1863,24 @@ bool DataFlash_Backend::Log_Write_Mode(uint8_t mode, uint8_t reason)
     return WriteCriticalBlock(&pkt, sizeof(pkt));
 }
 
+#if CHARGINGSTATION == ENABLED
+//baiyang added in 20170523
+void DataFlash_Backend::Log_Write_RTBS(bool reached_wp_destination,bool back_to_station_midair,bool land_alternate_posMidair,int8_t ask,uint8_t msg)
+{
+	struct log_RTBS pkt = {
+        LOG_PACKET_HEADER_INIT((uint8_t)(LOG_RTBS_MSG)),
+        time_us       : AP_HAL::micros64(),
+        hit           : reached_wp_destination,
+        btsm     	    : back_to_station_midair,
+        lap 		      : land_alternate_posMidair,
+        ask           : ask,
+        msg			      : msg
+    };
+    WriteCriticalBlock(&pkt, sizeof(pkt));
+}
+//added end
+#endif
+
 // Write ESC status messages
 void DataFlash_Class::Log_Write_ESC(void)
 {
@@ -2163,4 +2223,3 @@ void DataFlash_Class::Log_Write_Proximity(AP_Proximity &proximity)
     };
     WriteBlock(&pkt_proximity, sizeof(pkt_proximity));
 }
-

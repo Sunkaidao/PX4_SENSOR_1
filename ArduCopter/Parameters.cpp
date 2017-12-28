@@ -119,8 +119,14 @@ const AP_Param::Info Copter::var_info[] = {
     // @Increment: 1
     GSCALAR(telem_delay,            "TELEM_DELAY",     0),
 
+<<<<<<< HEAD
 	//	added by ZhangYong 20170731 for uav flight timer
 	// @Param: FLIGHT_TIME_HOUR
+=======
+#if FXTX_AUTH == ENABLED
+    //	added by ZhangYong 20170731 for uav flight timer
+	  // @Param: FLIGHT_TIME_HOUR
+>>>>>>> 7fa0e920c649e712078de6d2dd375d1873b3a85f
     // @DisplayName: TOTAL FLIGNT TIME OF THIS MAV IN HOUR
     // @Description: The amount of time (in hours) this mav has been flight
     // @User: Advanced
@@ -130,7 +136,9 @@ const AP_Param::Info Copter::var_info[] = {
     GSCALAR(flight_time_hour,            "FT_HOUR",     0),
 
 
+
 	// @Param: FLIGHT_TIME_HOUR_SHOLD
+
     // @DisplayName: FLIGNT TIME SHRESHOLD OF THIS MAV IN HOUR, IF EXCEEDS THIS VALUE, ALARM 
     // @Description: The shreshold of this amount of time (in hours), if exceeds this value, alarm 
     // @User: Advanced
@@ -139,8 +147,8 @@ const AP_Param::Info Copter::var_info[] = {
     // @Increment: 1
     GSCALAR(flight_time_hour_shold,            "FT_HOUR_SHOLD",     0),
 
-
 	// @Param: FLIGHT_TIME_SECOND
+
     // @DisplayName: TOTAL FLIGNT TIME OF THIS MAV IN SECOND
     // @Description: The amount of time (in seconds) this mav has been flight
     // @User: Advanced
@@ -148,7 +156,6 @@ const AP_Param::Info Copter::var_info[] = {
     // @Range: 0 10
     // @Increment: 1
     GSCALAR(flight_time_sec,            "FT_SEC",     0),
-
 
 	//	added by ZhangYong
 	// @Param: FS_PLD_ENANLE
@@ -166,6 +173,7 @@ const AP_Param::Info Copter::var_info[] = {
     // @User: Standard
     GSCALAR(failsafe_pld_action, "FS_PLD_ACTION", FS_PLD_DISABLE),
 	//	added end
+
 
     // @Param: GCS_PID_MASK
     // @DisplayName: GCS PID tuning mask
@@ -968,6 +976,22 @@ const AP_Param::Info Copter::var_info[] = {
     // @Path: Parameters.cpp
     GOBJECT(g2, "",  ParametersG2),
     
+    //baiyang added in 20170413
+    #if CHARGINGSTATION == ENABLED
+      // @Group: CHS_
+      // @Path: ../libraries/AP_chargingStation/AP_chargingStation.cpp
+      GOBJECTN(task.get_chargingStation(), chargingStation,"CHS_", AP_ChargingStation),
+    #endif
+    //added end
+
+	//baiyang added in 20171026
+    #if ABMODE == ENABLED
+    // @Group: ABMODE_
+    // @Path: ../libraries/AP_chargingStation/AP_chargingStation.cpp
+    GOBJECTN(task.get_abmode(), abmode,"ABMODE_", AP_ABMode),
+    #endif
+    //added end
+    
     AP_VAREND
 };
 
@@ -1092,7 +1116,6 @@ const AP_Param::GroupInfo ParametersG2::var_info[] = {
 
     // ID 19 reserved for TCAL (PR pending)
     // ID 20 reserved for TX_TYPE (PR pending)
-
     AP_GROUPEND
 };
 

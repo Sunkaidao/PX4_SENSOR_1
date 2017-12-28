@@ -3,6 +3,12 @@
 #include <GCS_MAVLink/GCS_MAVLink.h>
 #include <GCS_MAVLink/GCS.h>
 
+//baiyang added in 20170830
+#if RF_FENCE == ENABLED
+#include "./../ArduCopter/Copter.h"
+#endif 
+//added end
+
 extern const AP_HAL::HAL& hal;
 
 const AP_Param::GroupInfo AC_Fence::var_info[] = {
@@ -69,6 +75,33 @@ const AP_Param::GroupInfo AC_Fence::var_info[] = {
     // @User: Standard
     AP_GROUPINFO_FRAME("ALT_MIN",     7,  AC_Fence,   _alt_min,       AC_FENCE_ALT_MIN_DEFAULT, AP_PARAM_FRAME_SUB),
 
+    //baiyang migrated in 20170830 
+    #if RF_FENCE == ENABLED
+    	// @Param: FIXORG_LAT
+        // @DisplayName: Fence fix original Latitude
+        // @Description: fixed gps original point, Latitude
+        // @Range: 0, disabel 
+        // @User: Standard
+        AP_GROUPINFO("FIXORG_LAT",      8,  AC_Fence,   _fixorg_lat, 0),
+    
+    	// @Param: FIXORG_LAT
+        // @DisplayName: Fence fix original Longitude
+        // @Description: fixed gps original point, Longitude
+        // @Range: 0, disabel 
+        // @User: Standard
+        AP_GROUPINFO("FIXORG_LNG",      9,  AC_Fence,   _fixorg_lng, 0),
+    
+    	// @Param: RETREAT_DIS
+        // @DisplayName: retreat distance
+        // @Description: The distance that retreat, Trigger the horizontal fence
+        // @Range: 0, disabel 
+        // @Units: m
+        // @User: Standard
+        AP_GROUPINFO("RETR_DIS",      10,  AC_Fence,   _retreat_dis, 10),
+    
+    #endif
+    //migrated end
+    
     AP_GROUPEND
 };
 
@@ -84,7 +117,12 @@ AC_Fence::AC_Fence(const AP_AHRS& ahrs, const AP_InertialNav& inav) :
     _breached_fences(AC_FENCE_TYPE_NONE),
     _breach_time(0),
     _breach_count(0),
-    _manual_recovery_start_ms(0)
+    _manual_recovery_start_ms(0),
+    // added by KONG at 20170605
+    #if RF_FENCE == ENABLED
+    	is_alt_breached(false)
+    #endif
+    // end add
 {
     AP_Param::setup_object_defaults(this, var_info);
 
@@ -95,6 +133,14 @@ AC_Fence::AC_Fence(const AP_AHRS& ahrs, const AP_InertialNav& inav) :
     if (_circle_radius < 0) {
         _circle_radius.set_and_save(AC_FENCE_CIRCLE_RADIUS_DEFAULT);
     }
+
+    //	added by ZhangYong 20161227
+    #if RF_FENCE == ENABLED	
+    	_fixorg_distance = 0;
+    	_fixorg_circle_breach_distance = 0;
+    	_fixorg_circle_radius_backup = 0;
+    #endif
+    //	added end
 }
 
 void AC_Fence::enable(bool value)
@@ -137,6 +183,21 @@ bool AC_Fence::pre_arm_check(const char* &fail_msg) const
         return false;
     }
 
+    //	added by ZhangYong for xmdnk 20161219
+    //	.. to do 
+    #if RF_FENCE == ENABLED	
+    	if((_enabled_fences & AC_FENCE_TYPE_FIXORG)!=0) 
+    	{
+    		if(!copter.position_ok())
+    			return false;
+    		if((_fixorg_lat.get() == 0) || (_fixorg_lng.get() == 0))
+    			return false;
+    		if(_fixorg_distance > _circle_radius)
+    			return false;			
+    	}
+    #endif	
+    //	added end
+    
     // if we got this far everything must be ok
     return true;
 }
@@ -181,6 +242,13 @@ uint8_t AC_Fence::check_fence(float curr_alt)
 
                 // create a backup fence 20m higher up
                 _alt_max_backup = curr_alt + AC_FENCE_ALT_MAX_BACKUP_DISTANCE;
+                
+                // added by KONG at 20170605
+		     #if RF_FENCE == ENABLED
+                is_alt_breached = true;
+                //printf("alt breached!\r\n");
+    	   #endif
+                // end add
             }
         }else{
             // clear alt breach if present
@@ -188,6 +256,14 @@ uint8_t AC_Fence::check_fence(float curr_alt)
                 clear_breach(AC_FENCE_TYPE_ALT_MAX);
                 _alt_max_backup = 0.0f;
                 _alt_max_breach_distance = 0.0f;
+                
+                // added by KONG at 20170605
+    	  #if RF_FENCE == ENABLED
+                is_alt_breached = false;
+                //printf("clear breached\t");
+                //printf("_breached_fences:%d\r\n", _breached_fences);
+    	  #endif
+        // end add           
             }
         }
     }
@@ -249,6 +325,47 @@ uint8_t AC_Fence::check_fence(float curr_alt)
         }
     }
 
+    //	added by ZhangYong 20161219 for xmdnt project
+    #if RF_FENCE == ENABLED
+    
+    	if ((_enabled_fences & AC_FENCE_TYPE_FIXORG) != 0 ) 
+    	{
+    		if((0 != _fixorg_lat.get()) && (0 != _fixorg_lng.get()))
+    		{
+            // check if we are outside the fence
+            if (_fixorg_distance >= _circle_radius) 
+    		    {
+    			
+                  // record distance outside the fence
+                  _fixorg_circle_breach_distance = _fixorg_distance - _circle_radius;
+    
+                  // check for a new breach or a breach of the backup fence
+              if ((_breached_fences & AC_FENCE_TYPE_FIXORG) == 0 || \
+        					(!is_zero(_fixorg_circle_radius_backup) && _fixorg_distance >= _fixorg_circle_radius_backup)) 
+        			{
+                  // record that we have breached the circular distance limit
+                  record_breach(AC_FENCE_TYPE_FIXORG);
+                  ret = ret | AC_FENCE_TYPE_FIXORG;
+    
+                  // create a backup fence 20m further out
+                  _fixorg_circle_radius_backup = _fixorg_distance + AC_FENCE_FIXORG_CIRCLE_RADIUS_BACKUP_DISTANCE;
+              }
+           }
+    		   else
+    		   {
+                  // clear circle breach if present
+                  if ((_breached_fences & AC_FENCE_TYPE_FIXORG) != 0) 
+        			    {
+                        clear_breach(AC_FENCE_TYPE_FIXORG);
+                        _fixorg_circle_radius_backup = 0.0f;
+                        _fixorg_circle_breach_distance = 0.0f;
+                  }
+          }
+    		}
+      }
+    #endif
+    	//	added end
+          
     // return any new breaches that have occurred
     return ret;
 }
@@ -286,6 +403,20 @@ bool AC_Fence::check_destination_within_fence(const Location_Class& loc)
         }
     }
 
+    //baiyang added in 20170718
+    #if RF_FENCE == ENABLED
+    	// FIXORG fence check
+        if ((get_enabled_fences() & AC_FENCE_TYPE_FIXORG)) {
+    		Location temp_loc;
+    		temp_loc.lat = _fixorg_lat.get();
+    		temp_loc.lng = _fixorg_lng.get();
+            if ((_fixorg_lat.get() != 0)&& ( _fixorg_lng.get() != 0)&& ((get_distance_cm(temp_loc, loc) * 0.01f) > _circle_radius)){
+                return false;
+            }
+        }
+    #endif
+    //added end
+    
     return true;
 }
 
@@ -330,6 +461,19 @@ float AC_Fence::get_breach_distance(uint8_t fence_type) const
             break;
         case AC_FENCE_TYPE_ALT_MAX | AC_FENCE_TYPE_CIRCLE:
             return MAX(_alt_max_breach_distance,_circle_breach_distance);
+
+        //	added by ZhangYong for xmdnt project	
+        #if RF_FENCE == ENABLED
+        case AC_FENCE_TYPE_ALT_MAX | AC_FENCE_TYPE_FIXORG:
+            return MAX(_alt_max_breach_distance, _fixorg_circle_breach_distance);
+            break;
+        case AC_FENCE_TYPE_FIXORG:
+            return _fixorg_circle_breach_distance;
+            break;
+        case AC_FENCE_TYPE_ALT_MAX | AC_FENCE_TYPE_CIRCLE | AC_FENCE_TYPE_FIXORG:
+            return MAX(_alt_max_breach_distance, MAX(_circle_breach_distance, _fixorg_circle_breach_distance));
+        #endif
+        //added end
     }
 
     // we don't recognise the fence type so just return 0
@@ -458,3 +602,62 @@ bool AC_Fence::load_polygon_from_eeprom(bool force_reload)
 
     return true;
 }
+
+#if RF_FENCE == ENABLED
+void AC_Fence::change_fixorg_distance(float para_distance)
+{
+	_fixorg_distance = para_distance;
+}
+
+Vector3f AC_Fence::calc_backaway_destination(Vector3f curr_ralative,Vector2f fixorg_ralative, float distance)
+{
+ 	Vector3f target_wp;   
+	
+// modified by KONG at 20170605
+#if RF_FENCE == ENABLED
+    // added by baiyang at 20170717
+    if (is_alt_breached) 
+    {
+//      is_alt_breached = false;
+		target_wp.x = curr_ralative.x;
+		target_wp.y = curr_ralative.y;
+		target_wp.z = get_safe_alt_max()*100.0f;
+    }
+    else
+    {
+		target_wp.x = fixorg_ralative.x + (_circle_radius.get() - _retreat_dis.get()) * 100 * (curr_ralative.x - fixorg_ralative.x) / distance;
+		target_wp.y = fixorg_ralative.y + (_circle_radius.get() - _retreat_dis.get()) * 100 * (curr_ralative.y - fixorg_ralative.y) / distance;  
+		target_wp.z = curr_ralative.z;
+    }
+    // end add
+#endif
+// end modified
+
+	return target_wp;
+}
+
+//baiyang added in 201070802
+void AC_Fence::set_fixorg_pos()
+{ 
+	Location temp;
+	if(copter.position_ok()){
+		copter.ahrs.get_position(temp);
+		
+		_fixorg_lat.set_and_save_ifchanged(temp.lat);
+		_fixorg_lng.set_and_save_ifchanged(temp.lng);
+		gcs().send_text(MAV_SEVERITY_ERROR, "set fixorg pos");	
+	}else
+		gcs().send_text(MAV_SEVERITY_ERROR, "false fixorg pos");	
+}
+
+void AC_Fence::clear_fixorg_pos()
+{
+	_fixorg_lat.set_and_save_ifchanged(0);
+	_fixorg_lng.set_and_save_ifchanged(0);
+
+	gcs().send_text(MAV_SEVERITY_ERROR, "clear fixorg pos");
+}
+//added end
+
+#endif
+

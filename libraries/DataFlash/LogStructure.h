@@ -41,6 +41,21 @@ struct PACKED log_Parameter {
     float value;
 };
 
+//baiyang modified in 20170621
+//#if DGPS_HEADINGA == ENABLED
+
+struct PACKED log_GPS_HEADINGA {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+	  //baiyang add in 20161117
+	  float    heading;
+	  //added end 
+	  //baiyang add in 20161128
+	  int16_t  rtk_status;
+	  //added end 
+};
+//#endif
+
 struct PACKED log_GPS {
     LOG_PACKET_HEADER;
     uint64_t time_us;
@@ -612,6 +627,50 @@ struct PACKED log_RFND {
 	//	added end
 };
 
+#if CHARGINGSTATION == ENABLED
+//baiyang added in 20170523
+struct PACKED log_RTBS {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    uint8_t hit;
+	uint8_t btsm;
+	uint8_t lap;
+	int8_t ask;
+	uint8_t msg;
+};
+//added end
+#endif
+
+#if ABMODE == ENABLED
+//baiyang added in 20171102
+struct PACKED log_TWP {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    int32_t lat;
+	int32_t lng;
+	int32_t alt;
+	uint8_t alt_type;
+	int32_t idx;
+	int8_t  dir;
+	float yaw;
+	int32_t home_lat;
+	int32_t home_lng;
+};
+//added end
+#endif
+
+#if FXTX_AUTH == ENABLED
+//	added by ZhangYong 20170731
+struct PACKED log_Communication_drops {
+    LOG_PACKET_HEADER;
+    uint64_t timestamp;
+	  int32_t  home_distances;
+    float  communication_drops;
+};
+
+//	added end
+#endif
+
 /*
   terrain log structure
  */
@@ -966,6 +1025,10 @@ struct PACKED log_Proximity {
 #define BARO_LABELS "TimeUS,Alt,Press,Temp,CRt,SMS,Offset,GndTemp"
 #define BARO_FMT   "QffcfIff"
 
+// see "log_Communication_drops GPS_State" and "Log_Write_CD":
+#define CD_LABELS "TMS,D2H,CD" 
+#define CD_FMT  "Qif"
+
 #define ESC_LABELS "TimeUS,RPM,Volt,Curr,Temp"
 #define ESC_FMT   "Qcccc"
 
@@ -975,6 +1038,14 @@ struct PACKED log_Proximity {
 // see "struct GPS_State" and "Log_Write_GPS":
 #define GPS_LABELS "TimeUS,Status,GMS,GWk,NSats,HDop,Lat,Lng,Alt,Spd,GCrs,VZ,U"
 #define GPS_FMT   "QBIHBcLLefffB"
+
+// see "struct log_RTBS" and "Log_Write_RTBS":
+#define RTK_LABELS "TimeUS,HD,Rs"
+#define RTK_FMT   "Qfh"
+
+// see "struct log_TWP" and "Log_Write_TWP":
+#define TWP_LABELS "TimeUS,lat,lng,alt,a_type,index,dir,yaw,Hlat,Hlng"
+#define TWP_FMT   "QiiiBibfii"
 
 #define GYR_LABELS "TimeUS,SampleUS,GyrX,GyrY,GyrZ"
 #define GYR_FMT    "QQfff"
@@ -1049,6 +1120,12 @@ Format characters in the format string for binary log messages
       "GPS",  GPS_FMT, GPS_LABELS }, \
     { LOG_GPS2_MSG, sizeof(log_GPS), \
       "GPS2", GPS_FMT, GPS_LABELS }, \
+    { LOG_GPS_HEADINGA_MSG, sizeof(log_GPS_HEADINGA), \
+      "RTK",  RTK_FMT, RTK_LABELS }, \
+    { LOG_GPS2_HEADINGA_MSG, sizeof(log_GPS_HEADINGA), \
+      "RTK2", RTK_FMT, RTK_LABELS }, \
+    { LOG_TWP_MSG, sizeof(log_TWP), \
+      "TWP",  TWP_FMT, TWP_LABELS }, \
     { LOG_GPSB_MSG, sizeof(log_GPS), \
       "GPSB", GPS_FMT, GPS_LABELS }, \
     { LOG_GPA_MSG,  sizeof(log_GPA), \
@@ -1080,7 +1157,9 @@ Format characters in the format string for binary log messages
 	{ LOG_PMBUS3_MSG, sizeof(log_BCBPMBus), \
 	 "PM3", PMBUS_FMT, PMBUS_LABELS }, \
     { LOG_BARO_MSG, sizeof(log_BARO), \
-     "BARO",  BARO_FMT, BARO_LABELS }, \
+      "BARO",  BARO_FMT, BARO_LABELS }, \
+    { LOG_CD_MSG, sizeof(log_Communication_drops), \
+  	  "CD", CD_FMT, CD_LABELS }, \
     { LOG_POWR_MSG, sizeof(log_POWR), \
       "POWR","QffH","TimeUS,Vcc,VServo,Flags" },  \
     { LOG_CMD_MSG, sizeof(log_Cmd), \
@@ -1419,6 +1498,28 @@ enum LogMessages {
 	LOG_PMBUS3_MSG,
 #endif	
     LOG_PROXIMITY_MSG,
+
+// #if CHARGINGSTATION == ENABLED
+    //baiyang added in 20170523
+    LOG_RTBS_MSG,
+    //added end
+// #endif
+
+//baiyang added in 20170829
+// #if DGPS_HEADINGA == ENABLED
+    LOG_GPS_HEADINGA_MSG,
+    LOG_GPS2_HEADINGA_MSG,
+// #endif
+// added end
+    
+//baiyang added in 20170831
+    LOG_CD_MSG,
+//added end
+
+//#if ABMODE == ENABLED
+	LOG_TWP_MSG,
+//#endif
+
 };
 
 enum LogOriginType {

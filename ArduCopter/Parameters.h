@@ -56,7 +56,6 @@ public:
         k_param_g2, // 2nd block of parameters
         k_param_NavEKF3,
         k_param_BoardConfig_CAN,
-
 		//	added by ZhangYong for 
 		k_param_edition_management = 9,
 
@@ -225,17 +224,17 @@ public:
         k_param_gcs3,
         k_param_gcs_pid_mask,    // 126
 
-		//	added by ZhangYong 20160905
-		k_param_flight_time_hour,	//	127
-		k_param_flight_time_hour_shold,	//	128
-		k_param_flight_time_sec,		//129
-
 		//	added by ZhangYong
 		//k_param_bcbpmbus,
 		//	added end
 
-		
-
+#if FXTX_AUTH == ENABLED
+        //	added by ZhangYong 20160905
+        k_param_flight_time_hour,	//	127
+        k_param_flight_time_hour_shold,	//	128
+        k_param_flight_time_sec,		//129
+        //added end
+#endif
         //
         // 135 : reserved for Solo until features merged with master
         //
@@ -391,11 +390,35 @@ public:
         k_param_DataFlash = 253, // 253 - Logging Group
 
         // 254,255: reserved
+        
+        #if CHARGINGSTATION == ENABLED
+        //baiyang added in 20170413
+        k_param_chargingStation = 254,              //chargingStation
+       //added end
+        #endif
 
+		#if ABMODE == ENABLED
+        //baiyang added in 20171026
+        k_param_abmode = 255,              //abmode
+        //added end
+        #endif
+		
         // the k_param_* space is 9-bits in size
         // 511: reserved
     };
 
+    #if FXTX_AUTH == ENABLED
+    //	added by ZhangYong 20170721 for edition control
+    AP_Int32 		edition_management;
+    //added end
+    
+    //	added by ZhangYong for flight time 20170731  	
+    AP_Int16 flight_time_hour;
+    AP_Int16 flight_time_hour_shold;
+    AP_Int16 flight_time_sec;
+    //	added emd
+    #endif  
+      
     AP_Int16        format_version;
     AP_Int8         software_type;
 

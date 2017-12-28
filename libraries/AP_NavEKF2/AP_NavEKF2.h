@@ -31,6 +31,10 @@
 #include <AP_Compass/AP_Compass.h>
 #include <AP_RangeFinder/AP_RangeFinder.h>
 
+//
+//Use the #HEADINGA message to resolve the heading,baiyang added in 20171208
+#define GPS_YAW_CAL
+
 class NavEKF2_core;
 class AP_AHRS;
 
@@ -318,7 +322,13 @@ public:
 
     // get timing statistics structure
     void getTimingStatistics(int8_t instance, struct ekf_timing &timing);
-    
+
+#ifdef GPS_YAW_CAL
+	//baiyang added in 20171023
+	int8_t get_ekf_heading_mode(void){ return _head_control.get();}
+	//added end
+#endif
+ 
 private:
     uint8_t num_cores; // number of allocated cores
     uint8_t primary;   // current primary core
@@ -346,8 +356,23 @@ private:
     AP_Float _accNoise;             // accelerometer process noise : m/s^2
     AP_Float _gyroBiasProcessNoise; // gyro bias state process noise : rad/s
     AP_Float _accelBiasProcessNoise;// accel bias state process noise : m/s^2
-    AP_Int16 _gpsDelay_ms;          // effective average delay of GPS measurements relative to inertial measurement (msec)
-    AP_Int16 _hgtDelay_ms;          // effective average delay of Height measurements relative to inertial measurements (msec)
+	AP_Int16 _gpsDelay_ms;          // effective average delay of GPS measurements relative to inertial measurement (msec)
+	
+#ifdef GPS_YAW_CAL
+	//baiyang added in 20170220
+	AP_Int16 _gpsHeadDelay_ms;	   // effective average delay of GPS measurements relative to inertial measurement (msec)
+	//added end
+	//baiyang added in 20170303
+	AP_Float VirMagN;				// Dual antenna GPS to correct the yaw angle required for the virtual value
+	AP_Float VirMagE;				// Dual antenna GPS to correct the yaw angle required for the virtual value
+	AP_Float VirMagD;				// Dual antenna GPS to correct the yaw angle required for the virtual value
+	//added end
+	//biayang added in 20170116
+    AP_Int8 _head_control;          // head fusion mode control
+    //added end
+#endif
+
+	AP_Int16 _hgtDelay_ms;          // effective average delay of Height measurements relative to inertial measurements (msec)
     AP_Int8  _fusionModeGPS;        // 0 = use 3D velocity, 1 = use 2D velocity, 2 = use no velocity
     AP_Int16  _gpsVelInnovGate;     // Percentage number of standard deviations applied to GPS velocity innovation consistency check
     AP_Int16  _gpsPosInnovGate;     // Percentage number of standard deviations applied to GPS position innovation consistency check

@@ -98,6 +98,20 @@ public:
         GPS_OK_FIX_3D_RTK_FIXED = GPS_FIX_TYPE_RTK_FIXED, ///< Receiving valid messages and 3D RTK Fixed
     };
 
+    //baiyang added in 20170620
+    #if DGPS_HEADINGA == ENABLED
+    		//baiyang added in 20170119
+    		/// GPS Head status codes
+    		enum GPSHead_Status {
+    			NONE = 0,			   ///< No GPS connected/detected
+    			L1_FLOAT = 1,		   ///< Receiving valid GPS messages but no lock
+    			NARROW_FLOAT = 2,	   ///< Receiving valid messages and 2D lock
+    			NARROW_INT = 3, 	   ///< Receiving valid messages and 3D lock
+    		};
+    		//added end
+    #endif
+    //added end
+    
     // GPS navigation engine settings. Not all GPS receivers support
     // this
     enum GPS_Engine_Setting {
@@ -146,8 +160,58 @@ public:
         // all the following fields must only all be filled by RTK capable backend drivers
         uint32_t rtk_age_ms;               ///< GPS age of last baseline correction in milliseconds  (0 when no corrections, 0xFFFFFFFF indicates overflow)
         uint8_t  rtk_num_sats;             ///< Current number of satellites used for RTK calculation
+        
+        //baiyang added in 20170620
+        #if DGPS_HEADINGA == ENABLED
+		    GPSHead_Status HeadStatus;          ///< #HEADINGA status
+		    float heading;                      ///< The heading is the angle from True North of the base to rover vector in a clockwise direction
+	  	  uint16_t rtk_status;                ///< Differential GPS operating status
+        #endif
+        //added end
     };
 
+    //baiyang added in 20170620
+    #if DGPS_HEADINGA == ENABLED
+    	
+    //baiyang added in 20170119
+    GPSHead_Status Headstatus(uint8_t instance) const {
+    		return state[instance].HeadStatus;
+    }
+    GPSHead_Status Headstatus(void) const {
+    		return Headstatus(primary_instance);
+    }
+    //added end
+    	
+    //baiyang add in 20161117
+    //heading degrees minutes second	
+    float heading(uint8_t instance) const { 	
+    		return state[instance].heading;   
+    }	
+    float heading() const {    
+    		return heading(primary_instance);	
+    }
+    //added end
+    		
+    //baiyang add in 21061128
+    //heading degrees minutes second	
+    int16_t RTK_status(uint8_t instance) const {	 
+    		return state[instance].rtk_status;	 
+    }	
+    int16_t RTK_status() const {	
+    		return RTK_status(primary_instance);   
+    }
+    //added end 
+    	
+    //DGPS operating status
+    uint16_t rtk_status(uint8_t instance) const {	
+    		return state[instance].rtk_status;	 
+    }	
+    uint16_t rtk_status() const {	
+    		return rtk_status(primary_instance);	
+    }
+    #endif
+    //added end
+    
     /// Startup initialisation.
     void init(const AP_SerialManager& serial_manager);
 

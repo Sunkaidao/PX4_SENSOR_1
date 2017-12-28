@@ -66,3 +66,5 @@ LIBRARIES += AP_Arming
 LIBRARIES += AP_VisualOdom
 LIBRARIES += AP_Flowmeter
 LIBRARIES += AC_BCBPMBus
+LIBRARIES += AP_Task
+LIBRARIES += AP_PtzControl

@@ -2,6 +2,12 @@
 
 #include <AP_HAL/AP_HAL_Boards.h>
 
+#if CHARGINGSTATION == ENABLED
+//baiyang added in 20170712
+#include "./config.h"
+//added end
+#endif
+
 // Just so that it's completely clear...
 #define ENABLED                 1
 #define DISABLED                0
@@ -74,6 +80,25 @@ enum aux_sw_func {
     AUXSW_ARMDISARM =           41,  // arm or disarm vehicle
     AUXSW_FS_PLD =				55,
     AUXSW_AUTO_HEIGHT = 		58,
+
+#if CHARGINGSTATION == ENABLED
+    //baiyang added in 20170414
+    AUXSW_FLIGHT =				79, //For Xiamen simulation flight test communication protocol
+    AUXSW_BLASTOFF = 			80,
+    //added end
+    //baiyang added in 20170510
+    AUXSW_DO_TAKEOFF		 =	83,  //Returns the alternate location specified height
+#endif
+#if ABMODE == ENABLED
+	//baiyang added in 20171030
+	AUXSW_RECORD_AB =			84,  //Record AB points
+	AUXSW_MODE_DIR_AB = 		85,  //Trigger AB mode and set AB direction
+	//added end
+	//baiyang added in 20171107
+	AUXSW_DIR_AB =				86,  //Set AB direction
+	AUXSW_SET_ABMODE =			87,  //Trigger AB mode
+	//added end
+#endif
     AUXSW_SWITCH_MAX,
 };
 
@@ -106,6 +131,7 @@ enum control_mode_t {
     THROW =        18,  // throw to launch mode using inertial/GPS system, no pilot input
     AVOID_ADSB =   19,  // automatic avoidance of obstacles in the macro scale - e.g. full-sized aircraft
     GUIDED_NOGPS = 20,  // guided mode but only accepts attitude and altitude
+    ABMODE_RF =    21,  // abmode 
 };
 
 enum mode_reason_t {
@@ -131,6 +157,8 @@ enum mode_reason_t {
 	MODE_REASON_AUTOTUNE,
 	MODE_REASON_RTL_LAST,
 	//	added end
+
+    MODE_REASON_ABMODE_FAILSAFE,
 };
 
 // Tuning enumeration
@@ -579,3 +607,21 @@ typedef enum Arm_Source
 #define THR_BEHAVE_FEEDBACK_FROM_MID_STICK (1<<0)
 #define THR_BEHAVE_HIGH_THROTTLE_CANCELS_LAND (1<<1)
 #define THR_BEHAVE_DISARM_ON_LAND_DETECT (1<<2)
+
+#if FXTX_AUTH == ENABLED
+//	added by ZhangYong for edition management	20170731
+typedef struct Edition_management_struct {
+	uint32_t major_edition:4;							//	0
+	uint32_t project_edition:8;							//	1
+	uint32_t minor_edition:8;							//	0
+	uint32_t revision_edition:12;	
+}EDITION_MANAGEMENT;
+
+typedef union Edition_management {
+	EDITION_MANAGEMENT data;
+	uint32_t words;
+} Edition_management;
+
+//	added end
+#endif
+

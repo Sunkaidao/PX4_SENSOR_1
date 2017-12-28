@@ -152,6 +152,25 @@
 #include <SITL/SITL.h>
 #endif
 
+//baiyang added in 20170829
+#if CHARGINGSTATION == ENABLED
+#include <AP_Task/AP_ChargingStation.h>             // ArduPilot chargingStation library
+#endif
+//added end
+
+//baiyang added in 20170829
+#if RF_TASK == ENABLED
+#include <AP_Task/AP_Task.h>             // ArduPilot chargingStation library
+#endif
+//added end
+
+//baiyang added in 20170712
+#if PTZ_CONTROL == ENABLED
+#include <AP_PtzControl/AP_PtzControl.h>                       //xiamen dnk camera PTZ
+#endif
+//added end
+
+
 
 class Copter : public AP_HAL::HAL::Callbacks {
 public:
@@ -165,6 +184,24 @@ public:
     friend class AP_AdvancedFailsafe_Copter;
 #endif
     friend class AP_Arming_Copter;
+
+#if CHARGINGSTATION == ENABLED
+	//baiyang added in 20170717
+    friend class AP_ChargingStation;             // ArduPilot chargingStation library
+#endif
+#if RF_TASK == ENABLED
+    friend class AP_Task;
+#endif
+#if RF_FENCE == ENABLED
+    //baiyang added in 20170717
+	friend class AC_Fence;
+	//added end
+#endif 
+#if ABMODE == ENABLE
+	//baiyang added in 20171027
+	friend class AP_ABMode;
+	//added end
+#endif
 
     Copter(void);
 
@@ -910,6 +947,12 @@ private:
     void get_pilot_desired_angle_rates(int16_t roll_in, int16_t pitch_in, int16_t yaw_in, float &roll_out, float &pitch_out, float &yaw_out);
     bool althold_init(bool ignore_checks);
     void althold_run();
+	//baiyang added in 20171026
+#if ABMODE == ENABLED
+	bool abmode_init(bool ignore_checks);
+	void abmode_run();
+#endif
+	//added end
     bool auto_init(bool ignore_checks);
     void auto_run();
     void auto_takeoff_start(const Location& dest_loc);
@@ -1221,6 +1264,11 @@ private:
     const char* get_frame_string();
     bool current_mode_has_user_takeoff(bool must_navigate);
     bool do_user_takeoff(float takeoff_alt_cm, bool must_navigate);
+	//baiyang added in 20170809
+    #if CHARGINGSTATION == ENABLED
+    bool do_user_takeoff_rof(float takeoff_alt_cm, bool must_navigate);
+    #endif
+    //added end
     void takeoff_timer_start(float alt_cm);
     void takeoff_stop();
     void takeoff_get_climb_rates(float& pilot_climb_rate, float& takeoff_climb_rate);
@@ -1231,6 +1279,11 @@ private:
     bool verify_command_callback(const AP_Mission::Mission_Command& cmd);
 
     Location_Class terrain_adjusted_location(const AP_Mission::Mission_Command& cmd) const;
+		//baiyang added in 20171027
+#if ABMODE == ENABLED
+	bool do_abmode(const AP_Mission::Mission_Command& cmd);
+#endif
+	//added end
 
     bool do_guided(const AP_Mission::Mission_Command& cmd);
     void do_takeoff(const AP_Mission::Mission_Command& cmd);
@@ -1281,6 +1334,12 @@ private:
     void init_capabilities(void);
     void dataflash_periodic(void);
     void accel_cal_update(void);
+
+	#if RF_FENCE == ENABLED
+      //baiyang added in 20170717
+    	bool get_ralative_postion(float *x, float *y, int32_t para_lat, int32_t para_lng);
+      //added end
+    #endif
 
 public:
     void mavlink_delay_cb();
