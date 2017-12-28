@@ -1154,7 +1154,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 */
 
 			//	added by ZhangYong 20161117 for duqiang debug 20161226
-			//	printf("\nMAV_CMD_AUTH_PROTOCAL\n");
+			printf("\nMAV_CMD_AUTH_PROTOCAL\n");
 			//	added end
 			
 			id_para.serial[0] = packet.param1;
@@ -1163,13 +1163,15 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 			id_para.serial[3] = packet.param4;
 			id_para.serial[4] = packet.param5;
 
+			printf("0w:0x%x vs 0x%x\n", id_para.serial[0], packet.param1);
+
 			
 
 			for(lcl_counter = 0; lcl_counter < 12; lcl_counter++)
 			{
 				
 				//	added by ZhangYong 20161021
-				//printf("%d: %x vs %x\n", lcl_counter, id_para.data[lcl_counter], auth_id[lcl_counter]);
+				printf("%d: %x vs %x\n", lcl_counter, id_para.data[lcl_counter], copter.auth_id[lcl_counter]);
 				//	added	end
 				if(id_para.data[lcl_counter] != copter.auth_id[lcl_counter])
 					break;

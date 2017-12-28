@@ -202,7 +202,7 @@ void Copter::init_ardupilot()
 //	memset(&id_para, 0, sizeof(union auth_id_para));
 
 	
-	(void)hal.util->get_system_id(auth_id);
+	hal.util->get_system_id(auth_id);
 
 	sprintf(auth_msg, "0123456789%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n",	\
 		     (unsigned)auth_id[0], (unsigned)auth_id[1], (unsigned)auth_id[2], (unsigned)auth_id[3], (unsigned)auth_id[4], (unsigned)auth_id[5],	\
