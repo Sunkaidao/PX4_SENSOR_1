@@ -121,6 +121,8 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
 
 
 	//	added by ZhangYong 20160907
+#if FXTX_AUTH == ENABLED	
+#if PROJECTGKXN == ENABLED
 
 	if((checks_to_perform == ARMING_CHECK_ALL) || (checks_to_perform == (~ARMING_CHECK_INS)))
 	{
@@ -136,7 +138,8 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
 	//	added end
 
 	//	added by ZhangYong 20170815
-#if PROJECTGKXN == ENABLED
+
+
 	if(true == copter.fs_mk.control_present)
 	{
 		if(true == copter.fs_mk.not_consist)
@@ -146,6 +149,7 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
 			return false;
 		}
 	}
+#endif
 #endif
 //	added end
 

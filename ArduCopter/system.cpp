@@ -299,7 +299,7 @@ void Copter::init_ardupilot()
 	printf("License Disabled\n");
 	//	added by ZhangYong 20170705 for item_int
 	gcs().chan(0).set_mission_item_int(false);
-	gcs().chan(1).et_mission_item_int(false);
+	gcs().chan(1).set_mission_item_int(false);
 #if MAVLINK_COMM_NUM_BUFFERS > 2
 	gcs().chan(2).set_mission_item_int(false);
 #endif
