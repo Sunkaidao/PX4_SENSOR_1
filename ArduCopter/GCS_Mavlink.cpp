@@ -380,6 +380,11 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
         send_sensor_offsets(copter.ins, copter.compass, copter.barometer);
         break;
 
+	case MSG_NEXT_PARAM:
+        CHECK_PAYLOAD_SIZE(PARAM_VALUE);
+        queued_param_send(copter.motors->armed());
+        break;	
+
     case MSG_RANGEFINDER:
 #if RANGEFINDER_ENABLED == ENABLED
         CHECK_PAYLOAD_SIZE(RANGEFINDER);
@@ -1512,7 +1517,7 @@ result = MAV_RESULT_DENIED;
         	if(MAV_RESULT_FAILED == result)
             {
  //           	printf("2\n");
-				copter.gcs_send_text(MAV_SEVERITY_CRITICAL, copter.auth_msg);
+				copter.gcs().send_text(MAV_SEVERITY_CRITICAL, copter.auth_msg);
             //	send_statustext_all(auth_msg);
 			}
 			else if(MAV_RESULT_DENIED == result)
@@ -1894,7 +1899,7 @@ result = MAV_RESULT_DENIED;
 #endif // CAMERA == ENABLED
 
 
->>>>>>> d8a9f3afce677a277372563c5fb4d1bfa3eb961c
+
 #if MOUNT == ENABLED
     //deprecated. Use MAV_CMD_DO_MOUNT_CONFIGURE
     case MAVLINK_MSG_ID_MOUNT_CONFIGURE:        // MAV ID: 204
@@ -2028,23 +2033,7 @@ void Copter::gcs_check_input(void)
 bool GCS_MAVLINK_Copter::accept_packet(const mavlink_status_t &status, mavlink_message_t &msg)
 {
 
-	//	added by Zhangyong for auth process
-	//	if want to connect to common mission planer
-	//	should sheild this state
-#if FXTX_AUTH == 1
-	if(auth_state_ms == auth_state_success)
-#endif
-	{
-	//	added endded
 
-    	for (uint8_t i=0; i<num_gcs; i++) {
-        	if (gcs_chan[i].initialised) {
-            	gcs_chan[i].data_stream_send();
-        	}
-    	}
-//	added by ZhangYong for auth process    	
-	}
-//	end
 
     if (!copter.g2.sysid_enforce) {
         return true;

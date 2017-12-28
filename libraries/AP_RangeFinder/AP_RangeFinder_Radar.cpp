@@ -7,17 +7,16 @@
 
 extern const AP_HAL::HAL& hal;
 
-AP_RangeFinder_Radar::AP_RangeFinder_Radar(RangeFinder &_ranger, uint8_t instance,
-                                                               RangeFinder::RangeFinder_State &_state,
+AP_RangeFinder_Radar::AP_RangeFinder_Radar(        RangeFinder::RangeFinder_State &_state,
                                                                AP_SerialManager &serial_manager) :
-    AP_RangeFinder_Backend(_ranger, instance, _state, MAV_DISTANCE_SENSOR_LASER)
+    AP_RangeFinder_Backend(_state)
 {
     uart = serial_manager.find_serial(AP_SerialManager::SerialProtocol_Radar, 0);
     if (uart != nullptr) {
        uart->begin(serial_manager.find_baudrate(AP_SerialManager::SerialProtocol_Radar, 0));
     }
 }
-bool AP_RangeFinder_Radar::detect(RangeFinder &_ranger, uint8_t instance, AP_SerialManager &serial_manager)
+bool AP_RangeFinder_Radar::detect(AP_SerialManager &serial_manager)
 {
     return serial_manager.find_serial(AP_SerialManager::SerialProtocol_Radar, 0) != nullptr;
 }

@@ -78,7 +78,7 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
 	if(auth_state_denied == copter.auth_state_ms)
     {
     	set_pre_arm_check(false);
-    	gcs_send_text(MAV_SEVERITY_CRITICAL, "PreArm: license expired!\n");
+    	gcs().send_text(MAV_SEVERITY_CRITICAL, "PreArm: license expired!\n");
     	return false;
     }
     //	added end
@@ -90,7 +90,7 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
         set_pre_arm_rc_check(true);
 
 		//	added by ZhangYong 20170406  to inform the mission palnner
-		gcs_send_text(MAV_SEVERITY_CRITICAL, "PreArm: succeed");
+		gcs().send_text(MAV_SEVERITY_CRITICAL, "PreArm: succeed");
 		//	added end
 
 		
@@ -128,7 +128,7 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
 		{
 			if (display_failure) 
 			{
-   	             gcs_send_text(MAV_SEVERITY_CRITICAL, "PreArm: Flight time exceed");
+   	             gcs().send_text(MAV_SEVERITY_CRITICAL, "PreArm: Flight time exceed");
    	     	}
    	     	return false;
 		}
@@ -141,7 +141,7 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
 	{
 		if(true == copter.fs_mk.not_consist)
 		{
-			gcs_send_text(MAV_SEVERITY_CRITICAL, "remote control error, reset system");
+			gcs().send_text(MAV_SEVERITY_CRITICAL, "remote control error, reset system");
 		
 			return false;
 		}
@@ -167,7 +167,7 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
 
 	if(return_value)
 	{
-		gcs_send_text(MAV_SEVERITY_CRITICAL, "PreArm: succeed");
+		gcs().send_text(MAV_SEVERITY_CRITICAL, "PreArm: succeed");
 	
 	}
 
@@ -845,7 +845,7 @@ bool AP_Arming_Copter::arm_checks(bool display_failure, bool arming_from_gcs)
 	{
 		if(0 == copter.g.failsafe_throttle)
 		{
-			gcs_send_text(MAV_SEVERITY_CRITICAL, "RC control, failsafe RC should be set");
+			gcs().send_text(MAV_SEVERITY_CRITICAL, "RC control, failsafe RC should be set");
 
 			return false;
 		}
@@ -856,7 +856,7 @@ bool AP_Arming_Copter::arm_checks(bool display_failure, bool arming_from_gcs)
 	{
 		if(0 == copter.g.failsafe_gcs)
 		{
-			gcs_send_text(MAV_SEVERITY_CRITICAL, "GCS control, failsafe GCS should be set");
+			gcs().send_text(MAV_SEVERITY_CRITICAL, "GCS control, failsafe GCS should be set");
 		
 
 			return false;
@@ -868,7 +868,7 @@ bool AP_Arming_Copter::arm_checks(bool display_failure, bool arming_from_gcs)
 		{
 			if(0 == copter.g.failsafe_throttle)
 			{
-				gcs_send_text(MAV_SEVERITY_CRITICAL, "GCS control, failsafe RC should also be set");
+				gcs().send_text(MAV_SEVERITY_CRITICAL, "GCS control, failsafe RC should also be set");
 
 				return false;
 			}
@@ -876,7 +876,7 @@ bool AP_Arming_Copter::arm_checks(bool display_failure, bool arming_from_gcs)
 			if(LOITER != copter.flight_modes[copter.readSwitch()])
 			{
 			
-				gcs_send_text(MAV_SEVERITY_CRITICAL, "GCS control, set radio control switch to LOITER");
+				gcs().send_text(MAV_SEVERITY_CRITICAL, "GCS control, set radio control switch to LOITER");
 
 //				printf("GCS control, set radio control switch to LOITER");
 
@@ -895,7 +895,7 @@ bool AP_Arming_Copter::arm_checks(bool display_failure, bool arming_from_gcs)
 				(0 != abs(copter.get_pilot_desired_climb_rate(copter.channel_throttle->get_rc_control_in())))\
 			)
 			{
-				gcs_send_text(MAV_SEVERITY_CRITICAL, "GCS control, RC rc3 should be middle");
+				gcs().send_text(MAV_SEVERITY_CRITICAL, "GCS control, RC rc3 should be middle");
 
 //				printf("GCS control, RC rc3 should be middle %d\n", g.rc_3.rc_control_in);
 				return false;
@@ -911,7 +911,7 @@ bool AP_Arming_Copter::arm_checks(bool display_failure, bool arming_from_gcs)
 	{
 		if(true == copter.fs_mk.not_consist)
 		{
-			gcs_send_text(MAV_SEVERITY_CRITICAL, "remote control error, reset system");
+			gcs().send_text(MAV_SEVERITY_CRITICAL, "remote control error, reset system");
 		
 			return false;
 		}
@@ -921,7 +921,7 @@ bool AP_Arming_Copter::arm_checks(bool display_failure, bool arming_from_gcs)
 			if(ARM_SOURCE_RC == arming_from_gcs)
 			{
 				
-				gcs_send_text(MAV_SEVERITY_CRITICAL, "GCS control, RC arming not allowed");
+				gcs().send_text(MAV_SEVERITY_CRITICAL, "GCS control, RC arming not allowed");
 
 				return false;
 			}

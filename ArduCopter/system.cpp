@@ -298,10 +298,10 @@ void Copter::init_ardupilot()
 #if FXTX_AUTH == 0
 	printf("License Disabled\n");
 	//	added by ZhangYong 20170705 for item_int
-	gcs_chan[0].set_mission_item_int(false);
-	gcs_chan[1].set_mission_item_int(false);
+	gcs().chan(0).set_mission_item_int(false);
+	gcs().chan(1).et_mission_item_int(false);
 #if MAVLINK_COMM_NUM_BUFFERS > 2
-	gcs_chan[2].set_mission_item_int(false);
+	gcs().chan(2).set_mission_item_int(false);
 #endif
 	//	added end
 
@@ -309,10 +309,10 @@ void Copter::init_ardupilot()
 	printf("License Enabled\n");	
 	
 	//	added by ZhangYong 20170705 for item_int
-	gcs_chan[0].set_mission_item_int(true);
-	gcs_chan[1].set_mission_item_int(true);
+	gcs().chan(0).set_mission_item_int(true);
+	gcs().chan(1).set_mission_item_int(true);
 #if MAVLINK_COMM_NUM_BUFFERS > 2
-	gcs_chan[2].set_mission_item_int(true);
+	gcs().chan(2).set_mission_item_int(true);
 #endif
 	//	added end
 
@@ -410,7 +410,7 @@ void Copter::init_ardupilot()
 //	duration_cnt = 0;
 
 	
-    cliSerial->printf("\nReady to FLY ");
+    hal.console->printf("\nReady to FLY ");
 
 
     // flag that initialisation has completed

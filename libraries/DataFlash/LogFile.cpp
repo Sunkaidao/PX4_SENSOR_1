@@ -292,10 +292,11 @@ void DataFlash_Class::Log_Write_GPS(const AP_GPS &gps, uint8_t i, uint64_t time_
 void DataFlash_Class::Log_Write_RFND(const RangeFinder &rangefinder)
 {
 	//	modified by ZhangYong 20171116
-	/*
+	
 
     AP_RangeFinder_Backend *s0 = rangefinder.get_backend(0);
     AP_RangeFinder_Backend *s1 = rangefinder.get_backend(1);
+	AP_RangeFinder_Backend *s2 = rangefinder.get_backend(2);
 
     struct log_RFND pkt = {
         LOG_PACKET_HEADER_INIT((uint8_t)(LOG_RFND_MSG)),
@@ -304,10 +305,13 @@ void DataFlash_Class::Log_Write_RFND(const RangeFinder &rangefinder)
         orient1       : s0 ? s0->orientation() : ROTATION_NONE,
         dist2         : s1 ? s1->distance_cm() : (uint16_t)0,
         orient2       : s1 ? s1->orientation() : ROTATION_NONE,
+        dist3         : s2 ? s2->distance_cm() : (uint16_t)0,
+        orient3       : s2 ? s2->orientation() : ROTATION_NONE,
     };
-    */
+    
 	//	modified end
-
+	
+	/*
 	struct log_RFND pkt = {
         LOG_PACKET_HEADER_INIT((uint8_t)(LOG_RFND_MSG)),
         time_us       	: AP_HAL::micros64(),
@@ -318,6 +322,7 @@ void DataFlash_Class::Log_Write_RFND(const RangeFinder &rangefinder)
         dist3			: rangefinder.distance_cm(2),
         orient3       	: rangefinder.get_orientation(2)
     };
+    */
 
 	WriteBlock(&pkt, sizeof(pkt));
 }

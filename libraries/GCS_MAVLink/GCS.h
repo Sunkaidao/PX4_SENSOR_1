@@ -90,9 +90,6 @@ enum ap_message {
 	MSG_PLD_STATUS,
 	MSG_FLIGHT_TIME,
 //#endif
-
-    MSG_RETRY_DEFERRED // this must be last
-
     MSG_LAST // MSG_LAST must be the last entry in this enum
 
 };

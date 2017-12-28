@@ -558,7 +558,7 @@ void Copter::update_bcbpmbus()
 	if(false == g2.bcbpmbus.pmbus_is_OK())
 	{
 //		printf("bcbpmbus time out\n");
-		gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus time out!");
+		gcs().send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus time out!");
 	
 		//	failsafe operation start
 		if((0 == get_failsafe_payload(FAILSAFE_PLD_TYPE_PMBUS)) && \

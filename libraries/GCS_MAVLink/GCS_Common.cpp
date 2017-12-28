@@ -1489,11 +1489,26 @@ void GCS::retry_deferred()
 
 void GCS::data_stream_send()
 {
-    for (uint8_t i=0; i<num_gcs(); i++) {
-        if (chan(i).initialised) {
-            chan(i).data_stream_send();
-        }
-    }
+		//	added by Zhangyong for auth process
+		//	if want to connect to common mission planer
+		//	should sheild this state
+#if FXTX_AUTH == 1
+	if(copter.auth_state_ms == auth_state_success)
+#endif
+	{
+	//	added endded
+		 for (uint8_t i=0; i<num_gcs(); i++) 
+		 {
+       		if (chan(i).initialised) 
+			{
+           		chan(i).data_stream_send();
+       		}
+    	}
+	//	added by ZhangYong for auth process 	
+	}
+	//	end
+
+   
 }
 
 void GCS::update(void)
@@ -2072,7 +2087,6 @@ MAV_RESULT GCS_MAVLINK::handle_command_camera(const mavlink_command_long_t &pack
     }
     return result;
 }
->>>>>>> d8a9f3afce677a277372563c5fb4d1bfa3eb961c
 
 /*
   handle messages which don't require vehicle specific data
@@ -2446,11 +2460,7 @@ bool GCS_MAVLINK::try_send_message(const enum ap_message id)
 
     switch(id) {
 
-    case MSG_NEXT_PARAM:
-        CHECK_PAYLOAD_SIZE(PARAM_VALUE);
-        queued_param_send();
-        ret = true;
-        break;
+    
 
     case MSG_HWSTATUS:
         CHECK_PAYLOAD_SIZE(HWSTATUS);

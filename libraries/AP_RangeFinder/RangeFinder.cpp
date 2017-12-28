@@ -30,7 +30,7 @@
 #include "AP_RangeFinder_VL53L0X.h"
 #include <AP_BoardConfig/AP_BoardConfig.h>
 //	added by ZhangYong 20170818
-#include "AP_RangeFinder_PX4.h"
+//#include "AP_RangeFinder_PX4.h"
 
 #if RNGRADAR==ENABLE
 #include "AP_RangeFinder_Radar.h"
@@ -710,13 +710,14 @@ void RangeFinder::detect_instance(uint8_t instance)
         }
         break;
 #if RNGRADAR == ENABLED
-		case RangeFinder_TYPE_Radar:
-        if (AP_RangeFinder_Radar::detect(*this, instance, serial_manager)) {
+/*		case RangeFinder_TYPE_Radar:
+        if (AP_RangeFinder_Radar::detect(serial_manager)) 
+		{
             state[instance].instance = instance;
-            drivers[instance] = new AP_RangeFinder_Radar(*this, instance, state[instance], serial_manager);
+            drivers[instance] = new AP_RangeFinder_Radar(state[instance], serial_manager);
         }
         break;
-#endif
+*/#endif
     default:
         break;
     }

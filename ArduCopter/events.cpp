@@ -324,7 +324,7 @@ void Copter::failsafe_payload_on_event(void)
     
 
     // warn the ground station and log to dataflash
-    gcs_send_text(MAV_SEVERITY_CRITICAL, "payload emergency!");
+    gcs().send_text(MAV_SEVERITY_CRITICAL, "payload emergency!");
     
     Log_Write_Error(ERROR_SUBSYSTEM_FAILSAFE_PLD, ERROR_CODE_FAILSAFE_OCCURRED);
 /*
