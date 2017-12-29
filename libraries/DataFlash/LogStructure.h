@@ -945,12 +945,13 @@ struct PACKED log_Beacon {
 };
 
 //	added by ZhangYong 20170731
+/*
 struct PACKED log_Communication_drops {
     LOG_PACKET_HEADER;
     uint64_t timestamp;
 	int32_t  home_distances;
     float  communication_drops;
-};
+};*/
 
 struct PACKED log_BCBPMBus {
 	LOG_PACKET_HEADER;
@@ -1490,7 +1491,7 @@ enum LogMessages {
     LOG_BEACON_MSG,
 
     LOG_SPRAYER_MSG,
-	LOG_CD_MSG,
+	
 #if BCBPMBUS == ENABLED	
 	LOG_PMBUS0_MSG,
 	LOG_PMBUS1_MSG,

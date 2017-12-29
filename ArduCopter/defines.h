@@ -518,17 +518,6 @@ typedef enum FailSafe_PLD_Type
 
 
 //	added by ZhangYong for edition management	20170731
-typedef struct Edition_management_struct {
-	uint32_t major_edition:4;							//	0
-	uint32_t project_edition:8;							//	1
-	uint32_t minor_edition:8;							//	0
-	uint32_t revision_edition:12;	
-}EDITION_MANAGEMENT;
-
-typedef union Edition_management {
-	EDITION_MANAGEMENT data;
-	uint32_t words;
-} Edition_management;
 
 #define REMOTE_CONTROL_GCS_POS_SIF	2
 
@@ -608,7 +597,7 @@ typedef enum Arm_Source
 #define THR_BEHAVE_HIGH_THROTTLE_CANCELS_LAND (1<<1)
 #define THR_BEHAVE_DISARM_ON_LAND_DETECT (1<<2)
 
-#if FXTX_AUTH == ENABLED
+
 //	added by ZhangYong for edition management	20170731
 typedef struct Edition_management_struct {
 	uint32_t major_edition:4;							//	0
@@ -623,5 +612,5 @@ typedef union Edition_management {
 } Edition_management;
 
 //	added end
-#endif
+
 

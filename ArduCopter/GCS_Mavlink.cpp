@@ -488,7 +488,6 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
     case MSG_BATTERY_STATUS:
         send_battery_status(copter.battery);
         break;
-<<<<<<< HEAD
 	
 //#if PROJECTGKXN == ENABLED
 	case MSG_FLIGHT_TIME:
@@ -811,7 +810,7 @@ void GCS_MAVLINK_Copter::packetReceived(const mavlink_status_t &status,
 void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 {
     uint8_t result = MAV_RESULT_FAILED;         // assume failure.  Each messages id is responsible for return ACK or NAK if required
-
+	uint32_t lcl_uint32_t;
 
 	
 	//	added by ZhangYong
@@ -1280,7 +1279,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 */
 
 			//	added by ZhangYong 20161117 for duqiang debug 20161226
-			printf("\nMAV_CMD_AUTH_PROTOCAL\n");
+			//printf("\nMAV_CMD_AUTH_PROTOCAL\n");
 			//	added end
 			
 			id_para.serial[0] = packet.param1;
@@ -1289,7 +1288,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 			id_para.serial[3] = packet.param4;
 			id_para.serial[4] = packet.param5;
 
-			printf("0w:0x%x vs 0x%x\n", id_para.serial[0], packet.param1);
+			//printf("0w:0x%x vs 0x%x\n", id_para.serial[0], packet.param1);
 
 			
 
@@ -1297,7 +1296,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 			{
 				
 				//	added by ZhangYong 20161021
-				printf("%d: %x vs %x\n", lcl_counter, id_para.data[lcl_counter], copter.auth_id[lcl_counter]);
+				//printf("%d: %x vs %x\n", lcl_counter, id_para.data[lcl_counter], copter.auth_id[lcl_counter]);
 				//	added	end
 				if(id_para.data[lcl_counter] != copter.auth_id[lcl_counter])
 					break;
@@ -1594,7 +1593,6 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
                 result = MAV_RESULT_ACCEPTED;
             }
             break;
-<<<<<<< HEAD
 //	added by ZhangYong 20170717
 #if SPRAYER == ENABLED
 		case MAV_CMD_DO_SPRAYER:

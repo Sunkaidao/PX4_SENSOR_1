@@ -119,14 +119,9 @@ const AP_Param::Info Copter::var_info[] = {
     // @Increment: 1
     GSCALAR(telem_delay,            "TELEM_DELAY",     0),
 
-<<<<<<< HEAD
-	//	added by ZhangYong 20170731 for uav flight timer
-	// @Param: FLIGHT_TIME_HOUR
-=======
-#if FXTX_AUTH == ENABLED
+
     //	added by ZhangYong 20170731 for uav flight timer
 	  // @Param: FLIGHT_TIME_HOUR
->>>>>>> 7fa0e920c649e712078de6d2dd375d1873b3a85f
     // @DisplayName: TOTAL FLIGNT TIME OF THIS MAV IN HOUR
     // @Description: The amount of time (in hours) this mav has been flight
     // @User: Advanced

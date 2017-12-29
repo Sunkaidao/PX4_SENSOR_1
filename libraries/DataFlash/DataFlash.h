@@ -192,7 +192,7 @@ public:
     void Log_Write_AOA_SSA(AP_AHRS &ahrs);
     void Log_Write_Beacon(AP_Beacon &beacon);
 	//	added by ZhangYong 20170731
-	void Log_Write_CD(int32_t para_home_dis, float para_communicat_drops);
+	
 
 #if	BCBPMBUS == ENABLED
 	void Log_Write_BCBPMBus(uint8_t msg_type, AC_BCBPMBus &vp_bcbpmbus);
@@ -200,16 +200,15 @@ public:
 	//	added end
     void Log_Write_Proximity(AP_Proximity &proximity);
 
-<<<<<<< HEAD
 
-=======
+
 #if FXTX_AUTH == ENABLED
     //	added by ZhangYong 20170731
     void Log_Write_CD(int32_t para_home_dis, float para_communicat_drops);
     //	added end
 #endif
     
->>>>>>> 7fa0e920c649e712078de6d2dd375d1873b3a85f
+
     void Log_Write(const char *name, const char *labels, const char *fmt, ...);
 
     // This structure provides information on the internal member data of a PID for logging purposes

@@ -228,13 +228,13 @@ public:
 		//k_param_bcbpmbus,
 		//	added end
 
-#if FXTX_AUTH == ENABLED
+
         //	added by ZhangYong 20160905
         k_param_flight_time_hour,	//	127
         k_param_flight_time_hour_shold,	//	128
         k_param_flight_time_sec,		//129
         //added end
-#endif
+
         //
         // 135 : reserved for Solo until features merged with master
         //
@@ -407,17 +407,12 @@ public:
         // 511: reserved
     };
 
-    #if FXTX_AUTH == ENABLED
-    //	added by ZhangYong 20170721 for edition control
-    AP_Int32 		edition_management;
-    //added end
     
     //	added by ZhangYong for flight time 20170731  	
     AP_Int16 flight_time_hour;
     AP_Int16 flight_time_hour_shold;
     AP_Int16 flight_time_sec;
     //	added emd
-    #endif  
       
     AP_Int16        format_version;
     AP_Int8         software_type;
@@ -430,14 +425,7 @@ public:
 	//	added by ZhangYong 20170721 for edition control
 	AP_Int32 		edition_management;
 
-	//	added by ZhangYong for flight time 20170731
-	
-	AP_Int16 flight_time_hour;
-	AP_Int16 flight_time_hour_shold;
-	AP_Int16 flight_time_sec;
-	//	added emd
-
-	//	added by ZhangYong for payload failsafe
+		//	added by ZhangYong for payload failsafe
 	AP_Int16 failsafe_pld_type;		//123
 	AP_Int8	 failsafe_pld_action;	//124
 	//	added end

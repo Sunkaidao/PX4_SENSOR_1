@@ -612,11 +612,12 @@ private:
 //	union auth_id_para id_para;
 
 	auth_state auth_state_ms = auth_state_failed;
+#endif
 
 
 //	char test_reserved[50];
 
-#endif
+
 
 	//	added by ZhangYong 20170731
 	/*
@@ -626,8 +627,10 @@ private:
 	edit_management.data.revision_edition = 4;
 	edit_management.words = 0x403021
 	*/
+	
 	Edition_management edit_management;
 	//	added end
+
 
 
     // Reference to the relay object
@@ -700,6 +703,23 @@ private:
 #if FRAME_CONFIG == HELI_FRAME
     AC_InputManager_Heli input_manager;
 #endif
+
+	//baiyang added in 20170829
+#if RF_TASK == ENABLED
+	AP_Task task;
+		
+	// #if CHARGINGSTATION == ENABLED
+	//	   AP_ChargingStation chargingStation;
+	// #endif
+#endif
+	//added end
+	
+	//baiyang added in 20170830
+#if PTZ_CONTROL == ENABLED
+	AP_PtzControl PtzControl;
+#endif
+	//added end
+
 
     AP_ADSB adsb {ahrs};
 

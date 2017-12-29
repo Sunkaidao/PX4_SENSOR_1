@@ -375,6 +375,8 @@ void Copter::init_ardupilot()
 	printf("Mavlink capabilities %x\n", hal.util->get_capabilities());
 	//	added end
 
+
+
 	edit_management.words = g.edition_management;
 
 	if(edit_management.data.major_edition != 2)
