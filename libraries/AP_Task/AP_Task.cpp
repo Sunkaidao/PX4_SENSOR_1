@@ -16,7 +16,9 @@
 #include "AP_Task.h"
 
 #include "AP_ABMode.h"
+#if CHARGINGSTATION == ENABLED
 #include "AP_ChargingStation.h"
+#endif
 #include "./../ArduCopter/Copter.h"
 #include "TaskDevice.h"
 #include <stdio.h>

@@ -1,3 +1,6 @@
+
+#if CHARGINGSTATION == ENABLED
+
 #include "AP_ChargingStation.h"
 #include "./../ArduCopter/Copter.h"
 #include <AP_Param/AP_Param.h>
@@ -186,7 +189,7 @@ AP_ChargingStation::AP_ChargingStation()
 }
 
 bool AP_ChargingStation::init() {
-  _port = copter.serial_manager.find_serial(
+  _port = copter.get_serial_manager()->find_serial( \
       AP_SerialManager::SerialProtocol_ChargingStation, 0);
 
   if (_port) {
@@ -1144,4 +1147,4 @@ void AP_ChargingStation::update() {
                            back_to_station_midair, land_alternate_posMidair,
                            status, MSG);
 }
-
+#endif

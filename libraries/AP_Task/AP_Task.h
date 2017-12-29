@@ -17,8 +17,11 @@
 #include <AP_Common/AP_Common.h>
 #include <AP_Param/AP_Param.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>
+#if CHARGINGSTATION == ENABLED
 #include "AP_ChargingStation.h"
+#endif
 #include "TaskDevice.h"
+
 #include "AP_ABMode.h"
 
 
@@ -39,8 +42,9 @@ public:
 
     /// update - allow updates of leds that cannot be updated during a timed interrupt
     void update(void);
-
+#if CHARGINGSTATION == ENABLED
     AP_ChargingStation &get_chargingStation() {return chargingStation;}
+#endif
 	AP_ABMode &get_abmode() {return abmode;}
 	
     static const struct AP_Param::GroupInfo var_info[];
@@ -48,8 +52,9 @@ public:
 private:
 
     static AP_Task *_instance;
-    
+#if CHARGINGSTATION == ENABLED
     AP_ChargingStation chargingStation;
+#endif
 	AP_ABMode abmode;
 
     static TaskDevice* _devices[];

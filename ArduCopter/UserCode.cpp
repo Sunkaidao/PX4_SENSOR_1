@@ -155,7 +155,10 @@ void Copter::userhook_init()
 
 
     task.init();
+
+#if PTZ_CONTROL == ENABLED	
     PtzControl.init();
+#endif
 }
 #endif
 

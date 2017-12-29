@@ -710,7 +710,7 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
             		task.get_chargingStation().do_takeoff();
             break;
         //added end
-    #endif
+#endif
 
 #if ABMODE == ENABLED
 		case AUXSW_RECORD_AB:

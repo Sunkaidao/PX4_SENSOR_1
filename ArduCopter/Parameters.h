@@ -224,9 +224,7 @@ public:
         k_param_gcs3,
         k_param_gcs_pid_mask,    // 126
 
-		//	added by ZhangYong
-		//k_param_bcbpmbus,
-		//	added end
+		
 
 
         //	added by ZhangYong 20160905
@@ -234,6 +232,10 @@ public:
         k_param_flight_time_hour_shold,	//	128
         k_param_flight_time_sec,		//129
         //added end
+
+		//	added by ZhangYong
+		//k_param_bcbpmbus,				//130
+		//	added end
 
         //
         // 135 : reserved for Solo until features merged with master

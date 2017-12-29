@@ -185,10 +185,10 @@ public:
 #endif
     friend class AP_Arming_Copter;
 
-#if CHARGINGSTATION == ENABLED
+//#if CHARGINGSTATION == ENABLED
 	//baiyang added in 20170717
     friend class AP_ChargingStation;             // ArduPilot chargingStation library
-#endif
+//#endif
 #if RF_TASK == ENABLED
     friend class AP_Task;
 #endif
@@ -1364,6 +1364,7 @@ private:
 public:
     void mavlink_delay_cb();
     void failsafe_check();
+	AP_SerialManager *get_serial_manager() {return &serial_manager;};
 };
 
 extern const AP_HAL::HAL& hal;

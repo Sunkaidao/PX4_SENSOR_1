@@ -22,7 +22,7 @@ bool Copter::current_mode_has_user_takeoff(bool must_navigate)
     }
 }
 
-#if FXTX_AUTH == ENABLED
+#if CHARGINGSTATION == ENABLED
 // initiate user takeoff - called when MAVLink TAKEOFF command is received
 bool Copter::do_user_takeoff_rof(float takeoff_alt_cm, bool must_navigate)
 {

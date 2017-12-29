@@ -978,7 +978,7 @@ union PACKED PassOSD_data_status {
 //charging Station
 //
 #ifndef CHARGINGSTATION
-  #  define CHARGINGSTATION	ENABLED
+  #  define CHARGINGSTATION	DISABLED
 #endif
 
 #ifndef RF_TASK
@@ -989,14 +989,14 @@ union PACKED PassOSD_data_status {
 //////////////////////////////////////////////////////////////////////////////
 //roflying fence
 #ifndef RF_FENCE
-#  define RF_FENCE	ENABLED
+#  define RF_FENCE	DISABLED
 #endif
 
 // baiyang added in 20170830
 //////////////////////////////////////////////////////////////////////////////
 //roflying fence
 #ifndef PTZ_CONTROL
-#  define PTZ_CONTROL	ENABLED
+#  define PTZ_CONTROL	DISABLED
 #endif
 
 //baiyang added in 20170712
