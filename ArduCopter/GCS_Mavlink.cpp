@@ -886,6 +886,8 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
                 result = MAV_RESULT_ACCEPTED;
                 break;
             }
+			
+#if CHARGINGSTATION == ENABLED
 			case MAV_CMD_SET_STA_POS: {
                 // param1 : /* empty */
                 // param2 : /* empty */
@@ -922,6 +924,9 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
                 result = MAV_RESULT_ACCEPTED;
                 break;
 			}
+#endif
+
+#if ABMODE == ENABLED
 			case MAV_CMD_SEND_ABMODE_POS: {
                 // param1 : direction
                 // param2 : waypoint index
@@ -943,6 +948,8 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
                 result = MAV_RESULT_ACCEPTED;
                 break;
 			}
+#endif
+
             default:
                 result = MAV_RESULT_UNSUPPORTED;
                 break;
@@ -978,7 +985,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
             // }
             
             //baiyang added in 20170831
-            #if FXTX_AUTH == ENABLED
+            #if CHARGINGSTATION == ENABLED
               if(is_equal(packet.param1,1.0f)){
           				if(copter.do_user_takeoff_rof(takeoff_alt, is_zero(packet.param3))) {
           					  copter.task.get_chargingStation().set_receive_takeoff();

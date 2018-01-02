@@ -2,6 +2,7 @@
 #include "./../ArduCopter/Copter.h"
 #include <AP_Param/AP_Param.h>
 
+#if ABMODE == ENABLED
 
 #define NO  0
 #define YES 1
@@ -917,5 +918,5 @@ void AP_ABMode::update()
 	run();
 
 }
-
+#endif
 

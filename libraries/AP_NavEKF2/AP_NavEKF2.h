@@ -33,7 +33,7 @@
 
 //
 //Use the #HEADINGA message to resolve the heading,baiyang added in 20171208
-#define GPS_YAW_CAL
+//#define GPS_YAW_CAL
 
 class NavEKF2_core;
 class AP_AHRS;

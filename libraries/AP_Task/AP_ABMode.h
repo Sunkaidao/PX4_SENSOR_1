@@ -12,6 +12,7 @@
 #include <AP_InertialNav/AP_InertialNav.h>
 #include <AP_SerialManager/AP_SerialManager.h>
 
+#if ABMODE == ENABLED
 
 #define YAW          0
 #define POSITION     1
@@ -168,3 +169,4 @@ private:
 	Location target_wp;
 	Location home_loc;
 };
+#endif
