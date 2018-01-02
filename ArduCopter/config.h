@@ -1011,7 +1011,7 @@ union PACKED PassOSD_data_status {
 //baiyang added in 20170829
 /////////////////////////////////////////////////////////////////////////////////////
 //Enabled UserCode.cpp
-#define USERHOOK_INIT
+#define USERHOOK_INIT	1
 #define USERHOOK_MEDIUMLOOP
 #define USERHOOK_50HZLOOP
 #define USERHOOK_SUPERSLOWLOOP

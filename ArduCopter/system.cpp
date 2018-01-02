@@ -300,9 +300,9 @@ void Copter::init_ardupilot()
 
 	
 
-    #ifdef USERHOOK_INIT
-        userhook_init();
-    #endif
+#ifdef USERHOOK_INIT
+    userhook_init();
+#endif
 
 
     hal.console->printf("\nReady to FLY ");

@@ -49,6 +49,10 @@ void Copter::userhook_init()
 
 #endif
 
+	printf("WAYPOINT[%d] INT %d\n", 0, gcs().chan(0).get_mission_item_int());
+	printf("WAYPOINT[%d] INT %d\n", 1, gcs().chan(1).get_mission_item_int());
+
+
     //	added by ZhangYong 20170705
     //printf("Mavlink capabilities %x\n", hal.util->get_capabilities());
     //	added end
