@@ -2366,8 +2366,21 @@ bool GCS_MAVLINK::try_send_mission_message(const enum ap_message id)
         ret = true;
         break;
     case MSG_NEXT_WAYPOINT:
-        CHECK_PAYLOAD_SIZE(MISSION_REQUEST);
-        queued_waypoint_send();
+		//	modified by ZhangYong to enable capabilities ajust
+        //CHECK_PAYLOAD_SIZE(MISSION_REQUEST);
+        //queued_waypoint_send();
+        if(true == get_mission_item_int())
+		{
+			CHECK_PAYLOAD_SIZE(MISSION_REQUEST_INT);
+			queued_waypoint_int_send();
+        }
+		else
+		{
+			CHECK_PAYLOAD_SIZE(MISSION_REQUEST);
+			queued_waypoint_send();
+		
+		}
+		//	modified end
         ret = true;
         break;
     default:
