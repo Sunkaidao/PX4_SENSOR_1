@@ -117,11 +117,13 @@ AC_Fence::AC_Fence(const AP_AHRS& ahrs, const AP_InertialNav& inav) :
     _breached_fences(AC_FENCE_TYPE_NONE),
     _breach_time(0),
     _breach_count(0),
-    _manual_recovery_start_ms(0),
     // added by KONG at 20170605
-    #if RF_FENCE == ENABLED
-    	is_alt_breached(false)
-    #endif
+#if RF_FENCE == ENABLED
+	_manual_recovery_start_ms(0),
+    is_alt_breached(false)
+#else
+	_manual_recovery_start_ms(0)
+#endif
     // end add
 {
     AP_Param::setup_object_defaults(this, var_info);

@@ -653,7 +653,7 @@
 
 //Use GPS #HEADINGA messages
 #ifndef DGPS_HEADINGA
-  #  define DGPS_HEADINGA          ENABLED
+  #  define DGPS_HEADINGA          DISABLED
 #endif
 
 //This macro is defined in AP_NavEKF2_core.h,in this file, AP_NavEKF2_core.h can not be seen AP_NavEKF2.h
@@ -667,30 +667,18 @@
 //added end
 
 
+#ifndef RF_TASK
+#  define RF_TASK	DISABLED
+#endif
+
+#if RF_TASK == ENABLED
+
 //baiyang added in 20170712
 ///////////////////////////////////////////////////////////////////////////////
 //charging Station
 //
 #ifndef CHARGINGSTATION
-  #  define CHARGINGSTATION	ENABLED
-#endif
-
-#ifndef RF_TASK
-#  define RF_TASK	ENABLED
-#endif
-
-// baiyang added in 20170830
-//////////////////////////////////////////////////////////////////////////////
-//roflying fence
-#ifndef RF_FENCE
-#  define RF_FENCE	ENABLED
-#endif
-
-// baiyang added in 20170830
-//////////////////////////////////////////////////////////////////////////////
-//roflying fence
-#ifndef PTZ_CONTROL
-#  define PTZ_CONTROL	ENABLED
+  #  define CHARGINGSTATION	DISABLED
 #endif
 
 //baiyang added in 20170712
@@ -698,7 +686,23 @@
 //AB Mode
 //
 #ifndef ABMODE
-  #  define ABMODE	ENABLED
+  #  define ABMODE	DISABLED
+#endif
+
+#endif
+
+// baiyang added in 20170830
+//////////////////////////////////////////////////////////////////////////////
+//roflying fence
+#ifndef RF_FENCE
+#  define RF_FENCE	DISABLED
+#endif
+
+// baiyang added in 20170830
+//////////////////////////////////////////////////////////////////////////////
+//roflying fence
+#ifndef PTZ_CONTROL
+#  define PTZ_CONTROL	DISABLED
 #endif
 
 //	added by zhangYong 20161109 for auth

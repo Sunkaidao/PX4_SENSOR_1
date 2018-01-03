@@ -15,6 +15,8 @@
 #define Debug(fmt, args...)
 #endif
 
+#if CHARGINGSTATION == ENABLED
+
 #define TOUT_default 10
 #define COMM_REP_default 3
 #define REQ_L_REP_default 9
@@ -1144,4 +1146,5 @@ void AP_ChargingStation::update() {
                            back_to_station_midair, land_alternate_posMidair,
                            status, MSG);
 }
+#endif
 

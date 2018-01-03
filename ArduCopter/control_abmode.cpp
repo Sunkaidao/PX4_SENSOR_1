@@ -1,5 +1,6 @@
 #include "Copter.h"
 
+#if ABMODE == ENABLED
 /*
  * Init and run calls for abmode flight mode
  *
@@ -41,4 +42,5 @@ void Copter::abmode_run()
     guided_run();
 }
 
+#endif
 

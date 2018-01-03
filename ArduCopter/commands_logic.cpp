@@ -1093,7 +1093,7 @@ bool Copter::do_guided(const AP_Mission::Mission_Command& cmd)
 }
 
 //baiyang added in 20174027
-//#if ABMODE == ENABLED
+#if ABMODE == ENABLED
 /********************************************************************************/
 //	Do (Now) commands
 /********************************************************************************/
@@ -1127,7 +1127,7 @@ bool Copter::do_abmode(const AP_Mission::Mission_Command& cmd)
 
     return true;
 }
-//#endif
+#endif
 //added end
 
 void Copter::do_change_speed(const AP_Mission::Mission_Command& cmd)
