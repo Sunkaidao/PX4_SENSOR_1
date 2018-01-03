@@ -333,8 +333,12 @@ void DataFlash_Class::Log_Write_Target_WP(const Location &target_loc,int32_t ind
 // Write an RFND (rangefinder) packet
 void DataFlash_Class::Log_Write_RFND(const RangeFinder &rangefinder)
 {
+	//	modified by ZhangYong 20171116
+	
+
     AP_RangeFinder_Backend *s0 = rangefinder.get_backend(0);
     AP_RangeFinder_Backend *s1 = rangefinder.get_backend(1);
+	AP_RangeFinder_Backend *s2 = rangefinder.get_backend(2);
 
     struct log_RFND pkt = {
         LOG_PACKET_HEADER_INIT((uint8_t)(LOG_RFND_MSG)),
@@ -343,8 +347,26 @@ void DataFlash_Class::Log_Write_RFND(const RangeFinder &rangefinder)
         orient1       : s0 ? s0->orientation() : ROTATION_NONE,
         dist2         : s1 ? s1->distance_cm() : (uint16_t)0,
         orient2       : s1 ? s1->orientation() : ROTATION_NONE,
+        dist3         : s2 ? s2->distance_cm() : (uint16_t)0,
+        orient3       : s2 ? s2->orientation() : ROTATION_NONE,
     };
-    WriteBlock(&pkt, sizeof(pkt));
+    
+	//	modified end
+	
+	/*
+	struct log_RFND pkt = {
+        LOG_PACKET_HEADER_INIT((uint8_t)(LOG_RFND_MSG)),
+        time_us       	: AP_HAL::micros64(),
+        dist1         	: rangefinder.distance_cm(0),
+        orient1       	: rangefinder.get_orientation(0),
+        dist2        	: rangefinder.distance_cm(1),
+        orient2       	: rangefinder.get_orientation(1),
+        dist3			: rangefinder.distance_cm(2),
+        orient3       	: rangefinder.get_orientation(2)
+    };
+    */
+
+	WriteBlock(&pkt, sizeof(pkt));
 }
 
 // Write an RCIN packet
@@ -397,6 +419,8 @@ void DataFlash_Class::Log_Write_RCOUT(void)
 }
 
 // Write an RSSI packet
+
+
 void DataFlash_Class::Log_Write_RSSI(AP_RSSI &rssi)
 {
     struct log_RSSI pkt = {
@@ -662,6 +686,27 @@ bool DataFlash_Backend::Log_Write_Message(const char *message)
     strncpy(pkt.msg, message, sizeof(pkt.msg));
     return WriteCriticalBlock(&pkt, sizeof(pkt));
 }
+
+//	added by ZhangYong 20170405
+void DataFlash_Class::Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_dist, uint8_t para_fm_warn, uint8_t para_pck_cnt)
+{
+	struct log_SPRAYER pkt = {
+		LOG_PACKET_HEADER_INIT(LOG_SPRAYER_MSG),
+		timestamp				: AP_HAL::micros64(),
+		enabled 				: para_sprayer.get_enabled(),
+		running 				: para_sprayer.get_running(),
+		sprayering				: para_sprayer.get_spraying(),
+		testing 				: para_sprayer.get_testing(),
+		speed_over_min_time 	: para_sprayer.get_speed_over_min_time(),
+		speed_under_min_time	: para_sprayer.get_speed_under_min_time(),
+		actual_pump_rate		: para_sprayer.get_actual_pump_rate(),
+		wp_dist 				: wp_dist,
+		fm_warn 				: para_fm_warn,
+		pck_cnt					: para_pck_cnt
+	};
+	WriteBlock(&pkt, sizeof(pkt));
+}
+
 
 void DataFlash_Class::Log_Write_Power(void)
 {
@@ -1619,7 +1664,17 @@ void DataFlash_Class::Log_Write_AttitudeView(AP_AHRS_View &ahrs, const Vector3f 
 // Write an Current data packet
 void DataFlash_Class::Log_Write_Current(const AP_BattMonitor &battery)
 {
-    if (battery.num_instances() >= 1) {
+	//	added  by ZhangYong 20171101
+	float	curr;
+	float	vol;
+	//	added end
+
+	curr = battery.current_amps(0);
+	vol = battery.voltage(0);
+
+	//	modified by ZhangYong 20171101
+	/*
+	   if (battery.num_instances() >= 1) {
         float temp;
         bool has_temp = battery.get_temperature(temp, 0);
         struct log_Current pkt = {
@@ -1631,6 +1686,24 @@ void DataFlash_Class::Log_Write_Current(const AP_BattMonitor &battery)
             current_total       : battery.current_total_mah(0),
             temperature         : (int16_t)(has_temp ? (temp * 100) : 0),
             resistance          : battery.get_resistance(0)
+            power				: 
+        };
+        WriteBlock(&pkt, sizeof(pkt));
+	*///	modified end	
+
+    if (battery.num_instances() >= 1) {
+        float temp;
+        bool has_temp = battery.get_temperature(temp, 0);
+        struct log_Current pkt = {
+            LOG_PACKET_HEADER_INIT(LOG_CURRENT_MSG),
+            time_us             : AP_HAL::micros64(),
+            voltage             : battery.voltage(0),
+            voltage_resting     : battery.voltage_resting_estimate(0),
+            current_amps        : battery.current_amps(0),
+            current_total       : battery.current_total_mah(0),
+            temperature         : (int16_t)(has_temp ? (temp * 100) : 0),
+            resistance          : battery.get_resistance(0),
+            power				: (vol * curr)
         };
         WriteBlock(&pkt, sizeof(pkt));
 
@@ -1653,7 +1726,9 @@ void DataFlash_Class::Log_Write_Current(const AP_BattMonitor &battery)
         }
     }
 
-    if (battery.num_instances() >= 2) {
+	//	modified by ZhangYong 20171101
+	/*
+	if (battery.num_instances() >= 2) {
         float temp;
         bool has_temp = battery.get_temperature(temp, 1);
         struct log_Current pkt = {
@@ -1665,6 +1740,26 @@ void DataFlash_Class::Log_Write_Current(const AP_BattMonitor &battery)
             current_total       : battery.current_total_mah(1),
             temperature         : (int16_t)(has_temp ? (temp * 100) : 0),
             resistance          : battery.get_resistance(1)
+        };
+        WriteBlock(&pkt, sizeof(pkt));
+		*/
+		//	modified end
+
+	
+
+    if (battery.num_instances() >= 2) {
+        float temp;
+        bool has_temp = battery.get_temperature(temp, 1);
+        struct log_Current pkt = {
+            LOG_PACKET_HEADER_INIT(LOG_CURRENT2_MSG),
+            time_us             : AP_HAL::micros64(),
+            voltage             : battery.voltage(1),
+            voltage_resting     : battery.voltage_resting_estimate(1),
+            current_amps        : battery.current_amps(1),
+            current_total       : battery.current_total_mah(1),
+            temperature         : (int16_t)(has_temp ? (temp * 100) : 0),
+            resistance          : battery.get_resistance(1),
+            power				: (vol * curr)
         };
         WriteBlock(&pkt, sizeof(pkt));
 
@@ -1858,7 +1953,10 @@ void DataFlash_Class::Log_Write_PID(uint8_t msg_type, const PID_Info &info)
         I               : info.I,
         D               : info.D,
         FF              : info.FF,
-        AFF             : info.AFF
+        AFF             : info.AFF,
+        actual			: info.actual,
+        error			: info.error,
+        scale			: info.scaler
     };
     WriteBlock(&pkt, sizeof(pkt));
 }
@@ -1990,6 +2088,104 @@ void DataFlash_Class::Log_Write_Beacon(AP_Beacon &beacon)
     WriteBlock(&pkt_beacon, sizeof(pkt_beacon));
 }
 
+
+//	added by ZhangYong 20170731
+// Write communication drop packets rate
+void DataFlash_Class::Log_Write_CD(int32_t para_home_dis, float para_communicat_drops)
+{
+
+	struct log_Communication_drops pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_CD_MSG),
+		timestamp         		: AP_HAL::micros64(),
+        home_distances      	: para_home_dis,
+        communication_drops		: para_communicat_drops
+    };
+    WriteBlock(&pkt, sizeof(pkt));
+}
+
+
+
+
+void DataFlash_Class::Log_Write_BCBPMBus(uint8_t msg_type, AC_BCBPMBus &vp_bcbpmbus)
+{
+    // position
+	uint8_t lcl_index;
+//	BCBPMBUS_COMPONENT_INFO bcbpmbus_componnet_info, *bcbpmbus_componnet_info_ptr;
+//	bcbpmbus_componnet_info_ptr = &bcbpmbus_componnet_info;
+	uint16_t vin;
+	uint16_t iin;
+	uint16_t vout;
+	uint16_t iout;
+
+	if(msg_type < LOG_PMBUS0_MSG)
+	{
+		return;
+	}
+
+	if(msg_type > LOG_PMBUS3_MSG)
+	{
+		return;
+	}
+
+	lcl_index = msg_type;
+	lcl_index -= LOG_PMBUS0_MSG;
+
+//	vp_bcbpmbus.pmbus_is_OK();
+	
+
+	/*
+	printf("Log_Write_BCBPMBus component_id %d\n", vp_bcbpmbus.get_component_id(lcl_index));
+
+	
+	printf("Log_Write_BCBPMBus status_byte %d\n", vp_bcbpmbus.get_status_byte(lcl_index));
+	printf("Log_Write_BCBPMBus status_word %d\n", vp_bcbpmbus.get_status_word(lcl_index));
+	printf("Log_Write_BCBPMBus status_iout %d\n", vp_bcbpmbus.get_status_iout(lcl_index));
+	printf("Log_Write_BCBPMBus status_input %d\n", vp_bcbpmbus.get_status_input(lcl_index));
+	printf("Log_Write_BCBPMBus status_temperature %d\n", vp_bcbpmbus.get_status_temperature(lcl_index));
+	printf("Log_Write_BCBPMBus status_cml %d\n", vp_bcbpmbus.get_status_cml(lcl_index));
+	
+	printf("Log_Write_BCBPMBus read_vin %d\n", (vp_bcbpmbus.get_read_vin(lcl_index) / 10));
+	printf("Log_Write_BCBPMBus read_iin %d\n", (vp_bcbpmbus.get_read_iin(lcl_index) / 1000));
+	printf("Log_Write_BCBPMBus read_vout %d\n", (vp_bcbpmbus.get_read_vout(lcl_index) / 10));
+	printf("Log_Write_BCBPMBus read_iout %d\n", (vp_bcbpmbus.get_read_iout(lcl_index) / 100));
+	printf("Log_Write_BCBPMBus read_temperature %d\n", vp_bcbpmbus.get_read_temperature(lcl_index));
+	printf("Log_Write_BCBPMBus read_pout %d\n", vp_bcbpmbus.get_read_pout(lcl_index));
+*/
+
+	vin = vp_bcbpmbus.get_read_vin(lcl_index);
+	iin = vp_bcbpmbus.get_read_iin(lcl_index);
+	vout = vp_bcbpmbus.get_read_vout(lcl_index);
+	iout = vp_bcbpmbus.get_read_iout(lcl_index);
+
+	vin = vin / 10;
+	iin = iin / 1000;
+	vout = vout / 10;
+	iout = iout /100;
+
+   	struct log_BCBPMBus pkt_bcbpmbus = {
+     	LOG_PACKET_HEADER_INIT(msg_type),
+     	timestamp          	: AP_HAL::micros64(),
+     	seq					: vp_bcbpmbus.get_component_seq(lcl_index),
+     	component_id		: vp_bcbpmbus.get_component_id(lcl_index),
+     	status_byte         : vp_bcbpmbus.get_status_byte(lcl_index),
+     	status_word         : vp_bcbpmbus.get_status_word(lcl_index),
+     	status_iout         : vp_bcbpmbus.get_status_iout(lcl_index),
+     	status_input        : vp_bcbpmbus.get_status_input(lcl_index),
+     	status_temperature  : vp_bcbpmbus.get_status_temperature(lcl_index),
+     	status_cml          : vp_bcbpmbus.get_status_cml(lcl_index),
+     	read_vin            : vin,
+     	read_iin            : iin,
+     	read_vout			: vout,
+     	read_iout			: iout,
+     	read_temperature	: vp_bcbpmbus.get_read_temperature(lcl_index),
+     	read_pout			: vp_bcbpmbus.get_read_pout(lcl_index)
+    };
+    WriteBlock(&pkt_bcbpmbus, sizeof(pkt_bcbpmbus));
+}
+
+
+//	added end
+
 // Write proximity sensor distances
 void DataFlash_Class::Log_Write_Proximity(AP_Proximity &proximity)
 {
@@ -2027,21 +2223,3 @@ void DataFlash_Class::Log_Write_Proximity(AP_Proximity &proximity)
     };
     WriteBlock(&pkt_proximity, sizeof(pkt_proximity));
 }
-
-#if FXTX_AUTH == ENABLED
-//	added by ZhangYong 20170731
-// Write communication drop packets rate
-void DataFlash_Class::Log_Write_CD(int32_t para_home_dis, float para_communicat_drops)
-{
-
-	struct log_Communication_drops pkt = {
-        LOG_PACKET_HEADER_INIT(LOG_CD_MSG),
-		timestamp         		: AP_HAL::micros64(),
-        home_distances      	: para_home_dis,
-        communication_drops		: para_communicat_drops
-    };
-    WriteBlock(&pkt, sizeof(pkt));
-}
-
-//	added end
-#endif

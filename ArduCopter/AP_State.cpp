@@ -65,6 +65,7 @@ void Copter::set_simple_mode(uint8_t b)
     }
 }
 
+
 // ---------------------------------------------
 void Copter::set_failsafe_radio(bool b)
 {
@@ -91,6 +92,86 @@ void Copter::set_failsafe_radio(bool b)
     }
 }
 
+//	added by ZhangYong for payload failsafe 20170719
+// ---------------------------------------------
+//	..... to do...........
+void Copter::set_failsafe_payload(FAILSAFE_PLD_TYPE failsafe_pyaload_type, bool b)
+{
+	uint8_t temp_uint8;
+	uint8_t temp_uint8_t;
+
+	temp_uint8 = failsafe.payload;
+
+	temp_uint8 = temp_uint8 & (1 << failsafe_pyaload_type);
+
+	temp_uint8_t = b;
+
+	temp_uint8_t = temp_uint8_t << failsafe_pyaload_type;
+
+//	printf("0x%x, 0x%x, 0x%x\n", failsafe.payload, failsafe_pyaload_type, b);
+
+    // only act on changes
+    // -------------------
+    if(temp_uint8  != temp_uint8_t) {
+
+        // store the value so we don't trip the gate twice
+        // -----------------------------------------------
+        temp_uint8 = 1 << failsafe_pyaload_type;
+        
+        failsafe.payload &= ~temp_uint8;
+
+        temp_uint8 = b;
+
+        temp_uint8_t = b << failsafe_pyaload_type;
+
+        failsafe.payload |= temp_uint8_t; 
+
+        temp_uint8 = failsafe.payload;
+
+		temp_uint8 = temp_uint8 >> failsafe_pyaload_type;
+
+		temp_uint8 &= 1;
+
+//		printf("0x%x, 0x%x\n", failsafe.payload, temp_uint8);
+        
+
+        if (temp_uint8 == false) 
+        {
+            // We've regained radio contact
+            // ----------------------------
+            failsafe_payload_off_event();
+        }
+        else
+        {
+//			printf("here!\n");
+        
+            // We've lost radio contact
+            // ------------------------
+            failsafe_payload_on_event();
+        }
+
+        // update AP_Notify
+        AP_Notify::flags.failsafe_radio = b;
+    }
+}
+
+
+bool Copter::get_failsafe_payload(FAILSAFE_PLD_TYPE failsafe_pyaload_type)
+{
+	
+	uint8_t temp_uint8;
+	
+	temp_uint8 = failsafe.payload;
+
+	temp_uint8 = temp_uint8 & (1 << failsafe_pyaload_type);
+
+	if(0 == temp_uint8)
+		return false;
+	else
+		return true;
+	
+}
+//	added end
 
 // ---------------------------------------------
 void Copter::set_failsafe_battery(bool b)

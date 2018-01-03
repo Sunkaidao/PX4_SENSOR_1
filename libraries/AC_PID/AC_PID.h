@@ -79,6 +79,11 @@ public:
     // set the designed rate (for logging purposes)
     void        set_desired_rate(float desired) { _pid_info.desired = desired; }
 
+	//	added by ZhangYong 20170313
+	void		set_actual_rate(float actual) {_pid_info.actual = actual; }
+	void		set_error_rate(float error) {_pid_info.error = error; }
+	//	added end
+	
     const       DataFlash_Class::PID_Info& get_pid_info(void) const { return _pid_info; }
 
     // parameter var table

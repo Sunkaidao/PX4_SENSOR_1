@@ -92,19 +92,19 @@ const AP_Param::Info Copter::var_info[] = {
     // @Bitmask: 0:Feedback from mid stick,1:High throttle cancels landing,2:Disarm on land detection
     GSCALAR(throttle_behavior, "PILOT_THR_BHV", 0),
 
-#if FXTX_AUTH == ENABLED
-    // added by ZhangYong 20170721 for edition control
-   	// @Param: 
-   	// @DisplayName: Edition management
-   	// @Description: Edition management
-   	// @Range: 
-   	// @User: Advanced
-   	// @bits[31-28] major edition	   0002
-   	// @bits[27-20] project edition	   0000 0001
-   	// @bits[19-12] minor edition	   0000 0010
-   	// @bits[11-00] revision edition    0000 0000 0100
-   	GSCALAR(edition_management,	 "ED_MANAGE",	  0x402012),
-#endif
+
+	// added by ZhangYong 20170721 for edition control
+   // @Param: 
+   // @DisplayName: Edition management
+   // @Description: Edition management
+   // @Range: 
+   // @User: Advanced
+   // @bits[31-28] major edition	   0002
+   // @bits[27-20] project edition	   0000 0001
+   // @bits[19-12] minor edition	   0000 0010
+   // @bits[11-00] revision edition    0000 0000 0100
+   GSCALAR(edition_management,	 "ED_MANAGE",	  0x402012),
+
 
     // @Group: SERIAL
     // @Path: ../libraries/AP_SerialManager/AP_SerialManager.cpp
@@ -119,7 +119,7 @@ const AP_Param::Info Copter::var_info[] = {
     // @Increment: 1
     GSCALAR(telem_delay,            "TELEM_DELAY",     0),
 
-#if FXTX_AUTH == ENABLED
+
     //	added by ZhangYong 20170731 for uav flight timer
 	  // @Param: FLIGHT_TIME_HOUR
     // @DisplayName: TOTAL FLIGNT TIME OF THIS MAV IN HOUR
@@ -131,7 +131,9 @@ const AP_Param::Info Copter::var_info[] = {
     GSCALAR(flight_time_hour,            "FT_HOUR",     0),
 
 
-	  // @Param: FLIGHT_TIME_HOUR_SHOLD
+
+	// @Param: FLIGHT_TIME_HOUR_SHOLD
+
     // @DisplayName: FLIGNT TIME SHRESHOLD OF THIS MAV IN HOUR, IF EXCEEDS THIS VALUE, ALARM 
     // @Description: The shreshold of this amount of time (in hours), if exceeds this value, alarm 
     // @User: Advanced
@@ -140,8 +142,8 @@ const AP_Param::Info Copter::var_info[] = {
     // @Increment: 1
     GSCALAR(flight_time_hour_shold,            "FT_HOUR_SHOLD",     0),
 
+	// @Param: FLIGHT_TIME_SECOND
 
-	  // @Param: FLIGHT_TIME_SECOND
     // @DisplayName: TOTAL FLIGNT TIME OF THIS MAV IN SECOND
     // @Description: The amount of time (in seconds) this mav has been flight
     // @User: Advanced
@@ -149,8 +151,25 @@ const AP_Param::Info Copter::var_info[] = {
     // @Range: 0 10
     // @Increment: 1
     GSCALAR(flight_time_sec,            "FT_SEC",     0),
-#endif
-    
+
+	//	added by ZhangYong
+	// @Param: FS_PLD_ENANLE
+    // @DisplayName: payload Failsafe Enable
+    // @Description: Controls whether failsafe will be invoked when payload event occurred
+    // @Values: 0:GKXN flowmeter
+    // @		
+    // @User: Standard
+    GSCALAR(failsafe_pld_type, "FS_PLD_TYPE", FS_PLD_NONE),
+	
+	// @Param: FS_PLD_ACTION
+    // @DisplayName: payload Failsafe Enable
+    // @Description: Controls whether failsafe will be invoked when payload event occurred
+    // @Values: 0:Disabled,1:Land,2:RTL,5:predefined routing RTL,6:reverse routing RTL
+    // @User: Standard
+    GSCALAR(failsafe_pld_action, "FS_PLD_ACTION", FS_PLD_DISABLE),
+	//	added end
+
+
     // @Param: GCS_PID_MASK
     // @DisplayName: GCS PID tuning mask
     // @Description: bitmask of PIDs to send MAVLink PID_TUNING messages for
@@ -437,8 +456,13 @@ const AP_Param::Info Copter::var_info[] = {
     // @Description: Select which function is performed when CH7 is above 1800 pwm
     // @Values: 0:Do Nothing, 2:Flip, 3:Simple Mode, 4:RTL, 5:Save Trim, 7:Save WP, 9:Camera Trigger, 10:RangeFinder, 11:Fence, 13:Super Simple Mode, 14:Acro Trainer, 15:Sprayer, 16:Auto, 17:AutoTune, 18:Land, 19:Gripper, 21:Parachute Enable, 22:Parachute Release, 23:Parachute 3pos, 24:Auto Mission Reset, 25:AttCon Feed Forward, 26:AttCon Accel Limits, 27:Retract Mount, 28:Relay On/Off, 34:Relay2 On/Off, 35:Relay3 On/Off, 36:Relay4 On/Off, 29:Landing Gear, 30:Lost Copter Sound, 31:Motor Emergency Stop, 32:Motor Interlock, 33:Brake, 37:Throw, 38:ADSB-Avoidance, 39:PrecLoiter, 40:Object Avoidance, 41:ArmDisarm
     // @User: Standard
+    //	modified by zhangyong 20171127
+#if PROJECTGKXN == DISABLED    
     GSCALAR(ch7_option, "CH7_OPT",                  AUXSW_DO_NOTHING),
-
+#else
+	GSCALAR(ch7_option, "CH7_OPT",                  AUXSW_AUTO_HEIGHT),
+#endif
+	
     // @Param: CH8_OPT
     // @DisplayName: Channel 8 option
     // @Description: Select which function is performed when CH8 is above 1800 pwm
@@ -787,6 +811,21 @@ const AP_Param::Info Copter::var_info[] = {
     GOBJECT(sprayer,                "SPRAY_",       AC_Sprayer),
 #endif
 
+#if PROJECTGKXN == ENABLED
+    // @Group: FM_
+    // @Path: ../libraries/AP_Flowmeter/AP_Flowmeter.cpp
+    GOBJECT(flowmeter,                "FM_",       AP_Flowmeter),
+#endif
+
+/*
+#if BCBPMBUS == ENABLED
+    // @Group: SPRAY_
+    // @Path: ../libraries/AC_BCBPMBus/AC_BCBPMBus.cpp
+    GOBJECT(bcbpmbus,                "PMBUS_",       AC_BCBPMBus),
+#endif
+*/
+
+
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
     GOBJECT(sitl, "SIM_", SITL::SITL),
 #endif
@@ -1065,9 +1104,13 @@ const AP_Param::GroupInfo ParametersG2::var_info[] = {
     AP_SUBGROUPINFO(visual_odom, "VISO", 18, ParametersG2, AP_VisualOdom),
 #endif
 
+#if BCBPMBUS == ENABLED
+	AP_SUBGROUPINFO(bcbpmbus, "PMBUS", 19, ParametersG2, AC_BCBPMBus),
+#endif
+
+
     // ID 19 reserved for TCAL (PR pending)
     // ID 20 reserved for TX_TYPE (PR pending)
-  
     AP_GROUPEND
 };
 
@@ -1082,6 +1125,9 @@ ParametersG2::ParametersG2(void)
 #endif
 #if ADVANCED_FAILSAFE == ENABLED
     ,afs(copter.mission, copter.barometer, copter.gps, copter.rcmap)
+#endif
+#if BCBPMBUS == ENABLE
+	, bcbpmbus(copter.serial_manager)
 #endif
 {
     AP_Param::setup_object_defaults(this, var_info);

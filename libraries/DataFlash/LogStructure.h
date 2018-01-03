@@ -232,6 +232,24 @@ struct PACKED log_POS {
     float rel_origin_alt;
 };
 
+//	added by ZhangYong
+struct PACKED log_SPRAYER {
+    LOG_PACKET_HEADER;
+    uint64_t timestamp;
+	int8_t enabled;
+    uint8_t running;
+	uint8_t sprayering;
+	uint8_t testing;
+	uint32_t speed_over_min_time;
+	uint32_t speed_under_min_time;
+	int16_t actual_pump_rate;
+	uint32_t wp_dist;
+	uint8_t fm_warn;
+	uint8_t pck_cnt;
+};
+
+
+
 struct PACKED log_POWR {
     LOG_PACKET_HEADER;
     uint64_t time_us;
@@ -541,6 +559,11 @@ struct PACKED log_PID {
     float   D;
     float   FF;
     float   AFF;
+	//	added by ZhangYong for debug purpose
+	float 	actual;
+	float	error;
+	float	scale;
+//	added end	
 };
 
 struct PACKED log_Current {
@@ -552,6 +575,9 @@ struct PACKED log_Current {
     float    current_total;
     int16_t  temperature; // degrees C * 100
     float    resistance;
+	//	added by ZhangYong
+	float	power;
+	//	added end
 };
 
 struct PACKED log_Current_Cells {
@@ -595,6 +621,10 @@ struct PACKED log_RFND {
     uint8_t orient1;
     uint16_t dist2;
     uint8_t orient2;
+	//	added by ZhangYong
+	uint16_t dist3;
+    uint8_t orient3;
+	//	added end
 };
 
 #if CHARGINGSTATION == ENABLED
@@ -914,6 +944,60 @@ struct PACKED log_Beacon {
     float posz;
 };
 
+//	added by ZhangYong 20170731
+/*
+struct PACKED log_Communication_drops {
+    LOG_PACKET_HEADER;
+    uint64_t timestamp;
+	int32_t  home_distances;
+    float  communication_drops;
+};*/
+
+struct PACKED log_BCBPMBus {
+	LOG_PACKET_HEADER;
+    uint64_t timestamp;						//	0
+
+	uint8_t seq;
+	
+	uint8_t component_id;					//	1
+
+	uint8_t status_byte;					//	2
+	uint8_t status_word;					//	3
+	uint8_t status_iout;					//	4
+	uint8_t status_input;					//	5
+	uint8_t status_temperature;				//	6
+	uint8_t status_cml;						//	7
+		
+	uint16_t read_vin;						//	8
+	uint16_t read_iin;						//	9
+	uint16_t read_vout;						//	10
+	uint16_t read_iout;						//	11
+	uint16_t read_temperature;				//	12
+	uint16_t read_pout;						//	13
+};
+
+
+typedef struct PACKED BCBPMBus_component_info_struct {
+		uint8_t component_id;
+
+		uint8_t status_byte;					//	10
+		uint8_t status_word;					//	11
+		uint8_t status_iout;					//	12
+		uint8_t status_input;					//	13
+		uint8_t status_temperature;				//	14
+		uint8_t status_cml;						//	15
+		
+		uint16_t read_vin;
+		uint16_t read_iin;
+		uint16_t read_vout;
+		uint16_t read_iout;
+		uint16_t read_temperature;
+		uint16_t read_pout;
+}BCBPMBUS_COMPONENT_INFO;
+
+//	added end
+
+
 // proximity sensor logging
 struct PACKED log_Proximity {
     LOG_PACKET_HEADER;
@@ -931,6 +1015,7 @@ struct PACKED log_Proximity {
     float closest_angle;
     float closest_dist;
 };
+
 
 // #endif // SBP_HW_LOGGING
 
@@ -975,17 +1060,33 @@ struct PACKED log_Proximity {
 #define MAG_LABELS "TimeUS,MagX,MagY,MagZ,OfsX,OfsY,OfsZ,MOfsX,MOfsY,MOfsZ,Health,S"
 #define MAG_FMT   "QhhhhhhhhhBI"
 
-#define PID_LABELS "TimeUS,Des,P,I,D,FF,AFF"
-#define PID_FMT    "Qffffff"
+//	modified by ZhangYong 20170629
+//#define PID_LABELS "TimeUS,Des,P,I,D,FF,AFF"
+//#define PID_FMT    "Qffffff"
+//	modified end
+
+#define PID_LABELS "TimeUS,Des,P,I,D,FF,AFF,At,Er,Sc"
+#define PID_FMT    "Qfffffffff"
+
 
 #define QUAT_LABELS "TimeUS,Q1,Q2,Q3,Q4"
 #define QUAT_FMT    "Qffff"
 
-#define CURR_LABELS "TimeUS,Volt,VoltR,Curr,CurrTot,Temp,Res"
-#define CURR_FMT    "Qffffcf"
+
+//	modified by ZhangYong 20171101
+//#define CURR_LABELS "TimeUS,Volt,VoltR,Curr,CurrTot,Temp,Res"
+//#define CURR_FMT    "Qffffcf"
+//	modified end
+
+
+#define CURR_LABELS "TimeUS,Volt,VoltR,Curr,CurrTot,Temp,Res,Pwr"
+#define CURR_FMT    "Qffffcff"
 
 #define CURR_CELL_LABELS "TimeUS,Volt,V1,V2,V3,V4,V5,V6,V7,V8,V9,V10"
 #define CURR_CELL_FMT    "QfHHHHHHHHHH"
+
+#define PMBUS_LABELS	"TMS,seq,id,sb,sw,sio,sin,st,sc,vi,ii,vo,io,t,p"
+#define PMBUS_FMT	"QBBBBBBBBHHHHHH"
 
 /*
 Format characters in the format string for binary log messages
@@ -1042,8 +1143,20 @@ Format characters in the format string for binary log messages
       "RCIN",  "QHHHHHHHHHHHHHH",     "TimeUS,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14" }, \
     { LOG_RCOUT_MSG, sizeof(log_RCOUT), \
       "RCOU",  "QHHHHHHHHHHHHHH",     "TimeUS,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14" }, \
-    { LOG_RSSI_MSG, sizeof(log_RSSI), \
+	{ LOG_RSSI_MSG, sizeof(log_RSSI), \
       "RSSI",  "Qf",     "TimeUS,RXRSSI" }, \
+	{ LOG_SPRAYER_MSG, sizeof(log_SPRAYER), \
+      "SPY",  "QbBBBIIhIBB",     "TimeMS,ab,run,spy,tt,ot,ut,pr,wp,fm,pc" }, \
+    { LOG_CD_MSG, sizeof(log_Communication_drops), \
+	 "CD", "Qif", "TMS,D2H,CD" }, \
+	{ LOG_PMBUS0_MSG, sizeof(log_BCBPMBus), \
+	 "PM0", PMBUS_FMT, PMBUS_LABELS }, \
+	{ LOG_PMBUS1_MSG, sizeof(log_BCBPMBus), \
+	 "PM1", PMBUS_FMT, PMBUS_LABELS }, \
+	{ LOG_PMBUS2_MSG, sizeof(log_BCBPMBus), \
+	 "PM2", PMBUS_FMT, PMBUS_LABELS }, \
+	{ LOG_PMBUS3_MSG, sizeof(log_BCBPMBus), \
+	 "PM3", PMBUS_FMT, PMBUS_LABELS }, \
     { LOG_BARO_MSG, sizeof(log_BARO), \
       "BARO",  BARO_FMT, BARO_LABELS }, \
     { LOG_CD_MSG, sizeof(log_Communication_drops), \
@@ -1075,7 +1188,7 @@ Format characters in the format string for binary log messages
     { LOG_MODE_MSG, sizeof(log_Mode), \
       "MODE", "QMBB",         "TimeUS,Mode,ModeNum,Rsn" }, \
     { LOG_RFND_MSG, sizeof(log_RFND), \
-      "RFND", "QCBCB", "TimeUS,Dist1,Orient1,Dist2,Orient2" }, \
+      "RFND", "QCBCBCB", "TimeUS,Dt1,Ot1,Dt2,Ot2,Dt3,Ot3" }, \
     { LOG_DF_MAV_STATS, sizeof(log_DF_MAV_Stats), \
       "DMS", "IIIIIBBBBBBBBBB",         "TimeMS,N,Dp,RT,RS,Er,Fa,Fmn,Fmx,Pa,Pmn,Pmx,Sa,Smn,Smx" }, \
     { LOG_BEACON_MSG, sizeof(log_Beacon), \
@@ -1252,6 +1365,9 @@ Format characters in the format string for binary log messages
 
 // message types 0 to 128 reversed for vehicle specific use
 
+
+
+
 // message types for common messages
 enum LogMessages {
     LOG_FORMAT_MSG = 128,
@@ -1373,6 +1489,15 @@ enum LogMessages {
     LOG_VISUALODOM_MSG,
     LOG_AOA_SSA_MSG,
     LOG_BEACON_MSG,
+
+    LOG_SPRAYER_MSG,
+	
+#if BCBPMBUS == ENABLED	
+	LOG_PMBUS0_MSG,
+	LOG_PMBUS1_MSG,
+	LOG_PMBUS2_MSG,
+	LOG_PMBUS3_MSG,
+#endif	
     LOG_PROXIMITY_MSG,
 
 // #if CHARGINGSTATION == ENABLED

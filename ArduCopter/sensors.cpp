@@ -295,7 +295,10 @@ void Copter::init_proximity(void)
 // update proximity sensor
 void Copter::update_proximity(void)
 {
+//	printf("Copter::update_proximity 0\n");
+
 #if PROXIMITY_ENABLED == ENABLED
+//	printf("Copter::update_proximity 1\n");
     g2.proximity.update();
 #endif
 }
@@ -499,6 +502,348 @@ void Copter::update_beacon()
 {
     g2.beacon.update();
 }
+
+//	added by ZhangYong
+#if BCBPMBUS == ENABLE
+// init bcbpmbus used for pmbus monitor
+void Copter::init_bcbpmbus()
+{
+    g2.bcbpmbus.init();
+}
+
+#define BCBPMBUS_DEBUG	0
+
+// update beacons
+//	uint8_t *slot which module is not ok
+//	uint8_t *reason
+//	0x0: OK
+//	0x1: input voltage lower than 352	(middle priority)
+//	0x2: output voltage lower than 44 (low priority)
+//	0x4: iout lower than 1        	(higher priority)
+//	0x8: temprature higher than 80 	(high priority)
+//	0x10: timeout						(highest priority)
+
+#define AC_BCBPMBUS_FS_DISABLE	0x0		//	0b0000 0000
+#define AC_BCBPMBUS_FS_VIN		0x1		//	0b0000 0001
+#define AC_BCBPMBUS_FS_VOUT		0x2		//	0b0000 0010
+#define AC_BCBPMBUS_FS_IOUT		0x4		//	0b0000 0100
+#define AC_BCBPMBUS_FS_TEMP		0x8		//	0b0000 1000
+#define AC_BCBPMBUS_FS_TIMEOUT		0x10	//	0b0001 0000	
+
+
+void Copter::update_bcbpmbus()
+{
+	uint8_t slot_id;
+	uint8_t fs_reason;
+	uint8_t lcl_uint8;
+	uint8_t lcl_cnt;
+	
+	
+	//	update bcbpmbus data
+	if(!g2.bcbpmbus.enabled())
+		return;
+
+	if(!g2.bcbpmbus.initialised())
+		return;
+	
+    g2.bcbpmbus.read();
+
+//	printf("update_bcbpmbus\n");
+
+
+	//	log data
+	Log_Write_BCBPMBus_Components();
+
+	//	check failsafe of the pmbus
+	if(false == g2.bcbpmbus.pmbus_is_OK())
+	{
+//		printf("bcbpmbus time out\n");
+		gcs().send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus time out!");
+	
+		//	failsafe operation start
+		if((0 == get_failsafe_payload(FAILSAFE_PLD_TYPE_PMBUS)) && \
+			(motors->armed())
+			)
+		{
+			set_failsafe_payload(FAILSAFE_PLD_TYPE_PMBUS, true);
+		}
+	}
+	else
+	{
+		// update beacons
+		//	uint8_t *slot which module is not ok
+		//	uint8_t *reason
+		//	0x0: OK
+		//	0x1: input voltage lower than 352	(middle priority)
+		//	0x2: output voltage lower than 44 (low priority)
+		//	0x4: iout lower than 1			(higher priority)
+		//	0x8: temprature higher than 80	(high priority)
+		//	0x10: timeout						(highest priority)
+
+
+		if(false == g2.bcbpmbus.components_is_OK(&slot_id, &fs_reason))
+		{
+			
+#if BCBPMBUS_DEBUG > 0		
+			printf("bcbcomponent ");
+#endif
+			switch(slot_id)
+			{
+				case 0:
+#if BCBPMBUS_DEBUG > 0
+					printf("0 ");
+#endif
+					if(AC_BCBPMBUS_FS_VIN == fs_reason)
+					{
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 0 input low!");
+#if BCBPMBUS_DEBUG > 0	
+						printf("input low\n");
+#endif
+					}
+					else if(AC_BCBPMBUS_FS_VOUT == fs_reason)
+					{
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 0 output low!");
+#if BCBPMBUS_DEBUG > 0	
+						printf("output low\n");
+#endif
+					}
+					else if(AC_BCBPMBUS_FS_TEMP == fs_reason)
+					{
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 0 temp high!");
+#if BCBPMBUS_DEBUG > 0	
+						printf("temp high\n");
+#endif
+					}
+					else if(AC_BCBPMBUS_FS_IOUT == fs_reason)
+					{
+
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 0 iout low!");
+#if BCBPMBUS_DEBUG > 0	
+						printf("iout low\n");
+#endif
+					}
+					else if(AC_BCBPMBUS_FS_TIMEOUT == fs_reason)
+					{
+
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 0 time out!");
+#if BCBPMBUS_DEBUG > 0	
+						printf("time out\n");
+#endif
+					}
+					else
+					{
+	//					printf("uinknown error\n");
+					}
+					break;
+				case 1:
+#if BCBPMBUS_DEBUG > 0	
+					printf("1 ");
+#endif
+					if(AC_BCBPMBUS_FS_VIN == fs_reason)
+					{
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 1 input low!");
+#if BCBPMBUS_DEBUG > 0	
+						printf("input low\n");
+#endif
+					}
+					else if(AC_BCBPMBUS_FS_VOUT == fs_reason)
+					{
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 1 output low!");
+#if BCBPMBUS_DEBUG > 0	
+						printf("output low\n");
+#endif
+					}
+					else if(AC_BCBPMBUS_FS_TEMP == fs_reason)
+					{
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 1 temp high!");
+#if BCBPMBUS_DEBUG > 0	
+						printf("temp high\n");
+#endif
+					}
+					else if(AC_BCBPMBUS_FS_IOUT == fs_reason)
+					{
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 1 iout low!");
+#if BCBPMBUS_DEBUG > 0	
+						printf("temp high\n");
+#endif
+					}
+					else if(AC_BCBPMBUS_FS_TIMEOUT == fs_reason)
+					{
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 1 time out!");
+
+#if BCBPMBUS_DEBUG > 0	
+						printf("time out\n");
+#endif
+					}
+					else
+					{
+	/*					printf("uinknown error\n");
+	*/				}
+					break;
+				case 2:
+#if BCBPMBUS_DEBUG > 0						
+					printf("2 ");
+#endif
+					if(AC_BCBPMBUS_FS_VIN == fs_reason)
+					{
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 2 input low!");
+#if BCBPMBUS_DEBUG > 0
+						printf("input low\n");
+#endif
+					}
+					else if(AC_BCBPMBUS_FS_VOUT == fs_reason)
+					{
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 2 output low!");
+#if BCBPMBUS_DEBUG > 0
+						printf("output low\n");
+#endif
+					}
+					else if(AC_BCBPMBUS_FS_TEMP == fs_reason)
+					{
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 2 temp high!");
+#if BCBPMBUS_DEBUG > 0
+						printf("temp high\n");
+#endif
+					}
+					else if(AC_BCBPMBUS_FS_IOUT == fs_reason)
+					{
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 2 iout low!");
+#if BCBPMBUS_DEBUG > 0
+						printf("iout low!\n");
+#endif
+					}
+					else if(AC_BCBPMBUS_FS_TIMEOUT == fs_reason)
+					{
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 2 time out!");
+#if BCBPMBUS_DEBUG > 0
+						printf("time out!\n");
+#endif				
+					}
+					else
+					{
+	/*					printf("uinknown error\n");
+	*/				}
+					break;
+				case 3:
+					if(AC_BCBPMBUS_FS_VIN == fs_reason)
+					{
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 3 input low!");
+	/*					printf("input low\n");
+	*/				}
+					else if(AC_BCBPMBUS_FS_VOUT == fs_reason)
+					{
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 3 output low!");
+	/*					printf("output low\n");
+	*/				}
+					else if(AC_BCBPMBUS_FS_TEMP == fs_reason)
+					{
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 3 temp high!");
+	/*					printf("temp high\n");
+	*/				}
+					else if(AC_BCBPMBUS_FS_IOUT == fs_reason)
+					{
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 3 iout low!");
+					}
+					else if(AC_BCBPMBUS_FS_TIMEOUT == fs_reason)
+					{
+						gcs_send_text(MAV_SEVERITY_CRITICAL, "bcbpmbus 3 time out!");
+					}
+					else
+					{
+	/*					printf("uinknown error\n");
+	*/				}
+					break;
+			}
+
+			//	note by ZhangYong 
+			//	channel_throttle->get_control_in() > (motors->get_spin_arm() * 1000)
+			//	to satisfy the current sensor
+			lcl_uint8 = g2.bcbpmbus.get_fs_enable();
+
+//			printf("failsafe 0x%x reason 0x%x\n", lcl_uint8, fs_reason);
+
+			if(1 == ((AC_BCBPMBUS_FS_VIN & lcl_uint8) && (AC_BCBPMBUS_FS_VIN & fs_reason)))
+			{
+#if BCBPMBUS_DEBUG > 0
+				printf("AC_BCBPMBUS_FS_VIN\n");
+#endif
+				if((0 == get_failsafe_payload(FAILSAFE_PLD_TYPE_PMBUS)) && (motors->armed()))
+				{
+					set_failsafe_payload(FAILSAFE_PLD_TYPE_PMBUS, true);
+				}
+			}
+
+			if(1 == ((AC_BCBPMBUS_FS_VOUT & lcl_uint8) && (AC_BCBPMBUS_FS_VOUT & fs_reason)))
+			{
+#if BCBPMBUS_DEBUG > 0
+				printf("AC_BCBPMBUS_FS_VOUT\n");
+#endif
+				if((0 == get_failsafe_payload(FAILSAFE_PLD_TYPE_PMBUS)) && (motors->armed()))
+				{
+					set_failsafe_payload(FAILSAFE_PLD_TYPE_PMBUS, true);
+				}
+			}
+
+			if(1 == ((AC_BCBPMBUS_FS_IOUT & lcl_uint8) && (AC_BCBPMBUS_FS_IOUT & fs_reason)))
+			{
+#if BCBPMBUS_DEBUG > 0
+				printf("AC_BCBPMBUS_FS_IOUT\n");
+#endif
+				if(channel_throttle->get_control_in() > g2.bcbpmbus.get_fs_iout_thr_min())
+				{
+					if((0 == get_failsafe_payload(FAILSAFE_PLD_TYPE_PMBUS)) && (motors->armed()))
+					{
+						set_failsafe_payload(FAILSAFE_PLD_TYPE_PMBUS, true);
+					}
+				}
+			}
+
+			
+			if(1 == ((AC_BCBPMBUS_FS_TEMP & lcl_uint8) && (AC_BCBPMBUS_FS_TEMP & fs_reason)))
+			{
+#if BCBPMBUS_DEBUG > 0
+				printf("AC_BCBPMBUS_FS_TEMP\n");
+#endif
+				if((0 == get_failsafe_payload(FAILSAFE_PLD_TYPE_PMBUS)) && (motors->armed()))
+				{
+					set_failsafe_payload(FAILSAFE_PLD_TYPE_PMBUS, true);
+				}
+			}
+
+			if(1 == ((AC_BCBPMBUS_FS_TIMEOUT & lcl_uint8) && (AC_BCBPMBUS_FS_TIMEOUT & fs_reason)))
+			{
+#if BCBPMBUS_DEBUG > 0
+				printf("AC_BCBPMBUS_FS_TIMEOUT\n");
+#endif
+				if((0 == get_failsafe_payload(FAILSAFE_PLD_TYPE_PMBUS)) && (motors->armed()))
+				{
+					set_failsafe_payload(FAILSAFE_PLD_TYPE_PMBUS, true);
+				}
+			}
+
+		}
+	}
+}
+
+
+void Copter::Log_Write_BCBPMBus_Components()
+{
+	uint8_t lcl_cnt;
+	for(lcl_cnt = 0; lcl_cnt < AC_BCBPMBUS_MODULE_MAX_COMPONENT; lcl_cnt++)
+	{
+		if(true == g2.bcbpmbus.should_log_componengt_slot_info(lcl_cnt))
+		{
+//			printf("Log_Write_BCBPMBus_Components slot %d\n", lcl_cnt);
+			Log_Write_BCBPMBus(lcl_cnt + LOG_PMBUS0_MSG);
+			g2.bcbpmbus.componengt_slot_info_logged(lcl_cnt);
+		}
+	}
+}
+
+
+
+#endif
+//	added end
 
 // init visual odometry sensor
 void Copter::init_visual_odom()

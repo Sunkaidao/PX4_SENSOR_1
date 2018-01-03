@@ -95,6 +95,31 @@
 //added end 
 #endif
 
+#define AP_SERIALMANAGER_FLOWMETER_GKXN_BAUD           	115200
+#define AP_SERIALMANAGER_FLOWMETER_GKXN_BUFSIZE_RX     	128
+#define AP_SERIALMANAGER_FLOWMETER_GKXN_BUFSIZE_TX     	128
+
+#define AP_SERIALMANAGER_PASSOSD_BAUD           		57600
+#define AP_SERIALMANAGER_PASSOSD_BUFSIZE_RX     		128
+#define AP_SERIALMANAGER_PASSOSD_BUFSIZE_TX     		128
+
+#define AP_SERIALMANAGER_BCBMONITOR_BAUD           		57600
+#define AP_SERIALMANAGER_BCBMONITOR_BUFSIZE_RX     		128
+#define AP_SERIALMANAGER_BCBMONITOR_BUFSIZE_TX     		128
+
+//	added by ZhangYong 20170929
+#if RNGRADAR == ENABLED
+#define AP_SERIALMANAGER_RADAR_BAUD                     115200
+#define AP_SERIALMANAGER_RADAR_BUFSIZE_RX               128
+#define AP_SERIALMANAGER_RADAR_BUFSIZE_TX               128
+#endif
+
+#define AP_SERIALMANAGER_BCBPMBUS_BAUD           		57600
+#define AP_SERIALMANAGER_BCBPMBUS_BUFSIZE_RX     		128
+#define AP_SERIALMANAGER_BCBPMBUS_BUFSIZE_TX     		128
+
+
+
 class AP_SerialManager {
 
 public:
@@ -115,12 +140,17 @@ public:
         SerialProtocol_Lidar360 = 11,                // Lightware SF40C or TeraRanger Tower
         SerialProtocol_Aerotenna_uLanding      = 12, // Ulanding support
         SerialProtocol_Beacon = 13,
-        
-        #if CHARGINGSTATION == ENABLED
+        SerialProtocol_XXXXXXXXXX = 14,
+        SerialProtocol_FlowMeter_GKXN = 15,
+        SerialProtocol_PassOSD = 16,
+        SerialProtocol_BCBMonitor = 17,
+        SerialProtocol_BCBPMBus = 18,
+        SerialProtocol_Radar=19,
+#if CHARGINGSTATION == ENABLED
         //biayang added in 20170612
         SerialProtocol_ChargingStation = 68,         //xiamen Charging Station
         //added end
-        #endif
+#endif
     };
 
     // Constructor

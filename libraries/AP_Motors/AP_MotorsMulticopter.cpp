@@ -45,7 +45,10 @@ const AP_Param::GroupInfo AP_MotorsMulticopter::var_info[] = {
     // @Description: Motor thrust curve exponent (from 0 for linear to 1.0 for second order curve)
     // @Range: 0.25 0.8
     // @User: Advanced
-    AP_GROUPINFO("THST_EXPO", 8, AP_MotorsMulticopter, _thrust_curve_expo, AP_MOTORS_THST_EXPO_DEFAULT),
+    //	modified by zhangYong 20170907
+    //	AP_GROUPINFO("THST_EXPO", 8, AP_MotorsMulticopter, _thrust_curve_expo, AP_MOTORS_THST_EXPO_DEFAULT),
+    //	modified end
+    AP_GROUPINFO("THST_EXPO", 8, AP_MotorsMulticopter, _thrust_curve_expo, 0),
 
     // @Param: SPIN_MAX
     // @DisplayName: Motor Spin maximum

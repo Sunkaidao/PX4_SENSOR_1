@@ -131,6 +131,7 @@ void AP_Motors::rc_enable_ch(uint8_t chan)
         // we have a mapped motor number for this channel
         chan = _motor_map[chan];
     }
+//	printf("rc_enable_ch chan %d\n", chan);
     hal.rcout->enable_ch(chan);
 }
 

@@ -32,9 +32,16 @@ bool GCS_MAVLINK::param_timer_registered;
  * @brief Send the next pending parameter, called from deferred message
  * handling code
  */
+//	modified by ZhangYong 20171117
+//	GCS_MAVLINK::queued_param_send()
+//	modified end
+
 void
-GCS_MAVLINK::queued_param_send()
+GCS_MAVLINK::queued_param_send(bool armed)
 {
+	uint32_t timeout_threshold;
+
+
     if (!initialised) {
         return;
     }
@@ -89,7 +96,21 @@ GCS_MAVLINK::queued_param_send()
         _queued_parameter = AP_Param::next_scalar(&_queued_parameter_token, &_queued_parameter_type);
         _queued_parameter_index++;
 
-        if (AP_HAL::micros() - tstart > 1000000) {
+
+		//	added by ZhangYong 20171117
+		if(1 == armed)
+		{
+			timeout_threshold = 1000;
+		}
+		else
+    	{
+    		timeout_threshold = 1000000;
+    	}
+		//	added end
+		
+
+        if (AP_HAL::micros() - tstart > timeout_threshold) {
+
             // don't use more than 1ms sending blocks of parameters
             break;
         }
@@ -282,7 +303,9 @@ bool GCS_MAVLINK::stream_trigger(enum streams stream_num)
     }
     float rate = (uint8_t)streamRates[stream_num].get();
 
+	//	modified by zhangyong for AB-point 20171011
     rate *= adjust_rate_for_stream_trigger(stream_num);
+    //	modified end
 
     if (rate <= 0) {
         if (chan_is_streaming & (1U<<(chan-MAVLINK_COMM_0))) {

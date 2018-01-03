@@ -42,7 +42,7 @@ AP_RangeFinder_uLanding::AP_RangeFinder_uLanding(RangeFinder::RangeFinder_State 
 */
 bool AP_RangeFinder_uLanding::detect(AP_SerialManager &serial_manager)
 {
-    return serial_manager.find_serial(AP_SerialManager::SerialProtocol_Aerotenna_uLanding, 0) != nullptr;
+    return (serial_manager.find_serial(AP_SerialManager::SerialProtocol_Aerotenna_uLanding, 0) != nullptr);
 }
 
 // read - return last value measured by sensor

@@ -18,14 +18,20 @@ void Copter::read_control_switch()
     uint32_t tnow_ms = millis();
 
     // calculate position of flight mode switch
+    //	modified by ZhangYong 20171220
+    
     int8_t switch_position;
-    uint16_t rc5_in = RC_Channels::rc_channel(CH_5)->get_radio_in();
+    /*uint16_t rc5_in = RC_Channels::rc_channel(CH_5)->get_radio_in();
     if      (rc5_in < 1231) switch_position = 0;
     else if (rc5_in < 1361) switch_position = 1;
     else if (rc5_in < 1491) switch_position = 2;
     else if (rc5_in < 1621) switch_position = 3;
     else if (rc5_in < 1750) switch_position = 4;
     else switch_position = 5;
+	*/
+	//	modified end
+	switch_position = readSwitch();
+	
 
     // store time that switch last moved
     if (control_switch_state.last_switch_position != switch_position) {
@@ -73,8 +79,19 @@ void Copter::read_control_switch()
 // check_if_auxsw_mode_used - Check to see if any of the Aux Switches are set to a given mode.
 bool Copter::check_if_auxsw_mode_used(uint8_t auxsw_mode_check)
 {
-    bool ret = g.ch7_option == auxsw_mode_check || g.ch8_option == auxsw_mode_check || g.ch9_option == auxsw_mode_check 
+	//	modified by ZhangYong 20171115
+    //bool ret = g.ch7_option == auxsw_mode_check || g.ch8_option == auxsw_mode_check || g.ch9_option == auxsw_mode_check 
+     //           || g.ch10_option == auxsw_mode_check || g.ch11_option == auxsw_mode_check || g.ch12_option == auxsw_mode_check;
+	//	modified end
+#if PROJECTGKXN == ENABLED 
+
+	bool ret = g.radio_tuning == auxsw_mode_check || g.ch7_option == auxsw_mode_check || g.ch8_option == auxsw_mode_check || g.ch9_option == auxsw_mode_check 
                 || g.ch10_option == auxsw_mode_check || g.ch11_option == auxsw_mode_check || g.ch12_option == auxsw_mode_check;
+#else
+	bool ret = g.ch7_option == auxsw_mode_check || g.ch8_option == auxsw_mode_check || g.ch9_option == auxsw_mode_check 
+                || g.ch10_option == auxsw_mode_check || g.ch11_option == auxsw_mode_check || g.ch12_option == auxsw_mode_check;
+	//	modified end
+#endif
 
     return ret;
 }
@@ -100,6 +117,22 @@ bool Copter::check_duplicate_auxsw(void)
     }
    return false;
 }
+
+//	added by ZhangYong 20171220
+uint8_t Copter::readSwitch()
+{
+	int8_t switch_position;
+    uint16_t rc5_in = RC_Channels::rc_channel(CH_5)->get_radio_in();
+    if      (rc5_in < 1231) switch_position = 0;
+    else if (rc5_in < 1361) switch_position = 1;
+    else if (rc5_in < 1491) switch_position = 2;
+    else if (rc5_in < 1621) switch_position = 3;
+    else if (rc5_in < 1750) switch_position = 4;
+    else switch_position = 5;
+
+	return switch_position;
+}
+//	added end
 
 void Copter::reset_control_switch()
 {
@@ -136,6 +169,10 @@ void Copter::read_aux_switches()
         return;
     }
 
+	//	added by ZhangYong 20171115
+	read_aux_switch(CH_6, aux_con.CH6_flag, g.radio_tuning);
+	//	added end
+
     read_aux_switch(CH_7, aux_con.CH7_flag, g.ch7_option);
     read_aux_switch(CH_8, aux_con.CH8_flag, g.ch8_option);
     read_aux_switch(CH_9, aux_con.CH9_flag, g.ch9_option);
@@ -153,6 +190,11 @@ void Copter::read_aux_switches()
 void Copter::init_aux_switches()
 {
     // set the CH7 ~ CH12 flags
+	//	added by ZhangYong 20171115
+	aux_con.CH6_flag = read_3pos_switch(CH_6);
+	//	added end
+
+	
     aux_con.CH7_flag = read_3pos_switch(CH_7);
     aux_con.CH8_flag = read_3pos_switch(CH_8);
     aux_con.CH10_flag = read_3pos_switch(CH_10);
@@ -163,6 +205,10 @@ void Copter::init_aux_switches()
     aux_con.CH12_flag = read_3pos_switch(CH_12);
 
     // initialise functions assigned to switches
+    //	added by ZhangYong 20171115
+    init_aux_switch_function(g.radio_tuning, aux_con.CH6_flag);
+	//	added end
+	
     init_aux_switch_function(g.ch7_option, aux_con.CH7_flag);
     init_aux_switch_function(g.ch8_option, aux_con.CH8_flag);
     init_aux_switch_function(g.ch10_option, aux_con.CH10_flag);
@@ -205,7 +251,8 @@ void Copter::init_aux_switch_function(int8_t ch_option, uint8_t ch_flag)
 void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
 {
 
-    switch(ch_function) {
+    switch(ch_function) 
+	{
         case AUXSW_FLIP:
             // flip if switch is on, positive throttle and we're actually flying
             if (ch_flag == AUX_SWITCH_HIGH) {
@@ -363,7 +410,15 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
 #if SPRAYER == ENABLED
             sprayer.run(ch_flag == AUX_SWITCH_HIGH);
             // if we are disarmed the pilot must want to test the pump
-            sprayer.test_pump((ch_flag == AUX_SWITCH_HIGH) && !motors->armed());
+            if(1 == sprayer.get_vpvs_enable())
+            {
+            	sprayer.test_pump((ch_flag == AUX_SWITCH_HIGH) && !motors->armed());
+            }
+			else
+			{
+				sprayer.test_pump(ch_flag == AUX_SWITCH_HIGH);
+			}
+            
 #endif
             break;
 
@@ -594,7 +649,42 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
                 break;
             }
             break;
-    #if CHARGINGSTATION == ENABLED			
+
+
+		case AUXSW_FS_PLD:
+			if (ch_flag == AUX_SWITCH_HIGH) 
+			{
+//				printf("AUXSW_FS_PLD ON\n");
+				set_failsafe_payload(FAILSAFE_PLD_TYPE_PMBUS, true);
+			}
+			else if(ch_flag == AUX_SWITCH_LOW)
+			{
+//				printf("AUXSW_FS_PLD OFF\n");
+				set_failsafe_payload(FAILSAFE_PLD_TYPE_PMBUS, false);
+			}
+			break;
+
+		case AUXSW_AUTO_HEIGHT:
+			if (ch_flag == AUX_SWITCH_HIGH) 
+			{
+				height_replace_switch = 1;
+				height_replace_alt = current_loc.alt;
+			
+				set_mode(AUTO, MODE_REASON_TX_COMMAND);
+			}
+			else if(ch_flag == AUX_SWITCH_LOW)
+			{
+				height_replace_switch = 0;
+				height_replace_alt = 0;
+			
+				if (control_mode == AUTO) 
+				{
+					reset_control_switch();
+				}
+			}
+			break;
+
+#if CHARGINGSTATION == ENABLED			
         //baiyang added in 20170414
         case AUXSW_FLIGHT:
             if (ch_flag == AUX_SWITCH_HIGH) 
@@ -620,11 +710,12 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
             		task.get_chargingStation().do_takeoff();
             break;
         //added end
-    #endif
+#endif
 
-	#if ABMODE == ENABLED
+#if ABMODE == ENABLED
 		case AUXSW_RECORD_AB:
-            switch (ch_flag) {
+            switch (ch_flag) 
+			{
 	            case AUX_SWITCH_HIGH:
 	                task.get_abmode().abmode_set_pos_b();
 	                break;
@@ -633,11 +724,12 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
 	                break;
             }
             break;
-	#endif
+#endif
 	
-	#if ABMODE == ENABLED
+#if ABMODE == ENABLED
 		case AUXSW_MODE_DIR_AB:
-            switch (ch_flag) {
+            switch (ch_flag) 
+			{
 	            case AUX_SWITCH_HIGH:
 	                set_mode(ABMODE_RF, MODE_REASON_TX_COMMAND);
 	                break;
@@ -646,23 +738,26 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
 	                break;
 	            }
             break;
-	#endif
+#endif
 	
-    #if ABMODE == ENABLED
+#if ABMODE == ENABLED
 		case AUXSW_DIR_AB:
-            switch (ch_flag) {
+            switch (ch_flag) 
+			{
 	            case AUX_SWITCH_HIGH:
 	                task.get_abmode().invert_direction(MANUAL,ISLIFT);
 	                break;
 	            case AUX_SWITCH_LOW:
 	                task.get_abmode().invert_direction(MANUAL,ISRIGHT);
 	                break;
-	            }
+	        }
             break;
-	#endif
-	#if ABMODE == ENABLED
+#endif
+
+#if ABMODE == ENABLED
 		case AUXSW_SET_ABMODE:
-            switch (ch_flag) {
+            switch (ch_flag) 
+			{
 	            case AUX_SWITCH_HIGH:
 	                set_mode(ABMODE_RF, MODE_REASON_TX_COMMAND);
 					break;
@@ -672,10 +767,11 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
                     	reset_control_switch();
                 	}
 	                break;
-	            }
+	        }
             break;
-	#endif
-
+#endif
+		default:
+			break;
     }
 }
 

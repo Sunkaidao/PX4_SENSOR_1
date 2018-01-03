@@ -40,7 +40,7 @@ AP_Proximity_LightWareSF40C::AP_Proximity_LightWareSF40C(AP_Proximity &_frontend
 // detect if a Lightware proximity sensor is connected by looking for a configured serial port
 bool AP_Proximity_LightWareSF40C::detect(AP_SerialManager &serial_manager)
 {
-    return serial_manager.find_serial(AP_SerialManager::SerialProtocol_Lidar360, 0) != nullptr;
+    return (serial_manager.find_serial(AP_SerialManager::SerialProtocol_Lidar360, 0) != nullptr);
 }
 
 // update the state of the sensor

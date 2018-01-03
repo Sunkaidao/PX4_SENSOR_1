@@ -106,6 +106,26 @@
 #if SPRAYER == ENABLED
 #include <AC_Sprayer/AC_Sprayer.h>         // crop sprayer library
 #endif
+
+#if FLOWMETER == ENABLED
+#include <AP_Flowmeter/AP_Flowmeter.h> 
+#endif
+
+#if BCBMONITOR == ENABLED
+#include <AC_BCBMonitor/AC_BCBMonitor.h> 
+#endif
+
+#if BCBPMBUS == ENABLED
+#include <AC_BCBPMBus/AC_BCBPMBus.h> 
+#endif
+
+//	added end
+#if PJTPASSOSD == ENABLED
+#include <AP_PassOSD/AP_PassOSD.h>
+#endif
+//	added end
+
+
 #if GRIPPER_ENABLED == ENABLED
 #include <AP_Gripper/AP_Gripper.h>             // gripper stuff
 #endif
@@ -150,6 +170,8 @@
 #endif
 //added end
 
+
+
 class Copter : public AP_HAL::HAL::Callbacks {
 public:
     friend class GCS_MAVLINK_Copter;
@@ -162,9 +184,11 @@ public:
     friend class AP_AdvancedFailsafe_Copter;
 #endif
     friend class AP_Arming_Copter;
-#if CHARGINGSTATION == ENABLED
+
+//#if CHARGINGSTATION == ENABLED
+	//baiyang added in 20170717
     friend class AP_ChargingStation;             // ArduPilot chargingStation library
-#endif
+//#endif
 #if RF_TASK == ENABLED
     friend class AP_Task;
 #endif
@@ -275,6 +299,12 @@ private:
 
     // GCS selection
     AP_SerialManager serial_manager;
+
+	//	added by ZhangYong 20170731 for flight time
+	uint32_t local_flight_time_sec = 0;
+	//	added end
+
+	
     GCS_Copter _gcs; // avoid using this; use gcs()
     GCS_Copter &gcs() { return _gcs; }
 
@@ -368,7 +398,13 @@ private:
         uint32_t last_heartbeat_ms;      // the time when the last HEARTBEAT message arrived from a GCS - used for triggering gcs failsafe
         uint32_t terrain_first_failure_ms;  // the first time terrain data access failed - used to calculate the duration of the failure
         uint32_t terrain_last_failure_ms;   // the most recent time terrain data access failed
-    } failsafe;
+
+		//	added by ZhangYong for GKXN flowmeter failsafe
+		uint8_t payload;
+		//	added end
+
+
+	} failsafe;
 
     // sensor health for logging
     struct {
@@ -434,6 +470,12 @@ private:
 
     // Circle
     bool circle_pilot_yaw_override; // true if pilot is overriding yaw
+
+	//	added by ZhangYong 20171220
+#if FXTX_AUTH == ENABLED
+	FAILSAFE_MARKER fs_mk;
+#endif
+	//	added end
 
     // SIMPLE Mode
     // Used to track the orientation of the copter for Simple mode. This value is reset at each arming
@@ -558,33 +600,39 @@ private:
     // Used to exit the roll and pitch auto trim function
     uint8_t auto_trim_counter;
 
-    //	added end by ZhangYong 20161109
-  #if FXTX_AUTH == ENABLED
-  	struct current_gps_week_ms curr_gps_week_ms;
-  
-  	char 	auth_msg[100];
-  
-  	char auth_id[AUTH_ID_LEN];
-  
-  //	union auth_id_para id_para;
-  
-  	auth_state auth_state_ms = auth_state_failed;
-  
-  
-  //	char test_reserved[50];
-  
-    //	added by ZhangYong 20170731
-  	/*
-  	edit_management.data.major_edition = 2;
-  	edit_management.data.project_edition = 2;
-  	edit_management.data.minor_edition = 3;
-  	edit_management.data.revision_edition = 4;
-  	edit_management.words = 0x403021
-  	*/
-  	Edition_management edit_management;
-  
-  #endif
-  
+
+	//	added end by ZhangYong 20161109
+#if FXTX_AUTH == ENABLED
+	struct current_gps_week_ms curr_gps_week_ms;
+
+	char 	auth_msg[100];
+
+	char auth_id[AUTH_ID_LEN];
+
+//	union auth_id_para id_para;
+
+	auth_state auth_state_ms = auth_state_failed;
+#endif
+
+
+//	char test_reserved[50];
+
+
+
+	//	added by ZhangYong 20170731
+	/*
+	edit_management.data.major_edition = 2;
+	edit_management.data.project_edition = 2;
+	edit_management.data.minor_edition = 3;
+	edit_management.data.revision_edition = 4;
+	edit_management.words = 0x403021
+	*/
+	
+	Edition_management edit_management;
+	//	added end
+
+
+
     // Reference to the relay object
     AP_Relay relay;
 
@@ -622,6 +670,13 @@ private:
     AC_Sprayer sprayer;
 #endif
 
+	//	added by ZhangYong 
+#if PJTPASSOSD == ENABLED
+	AP_PassOSD passosd;
+#endif
+	//	added end
+
+
     // Parachute release
 #if PARACHUTE == ENABLED
     AP_Parachute parachute;
@@ -640,6 +695,8 @@ private:
     AC_PrecLand precland;
 #endif
 
+
+
     // Pilot Input Management Library
     // Only used for Helicopter for AC3.3, to be expanded to include Multirotor
     // child class for AC3.4
@@ -647,21 +704,22 @@ private:
     AC_InputManager_Heli input_manager;
 #endif
 
-//baiyang added in 20170829
+	//baiyang added in 20170829
 #if RF_TASK == ENABLED
-    AP_Task task;
-    
-    // #if CHARGINGSTATION == ENABLED
-    //     AP_ChargingStation chargingStation;
-    // #endif
+	AP_Task task;
+		
+	// #if CHARGINGSTATION == ENABLED
+	//	   AP_ChargingStation chargingStation;
+	// #endif
 #endif
-//added end
-
-//baiyang added in 20170830
+	//added end
+	
+	//baiyang added in 20170830
 #if PTZ_CONTROL == ENABLED
-    AP_PtzControl PtzControl;
+	AP_PtzControl PtzControl;
 #endif
-//added end
+	//added end
+
 
     AP_ADSB adsb {ahrs};
 
@@ -677,14 +735,33 @@ private:
     // last valid RC input time
     uint32_t last_radio_update_ms;
 
-#if FXTX_AUTH == ENABLED
-    //	added by ZhangYong 20170407
-    uint32_t local_flight_time_sec = 0;
-    //	added end
+	//	added by ZhangYong 20171114
+	//	symbol for height replace in auto mode
+	uint8_t height_replace_switch;
+	//	height want to replace centimeter
+	int32_t height_replace_alt;
+	//	added end
+
+#if PROJECTGKXN == ENABLED
+	//	added by ZhangYong 20170407
+	
+	AP_Flowmeter flowmeter;
+	//	added end
 #endif
-    
+
+#if BCBMONITOR == ENABLED
+	AC_BCBMonitor bcbmonitor;
+#endif
+
+	
+
     // last esc calibration notification update
     uint32_t esc_calibration_notify_update_ms;
+
+	//	added by ZhangYong 20170915
+//	uint32_t duration_cnt;
+	//	added end
+
 
 #if VISUAL_ODOMETRY_ENABLED == ENABLED
     // last visual odometry update time
@@ -725,6 +802,14 @@ private:
     static const AP_Param::Info var_info[];
     static const struct LogStructure log_structure[];
 
+	//	added by ZhangYong 20171101
+	//	in order to save time when transmit mission_item in common mission plan
+	//	in order to not block the telemetry data when ABMission plan
+	//	0: common mission plan
+	//	1: ABMission plan
+	bool ABMission_switch;
+	//	added end
+
     void compass_accumulate(void);
     void compass_cal_update(void);
     void barometer_accumulate(void);
@@ -751,6 +836,10 @@ private:
     void set_auto_armed(bool b);
     void set_simple_mode(uint8_t b);
     void set_failsafe_radio(bool b);
+	//	added by ZhangYong 20170719 for payload failsafe
+	void set_failsafe_payload(FAILSAFE_PLD_TYPE failsafe_pyaload_type, bool b);
+  	bool get_failsafe_payload(FAILSAFE_PLD_TYPE failsafe_pyaload_type);
+	//	added end
     void set_failsafe_battery(bool b);
     void set_failsafe_gcs(bool b);
     void set_land_complete(bool b);
@@ -785,6 +874,8 @@ private:
     void send_simstate(mavlink_channel_t chan);
     void send_vfr_hud(mavlink_channel_t chan);
     void send_rpm(mavlink_channel_t chan);
+
+
     void rpm_update();
     void button_update();
     void init_proximity();
@@ -792,6 +883,12 @@ private:
     void stats_update();
     void init_beacon();
     void update_beacon();
+//	added by ZhangYong
+#if BCBPMBUS == ENABLE
+	void init_bcbpmbus();
+	void update_bcbpmbus();
+#endif	
+//	added end
     void init_visual_odom();
     void update_visual_odom();
     void send_pid_tuning(mavlink_channel_t chan);
@@ -799,6 +896,9 @@ private:
     void gcs_check_input(void);
     void Log_Write_AutoTune(uint8_t axis, uint8_t tune_step, float meas_target, float meas_min, float meas_max, float new_gain_rp, float new_gain_rd, float new_gain_sp, float new_ddt);
     void Log_Write_AutoTuneDetails(float angle_cd, float rate_cds);
+	//	added by ZhangYong 20170405
+	void Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_dist, uint8_t para_fm_warn, uint8_t para_pk_cnt);
+	//	added end
     void Log_Write_Current();
     void Log_Write_Optflow();
     void Log_Write_Nav_Tuning();
@@ -826,6 +926,14 @@ private:
     void Log_Write_Throw(ThrowModeStage stage, float velocity, float velocity_z, float accel, float ef_accel_z, bool throw_detect, bool attitude_ok, bool height_ok, bool position_ok);
     void Log_Write_Proximity();
     void Log_Write_Beacon();
+
+//	added by ZhangYong
+#if BCBPMBUS == ENABLED
+	void Log_Write_BCBPMBus(uint8_t msg_type);
+	void Log_Write_BCBPMBus_Components();
+#endif
+//	added end
+	
     void Log_Write_Vehicle_Startup_Messages();
     void load_parameters(void);
     void convert_pid_parameters(void);
@@ -1046,6 +1154,10 @@ private:
     void failsafe_radio_on_event();
     void failsafe_radio_off_event();
     void failsafe_battery_event(void);
+	//	added by ZhangYong 20170406
+	void failsafe_payload_on_event(void);
+	void failsafe_payload_off_event(void);
+	//	added end
     void failsafe_gcs_check();
     void failsafe_gcs_off_event(void);
     void failsafe_terrain_check();
@@ -1146,6 +1258,9 @@ private:
     void read_control_switch();
     bool check_if_auxsw_mode_used(uint8_t auxsw_mode_check);
     bool check_duplicate_auxsw(void);
+	//	added by ZhangYong 20171220
+	uint8_t readSwitch();
+	//	added end
     void reset_control_switch();
     uint8_t read_3pos_switch(uint8_t chan);
     void read_aux_switches();
@@ -1169,13 +1284,11 @@ private:
     const char* get_frame_string();
     bool current_mode_has_user_takeoff(bool must_navigate);
     bool do_user_takeoff(float takeoff_alt_cm, bool must_navigate);
-
-    //baiyang added in 20170809
+	//baiyang added in 20170809
     #if CHARGINGSTATION == ENABLED
     bool do_user_takeoff_rof(float takeoff_alt_cm, bool must_navigate);
     #endif
     //added end
-    
     void takeoff_timer_start(float alt_cm);
     void takeoff_stop();
     void takeoff_get_climb_rates(float& pilot_climb_rate, float& takeoff_climb_rate);
@@ -1186,12 +1299,12 @@ private:
     bool verify_command_callback(const AP_Mission::Mission_Command& cmd);
 
     Location_Class terrain_adjusted_location(const AP_Mission::Mission_Command& cmd) const;
-
-	//baiyang added in 20171027
+		//baiyang added in 20171027
 #if ABMODE == ENABLED
 	bool do_abmode(const AP_Mission::Mission_Command& cmd);
 #endif
 	//added end
+
     bool do_guided(const AP_Mission::Mission_Command& cmd);
     void do_takeoff(const AP_Mission::Mission_Command& cmd);
     void do_nav_wp(const AP_Mission::Mission_Command& cmd);
@@ -1222,6 +1335,12 @@ private:
 #if GRIPPER_ENABLED == ENABLED
     void do_gripper(const AP_Mission::Mission_Command& cmd);
 #endif
+	//	added by ZhangYong 20151008
+#if SPRAYER == ENABLED
+	void do_sprayer(const AP_Mission::Mission_Command& cmd);
+#endif
+		//	added end
+
     bool verify_nav_wp(const AP_Mission::Mission_Command& cmd);
     bool verify_circle(const AP_Mission::Mission_Command& cmd);
     bool verify_spline_wp(const AP_Mission::Mission_Command& cmd);
@@ -1236,15 +1355,16 @@ private:
     void dataflash_periodic(void);
     void accel_cal_update(void);
 
-    #if RF_FENCE == ENABLED
+	#if RF_FENCE == ENABLED
       //baiyang added in 20170717
     	bool get_ralative_postion(float *x, float *y, int32_t para_lat, int32_t para_lng);
       //added end
     #endif
-    
+
 public:
     void mavlink_delay_cb();
     void failsafe_check();
+	AP_SerialManager *get_serial_manager() {return &serial_manager;};
 };
 
 extern const AP_HAL::HAL& hal;

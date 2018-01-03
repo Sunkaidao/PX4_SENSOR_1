@@ -51,6 +51,13 @@ public:
     /* clear_overrides: equivalent to setting all overrides to 0 */
     virtual void clear_overrides() = 0;
 
+
+	//	added by ZhangYong to debug pad GCS in order to minitor the rc thr channal in GCS mode
+	virtual bool get_override_valid()  = 0; 
+	virtual bool get_rc_valid() = 0;
+	virtual uint16_t get_rc_rc3_radio_in() = 0;
+	//	added end
+
     /* execute receiver bind */
     virtual bool rc_bind(int dsmMode) { return false; }
 };

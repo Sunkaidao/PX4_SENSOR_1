@@ -11,18 +11,87 @@ void Copter::failsafe_radio_on_event()
         return;
     }
 
-    if (should_disarm_on_failsafe()) {
+    if (should_disarm_on_failsafe()) 
+	{
         init_disarm_motors();
-    } else {
-        if (control_mode == AUTO && g.failsafe_throttle == FS_THR_ENABLED_CONTINUE_MISSION) {
+		
+    } 
+	else 
+	{
+        if (control_mode == AUTO && g.failsafe_throttle == FS_THR_ENABLED_CONTINUE_MISSION) 
+		{
+		
             // continue mission
-        } else if (control_mode == LAND && g.failsafe_battery_enabled == FS_BATT_LAND && failsafe.battery) {
+    	} 
+		else if (control_mode == LAND && g.failsafe_battery_enabled == FS_BATT_LAND && failsafe.battery) 
+		{
+			
             // continue landing
-        } else {
-            if (g.failsafe_throttle == FS_THR_ENABLED_ALWAYS_LAND) {
+        } 
+		else 
+        {
+            if (g.failsafe_throttle == FS_THR_ENABLED_ALWAYS_LAND) 
+			{
                 set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
-            } else {
-                set_mode_RTL_or_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
+			
+            } 
+			else if(FS_THR_ENABLED_ALWAYS_RTL == g.failsafe_throttle)
+			{
+				set_mode_RTL_or_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
+			}
+			else
+            {
+            	
+            	//	modified by ZhangYong 20171212
+            	switch(control_mode)
+				{
+					case STABILIZE:
+        			case ACRO:
+						
+            			set_mode_RTL_or_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
+           				
+						
+						break;
+
+					case AUTO:
+						
+					
+						if(g.failsafe_throttle == FS_THR_ENABLED_CONTINUE_MISSION)
+           				{
+           				
+						}
+						else if(FS_THR_ENABLED_ALWAYS_RTL == g.failsafe_throttle)
+						{
+							
+						
+							if(false == set_mode(GUIDED, MODE_REASON_RADIO_FAILSAFE))
+            				{
+            					set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
+           					}							
+						}
+						
+						break;
+
+					default:
+						if(g.failsafe_throttle == FS_THR_ENABLED_CONTINUE_MISSION)
+           				{
+           			
+							
+           					if(false == set_mode(GUIDED, MODE_REASON_RADIO_FAILSAFE))
+            				{
+            			
+            					set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
+           					}						
+						}
+						else
+						{
+							
+							set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
+						}
+						break;
+            	}
+				//	modified end
+                //set_mode_RTL_or_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
             }
         }
     }
@@ -71,9 +140,221 @@ void Copter::failsafe_battery_event(void)
 
 }
 
+
+//	added by ZhangYong for payload failsafe 20160918
+/**/
+void Copter::failsafe_payload_on_event(void)
+{
+	//	added by ZhangYong 20170214
+	//	added end
+
+//	printf("failsafe_payload_on_event, 0x%d\n", failsafe.payload);
+
+    // return immediately if low battery event has already been triggered
+//    if (failsafe.payload) 
+//	{
+//        return;
+//    }
+/*	printf("failsafe_payload_on_event, 0x%x, 0x%x, 0x%x\n", \
+											g.failsafe_pld_type, \
+											g.failsafe_pld_action, \
+											motors.armed());
+*/	
+
+    // failsafe check
+    if (\
+			(\
+				((g.failsafe_pld_type & FS_PLD_FM_BIT) != FS_PLD_NONE) || \
+				((g.failsafe_pld_type & FS_PLD_PMBUS_BIT) != FS_PLD_NONE) \
+			) && \
+			(g.failsafe_pld_action != FS_PLD_DISABLE) && \
+			(motors->armed()) \
+		) 
+	{
+        switch(control_mode) 
+		{
+            case STABILIZE:
+            case ACRO:
+                // if throttle is zero OR vehicle is landed disarm motors
+                if (should_disarm_on_failsafe()) 
+				{
+                    init_disarm_motors();
+                }
+				else
+				{
+                    // set mode to RTL or LAND
+                    if (g.failsafe_pld_action == FS_PLD_ENABLED_ALWAYS_RTL) 
+					{
+//						printf("0x%x %4.6f\n", home_distance, wp_nav.get_wp_radius());
+						//	modified by ZhangYong 20170214
+//						reenter_mode = true;
+//						return_to_fixorg = false;
+//						rtl_last_state = Land;
+						
+            			set_mode_RTL_or_land_with_pause(MODE_REASON_PAYLOAD_FAILSAFE);
+                    }
+					else
+					{
+                        set_mode_land_with_pause(MODE_REASON_PAYLOAD_FAILSAFE);
+                    }
+                }
+                break;
+            case AUTO:	
+				if (should_disarm_on_failsafe()) 
+				{
+                    init_disarm_motors();
+	            } 
+				else
+                {
+					switch(g.failsafe_pld_action)
+					{
+						case FS_PLD_ENABLED_ALWAYS_LAND:
+						case FS_PLD_ENABLED_ALWAYS_RTL:
+							
+							//	modified by ZhangYong 20170214
+//							reenter_mode = true;
+//							return_to_fixorg = false;
+//							rtl_last_state = Land;
+								
+            				set_mode_RTL_or_land_with_pause(MODE_REASON_PAYLOAD_FAILSAFE);
+                		
+							break;
+							
+/*							case FS_PLD_PREDEFINED_ROUTING_RTL:
+								
+								//printf("Predefined routing Battery RTL\n");
+						if (home_distance > wp_nav.get_wp_radius()) 
+							{
+								if(0 == (uint16_t)g.failsafe_prrtl_wpnum)
+								{
+									//	modified by ZhangYong 20170214
+//									reenter_mode = true;
+//									return_to_fixorg = false;
+//									rtl_last_state = Land;
+									
+            						return_value = set_mode(RTL);
+									//	modified end
+								
+						
+			if (!return_value) 
+									{
+                       					set_mode_land_with_pause();
+                    				}
+								}
+								else
+								{
+                    				if (!mission.set_current_cmd((uint16_t)g.failsafe_prrtl_wpnum)) 
+									{
+										//	modified by ZhangYong 20170214
+										reenter_mode = true;
+										return_to_fixorg = false;
+										rtl_last_state = Land;
+										
+            							return_value = set_mode(RTL);
+										//	modified end
+									
+                       					if (!return_value) 
+										{
+                       						set_mode_land_with_pause();
+                    					}
+                    				}
+								}	
+                			}
+							else
+							{
+                    			// We are very close to home so we will land
+                    			set_mode_land_with_pause();
+                			}	
+							break;
+
+						case FS_PLD_REVERSE_ROUTING_RTL:
+							//	printf("Reverse routing Battery RTL\n");
+							if (home_distance > wp_nav.get_wp_radius()) 
+							{
+                   		 		mission.set_inverted_waypoint(true);						
+                			}
+							else
+							{
+                    			// We are very close to home so we will land
+                    			set_mode_land_with_pause();
+                			}
+							break;
+*/
+						default:
+							break;
+						
+					}
+				}
+                break;
+            default:
+            	//	added by ZhangYong
+            	//printf("ap.land_complete %d\n", ap.land_complete);
+				//printf("home_distance %d\n", home_distance);
+            	
+              	if (should_disarm_on_failsafe()) 
+				{
+                    init_disarm_motors();
+
+                // set mode to RTL or LAND
+                }
+				else 
+				{
+					switch(g.failsafe_pld_action)
+					{
+						case FS_PLD_ENABLED_ALWAYS_LAND:
+						case FS_PLD_ENABLED_ALWAYS_RTL:
+							
+							//	modified by ZhangYong 20170214
+//							reenter_mode = true;
+//							return_to_fixorg = false;
+//							rtl_last_state = Land;
+
+							set_mode_RTL_or_land_with_pause(MODE_REASON_PAYLOAD_FAILSAFE);
+								
+            				
+							break;
+						default:
+							break;
+						
+					}
+				}
+				break;
+		}
+    }
+    
+
+    // warn the ground station and log to dataflash
+    gcs().send_text(MAV_SEVERITY_CRITICAL, "payload emergency!");
+    
+    Log_Write_Error(ERROR_SUBSYSTEM_FAILSAFE_PLD, ERROR_CODE_FAILSAFE_OCCURRED);
+/*
+//    printf("failsafe_payload_on_event, 0x%x, 0x%x\n", \
+//										ERROR_SUBSYSTEM_FAILSAFE_PLD, \
+//										ERROR_CODE_FAILSAFE_OCCURRED);
+*/
+
+}
+
+
+
+void Copter::failsafe_payload_off_event(void)
+{
+	Log_Write_Error(ERROR_SUBSYSTEM_FAILSAFE_PLD, ERROR_CODE_FAILSAFE_RESOLVED);
+
+/*	printf("failsafe_payload_off_event, 0x%x, 0x%x\n", \
+										ERROR_SUBSYSTEM_FAILSAFE_PLD, \
+										ERROR_CODE_FAILSAFE_RESOLVED);
+*/}
+
+//	added end
+
+
 // failsafe_gcs_check - check for ground station failsafe
 void Copter::failsafe_gcs_check()
 {
+	//	added by ZhangYong 20171212
+	bool return_value;
+    //	added end
     uint32_t last_gcs_update_ms;
 
     // return immediately if gcs failsafe is disabled, gcs has never been connected or we are not overriding rc controls from the gcs and we are not in guided mode
@@ -109,15 +390,118 @@ void Copter::failsafe_gcs_check()
     // clear overrides so that RC control can be regained with radio.
     hal.rcin->clear_overrides();
     failsafe.rc_override_active = false;
+//	printf("failsafe_gcs_check false\n");
+
+	//	added by ZhangYong to pull the throttle to bottom, and reset roll, pitch, and yaw to trim;
+	channel_roll->set_pwm(channel_roll->get_radio_trim());
+	channel_pitch->set_pwm(channel_pitch->get_radio_trim());
+	channel_throttle->set_pwm(channel_throttle->get_radio_min());
+	channel_yaw->set_pwm(channel_yaw->get_radio_trim());
+	
+	if((STABILIZE == control_mode) || (ACRO == control_mode) || (SPORT == control_mode))
+    {
+    	
+    	channel_throttle->set_control_in(0);
+		channel_throttle->set_radio_in(0);
+	}
+	else
+	{
+		if(FS_GCS_ENABLED_LOITER != g.failsafe_gcs)
+		{
+			
+			channel_throttle->set_control_in(0);
+			channel_throttle->set_radio_in(0);
+		}
+	}
+	//	added end
+	
+//	g2.rc_channels
 
     if (should_disarm_on_failsafe()) {
         init_disarm_motors();
+
     } else {
-        if (control_mode == AUTO && g.failsafe_gcs == FS_GCS_ENABLED_CONTINUE_MISSION) {
+    	//	modified by ZhangYong 20171212 to loiter the copter when gcs control signal lose
+        /*if (control_mode == AUTO && g.failsafe_gcs == FS_GCS_ENABLED_CONTINUE_MISSION) {
             // continue mission
         } else if (g.failsafe_gcs != FS_GCS_DISABLED) {
             set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
         }
+        */
+        switch(control_mode)
+        {
+        	case STABILIZE:
+        	case ACRO:
+        	case SPORT:
+				set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
+				break;
+
+			case AUTO:
+				/*
+				enum FS_GCSSrategy
+			//	{
+			//		FS_GCSDisable = 0,
+			//		FS_GCSRTL = 1,
+			//		FS_GCSConAuto = 2,
+			//		FS_GCSLoiter = 4,
+			//		FS_GCSPreRTL = 5,
+			//		FS_GCSRevRTL = 6
+			//	};
+				*/
+	
+				switch(g.failsafe_gcs)
+				{
+					case FS_GCS_DISABLED:
+					case FS_GCS_ENABLED_CONTINUE_MISSION:
+					
+
+						break;
+
+					case FS_GCS_ENABLED_ALWAYS_RTL:
+						set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
+
+						break;
+
+/*					case FS_GCS_ENABLED_LOITER:
+						return_value = set_mode(LOITER, MODE_REASON_GCS_FAILSAFE);
+						printf("LOITER %d\n", return_value);							
+                		if (!return_value) 
+                		{
+                			set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
+                		}
+						break;
+*/
+					default:
+	
+						set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
+						break;
+				}
+				
+				break;	//	AUTO
+				
+			default:
+
+				switch(g.failsafe_gcs)
+				{
+					case FS_GCS_ENABLED_CONTINUE_MISSION:
+					//	if(copter.ap.rc_receiver_present && channel_throttle->get_control_in())
+						return_value = set_mode(GUIDED, MODE_REASON_GCS_FAILSAFE);
+						
+                		if (!return_value) 
+                		{
+                			set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
+                		}
+						break;
+
+					default:
+	
+						set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
+						break;
+				}	
+				break;
+				
+        }
+        
     }
 }
 
@@ -219,7 +603,10 @@ void Copter::set_mode_RTL_or_land_with_pause(mode_reason_t reason)
 }
 
 bool Copter::should_disarm_on_failsafe() {
-    if (ap.in_arming_delay) {
+//	printf("should_disarm_on_failsafe delay %d, zero %d, complete %d\n", 
+//			ap.in_arming_delay, ap.throttle_zero, ap.land_complete);
+
+	if (ap.in_arming_delay) {
         return true;
     }
 

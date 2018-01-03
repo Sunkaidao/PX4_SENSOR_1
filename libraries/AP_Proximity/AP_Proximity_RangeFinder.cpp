@@ -33,10 +33,16 @@ void AP_Proximity_RangeFinder::update(void)
 {
     // exit immediately if no rangefinder object
     const RangeFinder *rngfnd = frontend.get_rangefinder();
+
     if (rngfnd == nullptr) {
-        set_status(AP_Proximity::Proximity_NoData);
+		//	added by ZhangYong 20170919
+//    	printf("AP_Proximity_RangeFinder::update rngfnd null\n");
+		//	added end
+		set_status(AP_Proximity::Proximity_NoData);
         return;
     }
+
+//	printf("AP_Proximity_RangeFinder::update rngfnd ok\n");
 
     // look through all rangefinders
     for (uint8_t i=0; i<rngfnd->num_sensors(); i++) {
@@ -55,6 +61,8 @@ void AP_Proximity_RangeFinder::update(void)
                 _distance_valid[sector] = (_distance[sector] >= _distance_min) && (_distance[sector] <= _distance_max);
                 _last_update_ms = AP_HAL::millis();
                 update_boundary_for_sector(sector);
+
+//				printf("AP_Proximity_RangeFinder::update %4.2f\n", _distance[sector]);	
             }
             // check upward facing range finder
             if (sensor->orientation() == ROTATION_PITCH_90) {
@@ -65,16 +73,23 @@ void AP_Proximity_RangeFinder::update(void)
     }
 
     // check for timeout and set health status
-    if ((_last_update_ms == 0) || (AP_HAL::millis() - _last_update_ms > PROXIMITY_RANGEFIDER_TIMEOUT_MS)) {
+    if ((_last_update_ms == 0) || (AP_HAL::millis() - _last_update_ms > PROXIMITY_RANGEFIDER_TIMEOUT_MS)) 
+	{
         set_status(AP_Proximity::Proximity_NoData);
-    } else {
+    } 
+	else 
+	{
         set_status(AP_Proximity::Proximity_Good);
     }
+
+//	printf("AP_Proximity_RangeFinder::update %d\n", state.status);
 }
 
 // get distance upwards in meters. returns true on success
 bool AP_Proximity_RangeFinder::get_upward_distance(float &distance) const
 {
+//	printf("AP_Proximity_RangeFinder::get_upward_distance %d\n", _distance_upward);
+
     if ((_last_upward_update_ms != 0) && (AP_HAL::millis() - _last_upward_update_ms <= PROXIMITY_RANGEFIDER_TIMEOUT_MS)) {
         distance = _distance_upward;
         return true;

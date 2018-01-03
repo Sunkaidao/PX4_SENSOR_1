@@ -42,7 +42,7 @@ AP_RangeFinder_LightWareSerial::AP_RangeFinder_LightWareSerial(RangeFinder::Rang
 */
 bool AP_RangeFinder_LightWareSerial::detect(AP_SerialManager &serial_manager)
 {
-    return serial_manager.find_serial(AP_SerialManager::SerialProtocol_Lidar, 0) != nullptr;
+    return (serial_manager.find_serial(AP_SerialManager::SerialProtocol_Lidar, 0) != nullptr);
 }
 
 // read - return last value measured by sensor

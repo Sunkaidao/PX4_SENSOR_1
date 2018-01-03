@@ -326,6 +326,11 @@ protected:
     // Angle limit time constant (to maintain altitude)
     AP_Float            _angle_limit_tc;
 
+	//	added by ZhangYong 20170721 for parameter minor adjustment
+	AP_Float			_stb_pit_p;
+	AP_Float			_stb_rll_p;
+	//	added end
+
     // Intersampling period in seconds
     float               _dt;
 

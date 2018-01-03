@@ -31,6 +31,12 @@ public:
 
     bool rc_bind(int dsmMode) override;
 
+	//	added by ZhangYong 20171222 in order to monitor the rc thr channel in GCS mode
+	bool get_override_valid() {return _override_valid;};
+	bool get_rc_valid() {return rc_valid;};
+	uint16_t get_rc_rc3_radio_in();
+	
+
 private:
     /* override state */
     uint16_t _override[RC_INPUT_MAX_CHANNELS];
@@ -40,8 +46,15 @@ private:
     bool _override_valid;
     perf_counter_t _perf_rcin;
     pthread_mutex_t rcin_mutex;
+
+	//	added by Zhangyong 20171222 in order to monitor the rc thr channel when in gcs control mode
+	uint16_t rc_rc3_radio_in;
+	bool rc_valid;
+	//	added end
+
     int16_t _rssi = -1;
 
     uint8_t last_input_source = input_rc_s::RC_INPUT_SOURCE_UNKNOWN;
     const char *input_source_name(uint8_t id) const;
+
 };

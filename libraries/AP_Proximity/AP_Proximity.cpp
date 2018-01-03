@@ -206,13 +206,16 @@ void AP_Proximity::init(void)
 void AP_Proximity::update(void)
 {
     for (uint8_t i=0; i<num_instances; i++) {
-        if (drivers[i] != nullptr) {
-            if (_type[i] == Proximity_Type_None) {
-                // allow user to disable a proximity sensor at runtime
-                state[i].status = Proximity_NotConnected;
-                continue;
-            }
-            drivers[i]->update();
+        if (drivers[i] != nullptr) 
+		{
+           	if (_type[i] == Proximity_Type_None) 
+			{
+               	// allow user to disable a proximity sensor at runtime
+               	state[i].status = Proximity_NotConnected;
+               	continue;
+           	}
+//			printf("AP_Proximity::update\n");
+           	drivers[i]->update();
         }
     }
 

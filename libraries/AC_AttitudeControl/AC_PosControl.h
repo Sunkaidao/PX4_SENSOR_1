@@ -382,8 +382,13 @@ protected:
     AC_P&       _p_pos_xy;
     AC_PI_2D&   _pi_vel_xy;
 
+
     // parameters
     AP_Float    _accel_xy_filt_hz;      // XY acceleration filter cutoff frequency
+
+	//	added by ZhangYong 20170721
+	AP_Float	_thr_accel_p;
+	//	added end
 
     // internal variables
     float       _dt;                    // time difference (in seconds) between calls from the main program

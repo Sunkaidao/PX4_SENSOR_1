@@ -34,6 +34,8 @@ bool AP_Arming_Copter::all_checks_passing(bool arming_from_gcs)
         return false;
     }
 
+	//printf("AP_Arming_Copter all_checks_passing\n");
+
     return copter.ap.pre_arm_check && arm_checks(true, arming_from_gcs);
 }
 
@@ -42,12 +44,16 @@ bool AP_Arming_Copter::all_checks_passing(bool arming_from_gcs)
 // NOTE: this does *NOT* call AP_Arming::pre_arm_checks() yet!
 bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
 {
+
+
+
   
 //#if FXTX_AUTH == ENABLED
     //	added by Zhangyong to inform the mission palnner
 	bool return_value;
 	//	added end
 //#endif
+
 
     // exit immediately if already armed
     if (copter.motors->armed()) {
@@ -74,15 +80,16 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
         return false;
     }
 
-    // // exit immediately if we've already successfully performed the pre-arm check
-    // if (copter.ap.pre_arm_check) {
-    //     // run gps checks because results may change and affect LED colour
-    //     // no need to display failures because arm_checks will do that if the pilot tries to arm
-    //     gps_checks(false);
-    //     return true;
-    // }
 
-    //baiyang modified in 20170705
+    // exit immediately if we've already successfully performed the pre-arm check
+    if (copter.ap.pre_arm_check) {
+        // run gps checks because results may change and affect LED colour
+        // no need to display failures because arm_checks will do that if the pilot tries to arm
+        gps_checks(false);
+        return true;
+    }
+
+	//baiyang modified in 20170705
     #if CHARGINGSTATION== ENABLED
     		// exit immediately if we've already successfully performed the pre-arm check
     		if (copter.ap.pre_arm_check) {
@@ -107,30 +114,26 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
     #endif
     //modified end
 
-    #if FXTX_AUTH == 1
-        //	added by Zhangyong for license
-    	if(auth_state_denied == copter.auth_state_ms)
-        {
-        	set_pre_arm_check(false);
-        	gcs().send_text(MAV_SEVERITY_CRITICAL, "PreArm: license expired!\n");
-        	return false;
-        }
-        //	added end
-    #endif	
+ 
   
+
     // succeed if pre arm checks are disabled
     if (checks_to_perform == ARMING_CHECK_NONE) {
         set_pre_arm_check(true);
         set_pre_arm_rc_check(true);
-// #if FXTX_AUTH == ENABLED
-        //	added by ZhangYong 20170406  to inform the mission palnner
-        gcs().send_text(MAV_SEVERITY_CRITICAL, "PreArm: succeed");
-        //	added end
-// #endif
+
+		//	added by ZhangYong 20170406  to inform the mission palnner
+		gcs().send_text(MAV_SEVERITY_CRITICAL, "PreArm: succeed");
+		//	added end
+
+		
         return true;
     }
 
-    return_value = barometer_checks(display_failure)
+	//	modified by ZhangYong to inform the mission palnner
+	//	if gcs mode without rc radio
+	/*
+    return barometer_checks(display_failure)
         & rc_calibration_checks(display_failure)
         & compass_checks(display_failure)
         & gps_checks(display_failure)
@@ -140,39 +143,75 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
         & logging_checks(display_failure)
         & parameter_checks(display_failure)
         & motor_checks(display_failure)
-        & pilot_throttle_checks(display_failure)
+        & pilot_throttle_checks(display_failure);*/
+
+
+	
+	/*else
+	{
+		printf("pre_arm_checks %d\n", return_value);
+	}*/
+
+
+	//	added by ZhangYong 20160907
+#if FXTX_AUTH == ENABLED	
+#if PROJECTGKXN == ENABLED
+
+	if((checks_to_perform == ARMING_CHECK_ALL) || (checks_to_perform == (~ARMING_CHECK_INS)))
+	{
+		if((copter.g.flight_time_hour_shold > 0)&&(copter.g.flight_time_hour >= copter.g.flight_time_hour_shold))
+		{
+			if (display_failure) 
+			{
+   	             gcs().send_text(MAV_SEVERITY_CRITICAL, "PreArm: Flight time exceed");
+   	     	}
+   	     	return false;
+		}
+	}
+	//	added end
+
+	//	added by ZhangYong 20170815
+
+
+	if(true == copter.fs_mk.control_present)
+	{
+		if(true == copter.fs_mk.not_consist)
+		{
+			gcs().send_text(MAV_SEVERITY_CRITICAL, "remote control error, reset system");
+		
+			return false;
+		}
+	}
+#endif
+#endif
+//	added end
+
+
+	return_value =  barometer_checks(display_failure)
+        & rc_calibration_checks(display_failure)
+        & compass_checks(display_failure)
+        & gps_checks(display_failure)
+        & fence_checks(display_failure)
+        & ins_checks(display_failure)
+        & board_voltage_checks(display_failure)
+        & logging_checks(display_failure)
+        & parameter_checks(display_failure)
+        & motor_checks(display_failure)
+        & ( \
+        	((!copter.ap.rc_receiver_present) && (!pilot_throttle_checks(display_failure))) || \
+        	((copter.ap.rc_receiver_present) && (pilot_throttle_checks(display_failure)))\
+          )
 #if CHARGINGSTATION == ENABLED
         & chargingStation_checks(display_failure)
 #endif
-        ;
-        
-    // #if FXTX_AUTH == ENABLED
-    // baiyang added in 20170831
-    if(return_value){
-    	gcs().send_text(MAV_SEVERITY_CRITICAL, "PreArm: succeed");
-    }
-    // added end
-    // #endif
-    
-#if FXTX_AUTH == ENABLED
+		;
 
-	  //	added by ZhangYong 20160907
-  	if((checks_to_perform == ARMING_CHECK_ALL) || (checks_to_perform == (~ARMING_CHECK_INS)))
-  	{
-  		if((copter.g.flight_time_hour_shold > 0)&&(copter.g.flight_time_hour >= copter.g.flight_time_hour_shold))
-  		{
-  			if (display_failure) 
-  			{
-  				 gcs().send_text(MAV_SEVERITY_CRITICAL, "PreArm: Flight time exceed");
-  			}
-  			return false;
-  		}
-  	}
-	  //	added end
-#endif
-  
-    return return_value;
-
+	if(return_value)
+	{
+		gcs().send_text(MAV_SEVERITY_CRITICAL, "PreArm: succeed");
+	}
+	
+	return return_value;
 }
 
 bool AP_Arming_Copter::rc_calibration_checks(bool display_failure)
@@ -455,10 +494,15 @@ bool AP_Arming_Copter::gps_checks(bool display_failure)
         return true;
     }
 
+	//printf("mode_requires_gps %d fence_requires_gps %d\n", mode_requires_gps, fence_requires_gps);
+
     // ensure GPS is ok
-    if (!copter.position_ok()) {
-        if (display_failure) {
+    if (!copter.position_ok()) 
+	{
+        if (display_failure) 
+		{
             const char *reason = ahrs.prearm_failure_reason();
+
             if (reason) {
                 gcs().send_text(MAV_SEVERITY_CRITICAL, "PreArm: %s", reason);
             } else {
@@ -872,6 +916,111 @@ bool AP_Arming_Copter::arm_checks(bool display_failure, bool arming_from_gcs)
             }
         }
     }
+
+
+	//	added by ZhangYong 20171220
+#if FXTX_AUTH == ENABLED
+
+	//printf("111arm_checks %d %d %d\n", fs_mk.control_present, fs_mk.not_consist, fs_mk.gcs_control);
+//	printf("arming_from_gcs %d gcs_control %d\n", arming_from_gcs, copter.fs_mk.gcs_control);
+
+	if(ARM_SOURCE_RC == arming_from_gcs)
+	{
+		if(0 == copter.g.failsafe_throttle)
+		{
+			gcs().send_text(MAV_SEVERITY_CRITICAL, "RC control, failsafe RC should be set");
+
+			return false;
+		}
+	}
+
+
+	if(1 == copter.fs_mk.gcs_control)
+	{
+		if(0 == copter.g.failsafe_gcs)
+		{
+			gcs().send_text(MAV_SEVERITY_CRITICAL, "GCS control, failsafe GCS should be set");
+		
+
+			return false;
+		}
+
+		
+
+		if(copter.ap.rc_receiver_present)
+		{
+			if(0 == copter.g.failsafe_throttle)
+			{
+				gcs().send_text(MAV_SEVERITY_CRITICAL, "GCS control, failsafe RC should also be set");
+
+				return false;
+			}
+			
+			if(LOITER != copter.flight_modes[copter.readSwitch()])
+			{
+			
+				gcs().send_text(MAV_SEVERITY_CRITICAL, "GCS control, set radio control switch to LOITER");
+
+//				printf("GCS control, set radio control switch to LOITER");
+
+				return false;
+			}
+		
+//			printf("arm_checks %d\n", g.rc_3.rc_control_in);
+			
+
+/*			printf("radio %d, control in %d, rate %4.2f\n", copter.failsafe.radio, \
+//										copter.channel_throttle->get_control_in(), \
+//										copter.get_pilot_desired_climb_rate(copter.channel_throttle->get_rc_control_in()));
+*/			
+			if(\
+				(!copter.failsafe.radio) && \
+				(0 != abs(copter.get_pilot_desired_climb_rate(copter.channel_throttle->get_rc_control_in())))\
+			)
+			{
+				gcs().send_text(MAV_SEVERITY_CRITICAL, "GCS control, RC rc3 should be middle");
+
+//				printf("GCS control, RC rc3 should be middle %d\n", g.rc_3.rc_control_in);
+				return false;
+			}
+
+			
+		}
+	}
+	
+
+
+	if(true == copter.fs_mk.control_present)
+	{
+		if(true == copter.fs_mk.not_consist)
+		{
+			gcs().send_text(MAV_SEVERITY_CRITICAL, "remote control error, reset system");
+		
+			return false;
+		}
+
+		if(1 == copter.fs_mk.gcs_control)
+		{
+			if(ARM_SOURCE_RC == arming_from_gcs)
+			{
+				
+				gcs().send_text(MAV_SEVERITY_CRITICAL, "GCS control, RC arming not allowed");
+
+				return false;
+			}
+
+			//	in this case, pilot will use gcs to control the uav, not use rc to save the uav
+
+			
+		}
+	}
+	/*
+	there is no gcs control information upcoming, there is no gcs connecting,
+	so this must be a radio control version
+	*/
+
+#endif
+	//	added end
 
     // check if safety switch has been pushed
     if (hal.util->safety_switch_state() == AP_HAL::Util::SAFETY_DISARMED) {

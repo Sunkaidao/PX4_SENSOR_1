@@ -20,13 +20,28 @@
 #include <AP_Math/AP_Math.h>
 #include <SRV_Channel/SRV_Channel.h>
 #include <AP_InertialNav/AP_InertialNav.h>     // Inertial Navigation library
+//	added by ZhangYong 20170717
+//#include <../././ArduCopter/defines.h>
+
+
+//	added end
 
 #define AC_SPRAYER_DEFAULT_PUMP_RATE        10.0f   ///< default quantity of spray per meter travelled
 #define AC_SPRAYER_DEFAULT_PUMP_MIN         0       ///< default minimum pump speed expressed as a percentage from 0 to 100
 #define AC_SPRAYER_DEFAULT_SPINNER_PWM      1300    ///< default speed of spinner (higher means spray is throw further horizontally
 #define AC_SPRAYER_DEFAULT_SPEED_MIN        100     ///< we must be travelling at least 1m/s to begin spraying
 #define AC_SPRAYER_DEFAULT_TURN_ON_DELAY    100     ///< delay between when we reach the minimum speed and we begin spraying.  This reduces the likelihood of constantly turning on/off the pump
-#define AC_SPRAYER_DEFAULT_SHUT_OFF_DELAY   1000    ///< shut-off delay in milli seconds.  This reduces the likelihood of constantly turning on/off the pump
+
+//	modified by ZhangYong to meet custom demand 20170717
+//#define AC_SPRAYER_DEFAULT_SHUT_OFF_DELAY   1000    ///< shut-off delay in milli seconds.  This reduces the likelihood of constantly turning on/off the pump
+#define AC_SPRAYER_DEFAULT_SHUT_OFF_DELAY   300    ///< shut-off delay in milli seconds.  This reduces the likelihood of constantly turning on/off the pump
+//	modified end
+
+
+#define AC_SPRAYER_DEFAULT_SPEED_OFF_MAX    120     // we must be travelling at least 1m/s to begin spraying
+#define AC_SPRAYER_DEFAULT_UNSPRAY_DISTANCE	550
+#define AC_SPRAYER_DEFAULT_VPVS_ENABLE		1
+
 
 /// @class  AC_Sprayer
 /// @brief  Object managing a crop sprayer comprised of a spinner and a pump both controlled by pwm
@@ -40,14 +55,36 @@ public:
     /// run - allow or disallow spraying to occur
     void run(bool true_false);
 
-    /// running - returns true if spraying is currently permitted
-    bool running() const { return _flags.running; }
 
+	//	modified by zhangYong 20170703
+    /// running - returns true if spraying is currently permitted
+    //bool running() const { return _flags.running; }
+
+	
     /// spraying - returns true if spraying is actually happening
-    bool spraying() const { return _flags.spraying; }
+    //bool spraying() const { return _flags.spraying; }
+	uint8_t get_running() const { return _flags.running; }
+
+	uint8_t get_spraying() {return _flags.spraying; }
+
+	//	modified end
+
+
+	//	added by zhangYong 20170703
+	uint8_t get_testing() {return _flags.testing; }
+
+	int8_t get_enabled() {return _enabled.get();}
+	//	added end
 
     /// test_pump - set to true to turn on pump as if travelling at 1m/s as a test
-    void test_pump(bool true_false) { _flags.testing = true_false; }
+    //	modified by ZhangYong 20170717
+    void test_pump(bool true_false);
+	//void test_pump(bool true_false) { _flags.testing = true_false; }
+	//	modified end
+
+	//	added by zhangyong 20170717
+	int8_t get_vpvs_enable() {return _vpvs_enable.get(); }
+	//	added end
 
     /// To-Do: add function to decode pilot input from channel 6 tuning knob
 
@@ -55,7 +92,15 @@ public:
     void set_pump_rate(float pct_at_1ms) { _pump_pct_1ms.set(pct_at_1ms); }
 
     /// update - adjusts servo positions based on speed and requested quantity
-    void update();
+    void update(int8_t ctl_mode, uint32_t wp_dist);
+
+	int16_t get_actual_pump_rate() {return actual_pump_rate;}
+
+	uint32_t get_speed_over_min_time() {return _speed_over_min_time;}
+
+	uint32_t get_speed_under_min_time() {return _speed_under_min_time;}
+
+	
 
     static const struct AP_Param::GroupInfo var_info[];
 
@@ -68,6 +113,13 @@ private:
     AP_Int8         _pump_min_pct;          ///< minimum pump rate (expressed as a percentage from 0 to 100)
     AP_Int16        _spinner_pwm;           ///< pwm rate of spinner
     AP_Float        _speed_min;             ///< minimum speed in cm/s above which the sprayer will be started
+	//	added by zhangyong 20161128
+	AP_Float		_speed_max; 			// maximum speed in cm/s below which the sprayer will be stoped
+	AP_Int16		_unspray_dist;
+	AP_Int8 		_vpvs_enable;				// top level enable/disable control
+	//	added end
+
+	int16_t 		actual_pump_rate;
 
     /// flag bitmask
     struct sprayer_flags_type {

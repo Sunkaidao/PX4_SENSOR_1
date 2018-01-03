@@ -60,6 +60,18 @@ void Copter::Log_Write_AutoTuneDetails(float angle_cd, float rate_cds)
 }
 #endif
 
+
+#if SPRAYER == ENABLED
+//	added by ZhangYong 20170405
+void Copter::Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_dist, uint8_t para_fm_warn, uint8_t para_pk_cnt)
+{
+	DataFlash.Log_Write_Sprayer(para_sprayer, wp_dist, para_fm_warn, para_pk_cnt);
+}
+
+//	added end
+#endif
+
+
 // Write a Current data packet
 void Copter::Log_Write_Current()
 {
@@ -229,10 +241,12 @@ void Copter::Log_Write_Attitude()
     DataFlash.Log_Write_Attitude(ahrs, targets);
     DataFlash.Log_Write_Rate(ahrs, *motors, *attitude_control, *pos_control);
     if (should_log(MASK_LOG_PID)) {
-        DataFlash.Log_Write_PID(LOG_PIDR_MSG, attitude_control->get_rate_roll_pid().get_pid_info());
-        DataFlash.Log_Write_PID(LOG_PIDP_MSG, attitude_control->get_rate_pitch_pid().get_pid_info());
-        DataFlash.Log_Write_PID(LOG_PIDY_MSG, attitude_control->get_rate_yaw_pid().get_pid_info());
-        DataFlash.Log_Write_PID(LOG_PIDA_MSG, g.pid_accel_z.get_pid_info() );
+		//	shielded by ZhangYong 20170629
+        //DataFlash.Log_Write_PID(LOG_PIDR_MSG, attitude_control->get_rate_roll_pid().get_pid_info());
+        //DataFlash.Log_Write_PID(LOG_PIDP_MSG, attitude_control->get_rate_pitch_pid().get_pid_info());
+        //DataFlash.Log_Write_PID(LOG_PIDY_MSG, attitude_control->get_rate_yaw_pid().get_pid_info());
+		//	shielded end
+		DataFlash.Log_Write_PID(LOG_PIDA_MSG, g.pid_accel_z.get_pid_info() );
     }
 }
 
@@ -242,7 +256,9 @@ void Copter::Log_Write_EKF_POS()
  #if OPTFLOW == ENABLED
     DataFlash.Log_Write_EKF(ahrs,optflow.enabled());
  #else
-    DataFlash.Log_Write_EKF(ahrs,false);
+ 	//	modified by ZhangYong 20170915
+ 	//	modified end
+    //DataFlash.Log_Write_EKF(ahrs,false);
  #endif
     DataFlash.Log_Write_AHRS2(ahrs);
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
@@ -634,6 +650,27 @@ void Copter::Log_Write_Beacon()
     DataFlash.Log_Write_Beacon(g2.beacon);
 }
 
+//	added by ZhangYong
+#if BCBPMBUS == ENABLED
+void Copter::Log_Write_BCBPMBus(uint8_t msg_type)
+{
+    // exit immediately if feature is disabled
+    if (!g2.bcbpmbus.enabled()) {
+        return;
+    }
+
+	if(!g2.bcbpmbus.initialised())
+	{
+		return;
+	}
+	
+    DataFlash.Log_Write_BCBPMBus(msg_type, g2.bcbpmbus);
+}
+#endif
+
+
+//	added end
+
 const struct LogStructure Copter::log_structure[] = {
     LOG_COMMON_STRUCTURES,
 #if AUTOTUNE_ENABLED == ENABLED
@@ -702,6 +739,9 @@ void Copter::Log_Write_AutoTune(uint8_t axis, uint8_t tune_step, float meas_targ
                                 float meas_min, float meas_max, float new_gain_rp, \
                                 float new_gain_rd, float new_gain_sp, float new_ddt) {}
 void Copter::Log_Write_AutoTuneDetails(float angle_cd, float rate_cds) {}
+//	added by ZhangYong 20170405
+void Copter::Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_dist, uint8_t para_fm_warn, uint8_t para_pk_cnt) {}
+//	added end
 void Copter::Log_Write_Current() {}
 void Copter::Log_Write_Nav_Tuning() {}
 void Copter::Log_Write_Control_Tuning() {}
@@ -734,6 +774,13 @@ void Copter::Log_Write_Heli() {}
 #if OPTFLOW == ENABLED
 void Copter::Log_Write_Optflow() {}
 #endif
+
+#if BCBPMBUS == ENABLED
+void Copter::Log_Write_BCBPMBus(uint8_t msg_type) {}
+#endif
+
+void Copter::start_logging() {}
+
 
 void Copter::log_init(void) {}
 

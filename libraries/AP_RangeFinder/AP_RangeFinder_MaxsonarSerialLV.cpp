@@ -46,7 +46,7 @@ AP_RangeFinder_MaxsonarSerialLV::AP_RangeFinder_MaxsonarSerialLV(RangeFinder::Ra
 */
 bool AP_RangeFinder_MaxsonarSerialLV::detect(AP_SerialManager &serial_manager)
 {
-    return serial_manager.find_serial(AP_SerialManager::SerialProtocol_Lidar, 0) != nullptr;
+    return (serial_manager.find_serial(AP_SerialManager::SerialProtocol_Lidar, 0) != nullptr);
 }
 
 // read - return last value measured by sensor

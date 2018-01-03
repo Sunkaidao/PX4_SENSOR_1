@@ -160,6 +160,14 @@ bool Copter::start_command(const AP_Mission::Mission_Command& cmd)
         break;
 #endif
 
+//	added by ZhangYong 20170717
+#if SPRAYER == ENABLED
+	case MAV_CMD_DO_SPRAYER:
+		do_sprayer(cmd);
+		break;
+#endif	
+//	added end
+
     default:
         // do nothing with unrecognized MAVLink messages
         break;
@@ -269,6 +277,10 @@ bool Copter::verify_command(const AP_Mission::Mission_Command& cmd)
     case MAV_CMD_DO_GRIPPER:
     case MAV_CMD_DO_GUIDED_LIMITS:
     case MAV_CMD_DO_FENCE_ENABLE:
+#if SPRAYER == ENABLE
+	case MAV_CMD_DO_SPRAYER:
+        // assume sprayer was enabled successfully
+#endif
         return true;
 
     default:
@@ -314,8 +326,27 @@ void Copter::do_RTL(void)
 // do_takeoff - initiate takeoff navigation command
 void Copter::do_takeoff(const AP_Mission::Mission_Command& cmd)
 {
+//	added by ZhangYong 20171114
+	Location lcl_location;
+
+	lcl_location.lat = cmd.content.location.lat;
+	lcl_location.lng = cmd.content.location.lng;
+	lcl_location.flags = cmd.content.location.flags;
+	lcl_location.options = cmd.content.location.options;
+	lcl_location.alt = cmd.content.location.alt;
+#if PROJECTGKXN
+	
+	if((1 == height_replace_switch) && (0 != height_replace_alt))
+		lcl_location.alt = height_replace_alt;
+#endif
+	//	added end
+
+	//	modified by ZhangYong 20171114
     // Set wp navigation target to safe altitude above current position
-    auto_takeoff_start(cmd.content.location);
+    //auto_takeoff_start(cmd.content.location);
+	//	modified end
+
+	auto_takeoff_start(lcl_location);
 }
 
 // do_nav_wp - initiate move to next waypoint
@@ -338,6 +369,15 @@ void Copter::do_nav_wp(const AP_Mission::Mission_Command& cmd)
             target_loc.set_alt_cm(current_loc.alt, current_loc.get_alt_frame());
         }
     }
+
+	    //	added by ZhangYong to meet GKXN requirement 20170627
+#if PROJECTGKXN
+	if((1 == height_replace_switch) && (0 != height_replace_alt))
+	{
+		target_loc.set_alt_cm(height_replace_alt, target_loc.get_alt_frame());
+	}		
+#endif	
+    //	added end
     
     // this will be used to remember the time in millis after we reach or pass the WP.
     loiter_time = 0;
@@ -618,6 +658,41 @@ void Copter::do_parachute(const AP_Mission::Mission_Command& cmd)
     }
 }
 #endif
+
+//	added by ZhangYong 20151008
+#if SPRAYER == ENABLED
+void Copter::do_sprayer(const AP_Mission::Mission_Command& cmd)
+{
+	switch(cmd.p1)
+	{
+		case 0:
+			sprayer.run(false);
+			sprayer.test_pump(false);
+			break;
+		case 1:
+			//sprayer.run(true);
+//			sprayer.test_pump(true);
+			//	modified by ZhangYong 20170905
+			sprayer.run(true);
+			if(1 == sprayer.get_vpvs_enable())
+			{
+				sprayer.test_pump(!motors->armed());
+			}
+			else
+			{
+				sprayer.test_pump(true);
+			}
+			//	modified end
+	
+			break;
+		default:
+			break;
+	}
+}	
+#endif
+//	added end
+
+
 
 #if GRIPPER_ENABLED == ENABLED
 // do_gripper - control gripper

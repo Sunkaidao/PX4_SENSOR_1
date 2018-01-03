@@ -16,9 +16,20 @@
 #define AC_FENCE_TYPE_CIRCLE                        2       // circular horizontal fence (usually initiates an RTL)
 #define AC_FENCE_TYPE_POLYGON                       4       // polygon horizontal fence
 
+//	added by ZhangYong 20161122
+#define AC_FENCE_TYPE_FIXORG                        8       // fixed gps coordination as origianl position, center of fence
+//	added end
+
+
 // valid actions should a fence be breached
 #define AC_FENCE_ACTION_REPORT_ONLY                 0       // report to GCS that boundary has been breached but take no further action
 #define AC_FENCE_ACTION_RTL_AND_LAND                1       // return to launch and, if that fails, land
+
+//	added by ZhangYong 20161122
+#define AC_FENCE_ACTION_BACKAWAY_AND_HOVER			2		// back away from uncertainly aera
+#define AC_FENCE_ACTION_BACKAWAY_AND_LAND           3      	// back away from uncertainly aera and land
+//	added end
+
 
 // default boundaries
 #define AC_FENCE_ALT_MAX_DEFAULT                    100.0f  // default max altitude is 100m

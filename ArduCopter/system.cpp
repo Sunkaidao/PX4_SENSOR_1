@@ -1,6 +1,10 @@
 #include "Copter.h"
 #include "version.h"
 
+//	added by ZhangYong 20170705
+#include <stdio.h>
+//	added end
+
 /*****************************************************************************
 *   The init_ardupilot function processes everything we need for an in - air restart
 *        We will determine later if we are actually on the ground and process a
@@ -81,8 +85,9 @@ void Copter::init_ardupilot()
     notify.init(true);
     notify_flight_mode(control_mode);
 
-    // initialise battery monitor
-    battery.init();
+    // initialise battery monitor 
+    //	remove later for debug purpose
+	//    battery.init();
 
     // Init RSSI
     rssi.init();
@@ -94,8 +99,12 @@ void Copter::init_ardupilot()
     ap.usb_connected = true;
     check_usb_mux();
 
+	
+
     // setup telem slots with serial ports
     gcs().setup_uarts(serial_manager);
+
+	//printf("gcs_chan[%d] txspace %d\n", 0, gcs_chan[0].get_uart()->txspace());
 
 #if FRSKY_TELEM_ENABLED == ENABLED
     // setup frsky, and pass a number of parameters to the library
@@ -173,10 +182,38 @@ void Copter::init_ardupilot()
     // init the optical flow sensor
     init_optflow();
 
+	//	added by ZhangYong 20170809
+    // initialise battery monitor
+    battery.init();
+	//	added end
+
 #if MOUNT == ENABLED
     // initialise camera mount
     camera_mount.init(&DataFlash, serial_manager);
 #endif
+
+//	added by ZhangYong
+	//	get board id
+#if FXTX_AUTH == 1
+/*
+	memset(auth_msg, 0, 50);
+	memset(auth_id, 0, AUTH_ID_LEN);
+
+	memset(&curr_gps_week_ms, 0, sizeof(struct current_gps_week_ms));
+//	memset(&id_para, 0, sizeof(union auth_id_para));
+
+	
+	hal.util->get_system_id(auth_id);
+
+	sprintf(auth_msg, "0123456789%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n",	\
+		     (unsigned)auth_id[0], (unsigned)auth_id[1], (unsigned)auth_id[2], (unsigned)auth_id[3], (unsigned)auth_id[4], (unsigned)auth_id[5],	\
+		     (unsigned)auth_id[6], (unsigned)auth_id[7], (unsigned)auth_id[8], (unsigned)auth_id[9], (unsigned)auth_id[10], (unsigned)auth_id[11]);
+	
+*/
+#endif	
+	
+    //	added end 
+
 
 #if PRECISION_LANDING == ENABLED
     // initialise precision landing
@@ -258,11 +295,18 @@ void Copter::init_ardupilot()
     // disable safety if requested
     BoardConfig.init_safety();
 
-    #ifdef USERHOOK_INIT
-        userhook_init();
-    #endif
+
+//	duration_cnt = 0;
+
+	
+
+#ifdef USERHOOK_INIT
+    userhook_init();
+#endif
+
 
     hal.console->printf("\nReady to FLY ");
+
 
     // flag that initialisation has completed
     ap.initialised = true;

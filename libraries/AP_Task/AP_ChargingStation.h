@@ -1,5 +1,8 @@
 #pragma once
 
+
+#if CHARGINGSTATION == ENABLED
+
 #include <stdio.h>
 #include "TaskDevice.h"
 #include <AP_HAL/AP_HAL.h>
@@ -214,4 +217,9 @@ private:
 	uint8_t receive_complete_frag;
 	uint8_t sumchkm,length;
 };
+<<<<<<< HEAD
 #endif
+=======
+
+#endif
+>>>>>>> a6b98c800b42d40022f5f32624d4745879772e54

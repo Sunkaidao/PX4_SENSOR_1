@@ -88,6 +88,9 @@ Copter::Copter(void) :
 #if SPRAYER == ENABLED
     sprayer(&inertial_nav),
 #endif
+#if PJTPASSOSD == ENABLED
+	passosd(),
+#endif
 #if PARACHUTE == ENABLED
     parachute(relay),
 #endif

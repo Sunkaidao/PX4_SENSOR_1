@@ -26,10 +26,17 @@
 #endif
 //added end
 
+
 // check if a message will fit in the payload space available
 #define HAVE_PAYLOAD_SPACE(chan, id) (comm_get_txspace(chan) >= GCS_MAVLINK::packet_overhead_chan(chan)+MAVLINK_MSG_ID_ ## id ## _LEN)
 #define CHECK_PAYLOAD_SIZE(id) if (comm_get_txspace(chan) < packet_overhead()+MAVLINK_MSG_ID_ ## id ## _LEN) return false
 #define CHECK_PAYLOAD_SIZE2(id) if (!HAVE_PAYLOAD_SPACE(chan, id)) return false
+
+
+//	added by ZhangYong for accuray int gps location improvement
+
+//	added end
+
 
 //  GCS Message ID's
 /// NOTE: to ensure we never block on sending MAVLink messages
@@ -84,13 +91,16 @@ enum ap_message {
     MSG_BATTERY_STATUS,
     MSG_AOA_SSA,
     MSG_LANDING,
-    //#if CHARGINGSTATION == ENABLED      baiyang added in 20170713
-    MSG_STATION_STATUS,
-    //#endif
-    // #if FXTX_AUTH == ENABLED
-    MSG_FLIGHT_TIME,
-    // #endif
+
+//#if PROJECTGKXN == ENABLED
+	MSG_PLD_STATUS,
+	MSG_FLIGHT_TIME,
+//#endif
+//#if CHARGINGSTATION == ENABLED	  baiyang added in 20170713
+	MSG_STATION_STATUS,
+	//#endif
     MSG_LAST // MSG_LAST must be the last entry in this enum
+
 };
 
 ///
@@ -107,18 +117,21 @@ public:
     void        send_message(enum ap_message id);
     void        send_text(MAV_SEVERITY severity, const char *fmt, ...);
     virtual void        data_stream_send(void) = 0;
-    void        queued_param_send();
+	//	modified by ZhangYong 20171117
+    //	void        queued_param_send();
+	//	modified end
+	void        queued_param_send(bool armed);
     void        queued_waypoint_send();
+	//	added by ZhangYong for request item int
+	void 		queued_waypoint_int_send();
+	//	added end
+
+	void 		set_mission_item_int(bool para_item_int) {_mission_item_int = para_item_int; }
+	bool 		get_mission_item_int()	{return _mission_item_int; }
+	
     void        set_snoop(void (*_msg_snoop)(const mavlink_message_t* msg)) {
         msg_snoop = _msg_snoop;
     }
-
-#if FXTX_AUTH == ENABLED   
-    //	added by ZhangYong for request item int
-  	void 		queued_waypoint_int_send();
-  	//	added end
-#endif
-
     // packetReceived is called on any successful decode of a mavlink message
     virtual void packetReceived(const mavlink_status_t &status,
                                 mavlink_message_t &msg);
@@ -179,8 +192,14 @@ public:
     void send_ahrs2(AP_AHRS &ahrs);
     bool send_gps_raw(AP_GPS &gps);
     void send_system_time(AP_GPS &gps);
-    void send_radio_in(uint8_t receiver_rssi);
-    void send_raw_imu(const AP_InertialSensor &ins, const Compass &compass);
+	//	modified by ZhangYong
+#if BCBPMBUS == DISABLED	
+   	void send_radio_in(uint8_t receiver_rssi);
+	//	modified end
+#else
+	void send_radio_in(uint8_t receiver_rssi, uint16_t temp0, uint16_t temp1, uint16_t temp2);
+#endif
+	void send_raw_imu(const AP_InertialSensor &ins, const Compass &compass);
     void send_scaled_pressure(AP_Baro &barometer);
     void send_sensor_offsets(const AP_InertialSensor &ins, const Compass &compass, AP_Baro &barometer);
     void send_ahrs(AP_AHRS &ahrs);
@@ -188,11 +207,12 @@ public:
 #if AP_AHRS_NAVEKF_AVAILABLE
     void send_opticalflow(AP_AHRS_NavEKF &ahrs, const OpticalFlow &optflow);
 #endif
-//baiyang added in 20170713
+	//baiyang added in 20170713
 #if CHARGINGSTATION == ENABLED
 	void send_station_status(AP_ChargingStation &chargingStation);
 #endif
-//added end
+	//added end
+
     void send_autopilot_version(uint8_t major_version, uint8_t minor_version, uint8_t patch_version, uint8_t version_type) const;
     void send_local_position(const AP_AHRS &ahrs) const;
     void send_vibration(const AP_InertialSensor &ins) const;
@@ -202,20 +222,19 @@ public:
     static void send_collision_all(const AP_Avoidance::Obstacle &threat, MAV_COLLISION_ACTION behaviour);
     void send_accelcal_vehicle_position(uint32_t position);
 
-#if FXTX_AUTH == ENABLED
-    //baiyang added in 20170831
-    static void send_flight_time_thismav(mavlink_channel_t chan, \
-    														int16_t para_flight_time_hour, \
-    														int16_t para_flight_time_sec, \
-    														uint32_t local_flight_time_sec);
-    //added end
-    
-    //	added by zhangYong 20170725
-	  void handle_communication_drops(mavlink_message_t *msg, int32_t para_home_dist, DataFlash_Class &dataflash, bool log_cd);
-	  //	added end
-  
+//	added by ZhangYong 20170406
+#if PROJECTGKXN == ENABLED
+	void send_payload_status(AC_Sprayer *sprayer, AP_Flowmeter *flowmeter) ;
 #endif
-    
+	
+//#if PROJECTGKXN == ENABLED
+	void send_flight_time_thismav(int16_t para_flight_time_hour, \
+														int16_t para_flight_time_sec, \
+														uint32_t local_flight_time_sec);
+	
+//#endif
+	//	added end	
+
     // return a bitmap of active channels. Used by libraries to loop
     // over active channels to send to all active channels    
     static uint8_t active_channel_mask(void) { return mavlink_active; }
@@ -316,6 +335,16 @@ protected:
     void handle_device_op_write(mavlink_message_t *msg);
 
     void handle_timesync(mavlink_message_t *msg);
+
+#if PROJECTGKXN == ENABLED
+		//	added by zhangYong 20170725
+	//void handle_communication_drops(mavlink_message_t *msg, int32_t para_home_dist, DataFlash_Class &dataflash, bool log_cd);
+	//	added end
+	
+	void handle_gcs_capabilities(mavlink_message_t *msg, int32_t para_home_dist, DataFlash_Class &dataflash, bool log_cd, uint32_t &fp_uint32);
+#endif
+    
+
     void handle_statustext(mavlink_message_t *msg);
 
     bool telemetry_delayed() const;
@@ -360,6 +389,7 @@ private:
                                                          // queued send
     uint32_t                    _queued_parameter_send_time_ms;
 
+	bool 						_mission_item_int;
     /// Count the number of reportable parameters.
     ///
     /// Not all parameters can be reported via MAVlink.  We count the number
@@ -379,6 +409,7 @@ private:
     uint32_t        waypoint_timelast_receive; // milliseconds
     uint32_t        waypoint_timelast_request; // milliseconds
     const uint16_t  waypoint_receive_timeout = 8000; // milliseconds
+
 
     // number of 50Hz ticks until we next send this stream
     uint8_t         stream_ticks[NUM_STREAMS];

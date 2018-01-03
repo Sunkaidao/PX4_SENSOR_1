@@ -191,7 +191,11 @@ AP_BattMonitor::init()
         // clear out the cell voltages
         memset(&state[instance].cell_voltages, 0xFF, sizeof(cells));
 
+
         uint8_t monitor_type = _monitoring[instance];
+
+//		printf("AP_BattMonitor::init() monitor_type %d\n", monitor_type);
+		
         switch (monitor_type) {
             case BattMonitor_TYPE_ANALOG_VOLTAGE_ONLY:
             case BattMonitor_TYPE_ANALOG_VOLTAGE_AND_CURRENT:
@@ -218,6 +222,13 @@ AP_BattMonitor::init()
                 _num_instances++;
 #endif
                 break;
+			//	added by ZhangYong 20170809
+			case BattMonitor_TYPE_AUX_ANALOG_VOLT_CURR:
+				state[instance].instance = instance;
+                drivers[instance] = new AP_BattMonitor_Analog(*this, state[instance]);
+                _num_instances++;
+				break;
+			//	added end
         }
 
         // call init function for each backend
@@ -225,17 +236,25 @@ AP_BattMonitor::init()
             drivers[instance]->init();
         }
     }
+
+//	printf("AP_BattMonitor::init() %d\n", _num_instances);
 }
 
 // read - read the voltage and current for all instances
 void
 AP_BattMonitor::read()
 {
+//	printf("AP_BattMonitor::read()\n");
+
     for (uint8_t i=0; i<_num_instances; i++) {
-        if (drivers[i] != nullptr && _monitoring[i] != BattMonitor_TYPE_NONE) {
+        if (drivers[i] != nullptr && _monitoring[i] != BattMonitor_TYPE_NONE) 
+		{
             drivers[i]->read();
             drivers[i]->update_resistance_estimate();
+
+//			printf("true %d\n", _num_instances);
         }
+//		printf("false %d\n", _num_instances);
     }
 }
 

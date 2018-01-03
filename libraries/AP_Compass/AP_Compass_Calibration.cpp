@@ -3,6 +3,9 @@
 #include <GCS_MAVLink/GCS.h>
 
 #include "AP_Compass.h"
+//	added by ZhangYong 20170830
+#include <stdio.h>
+//	added end
 
 extern AP_HAL::HAL& hal;
 
@@ -271,6 +274,14 @@ MAV_RESULT Compass::handle_mag_cal_command(const mavlink_command_long_t &packet)
 {
     MAV_RESULT result = MAV_RESULT_FAILED;
 
+	/*printf("%4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f\n", packet.param1, \
+															packet.param2, \
+															packet.param3, \
+															packet.param4, \
+															packet.param5, \
+															packet.param6, \
+															packet.param7);
+*/
     switch (packet.command) {
     case MAV_CMD_DO_START_MAG_CAL: {
         result = MAV_RESULT_ACCEPTED;

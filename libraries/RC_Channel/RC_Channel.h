@@ -43,6 +43,11 @@ public:
 
     // read input from hal.rcin - create a control_in value
     void        set_pwm(int16_t pwm);
+
+	//	added by ZhangYong 201708029 in order to monitor the rc thr when in GCS mode
+	void		set_pwm(int16_t pwm, bool income_valid);
+	//	added end
+	
     void        set_pwm_no_deadzone(int16_t pwm);
 
     // calculate an angle given dead_zone and trim. This is used by the quadplane code
@@ -82,6 +87,8 @@ public:
     int16_t    get_control_in() const { return control_in;}
     void       set_control_in(int16_t val) { control_in = val;}
 
+	int16_t 	get_rc_control_in() const {return rc_control_in;}
+
     // get control input with zero deadzone
     int16_t     get_control_in_zero_dz(void);
     
@@ -95,8 +102,20 @@ public:
     void       set_radio_trim(int16_t val) { radio_trim.set(val);}
     void       save_radio_trim() { radio_trim.save();}
 
+	//	added by ZhangYong 20170829
+	
+	int16_t		pwm_to_range(uint16_t rc_radio_in);
+	int16_t		pwm_to_angle(uint16_t rc_radio_in);
+	int16_t		pwm_to_angle_dz(uint16_t sp_dead_zone, uint16_t sp_rc_radio_in);
+//	int16_t		angle_to_pwm(uint16_t rc_radio_in);
+//	int16_t		range_to_pwm(uint16_t rc_radio_in);
+	int16_t		pwm_to_range_dz(uint16_t sp_dead_zone, uint16_t sp_rc_radio_in);
+	//	added end
+
+
     void       set_and_save_trim() { radio_trim.set_and_save_ifchanged(radio_in);}
     
+
     bool min_max_configured() const
     {
         return radio_min.configured() && radio_max.configured();
@@ -113,6 +132,11 @@ private:
     AP_Int16    radio_min;
     AP_Int16    radio_trim;
     AP_Int16    radio_max;
+
+	//	added by ZhangYong 20170829
+	uint16_t	rc_radio_in;
+	uint16_t	rc_control_in;
+	//	added end
 
     AP_Int8     reversed;
     AP_Int16    dead_zone;

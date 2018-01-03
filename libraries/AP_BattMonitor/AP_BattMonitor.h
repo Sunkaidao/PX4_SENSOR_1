@@ -11,6 +11,10 @@
 // first monitor is always the primary monitor
 #define AP_BATT_PRIMARY_INSTANCE            0
 
+//	added by ZhangYong 20170809
+#define AP_BATT_AUX_INSTANCE				1
+//	added end
+
 #define AP_BATT_CAPACITY_DEFAULT            3300
 #define AP_BATT_LOW_VOLT_TIMEOUT_DEFAULT    10   // low voltage of 10 seconds will cause battery_exhausted to return true
 #define AP_BATT_MAX_WATT_DEFAULT            0
@@ -48,7 +52,10 @@ public:
         BattMonitor_TYPE_ANALOG_VOLTAGE_AND_CURRENT = 4,
         BattMonitor_TYPE_SOLO                       = 5,
         BattMonitor_TYPE_BEBOP                      = 6,
-        BattMonitor_TYPE_MAXELL                     = 7
+        BattMonitor_TYPE_MAXELL                     = 7,
+        //	added by ZhangYong 20170809
+		BattMonitor_TYPE_AUX_ANALOG_VOLT_CURR		= 8
+		//	added end
     };
 
     // low voltage sources (used for BATT_LOW_TYPE parameter)
@@ -103,6 +110,8 @@ public:
     /// voltage - returns battery voltage in millivolts
     float voltage(uint8_t instance) const;
     float voltage() const { return voltage(AP_BATT_PRIMARY_INSTANCE); }
+
+	
 
     /// get voltage with sag removed (based on battery current draw and resistance)
     /// this will always be greater than or equal to the raw voltage

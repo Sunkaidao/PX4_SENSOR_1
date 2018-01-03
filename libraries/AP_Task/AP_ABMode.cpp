@@ -657,11 +657,12 @@ void AP_ABMode::adjust_yaw_test()
 	p1 = location_3d_diff_NED(home, a_loc);
 	p2 = location_3d_diff_NED(home, b_loc);
 
-	printf("p1.x %4.4f\n",p1.x);
+/*	printf("p1.x %4.4f\n",p1.x);
 	printf("p1.y %4.4f\n",p1.y);
 	printf("p2.x %4.4f\n",p2.x);
 	printf("p2.y %4.4f\n",p2.y);
 	printf("yaw    %4.4f\n",wrap_360(degrees(atan2f((p2.y-p1.y),(p2.x-p1.x)))));
+*/
 }
 
 void AP_ABMode:: invert_direction(switch_type        type,int8_t direction)

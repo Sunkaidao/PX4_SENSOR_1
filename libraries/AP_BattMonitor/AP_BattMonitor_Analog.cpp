@@ -15,6 +15,11 @@ AP_BattMonitor_Analog::AP_BattMonitor_Analog(AP_BattMonitor &mon, AP_BattMonitor
 
     // always healthy
     _state.healthy = true;
+
+	//	added by ZhangYong for test purpose
+//	printf("AP_BattMonitor_Analog volt %d\n", mon._volt_pin[_state.instance]);
+//	printf("AP_BattMonitor_Analog curr %d\n", mon._curr_pin[_state.instance]);
+	//	added end
 }
 
 // read - read the voltage and current
@@ -26,6 +31,8 @@ AP_BattMonitor_Analog::read()
 
     // get voltage
     _state.voltage = _volt_pin_analog_source->voltage_average() * _mon._volt_multiplier[_state.instance];
+
+//	printf("AP_BattMonitor_Analog::read() %d %4.2f\n", _state.instance, _state.voltage);
 
     // read current
     if (has_current()) {
@@ -48,10 +55,13 @@ AP_BattMonitor_Analog::read()
         // record time
         _state.last_time_micros = tnow;
     }
+
+	
 }
 
 /// return true if battery provides current info
 bool AP_BattMonitor_Analog::has_current() const
 {
-    return (_mon.get_type(_state.instance) == AP_BattMonitor::BattMonitor_TYPE_ANALOG_VOLTAGE_AND_CURRENT);
+    return ((_mon.get_type(_state.instance) == AP_BattMonitor::BattMonitor_TYPE_ANALOG_VOLTAGE_AND_CURRENT) || \
+			_mon.get_type(_state.instance) == AP_BattMonitor::BattMonitor_TYPE_AUX_ANALOG_VOLT_CURR);
 }

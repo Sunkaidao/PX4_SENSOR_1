@@ -78,6 +78,9 @@ enum aux_sw_func {
     AUXSW_PRECISION_LOITER =    39,  // enable precision loiter
     AUXSW_AVOID_PROXIMITY =     40,  // enable object avoidance using proximity sensors (ie. horizontal lidar)
     AUXSW_ARMDISARM =           41,  // arm or disarm vehicle
+    AUXSW_FS_PLD =				55,
+    AUXSW_AUTO_HEIGHT = 		58,
+
 #if CHARGINGSTATION == ENABLED
     //baiyang added in 20170414
     AUXSW_FLIGHT =				79, //For Xiamen simulation flight test communication protocol
@@ -96,7 +99,6 @@ enum aux_sw_func {
 	AUXSW_SET_ABMODE =			87,  //Trigger AB mode
 	//added end
 #endif
-
     AUXSW_SWITCH_MAX,
 };
 
@@ -150,6 +152,12 @@ enum mode_reason_t {
     MODE_REASON_AVOIDANCE,
     MODE_REASON_AVOIDANCE_RECOVERY,
     MODE_REASON_THROW_COMPLETE,
+    //	added by ZhangYong 20170703
+	MODE_REASON_PAYLOAD_FAILSAFE,
+	MODE_REASON_AUTOTUNE,
+	MODE_REASON_RTL_LAST,
+	//	added end
+
     MODE_REASON_ABMODE_FAILSAFE,
 };
 
@@ -449,6 +457,10 @@ enum DevOptions {
 #define ERROR_SUBSYSTEM_NAVIGATION          22
 #define ERROR_SUBSYSTEM_FAILSAFE_TERRAIN    23
 #define ERROR_SUBSYSTEM_EKF_PRIMARY         24
+//	added by ZhangYong 20160914
+#define ERROR_SUBSYSTEM_FAILSAFE_PLD		25
+//	added end
+
 // general error codes
 #define ERROR_CODE_ERROR_RESOLVED           0
 #define ERROR_CODE_FAILED_TO_INITIALISE     1
@@ -492,6 +504,68 @@ enum DevOptions {
 #define FS_THR_ENABLED_CONTINUE_MISSION    2
 #define FS_THR_ENABLED_ALWAYS_LAND         3
 
+
+//	added by ZhangYong for failsafe of payload
+typedef enum FailSafe_PLD_Type
+{
+	FAILSAFE_PLD_TYPE_FM 	= 	0,
+	FAILSAFE_PLD_TYPE_PMBUS = 1,
+	FAILSAFE_PLD_TYPE_NULL 	=  0x10000	
+	
+}FAILSAFE_PLD_TYPE;
+
+
+
+
+//	added by ZhangYong for edition management	20170731
+
+#define REMOTE_CONTROL_GCS_POS_SIF	2
+
+
+typedef union FailSafe_Marker{
+    struct {
+        uint32_t gcs_control         	: 1; // 1,2 // This is the state of simple mode : 0 = disabled ; 1 = SIMPLE ; 2 = SUPERSIMPLE
+        uint32_t control_present    	: 1; // 3   // true if MAVLINK_MSG_ID_GCS_CAPABILITIES received and decode successfully
+        uint32_t not_consist       		: 1; // 4   // true if all pre-arm checks (rc, accel calibration, gps lock) have been performed
+    };
+    uint32_t value;
+} FAILSAFE_MARKER;
+
+
+typedef enum Arm_Source
+{
+	ARM_SOURCE_RC = 0,
+	ARM_SOURCE_GCS
+}ARM_SOURCE;
+
+
+
+//	added end
+
+
+#define FS_PLD_NONE						0
+#define FS_PLD_FM						0x00
+#define FS_PLD_FM_PS					0x00
+#define FS_PLD_FM_BIT					0x01
+#define FS_PLD_FM_SFT					0x00
+
+#define FS_PLD_PMBUS						0x01
+#define FS_PLD_PMBUS_PS						0x01
+#define FS_PLD_PMBUS_BIT					0x02
+#define FS_PLD_PMBUS_SFT					0x01
+
+
+//	added by ZhangYong 20160914
+#define FS_PLD_DISABLE						0
+#define FS_PLD_ENABLED_ALWAYS_RTL			1
+#define FS_PLD_ENABLED_CONTINUE_MISSION 		2
+#define FS_PLD_ENABLED_ALWAYS_LAND			3
+#define FS_PLD_PREDEFINED_ROUTING_RTL		5
+#define FS_PLD_REVERSE_ROUTING_RTL			6
+//	added end
+
+
+
 // Battery failsafe definitions (FS_BATT_ENABLE parameter)
 #define FS_BATT_DISABLED                    0       // battery failsafe disabled
 #define FS_BATT_LAND                        1       // switch to LAND mode on battery failsafe
@@ -501,6 +575,9 @@ enum DevOptions {
 #define FS_GCS_DISABLED                     0
 #define FS_GCS_ENABLED_ALWAYS_RTL           1
 #define FS_GCS_ENABLED_CONTINUE_MISSION     2
+//	added by ZhangYong 20171212
+#define FS_GCS_ENABLED_LOITER				4
+//	added end
 
 // EKF failsafe definitions (FS_EKF_ACTION parameter)
 #define FS_EKF_ACTION_LAND                  1       // switch to LAND mode on EKF failsafe
@@ -520,7 +597,7 @@ enum DevOptions {
 #define THR_BEHAVE_HIGH_THROTTLE_CANCELS_LAND (1<<1)
 #define THR_BEHAVE_DISARM_ON_LAND_DETECT (1<<2)
 
-#if FXTX_AUTH == ENABLED
+
 //	added by ZhangYong for edition management	20170731
 typedef struct Edition_management_struct {
 	uint32_t major_edition:4;							//	0
@@ -535,5 +612,5 @@ typedef union Edition_management {
 } Edition_management;
 
 //	added end
-#endif
+
 
