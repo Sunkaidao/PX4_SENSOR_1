@@ -1,5 +1,6 @@
 #pragma once
 
+#if ABMODE == ENABLED
 
 #include <stdio.h>
 #include <math.h>
@@ -168,3 +169,5 @@ private:
 	Location target_wp;
 	Location home_loc;
 };
+
+#endif

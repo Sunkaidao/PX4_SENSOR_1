@@ -189,19 +189,19 @@ public:
 	//baiyang added in 20170717
     friend class AP_ChargingStation;             // ArduPilot chargingStation library
 //#endif
-#if RF_TASK == ENABLED
+//#if RF_TASK == ENABLED
     friend class AP_Task;
-#endif
-#if RF_FENCE == ENABLED
+//#endif
+//#if RF_FENCE == ENABLED
     //baiyang added in 20170717
 	friend class AC_Fence;
 	//added end
-#endif 
-#if ABMODE == ENABLE
+//#endif 
+//#if ABMODE == ENABLE
 	//baiyang added in 20171027
 	friend class AP_ABMode;
 	//added end
-#endif
+//#endif
 
     Copter(void);
 
