@@ -985,7 +985,6 @@ union PACKED PassOSD_data_status {
 //
 #ifndef CHARGINGSTATION
   #  define CHARGINGSTATION	DISABLED
-<<<<<<< HEAD
 #endif
 
 //baiyang added in 20170712
@@ -994,8 +993,6 @@ union PACKED PassOSD_data_status {
 //
 #ifndef ABMODE
   #  define ABMODE	DISABLED
-=======
->>>>>>> a6b98c800b42d40022f5f32624d4745879772e54
 #endif
 
 #endif
@@ -1012,8 +1009,6 @@ union PACKED PassOSD_data_status {
 //roflying fence
 #ifndef PTZ_CONTROL
 #  define PTZ_CONTROL	DISABLED
-<<<<<<< HEAD
-=======
 #endif
 
 //baiyang added in 20170712
@@ -1022,7 +1017,6 @@ union PACKED PassOSD_data_status {
 //
 #ifndef ABMODE
   #  define ABMODE	ENABLED
->>>>>>> a6b98c800b42d40022f5f32624d4745879772e54
 #endif
 
 
