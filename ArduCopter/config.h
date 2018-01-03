@@ -959,7 +959,7 @@ union PACKED PassOSD_data_status {
 
 //Use GPS #HEADINGA messages
 #ifndef DGPS_HEADINGA
-  #  define DGPS_HEADINGA          ENABLED
+  #  define DGPS_HEADINGA          DISABLED
 #endif
 
 //This macro is defined in AP_NavEKF2_core.h,in this file, AP_NavEKF2_core.h can not be seen AP_NavEKF2.h
@@ -973,16 +973,28 @@ union PACKED PassOSD_data_status {
 //added end
 
 
+#ifndef RF_TASK
+#  define RF_TASK	ENABLED
+#endif
+
+#if RF_TASK == ENABLED
+
 //baiyang added in 20170712
 ///////////////////////////////////////////////////////////////////////////////
 //charging Station
 //
 #ifndef CHARGINGSTATION
-  #  define CHARGINGSTATION	ENABLED
+  #  define CHARGINGSTATION	DISABLED
 #endif
 
-#ifndef RF_TASK
-#  define RF_TASK	ENABLED
+//baiyang added in 20170712
+///////////////////////////////////////////////////////////////////////////////
+//AB Mode
+//
+#ifndef ABMODE
+  #  define ABMODE	ENABLED
+#endif
+
 #endif
 
 // baiyang added in 20170830
@@ -996,22 +1008,15 @@ union PACKED PassOSD_data_status {
 //////////////////////////////////////////////////////////////////////////////
 //roflying fence
 #ifndef PTZ_CONTROL
-#  define PTZ_CONTROL	ENABLED
+#  define PTZ_CONTROL	DISABLED
 #endif
 
-//baiyang added in 20170712
-///////////////////////////////////////////////////////////////////////////////
-//AB Mode
-//
-#ifndef ABMODE
-  #  define ABMODE	ENABLED
-#endif
 
 
 //baiyang added in 20170829
 /////////////////////////////////////////////////////////////////////////////////////
 //Enabled UserCode.cpp
-#define USERHOOK_INIT	1
+#define USERHOOK_INIT
 #define USERHOOK_MEDIUMLOOP
 #define USERHOOK_50HZLOOP
 #define USERHOOK_SUPERSLOWLOOP

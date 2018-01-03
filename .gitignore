@@ -50,6 +50,7 @@
 .tags1
 .tags_sorted_by_file
 .vagrant
+.gitignore
 APMrover2/test.APMrover2/
 APMrover2/way.txt
 ArduCopter/Debug/
@@ -66,6 +67,7 @@ Build.AntennaTracker/*
 Build.ArduCopter/*
 Build.ArduPlane/*
 Build.ArduSub/*
+si/*
 CMakeCache.txt
 CMakeFiles
 LASTLOG.TXT

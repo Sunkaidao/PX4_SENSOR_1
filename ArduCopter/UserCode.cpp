@@ -8,7 +8,7 @@ void Copter::userhook_init()
     
     //	added by ZhangYong
     //	get board id
-    #if FXTX_AUTH == 1
+#if FXTX_AUTH == 1
     	memset(auth_msg, 0, 50);
     	memset(auth_id, 0, AUTH_ID_LEN);
     
@@ -23,7 +23,7 @@ void Copter::userhook_init()
     		     (unsigned)auth_id[6], (unsigned)auth_id[7], (unsigned)auth_id[8], (unsigned)auth_id[9], (unsigned)auth_id[10], (unsigned)auth_id[11]);
     	
     
-    #endif	
+#endif		//	FXTX_AUTH == 1
     //	added end 
 
 #if FXTX_AUTH == 0
@@ -33,7 +33,7 @@ void Copter::userhook_init()
 	gcs().chan(1).set_mission_item_int(false);
 #if MAVLINK_COMM_NUM_BUFFERS > 2
 	gcs().chan(2).set_mission_item_int(false);
-#endif
+#endif //	end MAVLINK_COMM_NUM_BUFFERS > 2
 	//	added end
 
 #elif FXTX_AUTH == 1
@@ -44,10 +44,10 @@ void Copter::userhook_init()
 	gcs().chan(1).set_mission_item_int(true);
 #if MAVLINK_COMM_NUM_BUFFERS > 2
 	gcs().chan(2).set_mission_item_int(true);
-#endif
+#endif // end MAVLINK_COMM_NUM_BUFFERS > 2
 	//	added end
 
-#endif
+#endif // end FXTX_AUTH == 0
 
 	printf("WAYPOINT[%d] INT %d\n", 0, gcs().chan(0).get_mission_item_int());
 	printf("WAYPOINT[%d] INT %d\n", 1, gcs().chan(1).get_mission_item_int());
@@ -66,7 +66,7 @@ void Copter::userhook_init()
 	{
 		
 	}
-#endif
+#endif // end PJTPASSOSD == ENABLED
 	
 #if PROJECTGKXN == ENABLED
 	if(nullptr != (serial_manager.find_serial(AP_SerialManager::SerialProtocol_FlowMeter_GKXN,0)))
@@ -75,7 +75,7 @@ void Copter::userhook_init()
 	}
 	//height_replace = 0;
 		
-#endif
+#endif // endf PROJECTGKXN == ENABLED
 	
 #if BCBMONITOR == ENABLED
 	
@@ -84,7 +84,7 @@ void Copter::userhook_init()
 		bcbmonitor.init(serial_manager);
 	}
 		
-#endif
+#endif // end BCBMONITOR == ENABLED
 	
 #if BCBPMBUS == ENABLED
 	printf("PROJECTBCB\n");
@@ -94,17 +94,17 @@ void Copter::userhook_init()
 	{
 		init_bcbpmbus();
 	}
-#endif
+#endif // end BCBPMBUS == ENABLED
 	
 #if PJTPASSOSD == ENABLED
 	printf("PJTPASSOSD\n");
-#endif
+#endif // end PJTPASSOSD == ENABLED
 	
 	
 	
 #if PROJECTGKXN == ENABLED
 	printf("PROJECTGKXN\n");
-#endif
+#endif // end PROJECTGKXN == ENABLED
 	
 	
 	//	added ebd
@@ -139,7 +139,7 @@ void Copter::userhook_init()
 	{
 		edit_management.data.project_edition = 1;
 	}
-#endif	
+#endif	// end PROJECTGKXN == ENABLED
 
 	//	improve the minor edition from 3 to 4
 	//	failsafe rc gcs
@@ -157,21 +157,24 @@ void Copter::userhook_init()
 	printf("minor_edition = 0x%x\n", edit_management.data.minor_edition);
 	printf("revision_edition = 0x%x\n", edit_management.data.revision_edition);    
 
+#if RF_TASK == ENABLED
+	task.init();
+#endif // end RF_TASK == ENABLED
 
-    task.init();
 
 #if PTZ_CONTROL == ENABLED	
     PtzControl.init();
-#endif
+#endif // end PTZ_CONTROL == ENABLED
+
 }
-#endif
+#endif // end USERHOOK_INIT
 
 #ifdef USERHOOK_FASTLOOP
 void Copter::userhook_FastLoop()
 {
     // put your 100Hz code here
 }
-#endif
+#endif // end USERHOOK_FASTLOOP
 
 #ifdef USERHOOK_50HZLOOP
 void Copter::userhook_50Hz()
@@ -181,17 +184,19 @@ void Copter::userhook_50Hz()
     //baiyang added in 20170804
 #if PTZ_CONTROL == ENABLED
 	  PtzControl.update();
-#endif
+#endif // end PTZ_CONTROL == ENABLED
     //added end
 
 }
-#endif
+#endif // end USERHOOK_50HZLOOP
 
 #ifdef USERHOOK_MEDIUMLOOP
 void Copter::userhook_MediumLoop()
 {
     // put your 10Hz code here
+#if RF_TASK == ENABLED
     task.update();
+#endif // end RF_TASK == ENABLED
 }
 #endif
 
@@ -215,3 +220,6 @@ void Copter::userhook_SuperSlowLoop()
 
 }
 #endif
+
+
+

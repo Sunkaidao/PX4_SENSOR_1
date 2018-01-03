@@ -1,10 +1,11 @@
-#if ABMODE == ENABLED
+
 
 
 #include"AP_ABMode.h"
 #include "./../ArduCopter/Copter.h"
 #include <AP_Param/AP_Param.h>
 
+#if ABMODE == ENABLED
 
 #define NO  0
 #define YES 1
