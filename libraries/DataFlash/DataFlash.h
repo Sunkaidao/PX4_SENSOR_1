@@ -200,14 +200,15 @@ public:
 	//	added end
     void Log_Write_Proximity(AP_Proximity &proximity);
 
-
+	void Log_Write_PadCmd(mavlink_message_t* msg);
 
 #if FXTX_AUTH == ENABLED
     //	added by ZhangYong 20170731
     void Log_Write_CD(int32_t para_home_dis, float para_communicat_drops);
     //	added end
 #endif
-    
+
+	
 
     void Log_Write(const char *name, const char *labels, const char *fmt, ...);
 

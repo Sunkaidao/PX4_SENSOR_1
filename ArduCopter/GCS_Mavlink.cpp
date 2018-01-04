@@ -829,6 +829,9 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 
 //	printf("handleMessage %d\n", msg->msgid);
 
+	copter.DataFlash.Log_Write_PadCmd(msg);
+
+
 
     switch (msg->msgid) {
 

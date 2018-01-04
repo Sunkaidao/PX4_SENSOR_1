@@ -576,8 +576,6 @@ void Copter::three_hz_loop()
 
 #if BCBPMBUS == ENABLE
 	update_bcbpmbus();
-
-	
 #endif
 	
 }

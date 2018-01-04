@@ -671,6 +671,14 @@ struct PACKED log_Communication_drops {
 //	added end
 #endif
 
+//	added by ZhangYong 20180104
+struct PACKED log_PADCMD {
+    LOG_PACKET_HEADER;
+	uint64_t timestamp;
+	uint32_t msgid_lg;
+};
+//	added end
+
 /*
   terrain log structure
  */
@@ -1149,6 +1157,8 @@ Format characters in the format string for binary log messages
       "SPY",  "QbBBBIIhIBB",     "TimeMS,ab,run,spy,tt,ot,ut,pr,wp,fm,pc" }, \
     { LOG_CD_MSG, sizeof(log_Communication_drops), \
 	 "CD", "Qif", "TMS,D2H,CD" }, \
+	{ LOG_PADCMD_MSG, sizeof(log_PADCMD), \
+	 "PAD", "QI", "TMS,MID" }, \
 	{ LOG_PMBUS0_MSG, sizeof(log_BCBPMBus), \
 	 "PM0", PMBUS_FMT, PMBUS_LABELS }, \
 	{ LOG_PMBUS1_MSG, sizeof(log_BCBPMBus), \
@@ -1159,8 +1169,6 @@ Format characters in the format string for binary log messages
 	 "PM3", PMBUS_FMT, PMBUS_LABELS }, \
     { LOG_BARO_MSG, sizeof(log_BARO), \
       "BARO",  BARO_FMT, BARO_LABELS }, \
-    { LOG_CD_MSG, sizeof(log_Communication_drops), \
-  	  "CD", CD_FMT, CD_LABELS }, \
     { LOG_POWR_MSG, sizeof(log_POWR), \
       "POWR","QffH","TimeUS,Vcc,VServo,Flags" },  \
     { LOG_CMD_MSG, sizeof(log_Cmd), \
@@ -1370,7 +1378,10 @@ Format characters in the format string for binary log messages
 
 // message types for common messages
 enum LogMessages {
-    LOG_FORMAT_MSG = 128,
+//	modified by ZhangYong for over
+//	LOG_FORMAT_MSG = 128,
+//	modified end
+	LOG_FORMAT_MSG,
     LOG_PARAMETER_MSG,
     LOG_GPS_MSG,
     LOG_GPS2_MSG,
@@ -1520,6 +1531,7 @@ enum LogMessages {
 //#if ABMODE == ENABLED
 	LOG_TWP_MSG,
 //#endif
+	LOG_PADCMD_MSG,
 
 };
 

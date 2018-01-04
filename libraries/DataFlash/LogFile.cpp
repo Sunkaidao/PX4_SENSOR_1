@@ -2104,6 +2104,24 @@ void DataFlash_Class::Log_Write_CD(int32_t para_home_dis, float para_communicat_
 }
 
 
+//	added by ZhangYong for logging pad cmd
+
+void DataFlash_Class::Log_Write_PadCmd(mavlink_message_t* msg)
+{
+
+	struct log_PADCMD pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_PADCMD_MSG),
+        timestamp     	: AP_HAL::micros64(),
+        msgid_lg		: msg->msgid        
+    };
+    WriteBlock(&pkt, sizeof(pkt));
+
+}
+
+
+
+
+
 
 
 void DataFlash_Class::Log_Write_BCBPMBus(uint8_t msg_type, AC_BCBPMBus &vp_bcbpmbus)
