@@ -1,5 +1,6 @@
 #pragma once
 
+#if ABMODE == ENABLED
 
 
 #include <stdio.h>
@@ -13,7 +14,6 @@
 #include <AP_InertialNav/AP_InertialNav.h>
 #include <AP_SerialManager/AP_SerialManager.h>
 
-#if ABMODE == ENABLED
 
 #define YAW          0
 #define POSITION     1

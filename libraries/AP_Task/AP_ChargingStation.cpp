@@ -1,3 +1,4 @@
+#if CHARGINGSTATION == ENABLED
 
 #include "AP_ChargingStation.h"
 #include "./../ArduCopter/Copter.h"
@@ -16,7 +17,7 @@
 #define Debug(fmt, args...)
 #endif
 
-#if CHARGINGSTATION == ENABLED
+
 
 #define TOUT_default 10
 #define COMM_REP_default 3

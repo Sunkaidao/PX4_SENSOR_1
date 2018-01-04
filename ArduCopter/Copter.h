@@ -197,11 +197,11 @@ public:
 	friend class AC_Fence;
 	//added end
 //#endif 
-//#if ABMODE == ENABLE
+#if ABMODE == ENABLE
 	//baiyang added in 20171027
 	friend class AP_ABMode;
 	//added end
-//#endif
+#endif
 
     Copter(void);
 

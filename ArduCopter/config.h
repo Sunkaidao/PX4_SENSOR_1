@@ -959,7 +959,7 @@ union PACKED PassOSD_data_status {
 
 //Use GPS #HEADINGA messages
 #ifndef DGPS_HEADINGA
-  #  define DGPS_HEADINGA          DISABLED
+  #  define DGPS_HEADINGA          ENABLED
 #endif
 
 //This macro is defined in AP_NavEKF2_core.h,in this file, AP_NavEKF2_core.h can not be seen AP_NavEKF2.h
@@ -984,7 +984,7 @@ union PACKED PassOSD_data_status {
 //charging Station
 //
 #ifndef CHARGINGSTATION
-  #  define CHARGINGSTATION	DISABLED
+  #  define CHARGINGSTATION	ENABLED
 #endif
 
 //baiyang added in 20170712
@@ -1001,14 +1001,14 @@ union PACKED PassOSD_data_status {
 //////////////////////////////////////////////////////////////////////////////
 //roflying fence
 #ifndef RF_FENCE
-#  define RF_FENCE	ENABLED
+#  define RF_FENCE	DISABLE
 #endif
 
 // baiyang added in 20170830
 //////////////////////////////////////////////////////////////////////////////
 //roflying fence
 #ifndef PTZ_CONTROL
-#  define PTZ_CONTROL	DISABLED
+#  define PTZ_CONTROL	DISABLE
 #endif
 
 
