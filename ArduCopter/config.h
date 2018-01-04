@@ -1008,8 +1008,9 @@ union PACKED PassOSD_data_status {
 //////////////////////////////////////////////////////////////////////////////
 //roflying fence
 #ifndef PTZ_CONTROL
-#  define PTZ_CONTROL	DISABLE
+#  define PTZ_CONTROL	DISABLED
 #endif
+
 
 
 

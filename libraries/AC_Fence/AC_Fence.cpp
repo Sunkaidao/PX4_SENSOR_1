@@ -124,6 +124,8 @@ AC_Fence::AC_Fence(const AP_AHRS& ahrs, const AP_InertialNav& inav) :
 #else
 	_manual_recovery_start_ms(0)
 #endif
+    // end add
+
 {
     AP_Param::setup_object_defaults(this, var_info);
 
