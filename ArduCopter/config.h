@@ -666,13 +666,6 @@
 
 //added end
 
-
-#ifndef RF_TASK
-#  define RF_TASK	DISABLED
-#endif
-
-#if RF_TASK == ENABLED
-
 //baiyang added in 20170712
 ///////////////////////////////////////////////////////////////////////////////
 //charging Station
@@ -687,8 +680,6 @@
 //
 #ifndef ABMODE
   #  define ABMODE	DISABLED
-#endif
-
 #endif
 
 // baiyang added in 20170830

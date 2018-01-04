@@ -422,10 +422,10 @@ void Copter::auto_rtl_start()
 //baiyang modified in 20170628
 #if CHARGINGSTATION == ENABLED
 
-    if(task.get_chargingStation().get_Bstation_use())
-		    task.get_chargingStation().do_gotostation();
-	  else
-		    rtl_init(true);
+    if(chargingStation.get_Bstation_use())
+		chargingStation.do_gotostation();
+	else
+		rtl_init(true);
 #else
 
     // call regular rtl flight mode initialisation and ask it to ignore checks
@@ -445,7 +445,7 @@ void Copter::auto_rtl_run()
     //baiyang modified in 20170628
 #if CHARGINGSTATION == ENABLED
 
-	 if(task.get_chargingStation().get_Bstation_use())
+	 if(chargingStation.get_Bstation_use())
 		  guided_pos_control_run();
 	 else	
     	rtl_run();

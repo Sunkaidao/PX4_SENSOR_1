@@ -68,13 +68,18 @@ void Copter::userhook_init()
 
     #endif
 
-#if RF_TASK == ENABLED
-    task.init();
-#endif
-
 #if PTZ_CONTROL == ENABLED
     PtzControl.init();
 #endif
+
+#if CHARGINGSTATION == ENABLED
+    chargingStation.init();
+#endif
+
+#if ABMODE == ENABLED
+	rf_abmode.init();
+#endif
+
 }
 #endif
 
@@ -102,9 +107,13 @@ void Copter::userhook_50Hz()
 #ifdef USERHOOK_MEDIUMLOOP
 void Copter::userhook_MediumLoop()
 {
-#if RF_TASK == ENABLED
-    // put your 10Hz code here
-    task.update();
+
+#if CHARGINGSTATION == ENABLED
+    chargingStation.update();
+#endif
+
+#if ABMODE == ENABLED
+	rf_abmode.update();
 #endif
 
 }

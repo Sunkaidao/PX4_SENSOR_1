@@ -1,7 +1,8 @@
+#if CHARGINGSTATION == ENABLED
+
 #pragma once
 
 #include <stdio.h>
-#include "TaskDevice.h"
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Math/AP_Math.h>
 #include <AC_WPNav/AC_WPNav.h>
@@ -14,9 +15,8 @@
 #define YAW          0
 #define POSITION     1
 
-#if CHARGINGSTATION == ENABLED
 
-class AP_ChargingStation : public TaskDevice
+class AP_ChargingStation
 {
 public:
 	enum ChargingStation_CMD {

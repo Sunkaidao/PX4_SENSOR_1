@@ -472,7 +472,7 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
 #if CHARGINGSTATION == ENABLED
     case MSG_STATION_STATUS:
     		CHECK_PAYLOAD_SIZE(STATION_STATUS);
-    		send_station_status(copter.task.get_chargingStation());
+    		send_station_status(copter.chargingStation);
     		break;
 #endif
     
@@ -901,8 +901,8 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
                     break;
                 }
 				
-                copter.task.get_chargingStation().set_lat_station(packet.x);
-				copter.task.get_chargingStation().set_lng_station(packet.y);
+                copter.chargingStation.set_lat_station(packet.x);
+				copter.chargingStation.set_lng_station(packet.y);
                 result = MAV_RESULT_ACCEPTED;
                 break;
             }
@@ -916,8 +916,8 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
                 // z : /* empty */
                 // sanity check location
                 mavlink_command_int_t *packet_temp = &packet;
-				packet_temp->x = copter.task.get_chargingStation().get_lat_station();
-				packet_temp->y = copter.task.get_chargingStation().get_lng_station();
+				packet_temp->x = copter.chargingStation.get_lat_station();
+				packet_temp->y = copter.chargingStation.get_lng_station();
 				
                 mavlink_msg_command_int_send_struct(chan,packet_temp);
 				
@@ -937,11 +937,11 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
                 // z : alt
                 // sanity check location
                 mavlink_command_int_t *packet_temp = &packet;
-				packet_temp->x = copter.task.get_abmode().get_wp_loc().lat;
-				packet_temp->y = copter.task.get_abmode().get_wp_loc().lng;
-				packet_temp->z = copter.task.get_abmode().get_wp_loc().alt;
-				packet_temp->param1 = copter.task.get_abmode().get_abmode_direction();
-				packet_temp->param2 = copter.task.get_abmode().get_wp_mavlink_index();
+				packet_temp->x = copter.rf_abmode.get_wp_loc().lat;
+				packet_temp->y = copter.rf_abmode.get_wp_loc().lng;
+				packet_temp->z = copter.rf_abmode.get_wp_loc().alt;
+				packet_temp->param1 = copter.rf_abmode.get_abmode_direction();
+				packet_temp->param2 = copter.rf_abmode.get_wp_mavlink_index();
 				
                 mavlink_msg_command_int_send_struct(chan,packet_temp);
 				
@@ -988,14 +988,14 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
             #if CHARGINGSTATION == ENABLED
               if(is_equal(packet.param1,1.0f)){
           				if(copter.do_user_takeoff_rof(takeoff_alt, is_zero(packet.param3))) {
-          					  copter.task.get_chargingStation().set_receive_takeoff();
+          					  copter.chargingStation.set_receive_takeoff();
           	          result = MAV_RESULT_ACCEPTED;
                   } else {
           	          result = MAV_RESULT_FAILED;
                   }
         			}else{
           				if(copter.do_user_takeoff(takeoff_alt, is_zero(packet.param3))) {
-                      copter.task.get_chargingStation().set_receive_takeoff();
+                      copter.chargingStation.set_receive_takeoff();
           	          result = MAV_RESULT_ACCEPTED;
                   } else {
           	          result = MAV_RESULT_FAILED;
@@ -1456,7 +1456,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
             static uint64_t last_time = 0;
             			
             if((AP_HAL::millis64()-last_time)>1000)
-            			copter.task.get_chargingStation().set_blastoff_flag();
+            			copter.chargingStation.set_blastoff_flag();
             			
             last_time = AP_HAL::millis64();
             result = MAV_RESULT_ACCEPTED;

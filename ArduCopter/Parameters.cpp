@@ -933,19 +933,19 @@ const AP_Param::Info Copter::var_info[] = {
     GOBJECT(g2, "",  ParametersG2),
     
     //baiyang added in 20170413
-    #if CHARGINGSTATION == ENABLED
-      // @Group: CHS_
-      // @Path: ../libraries/AP_chargingStation/AP_chargingStation.cpp
-      GOBJECTN(task.get_chargingStation(), chargingStation,"CHS_", AP_ChargingStation),
-    #endif
+#if CHARGINGSTATION == ENABLED
+    // @Group: CHS_
+    // @Path: ../libraries/AP_Task/AP_chargingStation.cpp
+    GOBJECT(chargingStation, "CHS_", AP_ChargingStation),
+#endif
     //added end
 
 	//baiyang added in 20171026
-    #if ABMODE == ENABLED
+#if ABMODE == ENABLED
     // @Group: ABMODE_
-    // @Path: ../libraries/AP_chargingStation/AP_chargingStation.cpp
-    GOBJECTN(task.get_abmode(), abmode,"ABMODE_", AP_ABMode),
-    #endif
+    // @Path: ../libraries/AP_Task/AP_chargingStation.cpp
+    GOBJECT(rf_abmode,"ABMODE_", AP_ABMode),
+#endif
     //added end
     
     AP_VAREND

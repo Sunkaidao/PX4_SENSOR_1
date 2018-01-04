@@ -1,9 +1,10 @@
+#if ABMODE == ENABLED
+
 #pragma once
 
 
 #include <stdio.h>
 #include <math.h>
-#include "TaskDevice.h"
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Math/AP_Math.h>
 #include <AC_WPNav/AC_WPNav.h>
@@ -11,8 +12,6 @@
 #include "AP_Mission/AP_Mission.h"
 #include <AP_InertialNav/AP_InertialNav.h>
 #include <AP_SerialManager/AP_SerialManager.h>
-
-#if ABMODE == ENABLED
 
 #define YAW          0
 #define POSITION     1
@@ -67,7 +66,7 @@ enum switch_type
 	MANUAL = 1,
 };
 
-class AP_ABMode : public TaskDevice
+class AP_ABMode
 {
 public:
 	AP_ABMode() ;

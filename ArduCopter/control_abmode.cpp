@@ -22,7 +22,7 @@ bool Copter::abmode_init(bool ignore_checks)
    //guided_init(ignore_checks);
    
    if ((position_ok() 
-   		&& task.get_abmode().abmode_start()) \
+   		&& rf_abmode.abmode_start()) \
    	   	|| ignore_checks) {
         // initialise yaw
         set_auto_yaw_mode(get_default_auto_yaw_mode(false));

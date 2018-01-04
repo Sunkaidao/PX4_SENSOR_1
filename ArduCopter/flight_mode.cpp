@@ -69,12 +69,12 @@ bool Copter::set_mode(control_mode_t mode, mode_reason_t reason)
             // success = rtl_init(ignore_checks);
 //baiyang modified in 20170622
 #if CHARGINGSTATION == ENABLED
-     			  if(task.get_chargingStation().get_Bstation_use()){ 
-     				      success = task.get_chargingStation().do_gotostation();				
-     			  }else
-     				     success = rtl_init(ignore_checks);
+     		if(chargingStation.get_Bstation_use()){ 
+     			success = chargingStation.do_gotostation();				
+     		}else
+     			success = rtl_init(ignore_checks);
 #else
-     			  success = rtl_init(ignore_checks);
+     		success = rtl_init(ignore_checks);
 #endif
 //modified end
             break;
@@ -224,10 +224,10 @@ void Copter::update_flight_mode()
             // rtl_run();
 //baiyang modified in 20170724 
 #if CHARGINGSTATION == ENABLED
-            if(task.get_chargingStation().get_Bstation_use())
-            			guided_pos_control_run();
+            if(chargingStation.get_Bstation_use())
+            	guided_pos_control_run();
             else	
-                  rtl_run();
+                rtl_run();
 #else
             rtl_run();
 #endif
@@ -339,8 +339,8 @@ void Copter::exit_mode(control_mode_t old_control_mode, control_mode_t new_contr
 	if (old_control_mode == ABMODE_RF \
 		&& motors->armed())
 	{
-		task.get_abmode().record_break_point();
-		task.get_abmode().abmode_reset();
+		rf_abmode.record_break_point();
+		rf_abmode.abmode_reset();
 	}
 
 	if(old_control_mode == ABMODE_RF \
@@ -349,16 +349,16 @@ void Copter::exit_mode(control_mode_t old_control_mode, control_mode_t new_contr
 		|| new_control_mode == ALT_HOLD \
 		|| new_control_mode == LOITER))
 	{
-		task.get_abmode().set_break_mode(2);
-		task.get_abmode().set_relay_spray();
+		rf_abmode.set_break_mode(2);
+		rf_abmode.set_relay_spray();
 	}
 	else if(old_control_mode == ABMODE_RF \
 		&& motors->armed() \
 		&& (new_control_mode == RTL \
 		|| new_control_mode == AUTO))
 	{
-		task.get_abmode().set_break_mode(1);
-		task.get_abmode().set_relay_spray();
+		rf_abmode.set_break_mode(1);
+		rf_abmode.set_relay_spray();
 	}
 #endif
 //added end
