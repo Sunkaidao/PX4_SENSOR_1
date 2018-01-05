@@ -300,7 +300,8 @@ void DataFlash_Class::Log_Write_GPS(const AP_GPS &gps, uint8_t i, uint64_t time_
         LOG_PACKET_HEADER_INIT((uint8_t)(LOG_GPS_HEADINGA_MSG+i)),
         time_us       : time_us,
         heading       : gps.heading(i),
-        rtk_status    : (int16_t)(gps.RTK_status(i)/100)
+        rtk_status    : (int16_t)(gps.RTK_status(i)/100),
+        heading_status: (int8_t)(gps.Headstatus(i))
     };
     WriteBlock(&pkt3, sizeof(pkt3));
 //#endif 

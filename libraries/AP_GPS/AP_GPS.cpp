@@ -887,7 +887,7 @@ void AP_GPS::send_mavlink_gps_raw(mavlink_channel_t chan)
         get_hdop(0),
         get_vdop(0),
         ground_speed(0)*100,  // cm/s
-        heading(0)*100,       //ground_course(0)*100, // 1/100 degrees, baiyang modified in 20171207
+        ground_course(0)*100, // 1/100 degrees
         num_sats(0));
 }
 
