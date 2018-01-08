@@ -1,5 +1,5 @@
  #include <AP_HAL/AP_HAL.h>
-#include "AP_RangeFinder_Radar.h"
+#include "AP_RangeFinder_Radar_NALEI.h"
 #include <AP_SerialManager/AP_SerialManager.h>
 #include <ctype.h>
 
@@ -7,20 +7,20 @@
 
 extern const AP_HAL::HAL& hal;
 
-AP_RangeFinder_Radar::AP_RangeFinder_Radar(        RangeFinder::RangeFinder_State &_state,
+AP_RangeFinder_Radar_NALEI::AP_RangeFinder_Radar_NALEI(RangeFinder::RangeFinder_State &_state,
                                                                AP_SerialManager &serial_manager) :
     AP_RangeFinder_Backend(_state)
 {
-    uart = serial_manager.find_serial(AP_SerialManager::SerialProtocol_Radar, 0);
+    uart = serial_manager.find_serial(AP_SerialManager::SerialProtocol_Radar_NALEI, 0);
     if (uart != nullptr) {
-       uart->begin(serial_manager.find_baudrate(AP_SerialManager::SerialProtocol_Radar, 0));
+       uart->begin(serial_manager.find_baudrate(AP_SerialManager::SerialProtocol_Radar_NALEI, 0));
     }
 }
-bool AP_RangeFinder_Radar::detect(AP_SerialManager &serial_manager)
+bool AP_RangeFinder_Radar_NALEI::detect(AP_SerialManager &serial_manager)
 {
-    return serial_manager.find_serial(AP_SerialManager::SerialProtocol_Radar, 0) != nullptr;
+    return serial_manager.find_serial(AP_SerialManager::SerialProtocol_Radar_NALEI, 0) != nullptr;
 }
-bool AP_RangeFinder_Radar::get_reading(uint16_t &reading_cm)
+bool AP_RangeFinder_Radar_NALEI::get_reading(uint16_t &reading_cm)
 {   
 	uint8_t checksum = 0x00;
 	static uint16_t distance = 0;
@@ -309,7 +309,7 @@ bool AP_RangeFinder_Radar::get_reading(uint16_t &reading_cm)
 	}	
 	
 
-void AP_RangeFinder_Radar::update(void)
+void AP_RangeFinder_Radar_NALEI::update(void)
 {
     if (get_reading(state.distance_cm)) {
         // update range_valid state based on distance measured

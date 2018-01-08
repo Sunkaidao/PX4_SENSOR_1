@@ -24,7 +24,7 @@
 //	modified by ZhangYong 20171031
 //#define RANGEFINDER_MAX_INSTANCES 2
 //	modified end
-#define RANGEFINDER_MAX_INSTANCES 3
+#define RANGEFINDER_MAX_INSTANCES 1
 
 #define RANGEFINDER_GROUND_CLEARANCE_CM_DEFAULT 10
 #define RANGEFINDER_PREARM_ALT_MAX_CM           200
@@ -60,8 +60,11 @@ public:
         RangeFinder_TYPE_VL53L0X = 16,
         //	added by ZhangYong 20170929
 #if RNGRADAR == ENABLED        
-        RangeFinder_TYPE_Radar=17
+        RangeFinder_TYPE_Radar_NALEI=17,
+        RangeFinder_TYPE_Radar_GKXN=18,
+        RangeFinder_TYPE_Radar_ZHIBO=19,        
 #endif
+
         //	added end
     };
 

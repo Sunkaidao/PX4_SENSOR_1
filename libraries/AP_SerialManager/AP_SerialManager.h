@@ -108,15 +108,29 @@
 #define AP_SERIALMANAGER_BCBMONITOR_BUFSIZE_TX     		128
 
 //	added by ZhangYong 20170929
+// changed by xusiming 20180105
 #if RNGRADAR == ENABLED
-#define AP_SERIALMANAGER_RADAR_BAUD                     115200
-#define AP_SERIALMANAGER_RADAR_BUFSIZE_RX               128
-#define AP_SERIALMANAGER_RADAR_BUFSIZE_TX               128
+#define AP_SERIALMANAGER_RADAR_NALEI_BAUD               115200
+#define AP_SERIALMANAGER_RADAR_NALEI_BUFSIZE_RX         128
+#define AP_SERIALMANAGER_RADAR_NALEI_BUFSIZE_TX         128
+
+#define AP_SERIALMANAGER_RADAR_ZHIBO_BAUD               38400
+#define AP_SERIALMANAGER_RADAR_ZHIBO_BUFSIZE_RX         128
+#define AP_SERIALMANAGER_RADAR_ZHIBO_BUFSIZE_TX         128
 #endif
 
 #define AP_SERIALMANAGER_BCBPMBUS_BAUD           		57600
 #define AP_SERIALMANAGER_BCBPMBUS_BUFSIZE_RX     		128
 #define AP_SERIALMANAGER_BCBPMBUS_BUFSIZE_TX     		128
+
+//added by xusiming and used for GKXN radar 20180105
+#if PROJECTGKXN==ENABLE
+#define AP_SERIALMANAGER_RADAR_GKXN_BAUD                115200
+#define AP_SERIALMANAGER_RADAR_GKXN_BUFSIZE_RX          128
+#define AP_SERIALMANAGER_RADAR_GKXN_BUFSIZE_TX          128
+#endif
+
+
 
 
 
@@ -145,7 +159,13 @@ public:
         SerialProtocol_PassOSD = 16,
         SerialProtocol_BCBMonitor = 17,
         SerialProtocol_BCBPMBus = 18,
-        SerialProtocol_Radar=19,
+#if RNGRADAR == ENABLED
+        SerialProtocol_Radar_NALEI=19 , 
+        SerialProtocol_Radar_ZHIBO=20 ,
+#endif
+#if PROJECTGKXN==ENABLE
+        SerialProtocol_Radar_GKXN=21 ,
+#endif
 #if CHARGINGSTATION == ENABLED
         //biayang added in 20170612
         SerialProtocol_ChargingStation = 68,         //xiamen Charging Station
