@@ -295,7 +295,7 @@
 //  RADAR NALEI
 
 #ifndef RNGRADAR
- # define RNGRADAR DISABLED
+ # define RNGRADAR ENABLED
 #endif 
 
 
@@ -577,23 +577,9 @@ struct land_detector_log
 
 //	added by ZhangYong to log the motor calculation
 
-struct MTR_log
-{
-	
-float rc_roll_log;
-	float rc_pitch_log;
-	float rc_throttle_log;
-	float rc_yaw_log;
-	float throttle_avg_max_log;
-	float yaw_allowed_log;
-	float yaw_allowedd_log;
-	float rp_low_log;
-	float rp_high_log;
-	float thr_thrust_best_rpy_log;
-	float thr_adj_log;
-	float thr_adjj_log;
-	float rpy_scale_log;
-};
+
+
+
 
 
 struct PACKED PassOSD_data_struct {
@@ -959,7 +945,7 @@ union PACKED PassOSD_data_status {
 
 //Use GPS #HEADINGA messages
 #ifndef DGPS_HEADINGA
-  #  define DGPS_HEADINGA          DISABLED
+  #  define DGPS_HEADINGA          ENABLED
 #endif
 
 //This macro is defined in AP_NavEKF2_core.h,in this file, AP_NavEKF2_core.h can not be seen AP_NavEKF2.h
@@ -972,34 +958,16 @@ union PACKED PassOSD_data_status {
 
 //added end
 
+
+
+
+
 //baiyang added in 20170712
 ///////////////////////////////////////////////////////////////////////////////
 //charging Station
 //
 #ifndef CHARGINGSTATION
-  #  define CHARGINGSTATION	DISABLED
-#endif
-
-//baiyang added in 20170712
-///////////////////////////////////////////////////////////////////////////////
-//AB Mode
-//
-#ifndef ABMODE
-  #  define ABMODE	DISABLED
-#endif
-
-// baiyang added in 20170830
-//////////////////////////////////////////////////////////////////////////////
-//roflying fence
-#ifndef RF_FENCE
-#  define RF_FENCE	DISABLED
-#endif
-
-// baiyang added in 20170830
-//////////////////////////////////////////////////////////////////////////////
-//roflying fence
-#ifndef PTZ_CONTROL
-#  define PTZ_CONTROL	DISABLED
+  #  define CHARGINGSTATION	ENABLED
 #endif
 
 //baiyang added in 20170712
@@ -1010,11 +978,27 @@ union PACKED PassOSD_data_status {
   #  define ABMODE	ENABLED
 #endif
 
+// baiyang added in 20170830
+//////////////////////////////////////////////////////////////////////////////
+//roflying fence
+#ifndef RF_FENCE
+#  define RF_FENCE	DISABLE
+#endif
+
+// baiyang added in 20170830
+//////////////////////////////////////////////////////////////////////////////
+//roflying fence
+#ifndef PTZ_CONTROL
+#  define PTZ_CONTROL	DISABLED
+#endif
+
+
+
 
 //baiyang added in 20170829
 /////////////////////////////////////////////////////////////////////////////////////
 //Enabled UserCode.cpp
-#define USERHOOK_INIT	1
+#define USERHOOK_INIT
 #define USERHOOK_MEDIUMLOOP
 #define USERHOOK_50HZLOOP
 #define USERHOOK_SUPERSLOWLOOP

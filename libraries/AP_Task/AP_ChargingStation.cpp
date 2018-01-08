@@ -17,6 +17,7 @@
 
 #if CHARGINGSTATION == ENABLED
 
+
 #define TOUT_default 10
 #define COMM_REP_default 3
 #define REQ_L_REP_default 9
@@ -1147,3 +1148,4 @@ void AP_ChargingStation::update() {
                            status, MSG);
 }
 #endif
+

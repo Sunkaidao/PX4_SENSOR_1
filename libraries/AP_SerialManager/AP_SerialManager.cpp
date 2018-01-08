@@ -236,15 +236,33 @@ void AP_SerialManager::init()
 										AP_SERIALMANAGER_BCBMONITOR_BUFSIZE_RX,
 										AP_SERIALMANAGER_BCBMONITOR_BUFSIZE_TX);
 					break;	
-
+// changed by xusiming and used for radar 20180105
 #if RNGRADAR == ENABLE
-				case SerialProtocol_Radar:
-					state[i].baud = AP_SERIALMANAGER_RADAR_BAUD / 1000;
+				case SerialProtocol_Radar_NALEI:
+					state[i].baud = AP_SERIALMANAGER_RADAR_NALEI_BAUD / 1000;	 // update baud param in case user looks at it
 					state[i].uart->begin(map_baudrate(state[i].baud),
-										AP_SERIALMANAGER_RADAR_BUFSIZE_RX,
-										AP_SERIALMANAGER_RADAR_BUFSIZE_TX);
+										AP_SERIALMANAGER_RADAR_NALEI_BUFSIZE_RX,
+										AP_SERIALMANAGER_RADAR_NALEI_BUFSIZE_TX);
+				    break;
+				case SerialProtocol_Radar_ZHIBO:
+					state[i].baud = AP_SERIALMANAGER_RADAR_ZHIBO_BAUD / 1000;	 // update baud param in case user looks at it
+					state[i].uart->begin(map_baudrate(state[i].baud),
+										AP_SERIALMANAGER_RADAR_ZHIBO_BUFSIZE_RX,
+										AP_SERIALMANAGER_RADAR_ZHIBO_BUFSIZE_TX);
+
+//					printf("SerialProtocol_Radar_ZHIBO %d\n", SerialProtocol_Radar_ZHIBO);					
+				    break;
+#endif
+// added by xusiming 20180105
+#if PROJECTGKXN==ENABLE
+				case SerialProtocol_Radar_GKXN:
+					state[i].baud = AP_SERIALMANAGER_RADAR_GKXN_BAUD / 1000;	 // update baud param in case user looks at it
+					state[i].uart->begin(map_baudrate(state[i].baud),
+										AP_SERIALMANAGER_RADAR_GKXN_BUFSIZE_RX,
+										AP_SERIALMANAGER_RADAR_GKXN_BUFSIZE_TX);
 					break;	
 #endif
+
 					
 #if BCBPMBUS == ENABLE
 				case SerialProtocol_BCBPMBus:

@@ -55,6 +55,8 @@ void Copter::read_rangefinder(void)
 
     rangefinder_state.alt_cm = temp_alt;
 
+//	printf("read_rangefinder %d\n", rangefinder_state.alt_cm);
+
     // filter rangefinder for use by AC_WPNav
     uint32_t now = AP_HAL::millis();
 

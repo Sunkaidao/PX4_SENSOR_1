@@ -567,6 +567,29 @@ struct PACKED log_PID {
 //	added end	
 };
 
+//	added by ZhangYong 20180105 just for loging
+/*
+struct MTR_log
+{
+	float rc_roll_log;
+	float rc_pitch_log;
+	float rc_throttle_log;
+	float rc_yaw_log;
+	float thr_thrust_best_log;
+	float yaw_allowed_log;
+	float rpy_low_log;
+	float rpy_high_log;
+	float thr_thrust_best_rpy_log;
+	float rpy_scale_log;
+	uint8_t limit_roll_pitch;
+	uint8_t limit_yaw;
+	uint8_t limit_thr_lower;
+	uint8_t limit_thr_upper;
+};*/
+//	added end
+
+
+
 struct PACKED log_Current {
     LOG_PACKET_HEADER;
     uint64_t time_us;
@@ -671,6 +694,53 @@ struct PACKED log_Communication_drops {
 
 //	added end
 #endif
+
+//	added by ZhangYong 20180104
+struct PACKED log_PADCMD {
+    LOG_PACKET_HEADER;
+	uint64_t timestamp;
+	uint32_t msgid_lg;
+};
+//	added end
+
+
+
+
+	
+/*
+*/
+
+
+
+
+struct PACKED log_MTR{
+	LOG_PACKET_HEADER;
+    uint64_t timestamp;
+    float rc_roll;
+	float rc_pitch;
+	float rc_throttle;
+	float rc_yaw;
+	float thr_thrust_best;
+	float yaw_allowed;
+	float rpy_low;
+	float rpy_high;
+	float thr_thrust_best_rpy;
+	float rpy_scale;
+	uint8_t lmt_roll_pitch;
+	uint8_t lmt_yaw;
+	uint8_t lmt_thr_lower;
+	uint8_t lmt_thr_upper;
+};
+
+struct PACKED log_Control {
+	LOG_PACKET_HEADER;
+	uint64_t timestamp;
+	uint8_t rc_override_active_log;
+	uint8_t rcin_override_valid_log;		
+	uint8_t rc_valid_log;
+	uint16_t rc3_radio_in;
+};
+
 
 /*
   terrain log structure
@@ -1112,6 +1182,18 @@ Format characters in the format string for binary log messages
   Q   : uint64_t
  */
 
+//	modified by ZhangYong 20180105 log id over
+
+/*
+{ LOG_GIMBAL1_MSG, sizeof(log_Gimbal1), \
+      "GMB1", "Iffffffffff", "TimeMS,dt,dax,day,daz,dvx,dvy,dvz,jx,jy,jz" }, \
+    { LOG_GIMBAL2_MSG, sizeof(log_Gimbal2), \
+      "GMB2", "IBfffffffff", "TimeMS,es,ex,ey,ez,rx,ry,rz,tx,ty,tz" }, \
+    { LOG_GIMBAL3_MSG, sizeof(log_Gimbal3), \
+      "GMB3", "Ihhh", "TimeMS,rl_torque_cmd,el_torque_cmd,az_torque_cmd" }, \
+*/
+
+
 // messages for all boards
 #define LOG_BASE_STRUCTURES \
     { LOG_FORMAT_MSG, sizeof(log_Format), \
@@ -1150,6 +1232,12 @@ Format characters in the format string for binary log messages
       "SPY",  "QbBBBIIhIBB",     "TimeMS,ab,run,spy,tt,ot,ut,pr,wp,fm,pc" }, \
     { LOG_CD_MSG, sizeof(log_Communication_drops), \
 	 "CD", "Qif", "TMS,D2H,CD" }, \
+	{ LOG_PADCMD_MSG, sizeof(log_PADCMD), \
+	 "PAD", "QI", "TMS,MID" }, \
+	{ LOG_MTR_MSG, sizeof(log_MTR), \
+     "MTR",  "QffffffffffBBBB",     "TimeMS,r,p,t,y,thr,ya,rpyl,rpyh,thrb,sc,r,p,tl,tu" }, \
+    { LOG_CONTROL_MSG, sizeof(log_Control), \
+      "CTR",  "QBBBH",     "TimeMS,ov,oa,rv,rc3" }, \
 	{ LOG_PMBUS0_MSG, sizeof(log_BCBPMBus), \
 	 "PM0", PMBUS_FMT, PMBUS_LABELS }, \
 	{ LOG_PMBUS1_MSG, sizeof(log_BCBPMBus), \
@@ -1160,8 +1248,6 @@ Format characters in the format string for binary log messages
 	 "PM3", PMBUS_FMT, PMBUS_LABELS }, \
     { LOG_BARO_MSG, sizeof(log_BARO), \
       "BARO",  BARO_FMT, BARO_LABELS }, \
-    { LOG_CD_MSG, sizeof(log_Communication_drops), \
-  	  "CD", CD_FMT, CD_LABELS }, \
     { LOG_POWR_MSG, sizeof(log_POWR), \
       "POWR","QffH","TimeUS,Vcc,VServo,Flags" },  \
     { LOG_CMD_MSG, sizeof(log_Cmd), \
@@ -1337,12 +1423,6 @@ Format characters in the format string for binary log messages
       "ORGN","QBLLe","TimeUS,Type,Lat,Lng,Alt" }, \
     { LOG_RPM_MSG, sizeof(log_RPM), \
       "RPM",  "Qff", "TimeUS,rpm1,rpm2" }, \
-    { LOG_GIMBAL1_MSG, sizeof(log_Gimbal1), \
-      "GMB1", "Iffffffffff", "TimeMS,dt,dax,day,daz,dvx,dvy,dvz,jx,jy,jz" }, \
-    { LOG_GIMBAL2_MSG, sizeof(log_Gimbal2), \
-      "GMB2", "IBfffffffff", "TimeMS,es,ex,ey,ez,rx,ry,rz,tx,ty,tz" }, \
-    { LOG_GIMBAL3_MSG, sizeof(log_Gimbal3), \
-      "GMB3", "Ihhh", "TimeMS,rl_torque_cmd,el_torque_cmd,az_torque_cmd" }, \
     { LOG_RATE_MSG, sizeof(log_Rate), \
       "RATE", "Qffffffffffff",  "TimeUS,RDes,R,ROut,PDes,P,POut,YDes,Y,YOut,ADes,A,AOut" }, \
     { LOG_RALLY_MSG, sizeof(log_Rally), \
@@ -1371,7 +1451,10 @@ Format characters in the format string for binary log messages
 
 // message types for common messages
 enum LogMessages {
-    LOG_FORMAT_MSG = 128,
+//	modified by ZhangYong for over
+//	LOG_FORMAT_MSG = 128,
+//	modified end
+	LOG_FORMAT_MSG = 128,
     LOG_PARAMETER_MSG,
     LOG_GPS_MSG,
     LOG_GPS2_MSG,
@@ -1482,10 +1565,10 @@ enum LogMessages {
     LOG_MSG_SBPEVENT,
     LOG_TRIGGER_MSG,
 
-    LOG_GIMBAL1_MSG,
+/*    LOG_GIMBAL1_MSG,
     LOG_GIMBAL2_MSG,
     LOG_GIMBAL3_MSG,
-    LOG_RATE_MSG,
+ */ LOG_RATE_MSG,
     LOG_RALLY_MSG,
     LOG_VISUALODOM_MSG,
     LOG_AOA_SSA_MSG,
@@ -1521,7 +1604,9 @@ enum LogMessages {
 //#if ABMODE == ENABLED
 	LOG_TWP_MSG,
 //#endif
-
+	LOG_PADCMD_MSG,
+	LOG_MTR_MSG,
+	LOG_CONTROL_MSG
 };
 
 enum LogOriginType {

@@ -15,7 +15,7 @@
 	url = git://github.com/google/benchmark.git
 [submodule "modules/mavlink"]
 	path = modules/mavlink
-	url = http://r-git-server/mavlink.git
+	url = http://192.168.10.241/xiazibin/ABPoint_mavlink.git
 [submodule "gtest"]
 	path = modules/gtest
 	url = git://github.com/ArduPilot/googletest

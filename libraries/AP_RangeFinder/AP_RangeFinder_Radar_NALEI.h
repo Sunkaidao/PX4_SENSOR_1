@@ -6,27 +6,32 @@
 
 
 
-class AP_RangeFinder_Radar: public AP_RangeFinder_Backend
+class AP_RangeFinder_Radar_NALEI: public AP_RangeFinder_Backend
 {
 
 
 public:
     // constructor
-    AP_RangeFinder_Radar(RangeFinder::RangeFinder_State &_state,
+    AP_RangeFinder_Radar_NALEI(RangeFinder::RangeFinder_State &_state,
                                    AP_SerialManager &serial_manager);
 
     // static detection function
-    static bool detect(  AP_SerialManager &serial_manager);
+    static bool detect(AP_SerialManager &serial_manager);
 
     // update state
     void update(void);
+protected:
+
+    virtual MAV_DISTANCE_SENSOR _get_mav_distance_sensor_type() const override {
+        return MAV_DISTANCE_SENSOR_LASER;
+    }
 	
 private:
     // get a reading
     bool get_reading(uint16_t &reading_cm);
     uint32_t last_reading_ms = 0;
     AP_HAL::UARTDriver *uart = nullptr;
-	struct Time_Radar_error
+	struct Time_Radar_NALEI_error
 	{
 		uint8_t Time_Head_error;
 		uint8_t Time_Invalid_data;

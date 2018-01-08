@@ -45,8 +45,11 @@ public:
 #if CHARGINGSTATION == ENABLED
     AP_ChargingStation &get_chargingStation() {return chargingStation;}
 #endif
+
+#if ABMODE == ENABLED
 	AP_ABMode &get_abmode() {return abmode;}
-	
+#endif
+
     static const struct AP_Param::GroupInfo var_info[];
 
 private:
@@ -55,7 +58,10 @@ private:
 #if CHARGINGSTATION == ENABLED
     AP_ChargingStation chargingStation;
 #endif
+
+#if ABMODE == ENABLED
 	AP_ABMode abmode;
+#endif
 
     static TaskDevice* _devices[];
 };

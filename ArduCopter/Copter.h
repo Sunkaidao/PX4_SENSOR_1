@@ -185,17 +185,13 @@ public:
 #endif
     friend class AP_Arming_Copter;
 
-//#if CHARGINGSTATION == ENABLED
+#if CHARGINGSTATION == ENABLED
 	//baiyang added in 20170717
     friend class AP_ChargingStation;             // ArduPilot chargingStation library
-//#endif
-#if RF_TASK == ENABLED
-    friend class AP_Task;
 #endif
 
-
 #if RF_FENCE == ENABLED
-    //baiyang added in 20170717
+   //baiyang added in 20170717
 	friend class AC_Fence;
 	//added end
 #endif 

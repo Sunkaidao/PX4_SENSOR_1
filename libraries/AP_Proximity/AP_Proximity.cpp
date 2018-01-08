@@ -19,6 +19,8 @@
 #include "AP_Proximity_RangeFinder.h"
 #include "AP_Proximity_MAV.h"
 #include "AP_Proximity_SITL.h"
+#include "AP_Proximity_Radar_GKXN.h"
+
 
 extern const AP_HAL::HAL &hal;
 
@@ -206,16 +208,13 @@ void AP_Proximity::init(void)
 void AP_Proximity::update(void)
 {
     for (uint8_t i=0; i<num_instances; i++) {
-        if (drivers[i] != nullptr) 
-		{
-           	if (_type[i] == Proximity_Type_None) 
-			{
-               	// allow user to disable a proximity sensor at runtime
-               	state[i].status = Proximity_NotConnected;
-               	continue;
-           	}
-//			printf("AP_Proximity::update\n");
-           	drivers[i]->update();
+        if (drivers[i] != nullptr) {
+            if (_type[i] == Proximity_Type_None) {
+                // allow user to disable a proximity sensor at runtime
+                state[i].status = Proximity_NotConnected;
+                continue;
+            }
+            drivers[i]->update();
         }
     }
 
@@ -301,6 +300,16 @@ void AP_Proximity::detect_instance(uint8_t instance)
         drivers[instance] = new AP_Proximity_RangeFinder(*this, state[instance]);
         return;
     }
+#if PROJECTGKXN == ENABLE
+	 if (type == Proximity_Type_Radar_GKXN) {
+        if (AP_Proximity_Radar_GKXN::detect(serial_manager))
+			{
+            state[instance].instance = instance;
+            drivers[instance] = new AP_Proximity_Radar_GKXN(*this, state[instance], serial_manager);
+            return;
+		    }
+    }
+#endif	
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
     if (type == Proximity_Type_SITL) {
         state[instance].instance = instance;

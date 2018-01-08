@@ -33,7 +33,8 @@
 //#include "AP_RangeFinder_PX4.h"
 
 #if RNGRADAR==ENABLE
-#include "AP_RangeFinder_Radar.h"
+#include "AP_RangeFinder_Radar_NALEI.h"
+#include "AP_RangeFinder_Radar_ZHIBO.h"
 #endif
 //	added end
 
@@ -553,6 +554,8 @@ RangeFinder::RangeFinder(AP_SerialManager &_serial_manager, enum Rotation orient
  */
 void RangeFinder::init(void)
 {
+//	printf("RangeFinder::init %d\n", num_instances);
+
     if (num_instances != 0) {
         // init called a 2nd time?
         return;
@@ -614,6 +617,9 @@ bool RangeFinder::_add_backend(AP_RangeFinder_Backend *backend)
 void RangeFinder::detect_instance(uint8_t instance)
 {
     enum RangeFinder_Type _type = (enum RangeFinder_Type)state[instance].type.get();
+
+//	printf("detect_instance %d\n", instance);
+	
     switch (_type) {
     case RangeFinder_TYPE_PLI2C:
     case RangeFinder_TYPE_PLI2CV3:
@@ -710,14 +716,23 @@ void RangeFinder::detect_instance(uint8_t instance)
         }
         break;
 #if RNGRADAR == ENABLED
-/*		case RangeFinder_TYPE_Radar:
-        if (AP_RangeFinder_Radar::detect(serial_manager)) 
+	case RangeFinder_TYPE_Radar_NALEI:
+		if (AP_RangeFinder_Radar_NALEI::detect(serial_manager)) {
+			state[instance].instance = instance;
+			drivers[instance] = new AP_RangeFinder_Radar_NALEI(state[instance], serial_manager);
+		}
+		break;
+
+	case RangeFinder_TYPE_Radar_ZHIBO:
+		if (AP_RangeFinder_Radar_ZHIBO::detect(serial_manager)) 
 		{
-            state[instance].instance = instance;
-            drivers[instance] = new AP_RangeFinder_Radar(state[instance], serial_manager);
-        }
-        break;
-*/#endif
+//			printf("RangeFinder_TYPE_Radar_ZHIBO %d\n", RangeFinder_TYPE_Radar_ZHIBO);
+			state[instance].instance = instance;
+			drivers[instance] = new AP_RangeFinder_Radar_ZHIBO(state[instance], serial_manager); 
+		}
+		break;
+
+#endif
     default:
         break;
     }

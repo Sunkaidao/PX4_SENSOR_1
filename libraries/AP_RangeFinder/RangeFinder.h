@@ -60,8 +60,11 @@ public:
         RangeFinder_TYPE_VL53L0X = 16,
         //	added by ZhangYong 20170929
 #if RNGRADAR == ENABLED        
-        RangeFinder_TYPE_Radar=17
+        RangeFinder_TYPE_Radar_NALEI=17,
+        RangeFinder_TYPE_Radar_GKXN=18,
+        RangeFinder_TYPE_Radar_ZHIBO=19,        
 #endif
+
         //	added end
     };
 

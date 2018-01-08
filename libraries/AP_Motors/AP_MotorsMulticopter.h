@@ -29,6 +29,28 @@
 // spool definition
 #define AP_MOTORS_SPOOL_UP_TIME_DEFAULT 0.5f    // time (in seconds) for throttle to increase from zero to min throttle, and min throttle to full throttle.
 
+
+//	added by ZhangYong 20180105 just for loging
+struct MTR_log
+{
+	float rc_roll_log;
+	float rc_pitch_log;
+	float rc_throttle_log;
+	float rc_yaw_log;
+	float thr_thrust_best_log;
+	float yaw_allowed_log;
+	float rpy_low_log;
+	float rpy_high_log;
+	float thr_thrust_best_rpy_log;
+	float rpy_scale_log;
+	uint8_t limit_roll_pitch;
+	uint8_t limit_yaw;
+	uint8_t limit_thr_lower;
+	uint8_t limit_thr_upper;
+};
+//	added end
+
+
 /// @class      AP_MotorsMulticopter
 class AP_MotorsMulticopter : public AP_Motors {
 public:
@@ -91,6 +113,10 @@ public:
     // flight. Thrust is in the range 0 to 1
     virtual void        output_motor_mask(float thrust, uint8_t mask);
 
+	//	added by ZhangYong just for loging purpose 20180105
+	struct MTR_log * get_mtr_log();
+	//	added end
+
     // get minimum or maximum pwm value that can be output to motors
     int16_t             get_pwm_output_min() const;
     int16_t             get_pwm_output_max() const;
@@ -111,6 +137,8 @@ protected:
 
     // output_to_motors - sends commands to the motors
     virtual void        output_to_motors() = 0;
+
+	
 
     // update the throttle input filter
     virtual void        update_throttle_filter();
@@ -192,4 +220,8 @@ protected:
 
     // vehicle supplied callback for thrust compensation. Used for tiltrotors and tiltwings
     thrust_compensation_fn_t _thrust_compensation_callback;
+
+	//	added by ZhangYong 20180105 just fot loging
+	struct MTR_log _mtr_log;
+	//	added end 
 };

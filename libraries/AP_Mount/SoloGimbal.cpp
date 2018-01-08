@@ -371,6 +371,7 @@ void SoloGimbal::update_target(Vector3f newTarget)
     _att_target_euler_rad.y = constrain_float(_att_target_euler_rad.y,radians(-90),radians(0));
 }
 
+/*
 void SoloGimbal::write_logs(DataFlash_Class* dataflash)
 {
     if (dataflash == nullptr) return;
@@ -418,7 +419,7 @@ void SoloGimbal::write_logs(DataFlash_Class* dataflash)
     _log_del_ang.zero();
     _log_del_vel.zero();
 }
-
+*/
 bool SoloGimbal::joints_near_limits()
 {
     return fabsf(_measurement.joint_angles.x) > radians(40) || _measurement.joint_angles.y > radians(45) || _measurement.joint_angles.y < -radians(135);

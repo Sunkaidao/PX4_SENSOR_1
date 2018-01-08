@@ -657,6 +657,7 @@ bool AP_Arming_Copter::chargingStation_checks(bool display_failure)
 }
 
 #endif
+
 //added end
 
 // check nothing is too close to vehicle
