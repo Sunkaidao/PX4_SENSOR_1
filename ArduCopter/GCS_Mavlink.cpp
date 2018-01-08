@@ -498,26 +498,27 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
 		CHECK_PAYLOAD_SIZE(PAYLOAD_STATUS);
 		send_payload_status(&(copter.sprayer), &(copter.flowmeter));
 
-	break;
+		break;
+#endif	
 
         //baiyang added in 20170713
 #if CHARGINGSTATION == ENABLED
     case MSG_STATION_STATUS:
-    		CHECK_PAYLOAD_SIZE(STATION_STATUS);
-    		send_station_status(copter.chargingStation);
-    		break;
+    	CHECK_PAYLOAD_SIZE(STATION_STATUS);
+    	send_station_status(copter.chargingStation);
+    	break;
 #endif
     
 #if FXTX_AUTH == ENABLED
     //baiyang added in 20170831
-  	case MSG_FLIGHT_TIME:
+/*  	case MSG_FLIGHT_TIME:
   		CHECK_PAYLOAD_SIZE(FLIGHT_TIME_THISMAV);
   		send_flight_time_thismav(chan, \
   								copter.g.flight_time_hour.get(), \
   								copter.g.flight_time_sec.get(), \
   								copter.local_flight_time_sec);
   		break;
-    //added end
+*/    //added end
 #endif
 //	added end
 
@@ -961,7 +962,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
         mavlink_msg_command_int_decode(msg, &packet);
         switch(packet.command)
         {
-#if CHARGINGSTATION == ENABLED
+
             case MAV_CMD_DO_SET_ROI: {
                 // param1 : /* Region of interest mode (not used)*/
                 // param2 : /* MISSION index/ target ID (not used)*/
@@ -982,7 +983,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
                 result = MAV_RESULT_ACCEPTED;
                 break;
             }
-#endif			
+	
 
 #if CHARGINGSTATION == ENABLED
 			case MAV_CMD_SET_STA_POS: {

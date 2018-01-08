@@ -389,6 +389,8 @@ void GCS_MAVLINK::send_ahrs2(AP_AHRS &ahrs)
 #endif
 }
 
+#if FXTX_AUTH == ENABLED
+
 void GCS_MAVLINK::send_flight_time_thismav(int16_t para_flight_time_hour, \
 														int16_t para_flight_time_sec, \
 														uint32_t local_flight_time_sec)
@@ -401,7 +403,7 @@ void GCS_MAVLINK::send_flight_time_thismav(int16_t para_flight_time_hour, \
 										local_flight_time_sec);
 }
 		
-
+#endif
 
 
 #if PROJECTGKXN == ENABLED

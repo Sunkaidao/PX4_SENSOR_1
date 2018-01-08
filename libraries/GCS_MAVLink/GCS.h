@@ -227,12 +227,12 @@ public:
 	void send_payload_status(AC_Sprayer *sprayer, AP_Flowmeter *flowmeter) ;
 #endif
 	
-//#if PROJECTGKXN == ENABLED
+#if PROJECTGKXN == ENABLED
 	void send_flight_time_thismav(int16_t para_flight_time_hour, \
 														int16_t para_flight_time_sec, \
 														uint32_t local_flight_time_sec);
 	
-//#endif
+#endif
 	//	added end	
 
     // return a bitmap of active channels. Used by libraries to loop

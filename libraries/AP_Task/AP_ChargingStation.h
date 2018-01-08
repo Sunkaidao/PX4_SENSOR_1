@@ -1,8 +1,5 @@
 #pragma once
 
-
-#if CHARGINGSTATION == ENABLED
-
 #include <stdio.h>
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Math/AP_Math.h>

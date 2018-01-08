@@ -17,7 +17,6 @@
 
 #if CHARGINGSTATION == ENABLED
 
-
 #define TOUT_default 10
 #define COMM_REP_default 3
 #define REQ_L_REP_default 9
@@ -189,7 +188,7 @@ AP_ChargingStation::AP_ChargingStation()
 }
 
 bool AP_ChargingStation::init() {
-  _port = copter.get_serial_manager()->find_serial( \
+  _port = copter.serial_manager.find_serial(
       AP_SerialManager::SerialProtocol_ChargingStation, 0);
 
   if (_port) {
@@ -1148,4 +1147,5 @@ void AP_ChargingStation::update() {
                            status, MSG);
 }
 #endif
+
 

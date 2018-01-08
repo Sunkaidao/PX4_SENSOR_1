@@ -703,12 +703,6 @@ private:
 #endif
 
 
-	//baiyang added in 20170829
-#if RF_TASK == ENABLED
-	AP_Task task;
-		
-
-
 //baiyang added in 20170829
 
 #if CHARGINGSTATION == ENABLED

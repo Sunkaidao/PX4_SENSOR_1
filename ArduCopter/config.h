@@ -967,7 +967,7 @@ union PACKED PassOSD_data_status {
 //charging Station
 //
 #ifndef CHARGINGSTATION
-  #  define CHARGINGSTATION	ENABLED
+  #  define CHARGINGSTATION	DISABLE
 #endif
 
 //baiyang added in 20170712

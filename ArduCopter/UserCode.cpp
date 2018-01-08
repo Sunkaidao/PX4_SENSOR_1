@@ -170,8 +170,6 @@ void Copter::userhook_init()
 	rf_abmode.init();
 #endif
 
-
-
 }
 #endif // end USERHOOK_INIT
 
