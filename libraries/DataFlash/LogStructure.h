@@ -53,6 +53,7 @@ struct PACKED log_GPS_HEADINGA {
 	  //baiyang add in 20161128
 	  int16_t  rtk_status;
 	  //added end 
+	  int8_t   heading_status;
 };
 //#endif
 
@@ -1041,8 +1042,8 @@ struct PACKED log_Proximity {
 #define GPS_FMT   "QBIHBcLLefffB"
 
 // see "struct log_RTBS" and "Log_Write_RTBS":
-#define RTK_LABELS "TimeUS,HD,Rs"
-#define RTK_FMT   "Qfh"
+#define RTK_LABELS "TimeUS,HD,Rs,HDs"
+#define RTK_FMT   "Qfhb"
 
 // see "struct log_TWP" and "Log_Write_TWP":
 #define TWP_LABELS "TimeUS,lat,lng,alt,a_type,index,dir,yaw,Hlat,Hlng"

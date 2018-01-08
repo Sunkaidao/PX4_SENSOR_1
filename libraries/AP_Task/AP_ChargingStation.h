@@ -1,5 +1,3 @@
-#if CHARGINGSTATION == ENABLED
-
 #pragma once
 
 
@@ -14,6 +12,7 @@
 #include <AP_InertialNav/AP_InertialNav.h>
 #include <AP_SerialManager/AP_SerialManager.h>
 
+#if CHARGINGSTATION == ENABLED
 
 #define YAW          0
 #define POSITION     1
