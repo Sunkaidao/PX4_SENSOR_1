@@ -376,6 +376,7 @@ void Copter::fourhundred_hz_logging()
 // should be run at 10hz
 void Copter::ten_hz_logging_loop()
 {
+
     // log attitude data if we're not already logging at the higher rate
     if (should_log(MASK_LOG_ATTITUDE_MED) && !should_log(MASK_LOG_ATTITUDE_FAST)) {
         Log_Write_Attitude();
@@ -385,6 +386,7 @@ void Copter::ten_hz_logging_loop()
         Log_Write_MotBatt();
     }
     if (should_log(MASK_LOG_RCIN)) {
+
         DataFlash.Log_Write_RCIN();
         if (rssi.enabled()) {
             DataFlash.Log_Write_RSSI(rssi);
@@ -698,6 +700,15 @@ void Copter::one_hz_loop()
 
 //	printf("one_hz_loop rc_valid %d\n",  hal.rcin->get_rc_valid());
 
+	//	added by ZhangYong for loging purpose
+	
+	
+	DataFlash.Log_Write_Mtr(motors->get_mtr_log());
+
+	DataFlash.Log_Write_Control(failsafe.rc_override_active, \
+								hal.rcin->get_override_valid(), \
+								hal.rcin->get_rc_valid(), \
+								hal.rcin->get_rc_rc3_radio_in());
 
 }
 

@@ -164,11 +164,22 @@ void AP_MotorsMatrix::output_armed_stabilizing()
     float   unused_range;               // amount of yaw we can fit in the current channel
     float   thr_adj;                    // the difference between the pilot's desired throttle and throttle_thrust_best_rpy
 
+	//	added by ZhangYong for loging
+	memset(&_mtr_log, 0, sizeof(struct MTR_log));
+	//	added end
+
     // apply voltage and air pressure compensation
     roll_thrust = _roll_in * get_compensation_gain();
     pitch_thrust = _pitch_in * get_compensation_gain();
     yaw_thrust = _yaw_in * get_compensation_gain();
     throttle_thrust = get_throttle() * get_compensation_gain();
+
+	//	added by ZhangYong for loging
+	_mtr_log.rc_roll_log = roll_thrust;
+	_mtr_log.rc_pitch_log = pitch_thrust;
+	_mtr_log.rc_yaw_log = yaw_thrust;
+	_mtr_log.rc_throttle_log = throttle_thrust;
+	//	added end
 
     // sanity check throttle is above zero and below current limited throttle
     if (throttle_thrust <= 0.0f) {
@@ -197,6 +208,10 @@ void AP_MotorsMatrix::output_armed_stabilizing()
 
     throttle_thrust_best_rpy = MIN(0.5f, _throttle_avg_max);
 
+	//	added by zhangyong for loging 20180108
+	_mtr_log.thr_thrust_best_log = throttle_thrust_best_rpy;
+	//	added end
+
     // calculate roll and pitch for each motor
     // calculate the amount of yaw input that each motor can accept
     for (i=0; i<AP_MOTORS_MAX_NUM_MOTORS; i++) {
@@ -218,8 +233,14 @@ void AP_MotorsMatrix::output_armed_stabilizing()
         }
     }
 
+	//	added by zhangyong for loging 20180108
+	_mtr_log.yaw_allowed_log = yaw_allowed;
+	//	added end
+
     // todo: make _yaw_headroom 0 to 1
     yaw_allowed = MAX(yaw_allowed, (float)_yaw_headroom/1000.0f);
+
+
 
     if (fabsf(yaw_thrust) > yaw_allowed) {
         yaw_thrust = constrain_float(yaw_thrust, -yaw_allowed, yaw_allowed);
@@ -244,16 +265,31 @@ void AP_MotorsMatrix::output_armed_stabilizing()
         }
     }
 
+	//	added by zhangyong for loging 20180108
+	_mtr_log.rpy_low_log = rpy_low;
+	_mtr_log.rpy_high_log = rpy_high;
+	//	added end
+
     // check everything fits
     throttle_thrust_best_rpy = MIN(0.5f - (rpy_low+rpy_high)/2.0, _throttle_avg_max);
+
+	//	added by zhangyong for loging 20180108
+	_mtr_log.thr_thrust_best_rpy_log = throttle_thrust_best_rpy;
+	//	added end
+	
     if (is_zero(rpy_low)){
         rpy_scale = 1.0f;
     } else {
         rpy_scale = constrain_float(-throttle_thrust_best_rpy/rpy_low, 0.0f, 1.0f);
     }
 
+	//	added by zhangyong for loging 20180108
+	_mtr_log.rpy_scale_log = rpy_scale;
+	//	added end
+
     // calculate how close the motors can come to the desired throttle
     thr_adj = throttle_thrust - throttle_thrust_best_rpy;
+
     if (rpy_scale < 1.0f){
         // Full range is being used by roll, pitch, and yaw.
         limit.roll_pitch = true;
@@ -272,6 +308,13 @@ void AP_MotorsMatrix::output_armed_stabilizing()
             limit.throttle_upper = true;
         }
     }
+
+	//	added by zhangyong for loging 20180108
+	_mtr_log.limit_roll_pitch = limit.roll_pitch;
+	_mtr_log.limit_yaw = limit.yaw;
+	_mtr_log.limit_thr_lower = limit.throttle_lower;
+	_mtr_log.limit_thr_upper = limit.throttle_upper;
+	//	added end
 
     // add scaled roll, pitch, constrained yaw and throttle for each motor
     for (i=0; i<AP_MOTORS_MAX_NUM_MOTORS; i++) {

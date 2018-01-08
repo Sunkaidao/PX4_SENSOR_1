@@ -1582,6 +1582,7 @@ void DataFlash_Class::Log_Write_Radio(const mavlink_radio_t &packet)
 // Write a Camera packet
 void DataFlash_Class::Log_Write_CameraInfo(enum LogMessages msg, const AP_AHRS &ahrs, const AP_GPS &gps, const Location &current_loc)
 {
+/*
     int32_t altitude, altitude_rel, altitude_gps;
     if (current_loc.flags.relative_alt) {
         altitude = current_loc.alt+ahrs.get_home().alt;
@@ -1595,6 +1596,7 @@ void DataFlash_Class::Log_Write_CameraInfo(enum LogMessages msg, const AP_AHRS &
     } else {
         altitude_gps = 0;
     }
+	//shielded by ZhangYong 20180105
 
     struct log_Camera pkt = {
         LOG_PACKET_HEADER_INIT(static_cast<uint8_t>(msg)),
@@ -1611,6 +1613,7 @@ void DataFlash_Class::Log_Write_CameraInfo(enum LogMessages msg, const AP_AHRS &
         yaw         : (uint16_t)ahrs.yaw_sensor
     };
     WriteCriticalBlock(&pkt, sizeof(pkt));
+    */
 }
 
 // Write a Camera packet
@@ -2091,6 +2094,7 @@ void DataFlash_Class::Log_Write_Beacon(AP_Beacon &beacon)
 
 //	added by ZhangYong 20170731
 // Write communication drop packets rate
+
 void DataFlash_Class::Log_Write_CD(int32_t para_home_dis, float para_communicat_drops)
 {
 
@@ -2108,20 +2112,65 @@ void DataFlash_Class::Log_Write_CD(int32_t para_home_dis, float para_communicat_
 
 void DataFlash_Class::Log_Write_PadCmd(mavlink_message_t* msg)
 {
-
 	struct log_PADCMD pkt = {
         LOG_PACKET_HEADER_INIT(LOG_PADCMD_MSG),
         timestamp     	: AP_HAL::micros64(),
         msgid_lg		: msg->msgid        
     };
     WriteBlock(&pkt, sizeof(pkt));
+}
 
+
+void DataFlash_Class::Log_Write_Mtr(struct MTR_log *tp_mtr_log)
+{
+	//printf("Log_Write_Mtr\n");
+
+	if(NULL == tp_mtr_log)
+		{return;}
+
+	//printf("log_MTR\n");
+
+    struct log_MTR pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_MTR_MSG),
+        timestamp     : AP_HAL::micros64(),
+        rc_roll : tp_mtr_log->rc_roll_log,
+		rc_pitch : tp_mtr_log->rc_pitch_log,
+		rc_throttle : tp_mtr_log->rc_throttle_log,
+		rc_yaw : tp_mtr_log->rc_yaw_log,
+		thr_thrust_best : tp_mtr_log->thr_thrust_best_log,
+		yaw_allowed : tp_mtr_log->yaw_allowed_log,
+		rpy_low : tp_mtr_log->rpy_low_log,
+		rpy_high : tp_mtr_log->rpy_high_log,
+		thr_thrust_best_rpy : tp_mtr_log->thr_thrust_best_rpy_log,
+		rpy_scale : tp_mtr_log->rpy_scale_log,
+		lmt_roll_pitch : tp_mtr_log->limit_roll_pitch,
+		lmt_yaw : tp_mtr_log->limit_yaw,
+		lmt_thr_lower : tp_mtr_log->limit_thr_lower,
+		lmt_thr_upper : tp_mtr_log->limit_thr_upper
+    };
+    WriteBlock(&pkt, sizeof(pkt));
 }
 
 
 
 
+void DataFlash_Class::Log_Write_Control(uint8_t rc_override_active, \
+									uint8_t tp_rcin_override_valid, \
+									uint8_t rc_valid, \
+									uint16_t rc3_radio_in)
+{
 
+	struct log_Control pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_CONTROL_MSG),
+        timestamp     : AP_HAL::micros64(),
+        rc_override_active_log 	: rc_override_active,
+		rcin_override_valid_log : tp_rcin_override_valid,
+		rc_valid_log 			: rc_valid,
+		rc3_radio_in 			: rc3_radio_in
+    };
+    WriteBlock(&pkt, sizeof(pkt));
+
+}
 
 
 void DataFlash_Class::Log_Write_BCBPMBus(uint8_t msg_type, AC_BCBPMBus &vp_bcbpmbus)

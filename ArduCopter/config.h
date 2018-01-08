@@ -577,23 +577,9 @@ struct land_detector_log
 
 //	added by ZhangYong to log the motor calculation
 
-struct MTR_log
-{
-	
-float rc_roll_log;
-	float rc_pitch_log;
-	float rc_throttle_log;
-	float rc_yaw_log;
-	float throttle_avg_max_log;
-	float yaw_allowed_log;
-	float yaw_allowedd_log;
-	float rp_low_log;
-	float rp_high_log;
-	float thr_thrust_best_rpy_log;
-	float thr_adj_log;
-	float thr_adjj_log;
-	float rpy_scale_log;
-};
+
+
+
 
 
 struct PACKED PassOSD_data_struct {

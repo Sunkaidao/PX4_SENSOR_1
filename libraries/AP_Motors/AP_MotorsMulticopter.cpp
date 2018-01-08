@@ -600,6 +600,15 @@ void AP_MotorsMulticopter::output_motor_mask(float thrust, uint8_t mask)
     }
 }
 
+
+//	added by ZhangYong just for loging purpose 20180105
+struct MTR_log * AP_MotorsMulticopter::get_mtr_log()
+{
+	return &_mtr_log;
+}
+//	added end
+
+
 // save parameters as part of disarming
 void AP_MotorsMulticopter::save_params_on_disarm()
 {

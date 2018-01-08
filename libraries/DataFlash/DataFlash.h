@@ -200,8 +200,26 @@ public:
 	//	added end
     void Log_Write_Proximity(AP_Proximity &proximity);
 
+	//	added by ZhangYong 20180105
+	//	log the pad cmd
 	void Log_Write_PadCmd(mavlink_message_t* msg);
+	//	added end
 
+
+	//	added by ZhangYong 20180105
+	//	log motor status
+	void Log_Write_Mtr(struct MTR_log *tp_mtr_log);
+	//	added end
+
+	//	added by ZhangYong 20180105
+	//	log control flag
+	void Log_Write_Control(uint8_t rc_override_active, \
+									uint8_t tp_rcin_override_valid, \
+									uint8_t rc_valid, \
+									uint16_t rc3_radio_in);
+	//	added end
+									
+	
 #if FXTX_AUTH == ENABLED
     //	added by ZhangYong 20170731
     void Log_Write_CD(int32_t para_home_dis, float para_communicat_drops);
