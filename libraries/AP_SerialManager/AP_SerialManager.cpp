@@ -249,6 +249,8 @@ void AP_SerialManager::init()
 					state[i].uart->begin(map_baudrate(state[i].baud),
 										AP_SERIALMANAGER_RADAR_ZHIBO_BUFSIZE_RX,
 										AP_SERIALMANAGER_RADAR_ZHIBO_BUFSIZE_TX);
+
+//					printf("SerialProtocol_Radar_ZHIBO %d\n", SerialProtocol_Radar_ZHIBO);					
 				    break;
 #endif
 // added by xusiming 20180105

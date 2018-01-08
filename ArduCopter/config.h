@@ -295,7 +295,7 @@
 //  RADAR NALEI
 
 #ifndef RNGRADAR
- # define RNGRADAR DISABLED
+ # define RNGRADAR ENABLED
 #endif 
 
 

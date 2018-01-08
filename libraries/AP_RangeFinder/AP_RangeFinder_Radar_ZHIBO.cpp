@@ -197,12 +197,12 @@ bool AP_RangeFinder_Radar_ZHIBO::get_reading(uint16_t &reading_cm)
    }
    	
 	if(message_complete==1)
-		{
-	//	printf("diatance0=%x\n",distance0);
+	{
+//		printf("diatance0=%x\n",distance0);
 		reading_cm=distance0;
 		
-	//	printf("reading_cm=%x\n",reading_cm);
-		}
+//		printf("reading_cm=%x\n",reading_cm);
+	}
 	return true;
 	}	
 	
@@ -213,8 +213,10 @@ void AP_RangeFinder_Radar_ZHIBO::update(void)
         // update range_valid state based on distance measured
         last_reading_ms = AP_HAL::millis();
         update_status();
-    } else if (AP_HAL::millis() - last_reading_ms > 200) {
+//		printf("AP_RangeFinder_Radar_ZHIBO::update right\n");
+	} else if (AP_HAL::millis() - last_reading_ms > 200) {
         set_status(RangeFinder::RangeFinder_NoData);
+//		printf("AP_RangeFinder_Radar_ZHIBO::update wrong\n");
     }
 }
 
