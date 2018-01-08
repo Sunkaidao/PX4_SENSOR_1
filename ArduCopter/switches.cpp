@@ -688,26 +688,26 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
         //baiyang added in 20170414
         case AUXSW_FLIGHT:
             if (ch_flag == AUX_SWITCH_HIGH) 
-                task.get_chargingStation().fly();
+                chargingStation.fly();
             else if(ch_flag == AUX_SWITCH_LOW)
-            		task.get_chargingStation().landed();
+            	chargingStation.landed();
             else
-            	  task.get_chargingStation().reset_flight_status();
+            	chargingStation.reset_flight_status();
             break;
         case AUXSW_BLASTOFF:
             if (ch_flag == AUX_SWITCH_LOW)
-            		task.get_chargingStation().set_blastoff_flag();
+            		chargingStation.set_blastoff_flag();
             else if(ch_flag == AUX_SWITCH_HIGH)
-            		task.get_chargingStation().start_communication();
+            		chargingStation.start_communication();
             else if(ch_flag == AUX_SWITCH_MIDDLE)
-            		task.get_chargingStation().reset();
+            		chargingStation.reset();
             break;
         //added end
 
         //baiyang added in 20170612
         case AUXSW_DO_TAKEOFF:
             if (ch_flag == AUX_SWITCH_HIGH) 
-            		task.get_chargingStation().do_takeoff();
+            	chargingStation.do_takeoff();
             break;
         //added end
 #endif
@@ -717,10 +717,10 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
             switch (ch_flag) 
 			{
 	            case AUX_SWITCH_HIGH:
-	                task.get_abmode().abmode_set_pos_b();
+	                rf_abmode.abmode_set_pos_b();
 	                break;
 	            case AUX_SWITCH_LOW:
-	                task.get_abmode().abmode_set_pos_a();
+	                rf_abmode.abmode_set_pos_a();
 	                break;
             }
             break;
@@ -734,7 +734,7 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
 	                set_mode(ABMODE_RF, MODE_REASON_TX_COMMAND);
 	                break;
 	            case AUX_SWITCH_LOW:
-	                task.get_abmode().invert_direction(SEMIAUTO);
+	                rf_abmode.invert_direction(SEMIAUTO);
 	                break;
 	            }
             break;
@@ -745,10 +745,10 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
             switch (ch_flag) 
 			{
 	            case AUX_SWITCH_HIGH:
-	                task.get_abmode().invert_direction(MANUAL,ISLIFT);
+	                rf_abmode.invert_direction(MANUAL,ISLIFT);
 	                break;
 	            case AUX_SWITCH_LOW:
-	                task.get_abmode().invert_direction(MANUAL,ISRIGHT);
+	                rf_abmode.invert_direction(MANUAL,ISRIGHT);
 	                break;
 	        }
             break;

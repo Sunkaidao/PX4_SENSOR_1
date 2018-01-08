@@ -45,7 +45,7 @@ protected:
     void set_pre_arm_rc_check(bool b);
 
     //baiyang added in 20170703
-    #if DGPS_HEADINGA == ENABLED
+    #if CHARGINGSTATION == ENABLED
         bool chargingStation_checks(bool display_failure);
         bool pre_chargingStation_check(bool display_failure);
     #endif 

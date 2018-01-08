@@ -160,9 +160,19 @@ void Copter::userhook_init()
 
     task.init();
 
-#if PTZ_CONTROL == ENABLED	
+
+#if PTZ_CONTROL == ENABLED
     PtzControl.init();
 #endif
+
+#if CHARGINGSTATION == ENABLED
+    chargingStation.init();
+#endif
+
+#if ABMODE == ENABLED
+	rf_abmode.init();
+#endif
+
 }
 #endif
 
@@ -192,6 +202,16 @@ void Copter::userhook_MediumLoop()
 {
     // put your 10Hz code here
     task.update();
+
+
+#if CHARGINGSTATION == ENABLED
+    chargingStation.update();
+#endif
+
+#if ABMODE == ENABLED
+	rf_abmode.update();
+#endif
+
 }
 #endif
 

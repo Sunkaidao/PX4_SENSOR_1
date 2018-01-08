@@ -401,7 +401,7 @@ public:
 
 		#if ABMODE == ENABLED
         //baiyang added in 20171026
-        k_param_abmode = 255,              //abmode
+        k_param_rf_abmode = 255,              //rf_abmode
         //added end
         #endif
 		
