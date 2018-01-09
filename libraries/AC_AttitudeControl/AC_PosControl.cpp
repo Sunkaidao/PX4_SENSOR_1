@@ -1094,3 +1094,31 @@ void AC_PosControl::check_for_ekf_z_reset()
         _ekf_z_reset_ms = reset_ms;
     }
 }
+
+
+//	added by ZhangYong 20180109
+const Vector3f& AC_PosControl::get_vel_error_bf()
+{
+
+	// rotate velocity from earth frame into body forward-right frame
+	_vel_error_bf.x = _vel_error.y * _ahrs.sin_yaw() + _vel_error.x * _ahrs.cos_yaw();	//	forward	
+	_vel_error_bf.y = _vel_error.y * _ahrs.cos_yaw() - _vel_error.x * _ahrs.sin_yaw(); 	// right
+
+	
+	return _vel_error;
+}
+
+
+Vector3f& AC_PosControl::get_pos_error_bf()
+{
+	_pos_error_bf.x = _pos_error.y * _ahrs.sin_yaw() + _pos_error.x * _ahrs.cos_yaw();	//	forward	
+	_pos_error_bf.y = _pos_error.y * _ahrs.cos_yaw() - _pos_error.x * _ahrs.sin_yaw(); 	// right
+	
+	return _pos_error;
+}
+
+
+
+//	added end
+
+

@@ -127,6 +127,10 @@ struct PACKED log_Nav_Tuning {
     float    vel_y;
     float    desired_accel_x;
     float    desired_accel_y;
+	//	added by ZhangYong for avoidance use
+	float	 pos_err_bf_x;
+	float	 pos_err_bf_y;
+	//	added end
 };
 
 // Write an Nav Tuning packet
@@ -137,6 +141,28 @@ void Copter::Log_Write_Nav_Tuning()
     const Vector3f &accel_target = pos_control->get_accel_target();
     const Vector3f &position = inertial_nav.get_position();
     const Vector3f &velocity = inertial_nav.get_velocity();
+
+	//	added by ZhangYong 20180109 for avoidance 
+	Vector3f &pos_error_bf = pos_control->get_pos_error_bf();
+	//	added end
+
+	/*	modified by ZhangYong 20180109 for avoidance usage
+	struct log_Nav_Tuning pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_NAV_TUNING_MSG),
+        time_us         : AP_HAL::micros64(),
+        desired_pos_x   : pos_target.x,
+        desired_pos_y   : pos_target.y,
+        pos_x           : position.x,
+        pos_y           : position.y,
+        desired_vel_x   : vel_target.x,
+        desired_vel_y   : vel_target.y,
+        vel_x           : velocity.x,
+        vel_y           : velocity.y,
+        desired_accel_x : accel_target.x,
+        desired_accel_y : accel_target.y
+    };
+	*/
+	
 
     struct log_Nav_Tuning pkt = {
         LOG_PACKET_HEADER_INIT(LOG_NAV_TUNING_MSG),
@@ -150,7 +176,9 @@ void Copter::Log_Write_Nav_Tuning()
         vel_x           : velocity.x,
         vel_y           : velocity.y,
         desired_accel_x : accel_target.x,
-        desired_accel_y : accel_target.y
+        desired_accel_y : accel_target.y,
+        pos_err_bf_x	: pos_error_bf.x,
+        pos_err_bf_y	: pos_error_bf.y
     };
     DataFlash.WriteBlock(&pkt, sizeof(pkt));
 }
@@ -671,6 +699,9 @@ void Copter::Log_Write_BCBPMBus(uint8_t msg_type)
 
 //	added end
 
+//		modified by zhangyong 20180109 for avoidance usage
+///      "NTUN", "Qffffffffff", "TUS,DPosX,DPosY,PosX,PosY,DVelX,DVelY,VelX,VelY,DAccX,DAccY" },
+
 const struct LogStructure Copter::log_structure[] = {
     LOG_COMMON_STRUCTURES,
 #if AUTOTUNE_ENABLED == ENABLED
@@ -684,7 +715,7 @@ const struct LogStructure Copter::log_structure[] = {
     { LOG_OPTFLOW_MSG, sizeof(log_Optflow),       
       "OF",   "QBffff",   "TimeUS,Qual,flowX,flowY,bodyX,bodyY" },
     { LOG_NAV_TUNING_MSG, sizeof(log_Nav_Tuning),       
-      "NTUN", "Qffffffffff", "TimeUS,DPosX,DPosY,PosX,PosY,DVelX,DVelY,VelX,VelY,DAccX,DAccY" },
+      "NTUN", "Qffffffffffff", "TUS,DPX,DPY,PX,PY,DVX,DVY,VX,VY,DAccX,DAccY,PEX,PEY" },
     { LOG_CONTROL_TUNING_MSG, sizeof(log_Control_Tuning),
       "CTUN", "Qffffffeccfhh", "TimeUS,ThI,ABst,ThO,ThH,DAlt,Alt,BAlt,DSAlt,SAlt,TAlt,DCRt,CRt" },
     { LOG_PERFORMANCE_MSG, sizeof(log_Performance), 

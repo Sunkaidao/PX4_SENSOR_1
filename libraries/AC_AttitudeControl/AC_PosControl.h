@@ -206,6 +206,13 @@ public:
     /// get_pos_target - get target as position vector (from home in cm)
     const Vector3f& get_pos_target() const { return _pos_target; }
 
+	//	added by ZhangYong 20180109
+	const Vector3f& get_pos_error() const { return _pos_error; }
+
+	Vector3f& get_pos_error_bf();
+	//	added end
+	
+
     /// set_pos_target in cm from home
     void set_pos_target(const Vector3f& position);
 
@@ -285,6 +292,14 @@ public:
 
     /// accessors for reporting
     const Vector3f& get_vel_target() const { return _vel_target; }
+
+	//	added by ZhangYong 20180109
+
+	const Vector3f& get_vel_error() const {return _vel_error; }
+	const Vector3f& get_vel_error_bf();
+
+	//	added end
+	
     const Vector3f& get_accel_target() const { return _accel_target; }
 
     // lean_angles_to_accel - convert roll, pitch lean angles to lat/lon frame accelerations in cm/s/s
@@ -423,6 +438,11 @@ protected:
     Vector2f    _vehicle_horiz_vel;     // velocity to use if _flags.vehicle_horiz_vel_override is set
     float       _distance_to_target;    // distance to position target - for reporting only
     LowPassFilterFloat _vel_error_filter;   // low-pass-filter on z-axis velocity error
+
+	//	added by ZhangYong for avoidance sensor use 20180109
+	Vector3f	_vel_error_bf;
+	Vector3f	_pos_error_bf;
+	//	added end
 
     Vector2f    _accel_target_jerk_limited; // acceleration target jerk limited to 100deg/s/s
     LowPassFilterVector2f _accel_target_filter; // acceleration target filter
