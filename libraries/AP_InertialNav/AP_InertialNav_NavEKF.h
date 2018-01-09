@@ -70,6 +70,8 @@ public:
      */
     const Vector3f&    get_velocity() const;
 
+	Vector3f&    get_velocity_bf();
+
     /**
      * get_pos_z_derivative - returns the derivative of the z position in cm/s
     */
@@ -114,6 +116,9 @@ public:
 private:
     Vector3f _relpos_cm;   // NEU
     Vector3f _velocity_cm; // NEU
+	//	added by ZhangYong 20170109 for avoidance usage
+	Vector3f _velocity_bf_cm;
+	//	added end
     float _pos_z_rate;
     struct Location _abspos;
     bool _haveabspos;

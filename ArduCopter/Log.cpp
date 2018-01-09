@@ -128,8 +128,8 @@ struct PACKED log_Nav_Tuning {
     float    desired_accel_x;
     float    desired_accel_y;
 	//	added by ZhangYong for avoidance use
-	float	 pos_err_bf_x;
-	float	 pos_err_bf_y;
+	float	 vel_bf_x;
+	float	 vel_bf_y;
 	//	added end
 };
 
@@ -143,7 +143,7 @@ void Copter::Log_Write_Nav_Tuning()
     const Vector3f &velocity = inertial_nav.get_velocity();
 
 	//	added by ZhangYong 20180109 for avoidance 
-	Vector3f &pos_error_bf = pos_control->get_pos_error_bf();
+	Vector3f &velocity_bf = inertial_nav.get_velocity_bf();
 	//	added end
 
 	/*	modified by ZhangYong 20180109 for avoidance usage
@@ -177,8 +177,8 @@ void Copter::Log_Write_Nav_Tuning()
         vel_y           : velocity.y,
         desired_accel_x : accel_target.x,
         desired_accel_y : accel_target.y,
-        pos_err_bf_x	: pos_error_bf.x,
-        pos_err_bf_y	: pos_error_bf.y
+        vel_bf_x		: velocity_bf.x,
+        vel_bf_y		: velocity_bf.y
     };
     DataFlash.WriteBlock(&pkt, sizeof(pkt));
 }
@@ -715,7 +715,7 @@ const struct LogStructure Copter::log_structure[] = {
     { LOG_OPTFLOW_MSG, sizeof(log_Optflow),       
       "OF",   "QBffff",   "TimeUS,Qual,flowX,flowY,bodyX,bodyY" },
     { LOG_NAV_TUNING_MSG, sizeof(log_Nav_Tuning),       
-      "NTUN", "Qffffffffffff", "TUS,DPX,DPY,PX,PY,DVX,DVY,VX,VY,DAccX,DAccY,PEX,PEY" },
+      "NTUN", "Qffffffffffff", "TUS,DPX,DPY,PX,PY,DVX,DVY,VX,VY,DAccX,DAccY,VBX,VBY" },
     { LOG_CONTROL_TUNING_MSG, sizeof(log_Control_Tuning),
       "CTUN", "Qffffffeccfhh", "TimeUS,ThI,ABst,ThO,ThH,DAlt,Alt,BAlt,DSAlt,SAlt,TAlt,DCRt,CRt" },
     { LOG_PERFORMANCE_MSG, sizeof(log_Performance), 

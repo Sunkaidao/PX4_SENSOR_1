@@ -117,6 +117,17 @@ const Vector3f &AP_InertialNav_NavEKF::get_velocity() const
     return _velocity_cm;
 }
 
+//	added by ZhangYong 20170109 for avoidance uasge
+Vector3f& AP_InertialNav_NavEKF::get_velocity_bf()
+{
+	_velocity_bf_cm.x = _velocity_cm.y * _ahrs_ekf.sin_yaw() + _velocity_cm.x * _ahrs_ekf.cos_yaw(); // forward
+	_velocity_bf_cm.y = _velocity_cm.y * _ahrs_ekf.cos_yaw() - _velocity_cm.x * _ahrs_ekf.sin_yaw(); // right
+
+	return _velocity_bf_cm;
+}
+//	added end
+
+
 /**
  * get_velocity_xy - returns the current horizontal velocity in cm/s
  *
@@ -126,6 +137,10 @@ float AP_InertialNav_NavEKF::get_velocity_xy() const
 {
     return norm(_velocity_cm.x, _velocity_cm.y);
 }
+
+
+
+
 
 /**
  * get_pos_z_derivative - returns the derivative of the z position in cm/s

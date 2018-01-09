@@ -28,6 +28,10 @@ void Copter::failsafe_radio_on_event()
 			
             // continue landing
         } 
+		else if((control_mode == LAND) || (control_mode == RTL))
+		{
+			//	continue landing or RTL
+		}
 		else 
         {
             if (g.failsafe_throttle == FS_THR_ENABLED_ALWAYS_LAND) 
@@ -185,12 +189,6 @@ void Copter::failsafe_payload_on_event(void)
                     // set mode to RTL or LAND
                     if (g.failsafe_pld_action == FS_PLD_ENABLED_ALWAYS_RTL) 
 					{
-//						printf("0x%x %4.6f\n", home_distance, wp_nav.get_wp_radius());
-						//	modified by ZhangYong 20170214
-//						reenter_mode = true;
-//						return_to_fixorg = false;
-//						rtl_last_state = Land;
-						
             			set_mode_RTL_or_land_with_pause(MODE_REASON_PAYLOAD_FAILSAFE);
                     }
 					else
@@ -211,75 +209,11 @@ void Copter::failsafe_payload_on_event(void)
 						case FS_PLD_ENABLED_ALWAYS_LAND:
 						case FS_PLD_ENABLED_ALWAYS_RTL:
 							
-							//	modified by ZhangYong 20170214
-//							reenter_mode = true;
-//							return_to_fixorg = false;
-//							rtl_last_state = Land;
-								
             				set_mode_RTL_or_land_with_pause(MODE_REASON_PAYLOAD_FAILSAFE);
                 		
 							break;
 							
-/*							case FS_PLD_PREDEFINED_ROUTING_RTL:
-								
-								//printf("Predefined routing Battery RTL\n");
-						if (home_distance > wp_nav.get_wp_radius()) 
-							{
-								if(0 == (uint16_t)g.failsafe_prrtl_wpnum)
-								{
-									//	modified by ZhangYong 20170214
-//									reenter_mode = true;
-//									return_to_fixorg = false;
-//									rtl_last_state = Land;
-									
-            						return_value = set_mode(RTL);
-									//	modified end
-								
-						
-			if (!return_value) 
-									{
-                       					set_mode_land_with_pause();
-                    				}
-								}
-								else
-								{
-                    				if (!mission.set_current_cmd((uint16_t)g.failsafe_prrtl_wpnum)) 
-									{
-										//	modified by ZhangYong 20170214
-										reenter_mode = true;
-										return_to_fixorg = false;
-										rtl_last_state = Land;
-										
-            							return_value = set_mode(RTL);
-										//	modified end
-									
-                       					if (!return_value) 
-										{
-                       						set_mode_land_with_pause();
-                    					}
-                    				}
-								}	
-                			}
-							else
-							{
-                    			// We are very close to home so we will land
-                    			set_mode_land_with_pause();
-                			}	
-							break;
 
-						case FS_PLD_REVERSE_ROUTING_RTL:
-							//	printf("Reverse routing Battery RTL\n");
-							if (home_distance > wp_nav.get_wp_radius()) 
-							{
-                   		 		mission.set_inverted_waypoint(true);						
-                			}
-							else
-							{
-                    			// We are very close to home so we will land
-                    			set_mode_land_with_pause();
-                			}
-							break;
-*/
 						default:
 							break;
 						
@@ -287,9 +221,6 @@ void Copter::failsafe_payload_on_event(void)
 				}
                 break;
             default:
-            	//	added by ZhangYong
-            	//printf("ap.land_complete %d\n", ap.land_complete);
-				//printf("home_distance %d\n", home_distance);
             	
               	if (should_disarm_on_failsafe()) 
 				{
@@ -304,11 +235,6 @@ void Copter::failsafe_payload_on_event(void)
 						case FS_PLD_ENABLED_ALWAYS_LAND:
 						case FS_PLD_ENABLED_ALWAYS_RTL:
 							
-							//	modified by ZhangYong 20170214
-//							reenter_mode = true;
-//							return_to_fixorg = false;
-//							rtl_last_state = Land;
-
 							set_mode_RTL_or_land_with_pause(MODE_REASON_PAYLOAD_FAILSAFE);
 								
             				

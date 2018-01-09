@@ -86,12 +86,19 @@ public:
      */
     virtual const Vector3f&    get_velocity() const = 0;
 
+
+	//	added by ZhangYong 20170109 for avoidance uasge
+	virtual Vector3f& get_velocity_bf() = 0;
+	//	added end
+
     /**
      * get_velocity_xy - returns the current horizontal velocity in cm/s
      *
      * @returns the current horizontal velocity in cm/s
      */
     virtual float get_velocity_xy() const = 0;
+
+	
 
     //
     // Z Axis methods
