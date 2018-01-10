@@ -22,7 +22,9 @@ void Copter::userhook_init()
     		     (unsigned)auth_id[0], (unsigned)auth_id[1], (unsigned)auth_id[2], (unsigned)auth_id[3], (unsigned)auth_id[4], (unsigned)auth_id[5],	\
     		     (unsigned)auth_id[6], (unsigned)auth_id[7], (unsigned)auth_id[8], (unsigned)auth_id[9], (unsigned)auth_id[10], (unsigned)auth_id[11]);
     	
-    
+		memset(&fs_mk, 0, sizeof(FAILSAFE_MARKER));
+
+				 
 #endif		//	FXTX_AUTH == 1
     //	added end 
 

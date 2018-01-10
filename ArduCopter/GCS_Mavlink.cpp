@@ -2041,12 +2041,19 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 	case MAVLINK_MSG_ID_GCS_CAPABILITIES:		//	183
         handle_gcs_capabilities(msg, copter.home_distance, copter.DataFlash, true, lcl_uint32_t);
 
-		//printf("MAVLINK_MSG_ID_GCS_CAPABILITIES 0x%x\n", lcl_uint32_t);
-	
+//		printf("MAVLINK_MSG_ID_GCS_CAPABILITIES 0x%x\n", lcl_uint32_t);
+//		printf("control_present %d\n", copter.fs_mk.control_present);
+//		printf("not_consist %d\n", copter.fs_mk.not_consist);
+//		printf("gcs_control %d\n", copter.fs_mk.gcs_control);
+		
+
+		
 		if(false == copter.fs_mk.control_present)
 		{
 			copter.fs_mk.control_present = true;
 //	
+//			printf("1. 0x%x\n", (lcl_uint32_t >> REMOTE_CONTROL_GCS_POS_SIF));
+//			printf("2. 0x%x\n", ((lcl_uint32_t >> REMOTE_CONTROL_GCS_POS_SIF) & 1));
 			copter.fs_mk.gcs_control = (lcl_uint32_t >> REMOTE_CONTROL_GCS_POS_SIF) & 1;
         }
         else
