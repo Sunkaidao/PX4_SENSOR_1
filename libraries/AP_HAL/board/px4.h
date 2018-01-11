@@ -3,8 +3,14 @@
 #define HAL_BOARD_NAME "PX4"
 #define HAL_CPU_CLASS HAL_CPU_CLASS_150
 #define HAL_OS_POSIX_IO 1
-#define HAL_BOARD_LOG_DIRECTORY "/fs/microsd/APM/LOGS"
-#define HAL_BOARD_TERRAIN_DIRECTORY "/fs/microsd/APM/TERRAIN"
+//	modified by ZhangYong 20180110
+//#define HAL_BOARD_LOG_DIRECTORY "/fs/microsd/APM/LOGS"
+//#define HAL_BOARD_TERRAIN_DIRECTORY "/fs/microsd/APM/TERRAIN"
+//	modified end
+#define HAL_BOARD_LOG_DIRECTORY "/fs/microsd/ROF/LOGS"
+#define HAL_BOARD_TERRAIN_DIRECTORY "/fs/microsd/ROF/TERRAIN"
+
+
 #define HAL_PARAM_DEFAULTS_PATH "/etc/defaults.parm"
 #define HAL_INS_DEFAULT HAL_INS_PX4
 #define HAL_BARO_DEFAULT HAL_BARO_PX4
