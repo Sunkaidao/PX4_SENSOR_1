@@ -6,13 +6,16 @@
 
 # check for an old file called APM, caused by 
 # a bug in an earlier firmware release
-if [ -f /fs/microsd/APM ]
+#if [ -f /fs/microsd/APM ]
+if [ -f /fs/microsd/ROF ]
 then
     echo "APM file found - renaming"
-    mv /fs/microsd/APM /fs/microsd/APM.old
+#    mv /fs/microsd/APM /fs/microsd/APM.old
+		 mv /fs/microsd/ROF /fs/microsd/ROF.old
 fi
 
-if [ -f /fs/microsd/APM/nostart ]
+#if [ -f /fs/microsd/APM/nostart ]
+if [ -f /fs/microsd/ROF/nostart ]
 then
     echo "APM/nostart found - skipping APM startup"
     sh /etc/init.d/rc.error
@@ -33,11 +36,13 @@ else
 fi
 
 set sketch NONE
-if rm /fs/microsd/APM/boot.log
+#if rm /fs/microsd/APM/boot.log
+if rm /fs/microsd/ROF/boot.log
 then
     echo "removed old boot.log"
 fi
-set logfile /fs/microsd/APM/BOOT.LOG
+#set logfile /fs/microsd/APM/BOOT.LOG
+set logfile /fs/microsd/ROF/BOOT.LOG
 
 if [ ! -f /bin/ArduPilot ]
 then
@@ -45,7 +50,9 @@ then
     sh /etc/init.d/rc.error
 fi
 
-if mkdir /fs/microsd/APM > /dev/null
+
+#if mkdir /fs/microsd/APM > /dev/null
+if mkdir /fs/microsd/ROF > /dev/null
 then
     echo "Created APM directory"
 fi

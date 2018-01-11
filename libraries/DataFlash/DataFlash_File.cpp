@@ -99,11 +99,17 @@ void DataFlash_File::Init()
 #if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
     // try to cope with an existing lowercase log directory
     // name. NuttX does not handle case insensitive VFAT well
-    DIR *d = opendir("/fs/microsd/APM");
-    if (d != nullptr) {
+    //	modified by ZhangYong 20170110
+    //	DIR *d = opendir("/fs/microsd/APM");
+	//	modified end
+	DIR *d = opendir("/fs/microsd/ROF");
+	if (d != nullptr) {
         for (struct dirent *de=readdir(d); de; de=readdir(d)) {
             if (strcmp(de->d_name, "logs") == 0) {
-                rename("/fs/microsd/APM/logs", "/fs/microsd/APM/OLDLOGS");
+				//	 modified by ZhangYong 20180110
+				//	rename("/fs/microsd/APM/logs", "/fs/microsd/APM/OLDLOGS");
+				//	modified end
+				rename("/fs/microsd/ROF/logs", "/fs/microsd/ROF/OLDLOGS");
                 break;
             }
         }

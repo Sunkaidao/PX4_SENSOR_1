@@ -227,7 +227,7 @@ public:
 	void send_payload_status(AC_Sprayer *sprayer, AP_Flowmeter *flowmeter) ;
 #endif
 	
-#if PROJECTGKXN == ENABLED
+#if FXTX_AUTH == ENABLED
 	void send_flight_time_thismav(int16_t para_flight_time_hour, \
 														int16_t para_flight_time_sec, \
 														uint32_t local_flight_time_sec);

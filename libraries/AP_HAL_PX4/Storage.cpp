@@ -23,7 +23,11 @@ using namespace PX4;
 
 // name the storage file after the sketch so you can use the same sd
 // card for ArduCopter and ArduPlane
-#define STORAGE_DIR "/fs/microsd/APM"
+//	modified by ZhangYong 20180110
+//#define STORAGE_DIR "/fs/microsd/APM"
+//	modiifed end
+#define STORAGE_DIR "/fs/microsd/ROF"
+
 //#define SAVE_STORAGE_FILE STORAGE_DIR "/" SKETCHNAME ".sav"
 #define MTD_PARAMS_FILE "/fs/mtd"
 

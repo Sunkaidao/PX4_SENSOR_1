@@ -511,14 +511,13 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
     
 #if FXTX_AUTH == ENABLED
     //baiyang added in 20170831
-/*  	case MSG_FLIGHT_TIME:
+  	case MSG_FLIGHT_TIME:
   		CHECK_PAYLOAD_SIZE(FLIGHT_TIME_THISMAV);
-  		send_flight_time_thismav(chan, \
-  								copter.g.flight_time_hour.get(), \
+  		send_flight_time_thismav(copter.g.flight_time_hour.get(), \
   								copter.g.flight_time_sec.get(), \
   								copter.local_flight_time_sec);
   		break;
-*/    //added end
+    //added end
 #endif
 //	added end
 
