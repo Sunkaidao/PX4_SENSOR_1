@@ -2434,6 +2434,16 @@ bool GCS_MAVLINK::try_send_gps_message(const enum ap_message id)
         gps->send_mavlink_gps2_rtk(chan);
         ret = true;
         break;
+	case MSG_DA_GPS_STA:
+		CHECK_PAYLOAD_SIZE(DA_GPS_STA);
+		gps->send_mavlink_gps_head_status(chan);
+        ret = true;
+		break;
+	case MSG_DA_GPS2_STA:
+		CHECK_PAYLOAD_SIZE(DA_GPS2_STA);
+		gps->send_mavlink_gps2_head_status(chan);
+        ret = true;
+		break;
     default:
         ret = true;
         break;
