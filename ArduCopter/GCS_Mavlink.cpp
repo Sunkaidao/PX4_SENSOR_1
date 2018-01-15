@@ -712,13 +712,17 @@ GCS_MAVLINK_Copter::data_stream_send(void)
         send_message(MSG_FENCE_STATUS);
 #if CHARGINGSTATION == ENABLED
         //baiyang added in 20170713
-		    send_message(MSG_STATION_STATUS);
+		send_message(MSG_STATION_STATUS);
         //added end
 #endif
 #if FXTX_AUTH == ENABLED
         //baiyang added in 20170802
-		    send_message(MSG_FLIGHT_TIME);
-		    //added end
+		send_message(MSG_FLIGHT_TIME);
+		//added end
+#endif
+#ifdef GPS_YAW_CAL
+		send_message(MSG_DA_GPS_STA);
+		send_message(MSG_DA_GPS2_STA);
 #endif
     }
     

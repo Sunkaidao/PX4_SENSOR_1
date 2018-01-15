@@ -99,6 +99,10 @@ enum ap_message {
 //#if CHARGINGSTATION == ENABLED	  baiyang added in 20170713
 	MSG_STATION_STATUS,
 	//#endif
+//#ifdef GPS_YAW_CAL
+	MSG_DA_GPS_STA,
+	MSG_DA_GPS2_STA,
+//#endif
     MSG_LAST // MSG_LAST must be the last entry in this enum
 
 };
