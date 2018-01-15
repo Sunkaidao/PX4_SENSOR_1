@@ -198,6 +198,9 @@ struct PACKED log_Control_Tuning {
     float    terr_alt;
     int16_t  target_climb_rate;
     int16_t  climb_rate;
+	//	modified by ZhangYong 20180111
+	int32_t  mavlink_id33_rel_alt;
+	//	modified end
 };
 
 // Write a control tuning packet
@@ -213,19 +216,22 @@ void Copter::Log_Write_Control_Tuning()
 
     struct log_Control_Tuning pkt = {
         LOG_PACKET_HEADER_INIT(LOG_CONTROL_TUNING_MSG),
-        time_us             : AP_HAL::micros64(),
-        throttle_in         : attitude_control->get_throttle_in(),
-        angle_boost         : attitude_control->angle_boost(),
-        throttle_out        : motors->get_throttle(),
-        throttle_hover      : motors->get_throttle_hover(),
-        desired_alt         : pos_control->get_alt_target() / 100.0f,
-        inav_alt            : inertial_nav.get_altitude() / 100.0f,
-        baro_alt            : baro_alt,
+        time_us             	: AP_HAL::micros64(),
+        throttle_in         	: attitude_control->get_throttle_in(),
+        angle_boost         	: attitude_control->angle_boost(),
+        throttle_out        	: motors->get_throttle(),
+        throttle_hover      	: motors->get_throttle_hover(),
+        desired_alt         	: pos_control->get_alt_target() / 100.0f,
+        inav_alt            	: inertial_nav.get_altitude() / 100.0f,
+        baro_alt            	: baro_alt,
         desired_rangefinder_alt : (int16_t)target_rangefinder_alt,
-        rangefinder_alt     : rangefinder_state.alt_cm,
-        terr_alt            : terr_alt,
-        target_climb_rate   : (int16_t)pos_control->get_vel_target_z(),
-        climb_rate          : climb_rate
+        rangefinder_alt     	: rangefinder_state.alt_cm,
+        terr_alt            	: terr_alt,
+        target_climb_rate   	: (int16_t)pos_control->get_vel_target_z(),
+        climb_rate          	: climb_rate,
+//		added by ZhangYong 20180111
+		mavlink_id33_rel_alt	: current_loc.alt
+//		added end
     };
     DataFlash.WriteBlock(&pkt, sizeof(pkt));
 }
@@ -701,6 +707,8 @@ void Copter::Log_Write_BCBPMBus(uint8_t msg_type)
 
 //		modified by zhangyong 20180109 for avoidance usage
 ///      "NTUN", "Qffffffffff", "TUS,DPosX,DPosY,PosX,PosY,DVelX,DVelY,VelX,VelY,DAccX,DAccY" },
+//	"CTUN", "Qffffffeccfhh", "TimeUS,ThI,ABst,ThO,ThH,DAt,At,BAt,DSAt,SAt,TAt,DCRt,CRt" },
+
 
 const struct LogStructure Copter::log_structure[] = {
     LOG_COMMON_STRUCTURES,
@@ -717,7 +725,7 @@ const struct LogStructure Copter::log_structure[] = {
     { LOG_NAV_TUNING_MSG, sizeof(log_Nav_Tuning),       
       "NTUN", "Qffffffffffff", "TUS,DPX,DPY,PX,PY,DVX,DVY,VX,VY,DAccX,DAccY,VBX,VBY" },
     { LOG_CONTROL_TUNING_MSG, sizeof(log_Control_Tuning),
-      "CTUN", "Qffffffeccfhh", "TimeUS,ThI,ABst,ThO,ThH,DAlt,Alt,BAlt,DSAlt,SAlt,TAlt,DCRt,CRt" },
+      "CTUN", "Qffffffeccfhhi", "TimeUS,ThI,ABst,ThO,ThH,DAt,At,BAt,DSAt,SAt,TAt,DCRt,CRt,MAt" },
     { LOG_PERFORMANCE_MSG, sizeof(log_Performance), 
       "PM",  "QHHIhBHII",    "TimeUS,NLon,NLoop,MaxT,PMT,I2CErr,INSErr,LogDrop,Mem" },
     { LOG_MOTBATT_MSG, sizeof(log_MotBatt),

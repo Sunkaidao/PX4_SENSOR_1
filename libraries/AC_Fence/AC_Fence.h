@@ -198,8 +198,9 @@ private:
     	float			_fixorg_circle_breach_distance;
     	float			_fixorg_circle_radius_backup;
       
-      bool is_alt_breached;
     #endif
+	
+	bool is_alt_breached;
     //	added end
     
     // backup fences

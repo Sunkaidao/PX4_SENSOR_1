@@ -118,13 +118,8 @@ AC_Fence::AC_Fence(const AP_AHRS& ahrs, const AP_InertialNav& inav) :
     _breach_time(0),
     _breach_count(0),
     // added by KONG at 20170605
-#if RF_FENCE == ENABLED
-	_manual_recovery_start_ms(0),
-    is_alt_breached(false)
-#else
 	_manual_recovery_start_ms(0)
-#endif
-    // end add
+   // end add
 
 {
     AP_Param::setup_object_defaults(this, var_info);
@@ -142,10 +137,11 @@ AC_Fence::AC_Fence(const AP_AHRS& ahrs, const AP_InertialNav& inav) :
     	_fixorg_distance = 0;
     	_fixorg_circle_breach_distance = 0;
     	_fixorg_circle_radius_backup = 0;
+	
+    #endif
 	// added by KONG at 20170605
 		is_alt_breached = false;
     // end add
-    #endif
     //	added end
 }
 
@@ -250,10 +246,10 @@ uint8_t AC_Fence::check_fence(float curr_alt)
                 _alt_max_backup = curr_alt + AC_FENCE_ALT_MAX_BACKUP_DISTANCE;
                 
                 // added by KONG at 20170605
-		     #if RF_FENCE == ENABLED
+		    // #if RF_FENCE == ENABLED
                 is_alt_breached = true;
                 //printf("alt breached!\r\n");
-    	   #endif
+    	  // #endif
                 // end add
             }
         }else{
@@ -263,12 +259,12 @@ uint8_t AC_Fence::check_fence(float curr_alt)
                 _alt_max_backup = 0.0f;
                 _alt_max_breach_distance = 0.0f;
                 
-                // added by KONG at 20170605
-    	  #if RF_FENCE == ENABLED
+         //       // added by KONG at 20170605
+    	 // #if RF_FENCE == ENABLED
                 is_alt_breached = false;
                 //printf("clear breached\t");
                 //printf("_breached_fences:%d\r\n", _breached_fences);
-    	  #endif
+    	 // #endif
         // end add           
             }
         }
@@ -609,18 +605,13 @@ bool AC_Fence::load_polygon_from_eeprom(bool force_reload)
     return true;
 }
 
-#if RF_FENCE == ENABLED
-void AC_Fence::change_fixorg_distance(float para_distance)
-{
-	_fixorg_distance = para_distance;
-}
 
 Vector3f AC_Fence::calc_backaway_destination(Vector3f curr_ralative,Vector2f fixorg_ralative, float distance)
 {
  	Vector3f target_wp;   
 	
 // modified by KONG at 20170605
-#if RF_FENCE == ENABLED
+//#if RF_FENCE == ENABLED
     // added by baiyang at 20170717
     if (is_alt_breached) 
     {
@@ -636,11 +627,20 @@ Vector3f AC_Fence::calc_backaway_destination(Vector3f curr_ralative,Vector2f fix
 		target_wp.z = curr_ralative.z;
     }
     // end add
-#endif
+//#endif
 // end modified
 
 	return target_wp;
 }
+
+
+#if RF_FENCE == ENABLED
+void AC_Fence::change_fixorg_distance(float para_distance)
+{
+	_fixorg_distance = para_distance;
+}
+
+
 
 //baiyang added in 201070802
 void AC_Fence::set_fixorg_pos()

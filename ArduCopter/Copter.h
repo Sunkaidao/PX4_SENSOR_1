@@ -1355,11 +1355,11 @@ private:
     void dataflash_periodic(void);
     void accel_cal_update(void);
 
-	#if RF_FENCE == ENABLED
+	//#if RF_FENCE == ENABLED
       //baiyang added in 20170717
     	bool get_ralative_postion(float *x, float *y, int32_t para_lat, int32_t para_lng);
       //added end
-    #endif
+    //#endif
 
 public:
     void mavlink_delay_cb();

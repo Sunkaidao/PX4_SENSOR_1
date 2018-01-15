@@ -340,7 +340,7 @@ void Copter::update_sensor_status_flags(void)
         control_sensors_present |= MAV_SYS_STATUS_SENSOR_RC_RECEIVER;
     }
     if (copter.DataFlash.logging_present()) { // primary logging only (usually File)
-    	printf("control_sensors_present\n");
+	//	printf("control_sensors_present\n");
         control_sensors_present |= MAV_SYS_STATUS_LOGGING;
     }
 #if PROXIMITY_ENABLED == ENABLED
@@ -391,7 +391,7 @@ void Copter::update_sensor_status_flags(void)
     }
 
     if (copter.DataFlash.logging_enabled()) {
-		printf("control_sensors_enabled\n");
+//		printf("control_sensors_enabled\n");
         control_sensors_enabled |= MAV_SYS_STATUS_LOGGING;
     }
 
@@ -444,7 +444,7 @@ void Copter::update_sensor_status_flags(void)
     }
 
     if (copter.DataFlash.logging_failed()) {
-		printf("control_sensors_health\n");
+//		printf("control_sensors_health\n");
         control_sensors_health &= ~MAV_SYS_STATUS_LOGGING;
     }
 

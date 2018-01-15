@@ -8,129 +8,139 @@
 // called at 1hz
 void Copter::fence_check()
 {
-    uint8_t new_breaches; // the type of fence that has been breached
-    uint8_t orig_breaches = fence.get_breaches();
+	uint8_t new_breaches; // the type of fence that has been breached
+	uint8_t orig_breaches = fence.get_breaches();
 
-    #if RF_FENCE == ENABLED
-    	float fixorg_distance;
-    	Vector2f fixorg_ralative;
-    	Vector3f curr_ralative;
-    	bool return_value;
-    	static bool reach_targrt = false;
-      
-      //	added by ZhangYong 20170206
-	    uint8_t fence_action = fence.get_action();
+	Vector2f fixorg_ralative;
+	Vector3f curr_ralative;
+	bool return_value;
+	float fixorg_distance;
+	//	added by ZhangYong 20170206
+	uint8_t fence_action = fence.get_action();
+
+#if RF_FENCE == ENABLED
+	static bool reach_targrt = false;
+#endif
 	    //	added end
-    #endif	
     
     // give fence library our current distance from home in meters
-    fence.set_home_distance(home_distance*0.01f);
+	fence.set_home_distance(home_distance*0.01f);
 
     // check for a breach
-    new_breaches = fence.check_fence(current_loc.alt/100.0f);
+	new_breaches = fence.check_fence(current_loc.alt/100.0f);
 
-    #if RF_FENCE == ENABLED
-    	//	added by ZhangYong 20161219
-      //	fixorg_distance = inertial_nav.calc_fixorg_distance(fence.return_fixorg_lat(), fence.return_fixorg_lng());
-    	Location fixorg;
-    	
-    	fixorg.lat = fence.return_fixorg_lat();
-    	fixorg.lng = fence.return_fixorg_lng();
-    	fixorg_distance = get_distance_cm(current_loc,fixorg);//cm
-    
-    	fence.change_fixorg_distance(fixorg_distance*0.01f);	
-    	//	added end
-    	
-    	//	added by ZhangYong 20161230
-    	//	printf("fixorg_distance = %4.4f\n", fixorg_distance*0.01f);
-    	//	added end
-    		
-    #endif
-
-    // return immediately if motors are not armed
-    if(!motors->armed()) {
-        return;
-    }
-
-    // if there is a new breach take action
-    if( new_breaches != AC_FENCE_TYPE_NONE ) {
-
-        // if the user wants some kind of response and motors are armed
-        if(fence.get_action() != AC_FENCE_ACTION_REPORT_ONLY ) {
-
-            // disarm immediately if we think we are on the ground or in a manual flight mode with zero throttle
-            // don't disarm if the high-altitude fence has been broken because it's likely the user has pulled their throttle to zero to bring it down
-            if (ap.land_complete || (mode_has_manual_throttle(control_mode) && ap.throttle_zero && !failsafe.radio && ((fence.get_breaches() & AC_FENCE_TYPE_ALT_MAX)== 0))){
-                init_disarm_motors();
-            }else{
-                // if we are within 100m of the fence, RTL
-                if (fence.get_breach_distance(new_breaches) <= AC_FENCE_GIVE_UP_DISTANCE) {
-                  
 #if RF_FENCE == ENABLED
+    //	added by ZhangYong 20161219
+    //	fixorg_distance = inertial_nav.calc_fixorg_distance(fence.return_fixorg_lat(), fence.return_fixorg_lng());
+    Location fixorg;
+    	
+    fixorg.lat = fence.return_fixorg_lat();
+    fixorg.lng = fence.return_fixorg_lng();
+    fixorg_distance = get_distance_cm(current_loc,fixorg);//cm
+    
+    fence.change_fixorg_distance(fixorg_distance*0.01f);	
+    //	added end
+    	
+
+#else	
+   	fixorg_distance = home_distance;
+		
+#endif
+
+
+   // if there is a new breach take action
+    if( new_breaches != AC_FENCE_TYPE_NONE ) 
+	{
+        // if the user wants some kind of response and motors are armed
+        if(fence.get_action() != AC_FENCE_ACTION_REPORT_ONLY ) 
+		{
+
+           // disarm immediately if we think we are on the ground or in a manual flight mode with zero throttle
+            // don't disarm if the high-altitude fence has been broken because it's likely the user has pulled their throttle to zero to bring it down
+            if (ap.land_complete || (mode_has_manual_throttle(control_mode) && ap.throttle_zero && !failsafe.radio && ((fence.get_breaches() & AC_FENCE_TYPE_ALT_MAX)== 0)))
+			{
+                init_disarm_motors();
+            }
+			else
+			{
+                // if we are within 100m of the fence, RTL
+                if (fence.get_breach_distance(new_breaches) <= AC_FENCE_GIVE_UP_DISTANCE) 
+				{
                     switch(fence_action)
                   	{
-                  			case AC_FENCE_ACTION_RTL_AND_LAND:
+                  		case AC_FENCE_ACTION_RTL_AND_LAND:
                         
-                  			     //	modified by ZhangYong 20170214
-                             return_value = set_mode(RTL,MODE_REASON_FENCE_BREACH);
+                  		     //	modified by ZhangYong 20170214
+                           	return_value = set_mode(RTL,MODE_REASON_FENCE_BREACH);
                   						//	modified end
                   				
-                  					 if (!return_value) 
-                  					 {
+                  			if (!return_value) 
+                  			{
                                 set_mode(LAND,MODE_REASON_FENCE_BREACH);
-                             }
-                  					 break;
+                            }
+
+							break;
                   							
                   	    case AC_FENCE_ACTION_BACKAWAY_AND_HOVER:
-                  					curr_ralative.x = 0; 
-                  					curr_ralative.y = 0;
+                  			curr_ralative.x = 0; 
+                  			curr_ralative.y = 0;
                   
-                  					curr_ralative = inertial_nav.get_position();
-                  
-                  					if(true == get_ralative_postion(&(fixorg_ralative.x), &(fixorg_ralative.y), fence.return_fixorg_lat(), fence.return_fixorg_lng()))
-                  					{
-                  						if(set_mode(GUIDED,MODE_REASON_FENCE_BREACH)){
-                  							  guided_set_destination(fence.calc_backaway_destination(curr_ralative, fixorg_ralative, fixorg_distance));
-                  							  reach_targrt = true;
-                  						}else
-                  								set_mode(LAND,MODE_REASON_FENCE_BREACH);
-                  						}
-                  					break;
-                  		  default:
-                  					break;
-                   }
+                  			curr_ralative = inertial_nav.get_position();
+#if RF_FENCE == ENABLED                  
+                  			if(true == get_ralative_postion(&(fixorg_ralative.x), &(fixorg_ralative.y), fence.return_fixorg_lat(), fence.return_fixorg_lng()))
 #else
-                   if (!set_mode(RTL, MODE_REASON_FENCE_BREACH)) {
-                            set_mode(LAND, MODE_REASON_FENCE_BREACH);
-                   }
+							if(true == get_ralative_postion(&(fixorg_ralative.x), &(fixorg_ralative.y), inertial_nav.get_home_lat(), inertial_nav.get_home_lng()))
 #endif
-                    // if (!set_mode(RTL, MODE_REASON_FENCE_BREACH)) {
-                    //     set_mode(LAND, MODE_REASON_FENCE_BREACH);
-                    // }
-                }else{
-                    // if more than 100m outside the fence just force a land
-                    set_mode(LAND, MODE_REASON_FENCE_BREACH);
-                }
-            }
-        }
+                  			{
+                  				if(set_mode(GUIDED,MODE_REASON_FENCE_BREACH))
+								{
+                  					guided_set_destination(fence.calc_backaway_destination(curr_ralative, fixorg_ralative, fixorg_distance));
+#if RF_FENCE == ENABLED
 
-        // log an error in the dataflash
-        Log_Write_Error(ERROR_SUBSYSTEM_FAILSAFE_FENCE, new_breaches);
-    }
+									reach_targrt = true;
+#endif
+								}
+								else
+									set_mode(LAND,MODE_REASON_FENCE_BREACH);
+                  			}
+							break;
+
+						default:
+                  			break;
+                   }
+					
+				}
+				else
+				{
+					// if more than 100m outside the fence just force a land
+					set_mode(LAND, MODE_REASON_FENCE_BREACH);
+				}
+
+			}
+		}
+
+		// log an error in the dataflash
+		Log_Write_Error(ERROR_SUBSYSTEM_FAILSAFE_FENCE, new_breaches);
+		
+	}
+	
 
     // record clearing of breach
-    if(orig_breaches != AC_FENCE_TYPE_NONE && fence.get_breaches() == AC_FENCE_TYPE_NONE) {
-        Log_Write_Error(ERROR_SUBSYSTEM_FAILSAFE_FENCE, ERROR_CODE_ERROR_RESOLVED);
-    }
+	if(orig_breaches != AC_FENCE_TYPE_NONE && fence.get_breaches() == AC_FENCE_TYPE_NONE)
+	{
+		Log_Write_Error(ERROR_SUBSYSTEM_FAILSAFE_FENCE, ERROR_CODE_ERROR_RESOLVED);
+	}
     
-    #if RF_FENCE == ENABLED
-    	//baiyang added in 20170718
-    	if(reach_targrt && wp_nav->reached_wp_destination()){
-    		set_mode(LOITER,MODE_REASON_FENCE_BREACH);
-    		reach_targrt = false;
-    	}
-    	//added end
-    #endif
+#if RF_FENCE == ENABLED
+  	//baiyang added in 20170718
+   	if(reach_targrt && wp_nav->reached_wp_destination())
+	{
+   		set_mode(LOITER,MODE_REASON_FENCE_BREACH);
+   		reach_targrt = false;
+   	}
+	//added end
+#endif
+
 }
 
 // fence_send_mavlink_status - send fence status to ground station
@@ -156,7 +166,7 @@ void Copter::fence_send_mavlink_status(mavlink_channel_t chan)
     }
 }
 
-#if RF_FENCE == ENABLED
+//#if RF_FENCE == ENABLED
 //baiyang added in 20170717
 bool Copter::get_ralative_postion(float *x, float *y, int32_t para_lat, int32_t para_lng)
 {
@@ -171,6 +181,6 @@ bool Copter::get_ralative_postion(float *x, float *y, int32_t para_lat, int32_t 
 	return true;
 }
 //added end
-#endif
+//#endif
 
 #endif

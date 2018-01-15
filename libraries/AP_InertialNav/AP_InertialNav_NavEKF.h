@@ -113,6 +113,11 @@ public:
      */
     float       get_velocity_z() const;
 
+	//	added by ZhangYong for geofence
+	int32_t get_home_lat();
+	int32_t get_home_lng();
+	//	added end
+
 private:
     Vector3f _relpos_cm;   // NEU
     Vector3f _velocity_cm; // NEU

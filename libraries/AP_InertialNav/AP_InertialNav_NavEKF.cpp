@@ -202,4 +202,22 @@ float AP_InertialNav_NavEKF::get_velocity_z() const
     return _velocity_cm.z;
 }
 
+
+int32_t AP_InertialNav_NavEKF::get_home_lat()
+{
+	if(!_ahrs_ekf.healthy())
+	   return 0;
+
+	return _ahrs_ekf.get_home().lat;
+}
+
+int32_t AP_InertialNav_NavEKF::get_home_lng()
+{
+	if(!_ahrs_ekf.healthy())
+	   return 0;
+
+	return _ahrs_ekf.get_home().lng;
+}
+
+
 #endif // AP_AHRS_NAVEKF_AVAILABLE
