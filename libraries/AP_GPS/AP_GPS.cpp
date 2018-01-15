@@ -920,6 +920,64 @@ void AP_GPS::send_mavlink_gps2_raw(mavlink_channel_t chan)
         rtk_age_ms(1));
 }
 
+#ifdef GPS_YAW_CAL
+//baiyang added in 20180108
+void AP_GPS::send_mavlink_gps_head_status(mavlink_channel_t chan)
+{
+	static uint32_t last_send_time_ms[MAVLINK_COMM_NUM_BUFFERS];
+    if (status(0) > AP_GPS::NO_GPS) {
+        // when we have a GPS then only send new data
+        if (last_send_time_ms[chan] == last_message_time_ms(0)) {
+            return;
+        }
+        last_send_time_ms[chan] = last_message_time_ms(0);
+    } else {
+        // when we don't have a GPS then send at 1Hz
+        uint32_t now = AP_HAL::millis();
+        if (now - last_send_time_ms[chan] < 1000) {
+            return;
+        }
+        last_send_time_ms[chan] = now;
+    }
+
+	mavlink_msg_da_gps_sta_send(
+		chan,
+		last_send_time_ms[chan]*(uint64_t)1000, /*< Timestamp (micros since boot or Unix epoch)*/
+		Headstatus(0),                          /*< Directional value status*/
+		heading(0),                             /*< Directional value*/
+		0xff,                                   /*< EKF2 heading mode,0:Magnetic compass;1:Dual antenna GPS heading;0xff:Reserved, unused*/
+		0,
+		0,
+		0);
+}
+
+void AP_GPS::send_mavlink_gps2_head_status(mavlink_channel_t chan)
+{
+	static uint32_t last_send_time_ms[MAVLINK_COMM_NUM_BUFFERS];
+	
+    if (num_instances < 2 || status(1) <= AP_GPS::NO_GPS) {
+        return;
+    }
+    // when we have a GPS then only send new data
+    if (last_send_time_ms[chan] == last_message_time_ms(1)) {
+        return;
+    }
+    last_send_time_ms[chan] = last_message_time_ms(1);
+
+	mavlink_msg_da_gps2_sta_send(
+		chan,
+		last_send_time_ms[chan]*(uint64_t)1000, /*< Timestamp (micros since boot or Unix epoch)*/
+		Headstatus(1),                          /*< Directional value status*/
+		heading(1),                             /*< Directional value*/
+		0xff,                                   /*< EKF2 heading mode,0:Magnetic compass;1:Dual antenna GPS heading;0xff:Reserved, unused*/
+		0,
+		0,
+		0);
+}
+
+//added end
+#endif
+
 void AP_GPS::send_mavlink_gps_rtk(mavlink_channel_t chan)
 {
     if (drivers[0] != nullptr && drivers[0]->highest_supported_status() > AP_GPS::GPS_OK_FIX_3D) {
