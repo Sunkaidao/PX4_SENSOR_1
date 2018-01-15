@@ -508,7 +508,7 @@
 // AUTH ()
 //
 #ifndef FXTX_AUTH
- #define FXTX_AUTH 	ENABLED
+ #define FXTX_AUTH 	DISABLED
 #endif
 
 #if FXTX_AUTH == ENABLED
