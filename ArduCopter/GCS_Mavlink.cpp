@@ -146,21 +146,34 @@ void NOINLINE Copter::send_location(mavlink_channel_t chan)
         fix_time = millis();
     }
     const Vector3f &vel = inertial_nav.get_velocity();
+	//const Vector3f & = inertial_nav.get_velocity();
+	//	inertial_nav.get_altitude() / 100.0f
+	//	added by ZhangYong 20180115 alt_error
+	//printf("send_location mm:%4.2f\n", inertial_nav.get_altitude() * 10);
+	//	added end
+	//	modified by ZhangYong 20180115 alt_error
+	//	current_loc.alt * 10,           // millimeters above ground
+	//	modified end
+	
     mavlink_msg_global_position_int_send(
         chan,
         fix_time,
-        current_loc.lat,                // in 1E7 degrees
-        current_loc.lng,                // in 1E7 degrees
+        current_loc.lat,                					// in 1E7 degrees
+        current_loc.lng,                					// in 1E7 degrees
         (ahrs.get_home().alt + current_loc.alt) * 10UL,      // millimeters above sea level
-        current_loc.alt * 10,           // millimeters above ground
-        vel.x,                          // X speed cm/s (+ve North)
-        vel.y,                          // Y speed cm/s (+ve East)
-        vel.z,                          // Z speed cm/s (+ve up)
-        ahrs.yaw_sensor);               // compass heading in 1/100 degree
+        inertial_nav.get_altitude() * 10,           		// millimeters above ground
+        vel.x,                          					// X speed cm/s (+ve North)
+        vel.y,                          					// Y speed cm/s (+ve East)
+        vel.z,                          					// Z speed cm/s (+ve up)
+        ahrs.yaw_sensor);               					// compass heading in 1/100 degree
 }
 
 void NOINLINE Copter::send_nav_controller_output(mavlink_channel_t chan)
 {
+	//	added by ZhangYong 20170815 alt_error
+	//printf("send_nav_controller_output m:%4.2f\n\n", (pos_control->get_alt_error() * 1.0e-2f));
+	//	added end
+
     const Vector3f &targets = attitude_control->get_att_target_euler_cd();
     mavlink_msg_nav_controller_output_send(
         chan,
@@ -184,6 +197,11 @@ void NOINLINE Copter::send_simstate(mavlink_channel_t chan)
 
 void NOINLINE Copter::send_vfr_hud(mavlink_channel_t chan)
 {
+
+	//	added by ZhangYong 20180115 alt_error
+	//printf("send_vfr_hud m:%4.2f\n", current_loc.alt / 100.0f);
+	//	added end
+
     mavlink_msg_vfr_hud_send(
         chan,
         gps.ground_speed(),

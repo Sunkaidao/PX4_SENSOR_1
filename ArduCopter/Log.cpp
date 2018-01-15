@@ -234,6 +234,11 @@ void Copter::Log_Write_Control_Tuning()
 //		added end
     };
     DataFlash.WriteBlock(&pkt, sizeof(pkt));
+
+//	added by zhangyong 20180115 alt_error
+//	printf("Log_Write_Control_Tuning m:%4.2f\n", (inertial_nav.get_altitude() / 100.0f));	
+//	added end
+	
 }
 
 struct PACKED log_Performance {
