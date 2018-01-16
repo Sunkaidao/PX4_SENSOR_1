@@ -233,7 +233,13 @@ void Copter::Log_Write_Control_Tuning()
 		mavlink_id33_rel_alt	: current_loc.alt
 //		added end
     };
+//		mavlink_id33_rel_alt	: (int32_t)(inertial_nav.get_altitude() * 10)
     DataFlash.WriteBlock(&pkt, sizeof(pkt));
+
+//	added by zhangyong 20180115 alt_error
+//	printf("Log_Write_Control_Tuning m:%4.2f\n", (inertial_nav.get_altitude() / 100.0f));	
+//	added end
+	
 }
 
 struct PACKED log_Performance {

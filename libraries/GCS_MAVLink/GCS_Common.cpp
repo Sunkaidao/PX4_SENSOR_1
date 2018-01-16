@@ -1699,6 +1699,8 @@ void GCS_MAVLINK::send_local_position(const AP_AHRS &ahrs) const
         return;
     }
 
+	//printf("send_local_position m:%4.2f\n", local_position.z);
+
     mavlink_msg_local_position_ned_send(
         chan,
         AP_HAL::millis(),

@@ -742,6 +742,13 @@ struct PACKED log_Control {
 };
 
 
+struct PACKED log_GKProx {
+	LOG_PACKET_HEADER;
+	uint64_t timestamp;
+	uint8_t test_log;
+};
+
+
 /*
   terrain log structure
  */
@@ -1191,6 +1198,11 @@ Format characters in the format string for binary log messages
       "GMB2", "IBfffffffff", "TimeMS,es,ex,ey,ez,rx,ry,rz,tx,ty,tz" }, \
     { LOG_GIMBAL3_MSG, sizeof(log_Gimbal3), \
       "GMB3", "Ihhh", "TimeMS,rl_torque_cmd,el_torque_cmd,az_torque_cmd" }, \
+
+   { LOG_CURRENT_CELLS_MSG, sizeof(log_Current_Cells), \
+      "BCL", CURR_CELL_FMT, CURR_CELL_LABELS }, \
+    { LOG_CURRENT_CELLS2_MSG, sizeof(log_Current_Cells), \
+      "BCL2", CURR_CELL_FMT, CURR_CELL_LABELS }, \   
 */
 
 
@@ -1238,6 +1250,8 @@ Format characters in the format string for binary log messages
      "MTR",  "QffffffffffBBBB",     "TimeMS,r,p,t,y,thr,ya,rpyl,rpyh,thrb,sc,r,p,tl,tu" }, \
     { LOG_CONTROL_MSG, sizeof(log_Control), \
       "CTR",  "QBBBH",     "TimeMS,ov,oa,rv,rc3" }, \
+    { LOG_GKPROX_MSG, sizeof(log_GKProx), \
+      "GKPX",  "QB",     "TimeMS,t" }, \
 	{ LOG_PMBUS0_MSG, sizeof(log_BCBPMBus), \
 	 "PM0", PMBUS_FMT, PMBUS_LABELS }, \
 	{ LOG_PMBUS1_MSG, sizeof(log_BCBPMBus), \
@@ -1264,10 +1278,6 @@ Format characters in the format string for binary log messages
       "BAT", CURR_FMT,CURR_LABELS }, \
     { LOG_CURRENT2_MSG, sizeof(log_Current), \
       "BAT2", CURR_FMT,CURR_LABELS }, \
-    { LOG_CURRENT_CELLS_MSG, sizeof(log_Current_Cells), \
-      "BCL", CURR_CELL_FMT, CURR_CELL_LABELS }, \
-    { LOG_CURRENT_CELLS2_MSG, sizeof(log_Current_Cells), \
-      "BCL2", CURR_CELL_FMT, CURR_CELL_LABELS }, \
 	{ LOG_ATTITUDE_MSG, sizeof(log_Attitude),\
       "ATT", "QccccCCCC", "TimeUS,DesRoll,Roll,DesPitch,Pitch,DesYaw,Yaw,ErrRP,ErrYaw" }, \
     { LOG_COMPASS_MSG, sizeof(log_Compass), \
@@ -1492,9 +1502,10 @@ enum LogMessages {
     LOG_ATTITUDE_MSG,
     LOG_CURRENT_MSG,
     LOG_CURRENT2_MSG,
+/*  shielded by ZhangYong 20180116 to save msg_id
     LOG_CURRENT_CELLS_MSG,
     LOG_CURRENT_CELLS2_MSG,
-    LOG_COMPASS_MSG,
+*/    LOG_COMPASS_MSG,
     LOG_COMPASS2_MSG,
     LOG_COMPASS3_MSG,
     LOG_MODE_MSG,
@@ -1606,7 +1617,8 @@ enum LogMessages {
 //#endif
 	LOG_PADCMD_MSG,
 	LOG_MTR_MSG,
-	LOG_CONTROL_MSG
+	LOG_CONTROL_MSG,
+	LOG_GKPROX_MSG
 };
 
 enum LogOriginType {

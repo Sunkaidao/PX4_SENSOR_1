@@ -218,6 +218,10 @@ public:
 									uint8_t rc_valid, \
 									uint16_t rc3_radio_in);
 	//	added end
+
+	//	added by ZhangYong 20180116 to log GK proximity
+	void Log_Write_GKProx();
+	//	added end
 									
 	
 #if FXTX_AUTH == ENABLED
