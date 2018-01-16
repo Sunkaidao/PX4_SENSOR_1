@@ -924,7 +924,7 @@ void AP_GPS::send_mavlink_gps2_raw(mavlink_channel_t chan)
 //baiyang added in 20180108
 void AP_GPS::send_mavlink_gps_head_status(mavlink_channel_t chan)
 {
-	static uint32_t last_send_time_ms[MAVLINK_COMM_NUM_BUFFERS];
+    static uint32_t last_send_time_ms[MAVLINK_COMM_NUM_BUFFERS];
     if (status(0) > AP_GPS::NO_GPS) {
         // when we have a GPS then only send new data
         if (last_send_time_ms[chan] == last_message_time_ms(0)) {
@@ -940,7 +940,7 @@ void AP_GPS::send_mavlink_gps_head_status(mavlink_channel_t chan)
         last_send_time_ms[chan] = now;
     }
 
-	mavlink_msg_da_gps_sta_send(
+    mavlink_msg_da_gps_sta_send(
 		chan,
 		last_send_time_ms[chan]*(uint64_t)1000, /*< Timestamp (micros since boot or Unix epoch)*/
 		Headstatus(0),                          /*< Directional value status*/
