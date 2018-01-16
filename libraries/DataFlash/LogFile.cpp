@@ -1711,6 +1711,8 @@ void DataFlash_Class::Log_Write_Current(const AP_BattMonitor &battery)
         };
         WriteBlock(&pkt, sizeof(pkt));
 
+		//	shileded by zhangyong to save msg_id 20180116
+		/*
         // individual cell voltages
         if (battery.has_cell_voltages(0)) {
             const AP_BattMonitor::cells &cells = battery.get_cell_voltages(0);
@@ -1728,6 +1730,7 @@ void DataFlash_Class::Log_Write_Current(const AP_BattMonitor &battery)
             static_assert(ARRAY_SIZE(cells.cells) == (sizeof(cell_pkt.cell_voltages) / sizeof(cell_pkt.cell_voltages[0])),
                           "Battery cell number doesn't match in library and log structure");
         }
+        */
     }
 
 	//	modified by ZhangYong 20171101
@@ -1767,6 +1770,8 @@ void DataFlash_Class::Log_Write_Current(const AP_BattMonitor &battery)
         };
         WriteBlock(&pkt, sizeof(pkt));
 
+		//	shileded by zhangyong to save msg_id 20180116
+		/*
         // individual cell voltages
         if (battery.has_cell_voltages(1)) {
             const AP_BattMonitor::cells &cells = battery.get_cell_voltages(1);
@@ -1780,6 +1785,7 @@ void DataFlash_Class::Log_Write_Current(const AP_BattMonitor &battery)
             }
             WriteBlock(&cell_pkt, sizeof(cell_pkt));
         }
+        */
     }
 }
 
@@ -2172,6 +2178,20 @@ void DataFlash_Class::Log_Write_Control(uint8_t rc_override_active, \
     WriteBlock(&pkt, sizeof(pkt));
 
 }
+
+//	added by ZhangYong 20180116 to log GK proximity
+void DataFlash_Class::Log_Write_GKProx()
+{
+
+	struct log_GKProx pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_GKPROX_MSG),
+        timestamp     	: AP_HAL::micros64(),
+        test_log		: 8
+    };
+    WriteBlock(&pkt, sizeof(pkt));
+
+}
+//	added end
 
 
 void DataFlash_Class::Log_Write_BCBPMBus(uint8_t msg_type, AC_BCBPMBus &vp_bcbpmbus)
