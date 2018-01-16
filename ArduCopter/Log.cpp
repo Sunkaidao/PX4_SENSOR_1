@@ -230,9 +230,10 @@ void Copter::Log_Write_Control_Tuning()
         target_climb_rate   	: (int16_t)pos_control->get_vel_target_z(),
         climb_rate          	: climb_rate,
 //		added by ZhangYong 20180111
-		mavlink_id33_rel_alt	: (int32_t)(inertial_nav.get_altitude() * 10)
+		mavlink_id33_rel_alt	: current_loc.alt
 //		added end
     };
+//		mavlink_id33_rel_alt	: (int32_t)(inertial_nav.get_altitude() * 10)
     DataFlash.WriteBlock(&pkt, sizeof(pkt));
 
 //	added by zhangyong 20180115 alt_error
