@@ -60,9 +60,6 @@ void Copter::userhook_init()
 			}
 		}
 
-		
-
-
     
     	sprintf(auth_msg, "0123456789%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n",	\
     		     (unsigned)serial_id[6], 	(unsigned)serial_id[7], 	(unsigned)serial_id[8], 	(unsigned)serial_id[9], 	(unsigned)serial_id[10], (unsigned)serial_id[11],	(unsigned)serial_id[12], (unsigned)serial_id[13], \
@@ -194,9 +191,11 @@ void Copter::userhook_init()
 	//	failsafe rc gcs
 	//	improve the minor edition from 4 to 5
 	//	ABPoint, dual GPS antenna heaidng
-	if(edit_management.data.minor_edition <= 4)
+	//	improve the minor edition from 4 to 5
+	//	FXTX_AUTH debug get_system_id
+	if(edit_management.data.minor_edition <= 5)
 	{	
-		edit_management.data.minor_edition = 5;
+		edit_management.data.minor_edition = 6;
 	}
 
 	g.edition_management.set_and_save(edit_management.words);
