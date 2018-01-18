@@ -191,7 +191,7 @@ void Copter::userhook_init()
 	//	failsafe rc gcs
 	//	improve the minor edition from 4 to 5
 	//	ABPoint, dual GPS antenna heaidng
-	//	improve the minor edition from 4 to 5
+	//	improve the minor edition from 5 to 6
 	//	FXTX_AUTH debug get_system_id
 	if(edit_management.data.minor_edition <= 5)
 	{	
