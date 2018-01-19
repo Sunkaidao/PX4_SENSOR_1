@@ -665,10 +665,13 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
 			break;
 
 		case AUXSW_AUTO_HEIGHT:
+			
+		
 			if (ch_flag == AUX_SWITCH_HIGH) 
 			{
 				height_replace_switch = 1;
-				height_replace_alt = current_loc.alt;
+				//	modified by ZhangYong for current_loc.alt differs from inertial_nav.get_altitude()
+				height_replace_alt = inertial_nav.get_altitude();
 			
 				set_mode(AUTO, MODE_REASON_TX_COMMAND);
 			}
