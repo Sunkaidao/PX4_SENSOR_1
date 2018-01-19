@@ -100,7 +100,10 @@ public:
 
 	uint32_t get_speed_under_min_time() {return _speed_under_min_time;}
 
-	
+	//baiyang added in 20180119
+    //units:cm
+    int16_t get_unspray_dist() {return _unspray_dist.get();}
+    //added end
 
     static const struct AP_Param::GroupInfo var_info[];
 
