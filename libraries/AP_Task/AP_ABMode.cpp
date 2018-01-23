@@ -75,6 +75,7 @@ AP_ABMode::AP_ABMode()
 {
 	AP_Param::setup_object_defaults(this, var_info);	
   	_initialised = false;
+	ab_mode.direction = ISRIGHT; 		// the right is default
 }
 
 AP_ABMode::~AP_ABMode()
@@ -91,7 +92,6 @@ bool AP_ABMode::init()
 	ab_mode.is_start = NO;
 	ab_mode.is_calc_wp = NO;
 	ab_mode.is_first_start = YES;
-	ab_mode.direction = ISRIGHT; 		// the right is default
 	alt_break = 0;
 	rgb_timer = 0;
 	rgb_flag = 0;
@@ -518,7 +518,6 @@ bool AP_ABMode:: abmode_reset(void)
 	ab_mode.is_start = NO;
 	ab_mode.is_calc_wp = NO;
 	ab_mode.is_first_start = YES;
-	ab_mode.direction = ISRIGHT; 		// the right is default
 	alt_break = 0;  // unit:cm
 	rgb_timer = 0;
 	rgb_flag = 0;
