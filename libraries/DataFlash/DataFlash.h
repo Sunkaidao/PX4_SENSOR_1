@@ -24,6 +24,8 @@
 #include <AP_Proximity/AP_Proximity.h>
 #include <stdint.h>
 
+
+
 #if CONFIG_HAL_BOARD == HAL_BOARD_PX4
 #include <uORB/topics/esc_status.h>
 #endif
@@ -163,9 +165,11 @@ public:
     void Log_Write_Airspeed(AP_Airspeed &airspeed);
     void Log_Write_Attitude(AP_AHRS &ahrs, const Vector3f &targets);
 
+#if SPRAYER == ENABLED
 	//	added by ZhangYong 20170405
 	void Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_dist, uint8_t para_fm_warn, uint8_t para_pck_cnt);
 	//	added end
+#endif	
 	
     void Log_Write_AttitudeView(AP_AHRS_View &ahrs, const Vector3f &targets);
     void Log_Write_Current(const AP_BattMonitor &battery);
@@ -224,11 +228,11 @@ public:
 	//	added end
 									
 	
-#if FXTX_AUTH == ENABLED
+//#if FXTX_AUTH == ENABLED
     //	added by ZhangYong 20170731
     void Log_Write_CD(int32_t para_home_dis, float para_communicat_drops);
     //	added end
-#endif
+//#endif
 
 	
 

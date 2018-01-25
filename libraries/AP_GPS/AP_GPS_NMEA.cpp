@@ -463,6 +463,7 @@ bool AP_GPS_NMEA::_term_complete()
     #endif
         // uint8_t checksum = 16 * _from_hex(_term[0]) + _from_hex(_term[1]);
         uint32_t checksum = 0;	
+#if DGPS_HEADINGA == ENABLED	
 			  if(_message_type == _GPS_MESSAGE_NMEA){  
 				   checksum = 16 * _from_hex(_term[0]) +	
 					 _from_hex(_term[1]);	
@@ -476,9 +477,10 @@ bool AP_GPS_NMEA::_term_complete()
 						16*_from_hex(_term[6])+					
 						_from_hex(_term[7]);
 			  }
+#endif				
         if (checksum == _parity) {
             if (_gps_data_good) {
-				#if DGPS_HEADINGA == ENABLED 
+#if DGPS_HEADINGA == ENABLED 
 				//baiyang added in 20171016
 				is_no_fix = false;
 				//added end

@@ -119,17 +119,16 @@ public:
     ///     has no effect if no breaches have occurred
     void manual_recovery_start();
 
+	Vector3f calc_backaway_destination(Vector3f curr_ralative, Vector2f fixorg_ralative, float distance);
+
     //baiyang migrated in 20170830
     #if RF_FENCE == ENABLED
     	void change_fixorg_distance(float para_distance);
     	float get_fixorg_distance() {return _fixorg_distance;}
     	float get_fixorg_circle_radius_backup() {return _fixorg_circle_radius_backup;}
     	float get_fixorg_circle_breach_distance() {return _fixorg_circle_breach_distance;}
-    
-    
-    	Vector3f calc_backaway_destination(Vector3f curr_ralative, Vector2f fixorg_ralative, float distance);
-      
-      int32_t return_fixorg_lat() {return _fixorg_lat.get(); }
+
+      	int32_t return_fixorg_lat() {return _fixorg_lat.get(); }
 	    int32_t return_fixorg_lng() {return _fixorg_lng.get(); }
       
       //baiyang added in 20170802
@@ -188,11 +187,13 @@ private:
     AP_Float        _margin;                // distance in meters that autopilot's should maintain from the fence to avoid a breach
     AP_Int8         _total;                 // number of polygon points saved in eeprom
 
+	AP_Float        _retreat_dis;           //  @Units: m
+
     //	added by zhangyong for projectxmdnt
     #if RF_FENCE == ENABLED
     	AP_Int32		_fixorg_lat;			//	Latitude * 10**7
     	AP_Int32		_fixorg_lng;			//	Longitude * 10**7	
-    	AP_Float        _retreat_dis;           //  @Units: m
+    	
     	
     	float			_fixorg_distance;		//	
     	float			_fixorg_circle_breach_distance;

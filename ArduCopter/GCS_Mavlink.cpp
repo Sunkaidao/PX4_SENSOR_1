@@ -365,8 +365,8 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
 #else		
         send_radio_in(copter.receiver_rssi, \
         				copter.g2.bcbpmbus.get_read_temperature(0), \
-        				copter.g2.bcbpmbus.get_read_temperature(1), \
-        				copter.g2.bcbpmbus.get_read_temperature(2));
+        				copter.g2.bcbpmbus.get_read_vin(0), \
+        				copter.g2.bcbpmbus.get_read_vout(0));
 #endif
         break;
 

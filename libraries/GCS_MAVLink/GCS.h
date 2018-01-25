@@ -27,7 +27,7 @@
 //added end
 
 //	added by ZhagnYong 20180125
-#include <../././ArduCopter/config.h>
+#include <./../../ArduCopter/config.h>
 //	added end
 
 

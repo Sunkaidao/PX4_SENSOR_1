@@ -1,5 +1,10 @@
 #pragma once
 
+//	added by zhangyong 20180125
+#include <./../../ArduCopter/config.h>
+//	added end
+
+
 /*
   unfortunately these need to be macros because of a limitation of
   named member structure initialisation in g++
@@ -665,7 +670,7 @@ struct PACKED log_RTBS {
 //added end
 #endif
 
-#if ABMODE == ENABLED
+//#if ABMODE == ENABLED
 //baiyang added in 20171102
 struct PACKED log_TWP {
     LOG_PACKET_HEADER;
@@ -681,9 +686,9 @@ struct PACKED log_TWP {
 	int32_t home_lng;
 };
 //added end
-#endif
+//#endif
 
-#if FXTX_AUTH == ENABLED
+//#if FXTX_AUTH == ENABLED
 //	added by ZhangYong 20170731
 struct PACKED log_Communication_drops {
     LOG_PACKET_HEADER;
@@ -693,7 +698,7 @@ struct PACKED log_Communication_drops {
 };
 
 //	added end
-#endif
+//#endif
 
 //	added by ZhangYong 20180104
 struct PACKED log_PADCMD {
@@ -1166,6 +1171,169 @@ struct PACKED log_Proximity {
 #define PMBUS_LABELS	"TMS,seq,id,sb,sw,sio,sin,st,sc,vi,ii,vo,io,t,p"
 #define PMBUS_FMT	"QBBBBBBBBHHHHHH"
 
+// message types for common messages
+enum LogMessages {
+//	modified by ZhangYong for over
+//	LOG_FORMAT_MSG = 128,
+//	modified end
+	LOG_FORMAT_MSG = 128,
+    LOG_PARAMETER_MSG,
+    LOG_GPS_MSG,
+    LOG_GPS2_MSG,
+    LOG_GPSB_MSG,
+    LOG_IMU_MSG,
+    LOG_MESSAGE_MSG,
+    LOG_RCIN_MSG,
+    LOG_RCOUT_MSG,
+    LOG_RSSI_MSG,
+    LOG_IMU2_MSG,
+    LOG_BARO_MSG,
+    LOG_POWR_MSG,
+    LOG_AHR2_MSG,
+    LOG_SIMSTATE_MSG,
+    LOG_CMD_MSG,
+    LOG_RADIO_MSG,
+    LOG_ATRP_MSG,
+    LOG_CAMERA_MSG,
+    LOG_IMU3_MSG,
+    LOG_TERRAIN_MSG,
+    LOG_GPS_UBX1_MSG,
+    LOG_GPS_UBX2_MSG,
+    LOG_GPS2_UBX1_MSG,
+    LOG_GPS2_UBX2_MSG,
+    LOG_ESC1_MSG,
+    LOG_ESC2_MSG,
+    LOG_ESC3_MSG,
+    LOG_ESC4_MSG,
+    LOG_ESC5_MSG,
+    LOG_ESC6_MSG,
+    LOG_ESC7_MSG,
+    LOG_ESC8_MSG,
+    LOG_BAR2_MSG,
+    LOG_ARSP_MSG,
+    LOG_ATTITUDE_MSG,
+    LOG_CURRENT_MSG,
+    LOG_CURRENT2_MSG,
+/*  shielded by ZhangYong 20180116 to save msg_id
+    LOG_CURRENT_CELLS_MSG,
+    LOG_CURRENT_CELLS2_MSG,
+*/    LOG_COMPASS_MSG,
+    LOG_COMPASS2_MSG,
+    LOG_COMPASS3_MSG,
+    LOG_MODE_MSG,
+    LOG_GPS_RAW_MSG,
+    LOG_GPS_RAWH_MSG,
+    LOG_GPS_RAWS_MSG,
+	LOG_GPS_SBF_EVENT_MSG,
+    LOG_ACC1_MSG,
+    LOG_ACC2_MSG,
+    LOG_ACC3_MSG,
+    LOG_GYR1_MSG,
+    LOG_GYR2_MSG,
+    LOG_GYR3_MSG,
+    LOG_POS_MSG,
+    LOG_PIDR_MSG,
+    LOG_PIDP_MSG,
+    LOG_PIDY_MSG,
+    LOG_PIDA_MSG,
+    LOG_PIDS_MSG,
+    LOG_PIDL_MSG,
+    LOG_VIBE_MSG,
+    LOG_IMUDT_MSG,
+    LOG_IMUDT2_MSG,
+    LOG_IMUDT3_MSG,
+    LOG_ORGN_MSG,
+    LOG_RPM_MSG,
+    LOG_GPA_MSG,
+    LOG_GPA2_MSG,
+    LOG_GPAB_MSG,
+    LOG_RFND_MSG,
+    LOG_BAR3_MSG,
+    LOG_NKF1_MSG,
+    LOG_NKF2_MSG,
+    LOG_NKF3_MSG,
+    LOG_NKF4_MSG,
+    LOG_NKF5_MSG,
+    LOG_NKF6_MSG,
+    LOG_NKF7_MSG,
+    LOG_NKF8_MSG,
+    LOG_NKF9_MSG,
+    LOG_NKF10_MSG,
+    LOG_NKQ1_MSG,
+    LOG_NKQ2_MSG,
+    LOG_XKF1_MSG,
+    LOG_XKF2_MSG,
+    LOG_XKF3_MSG,
+    LOG_XKF4_MSG,
+    LOG_XKF5_MSG,
+    LOG_XKF6_MSG,
+    LOG_XKF7_MSG,
+    LOG_XKF8_MSG,
+    LOG_XKF9_MSG,
+    LOG_XKF10_MSG,
+    LOG_XKQ1_MSG,
+    LOG_XKQ2_MSG,
+    LOG_XKFD_MSG,
+    LOG_XKV1_MSG,
+    LOG_XKV2_MSG,
+    LOG_DF_MAV_STATS,
+
+    LOG_MSG_SBPHEALTH,
+    LOG_MSG_SBPLLH,
+    LOG_MSG_SBPBASELINE,
+    LOG_MSG_SBPTRACKING1,
+    LOG_MSG_SBPTRACKING2,
+    LOG_MSG_SBPRAWH,
+    LOG_MSG_SBPRAWM,
+    LOG_MSG_SBPEVENT,
+    LOG_TRIGGER_MSG,
+
+/*    LOG_GIMBAL1_MSG,
+    LOG_GIMBAL2_MSG,
+    LOG_GIMBAL3_MSG,
+ */ LOG_RATE_MSG,
+    LOG_RALLY_MSG,
+    LOG_VISUALODOM_MSG,
+    LOG_AOA_SSA_MSG,
+    LOG_BEACON_MSG,
+
+    LOG_SPRAYER_MSG,
+	
+//#if BCBPMBUS == ENABLED	
+	LOG_PMBUS0_MSG,
+	LOG_PMBUS1_MSG,
+	LOG_PMBUS2_MSG,
+	LOG_PMBUS3_MSG,
+//#endif	
+    LOG_PROXIMITY_MSG,
+
+// #if CHARGINGSTATION == ENABLED
+    //baiyang added in 20170523
+    LOG_RTBS_MSG,
+    //added end
+// #endif
+
+//baiyang added in 20170829
+// #if DGPS_HEADINGA == ENABLED
+    LOG_GPS_HEADINGA_MSG,
+    LOG_GPS2_HEADINGA_MSG,
+// #endif
+// added end
+    
+//baiyang added in 20170831
+    LOG_CD_MSG,
+//added end
+
+//#if ABMODE == ENABLED
+	LOG_TWP_MSG,
+//#endif
+	LOG_PADCMD_MSG,
+	LOG_MTR_MSG,
+	LOG_CONTROL_MSG,
+	LOG_GKPROX_MSG
+};
+
+
 /*
 Format characters in the format string for binary log messages
   b   : int8_t
@@ -1203,6 +1371,95 @@ Format characters in the format string for binary log messages
       "BCL", CURR_CELL_FMT, CURR_CELL_LABELS }, \
     { LOG_CURRENT_CELLS2_MSG, sizeof(log_Current_Cells), \
       "BCL2", CURR_CELL_FMT, CURR_CELL_LABELS }, \   
+*/
+
+/*
+#define LOG_BASE_STRUCTURES \
+    { LOG_FORMAT_MSG, sizeof(log_Format), \
+      "FMT", "BBnNZ",      "Type,Length,Name,Format,Columns" },    \
+    { LOG_PARAMETER_MSG, sizeof(log_Parameter), \
+      "PARM", "QNf",        "TimeUS,Name,Value" },    \
+    { LOG_GPS_MSG, sizeof(log_GPS), \
+      "GPS",  GPS_FMT, GPS_LABELS }, \
+    { LOG_GPS2_MSG, sizeof(log_GPS), \
+      "GPS2", GPS_FMT, GPS_LABELS }, \
+    { LOG_GPS_HEADINGA_MSG, sizeof(log_GPS_HEADINGA), \
+      "RTK",  RTK_FMT, RTK_LABELS }, \
+    { LOG_GPS2_HEADINGA_MSG, sizeof(log_GPS_HEADINGA), \
+      "RTK2", RTK_FMT, RTK_LABELS }, \
+    { LOG_TWP_MSG, sizeof(log_TWP), \
+      "TWP",  TWP_FMT, TWP_LABELS }, \
+    { LOG_GPSB_MSG, sizeof(log_GPS), \
+      "GPSB", GPS_FMT, GPS_LABELS }, \
+    { LOG_GPA_MSG,  sizeof(log_GPA), \
+      "GPA",  GPA_FMT, GPA_LABELS }, \
+    { LOG_GPA2_MSG, sizeof(log_GPA), \
+      "GPA2", GPA_FMT, GPA_LABELS }, \
+    { LOG_GPAB_MSG, sizeof(log_GPA), \
+      "GPAB", GPA_FMT, GPA_LABELS }, \
+    { LOG_IMU_MSG, sizeof(log_IMU), \
+      "IMU",  IMU_FMT,     IMU_LABELS }, \
+    { LOG_MESSAGE_MSG, sizeof(log_Message), \
+      "MSG",  "QZ",     "TimeUS,Message"}, \
+    { LOG_RCIN_MSG, sizeof(log_RCIN), \
+      "RCIN",  "QHHHHHHHHHHHHHH",     "TimeUS,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14" }, \
+    { LOG_RCOUT_MSG, sizeof(log_RCOUT), \
+      "RCOU",  "QHHHHHHHHHHHHHH",     "TimeUS,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14" }, \
+	{ LOG_RSSI_MSG, sizeof(log_RSSI), \
+      "RSSI",  "Qf",     "TimeUS,RXRSSI" }, \
+	{ LOG_SPRAYER_MSG, sizeof(log_SPRAYER), \
+      "SPY",  "QbBBBIIhIBB",     "TimeMS,ab,run,spy,tt,ot,ut,pr,wp,fm,pc" }, \
+    { LOG_CD_MSG, sizeof(log_Communication_drops), \
+	 "CD", "Qif", "TMS,D2H,CD" }, \
+	{ LOG_PADCMD_MSG, sizeof(log_PADCMD), \
+	 "PAD", "QI", "TMS,MID" }, \
+	{ LOG_MTR_MSG, sizeof(log_MTR), \
+     "MTR",  "QffffffffffBBBB",     "TimeMS,r,p,t,y,thr,ya,rpyl,rpyh,thrb,sc,r,p,tl,tu" }, \
+    { LOG_CONTROL_MSG, sizeof(log_Control), \
+      "CTR",  "QBBBH",     "TimeMS,ov,oa,rv,rc3" }, \
+    { LOG_GKPROX_MSG, sizeof(log_GKProx), \
+      "GKPX",  "QB",     "TimeMS,t" }, \
+	{ LOG_PMBUS0_MSG, sizeof(log_BCBPMBus), \
+	 "PM0", PMBUS_FMT, PMBUS_LABELS }, \
+	{ LOG_PMBUS1_MSG, sizeof(log_BCBPMBus), \
+	 "PM1", PMBUS_FMT, PMBUS_LABELS }, \
+	{ LOG_PMBUS2_MSG, sizeof(log_BCBPMBus), \
+	 "PM2", PMBUS_FMT, PMBUS_LABELS }, \
+	{ LOG_PMBUS3_MSG, sizeof(log_BCBPMBus), \
+	 "PM3", PMBUS_FMT, PMBUS_LABELS }, \
+    { LOG_BARO_MSG, sizeof(log_BARO), \
+      "BARO",  BARO_FMT, BARO_LABELS }, \
+    { LOG_POWR_MSG, sizeof(log_POWR), \
+      "POWR","QffH","TimeUS,Vcc,VServo,Flags" },  \
+    { LOG_CMD_MSG, sizeof(log_Cmd), \
+      "CMD", "QHHHfffffff","TimeUS,CTot,CNum,CId,Prm1,Prm2,Prm3,Prm4,Lat,Lng,Alt" }, \
+    { LOG_RADIO_MSG, sizeof(log_Radio), \
+      "RAD", "QBBBBBHH", "TimeUS,RSSI,RemRSSI,TxBuf,Noise,RemNoise,RxErrors,Fixed" }, \
+    { LOG_CAMERA_MSG, sizeof(log_Camera), \
+      "CAM", "QIHLLeeeccC","TimeUS,GPSTime,GPSWeek,Lat,Lng,Alt,RelAlt,GPSAlt,Roll,Pitch,Yaw" }, \
+    { LOG_TRIGGER_MSG, sizeof(log_Camera), \
+      "TRIG", "QIHLLeeeccC","TimeUS,GPSTime,GPSWeek,Lat,Lng,Alt,RelAlt,GPSAlt,Roll,Pitch,Yaw" }, \
+    { LOG_ARSP_MSG, sizeof(log_AIRSPEED), \
+      "ARSP",  "QffcffB",  "TimeUS,Airspeed,DiffPress,Temp,RawPress,Offset,U" }, \
+    { LOG_CURRENT_MSG, sizeof(log_Current), \
+      "BAT", CURR_FMT,CURR_LABELS }, \
+    { LOG_CURRENT2_MSG, sizeof(log_Current), \
+      "BAT2", CURR_FMT,CURR_LABELS }, \
+	{ LOG_ATTITUDE_MSG, sizeof(log_Attitude),\
+      "ATT", "QccccCCCC", "TimeUS,DesRoll,Roll,DesPitch,Pitch,DesYaw,Yaw,ErrRP,ErrYaw" }, \
+    { LOG_COMPASS_MSG, sizeof(log_Compass), \
+      "MAG", MAG_FMT,    MAG_LABELS }, \
+    { LOG_MODE_MSG, sizeof(log_Mode), \
+      "MODE", "QMBB",         "TimeUS,Mode,ModeNum,Rsn" }, \
+    { LOG_RFND_MSG, sizeof(log_RFND), \
+      "RFND", "QCBCBCB", "TimeUS,Dt1,Ot1,Dt2,Ot2,Dt3,Ot3" }, \
+    { LOG_DF_MAV_STATS, sizeof(log_DF_MAV_Stats), \
+      "DMS", "IIIIIBBBBBBBBBB",         "TimeMS,N,Dp,RT,RS,Er,Fa,Fmn,Fmx,Pa,Pmn,Pmx,Sa,Smn,Smx" }, \
+    { LOG_BEACON_MSG, sizeof(log_Beacon), \
+      "BCN", "QBBfffffff",  "TimeUS,Health,Cnt,D0,D1,D2,D3,PosX,PosY,PosZ" }, \
+    { LOG_PROXIMITY_MSG, sizeof(log_Proximity), \
+      "PRX", "QBfffffffffff", "TimeUS,Health,D0,D45,D90,D135,D180,D225,D270,D315,DUp,CAn,CDis" }
+
 */
 
 
@@ -1459,167 +1716,6 @@ Format characters in the format string for binary log messages
 
 
 
-// message types for common messages
-enum LogMessages {
-//	modified by ZhangYong for over
-//	LOG_FORMAT_MSG = 128,
-//	modified end
-	LOG_FORMAT_MSG = 128,
-    LOG_PARAMETER_MSG,
-    LOG_GPS_MSG,
-    LOG_GPS2_MSG,
-    LOG_GPSB_MSG,
-    LOG_IMU_MSG,
-    LOG_MESSAGE_MSG,
-    LOG_RCIN_MSG,
-    LOG_RCOUT_MSG,
-    LOG_RSSI_MSG,
-    LOG_IMU2_MSG,
-    LOG_BARO_MSG,
-    LOG_POWR_MSG,
-    LOG_AHR2_MSG,
-    LOG_SIMSTATE_MSG,
-    LOG_CMD_MSG,
-    LOG_RADIO_MSG,
-    LOG_ATRP_MSG,
-    LOG_CAMERA_MSG,
-    LOG_IMU3_MSG,
-    LOG_TERRAIN_MSG,
-    LOG_GPS_UBX1_MSG,
-    LOG_GPS_UBX2_MSG,
-    LOG_GPS2_UBX1_MSG,
-    LOG_GPS2_UBX2_MSG,
-    LOG_ESC1_MSG,
-    LOG_ESC2_MSG,
-    LOG_ESC3_MSG,
-    LOG_ESC4_MSG,
-    LOG_ESC5_MSG,
-    LOG_ESC6_MSG,
-    LOG_ESC7_MSG,
-    LOG_ESC8_MSG,
-    LOG_BAR2_MSG,
-    LOG_ARSP_MSG,
-    LOG_ATTITUDE_MSG,
-    LOG_CURRENT_MSG,
-    LOG_CURRENT2_MSG,
-/*  shielded by ZhangYong 20180116 to save msg_id
-    LOG_CURRENT_CELLS_MSG,
-    LOG_CURRENT_CELLS2_MSG,
-*/    LOG_COMPASS_MSG,
-    LOG_COMPASS2_MSG,
-    LOG_COMPASS3_MSG,
-    LOG_MODE_MSG,
-    LOG_GPS_RAW_MSG,
-    LOG_GPS_RAWH_MSG,
-    LOG_GPS_RAWS_MSG,
-	LOG_GPS_SBF_EVENT_MSG,
-    LOG_ACC1_MSG,
-    LOG_ACC2_MSG,
-    LOG_ACC3_MSG,
-    LOG_GYR1_MSG,
-    LOG_GYR2_MSG,
-    LOG_GYR3_MSG,
-    LOG_POS_MSG,
-    LOG_PIDR_MSG,
-    LOG_PIDP_MSG,
-    LOG_PIDY_MSG,
-    LOG_PIDA_MSG,
-    LOG_PIDS_MSG,
-    LOG_PIDL_MSG,
-    LOG_VIBE_MSG,
-    LOG_IMUDT_MSG,
-    LOG_IMUDT2_MSG,
-    LOG_IMUDT3_MSG,
-    LOG_ORGN_MSG,
-    LOG_RPM_MSG,
-    LOG_GPA_MSG,
-    LOG_GPA2_MSG,
-    LOG_GPAB_MSG,
-    LOG_RFND_MSG,
-    LOG_BAR3_MSG,
-    LOG_NKF1_MSG,
-    LOG_NKF2_MSG,
-    LOG_NKF3_MSG,
-    LOG_NKF4_MSG,
-    LOG_NKF5_MSG,
-    LOG_NKF6_MSG,
-    LOG_NKF7_MSG,
-    LOG_NKF8_MSG,
-    LOG_NKF9_MSG,
-    LOG_NKF10_MSG,
-    LOG_NKQ1_MSG,
-    LOG_NKQ2_MSG,
-    LOG_XKF1_MSG,
-    LOG_XKF2_MSG,
-    LOG_XKF3_MSG,
-    LOG_XKF4_MSG,
-    LOG_XKF5_MSG,
-    LOG_XKF6_MSG,
-    LOG_XKF7_MSG,
-    LOG_XKF8_MSG,
-    LOG_XKF9_MSG,
-    LOG_XKF10_MSG,
-    LOG_XKQ1_MSG,
-    LOG_XKQ2_MSG,
-    LOG_XKFD_MSG,
-    LOG_XKV1_MSG,
-    LOG_XKV2_MSG,
-    LOG_DF_MAV_STATS,
-
-    LOG_MSG_SBPHEALTH,
-    LOG_MSG_SBPLLH,
-    LOG_MSG_SBPBASELINE,
-    LOG_MSG_SBPTRACKING1,
-    LOG_MSG_SBPTRACKING2,
-    LOG_MSG_SBPRAWH,
-    LOG_MSG_SBPRAWM,
-    LOG_MSG_SBPEVENT,
-    LOG_TRIGGER_MSG,
-
-/*    LOG_GIMBAL1_MSG,
-    LOG_GIMBAL2_MSG,
-    LOG_GIMBAL3_MSG,
- */ LOG_RATE_MSG,
-    LOG_RALLY_MSG,
-    LOG_VISUALODOM_MSG,
-    LOG_AOA_SSA_MSG,
-    LOG_BEACON_MSG,
-
-    LOG_SPRAYER_MSG,
-	
-#if BCBPMBUS == ENABLED	
-	LOG_PMBUS0_MSG,
-	LOG_PMBUS1_MSG,
-	LOG_PMBUS2_MSG,
-	LOG_PMBUS3_MSG,
-#endif	
-    LOG_PROXIMITY_MSG,
-
-// #if CHARGINGSTATION == ENABLED
-    //baiyang added in 20170523
-    LOG_RTBS_MSG,
-    //added end
-// #endif
-
-//baiyang added in 20170829
-// #if DGPS_HEADINGA == ENABLED
-    LOG_GPS_HEADINGA_MSG,
-    LOG_GPS2_HEADINGA_MSG,
-// #endif
-// added end
-    
-//baiyang added in 20170831
-    LOG_CD_MSG,
-//added end
-
-//#if ABMODE == ENABLED
-	LOG_TWP_MSG,
-//#endif
-	LOG_PADCMD_MSG,
-	LOG_MTR_MSG,
-	LOG_CONTROL_MSG,
-	LOG_GKPROX_MSG
-};
 
 enum LogOriginType {
     ekf_origin = 0,

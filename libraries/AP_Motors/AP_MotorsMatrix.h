@@ -8,7 +8,7 @@
 #include "AP_MotorsMulticopter.h"
 
 //	added by zhangyong 20180105
-//#include <../././ArduCopter/config.h>
+#include <./../../ArduCopter/config.h>
 //	added end
 
 #define AP_MOTORS_MATRIX_YAW_FACTOR_CW   -1

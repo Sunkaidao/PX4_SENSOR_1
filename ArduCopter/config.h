@@ -242,7 +242,7 @@
 //	noted by ZhangYong 2017110
 //	if we disabled optflow firmware will die after boot 
 #ifndef OPTFLOW
- # define OPTFLOW       ENABLED
+ # define OPTFLOW       DISABLED
 #endif
 #ifndef VISUAL_ODOMETRY_ENABLED
 # define VISUAL_ODOMETRY_ENABLED DISABLED
