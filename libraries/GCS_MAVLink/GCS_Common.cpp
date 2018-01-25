@@ -1494,9 +1494,9 @@ void GCS::data_stream_send()
 		//	added by Zhangyong for auth process
 		//	if want to connect to common mission planer
 		//	should sheild this state
-#if FXTX_AUTH == 1
-	if(copter.auth_state_ms == auth_state_success)
-#endif
+//#if FXTX_AUTH == 1
+//	if(copter.auth_state_ms == auth_state_success)
+//#endif
 	{
 	//	added endded
 		 for (uint8_t i=0; i<num_gcs(); i++) 
@@ -2436,6 +2436,7 @@ bool GCS_MAVLINK::try_send_gps_message(const enum ap_message id)
         gps->send_mavlink_gps2_rtk(chan);
         ret = true;
         break;
+#if DGPS_HEADINGA == ENABLED		
     case MSG_DA_GPS_STA:
 	CHECK_PAYLOAD_SIZE(DA_GPS_STA);
 	gps->send_mavlink_gps_head_status(chan);
@@ -2446,6 +2447,7 @@ bool GCS_MAVLINK::try_send_gps_message(const enum ap_message id)
 	gps->send_mavlink_gps2_head_status(chan);
         ret = true;
 	break;
+#endif	
     default:
         ret = true;
         break;

@@ -22,7 +22,9 @@
 #include <AP_Vehicle/AP_Vehicle.h>
 #include "GPS_detect_state.h"
 #include <AP_SerialManager/AP_SerialManager.h>
-
+//	added by ZhangYong 20180125
+#include <./../../ArduCopter/config.h>
+//	added end
 /**
    maximum number of GPS instances available on this platform. If more
    than 1 then redundant sensors may be available
@@ -418,12 +420,14 @@ public:
     void send_mavlink_gps2_rtk(mavlink_channel_t chan);
 
 //#ifdef GPS_YAW_CAL
+#if DGPS_HEADINGA == ENABLED
+
 //baiyang added in 20180108
 	//MAVLink Status Sending
 	void send_mavlink_gps_head_status(mavlink_channel_t chan);
 	void send_mavlink_gps2_head_status(mavlink_channel_t chan);
 //added end
-//#endif
+#endif
 
     // Returns the index of the first unconfigured GPS (returns GPS_ALL_CONFIGURED if all instances report as being configured)
     uint8_t first_unconfigured_gps(void) const;

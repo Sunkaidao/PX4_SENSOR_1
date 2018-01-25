@@ -817,13 +817,7 @@ const AP_Param::Info Copter::var_info[] = {
     GOBJECT(flowmeter,                "FM_",       AP_Flowmeter),
 #endif
 
-/*
-#if BCBPMBUS == ENABLED
-    // @Group: SPRAY_
-    // @Path: ../libraries/AC_BCBPMBus/AC_BCBPMBus.cpp
-    GOBJECT(bcbpmbus,                "PMBUS_",       AC_BCBPMBus),
-#endif
-*/
+
 
 
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL

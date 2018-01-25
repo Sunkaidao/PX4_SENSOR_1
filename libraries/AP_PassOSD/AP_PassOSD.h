@@ -12,7 +12,7 @@
 //	added by ZhangYong 20160414
 #include <AP_SerialManager/AP_SerialManager.h>
 #include <stdio.h>
-#include <../././ArduCopter/config.h>
+#include <./../../ArduCopter/config.h>
 
 
 //	added end

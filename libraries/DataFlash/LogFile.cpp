@@ -287,7 +287,7 @@ void DataFlash_Class::Log_Write_GPS(const AP_GPS &gps, uint8_t i, uint64_t time_
     WriteBlock(&pkt2, sizeof(pkt2));
 
 // baiyang added in 20170829
-//#if DGPS_HEADINGA == ENABLED
+#if DGPS_HEADINGA == ENABLED
     static bool heading_ready = false;
     if (!heading_ready) {
       if (!is_zero(gps.heading(i))) {
@@ -304,7 +304,7 @@ void DataFlash_Class::Log_Write_GPS(const AP_GPS &gps, uint8_t i, uint64_t time_
         heading_status: (int8_t)(gps.Headstatus(i))
     };
     WriteBlock(&pkt3, sizeof(pkt3));
-//#endif 
+#endif 
 //added end 
 
 }
@@ -688,6 +688,8 @@ bool DataFlash_Backend::Log_Write_Message(const char *message)
     return WriteCriticalBlock(&pkt, sizeof(pkt));
 }
 
+#if SPRAYER == ENABLED
+
 //	added by ZhangYong 20170405
 void DataFlash_Class::Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_dist, uint8_t para_fm_warn, uint8_t para_pck_cnt)
 {
@@ -707,7 +709,7 @@ void DataFlash_Class::Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_di
 	};
 	WriteBlock(&pkt, sizeof(pkt));
 }
-
+#endif
 
 void DataFlash_Class::Log_Write_Power(void)
 {
@@ -2193,7 +2195,7 @@ void DataFlash_Class::Log_Write_GKProx()
 }
 //	added end
 
-
+#if BCBPMBUS == ENABLED
 void DataFlash_Class::Log_Write_BCBPMBus(uint8_t msg_type, AC_BCBPMBus &vp_bcbpmbus)
 {
     // position
@@ -2270,7 +2272,7 @@ void DataFlash_Class::Log_Write_BCBPMBus(uint8_t msg_type, AC_BCBPMBus &vp_bcbpm
     };
     WriteBlock(&pkt_bcbpmbus, sizeof(pkt_bcbpmbus));
 }
-
+#endif
 
 //	added end
 

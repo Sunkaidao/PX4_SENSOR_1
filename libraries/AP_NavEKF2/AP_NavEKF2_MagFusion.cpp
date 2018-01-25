@@ -981,7 +981,7 @@ void NavEKF2_core::fuseEulerYaw()
 	}else{
 	    innovation = wrap_PI(predicted_yaw - measured_yaw);	
 	}
-	//added end
+	//added end	
 #else
     // Calculate the innovation
     float innovation = wrap_PI(predicted_yaw - measured_yaw);
