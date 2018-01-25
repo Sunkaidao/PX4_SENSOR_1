@@ -26,6 +26,10 @@
 #endif
 //added end
 
+//	added by ZhagnYong 20180125
+#include <../././ArduCopter/config.h>
+//	added end
+
 
 // check if a message will fit in the payload space available
 #define HAVE_PAYLOAD_SPACE(chan, id) (comm_get_txspace(chan) >= GCS_MAVLINK::packet_overhead_chan(chan)+MAVLINK_MSG_ID_ ## id ## _LEN)
