@@ -170,6 +170,8 @@
 #endif
 //added end
 
+#include <AP_CanTest/AP_CanTest.h>
+
 
 
 class Copter : public AP_HAL::HAL::Callbacks {
@@ -200,6 +202,8 @@ public:
 	friend class AP_ABMode;
 	//added end
 #endif
+
+	friend class AP_CanTest;
 
     Copter(void);
 
@@ -629,7 +633,7 @@ private:
 	Edition_management edit_management;
 	//	added end
 
-
+	AP_CanTest cantest;
 
     // Reference to the relay object
     AP_Relay relay;

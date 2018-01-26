@@ -244,6 +244,7 @@ public:
         k_param_fs_batt_curr_rtl,
         k_param_rtl_cone_slope, // 137
 
+		k_param_can_test_rt = 138,
 
 		//	added by ZhangYong for GKXN payload failsafe
 		k_param_failsafe_pld_type,		//138
@@ -432,7 +433,7 @@ public:
 	AP_Int8	 failsafe_pld_action;	//124
 	//	added end
 
-
+	AP_Int8 can_test_rt;
 	
     AP_Int8         telem_delay;
 

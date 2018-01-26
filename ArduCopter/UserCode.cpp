@@ -218,6 +218,8 @@ void Copter::userhook_init()
 	rf_abmode.init();
 #endif
 
+	cantest.init();
+
 }
 #endif // end USERHOOK_INIT
 
@@ -239,6 +241,8 @@ void Copter::userhook_50Hz()
 #endif // end PTZ_CONTROL == ENABLED
     //added end
 
+	cantest.update();
+
 }
 #endif // end USERHOOK_50HZLOOP
 
@@ -254,6 +258,7 @@ void Copter::userhook_MediumLoop()
 	rf_abmode.update();
 #endif
 
+	
 }
 #endif
 
@@ -274,6 +279,7 @@ void Copter::userhook_SuperSlowLoop()
 		  local_flight_time_sec++;
 	 }//	added end
 #endif
+
 
 }
 #endif
