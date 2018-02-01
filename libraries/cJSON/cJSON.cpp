@@ -475,15 +475,12 @@ static void update_offset(printbuffer * const buffer)
 static cJSON_bool print_number(const cJSON * const item, printbuffer * const output_buffer)
 {
     unsigned char *output_pointer = NULL;
-    //double d = item->valuedouble;
-    int d = item->valueint;
+    double d = item->valuedouble;
     int length = 0;
     size_t i = 0;
     unsigned char number_buffer[26]; /* temporary buffer to print the number into */
     unsigned char decimal_point = get_decimal_point();
-    //double test;
-    int test;
-
+    double test;
 
     if (output_buffer == NULL)
     {
@@ -498,16 +495,13 @@ static cJSON_bool print_number(const cJSON * const item, printbuffer * const out
     else
     {
         /* Try 15 decimal places of precision to avoid nonsignificant nonzero digits */
-        //length = sprintf((char*)number_buffer, "%1.15g", d);
-         length = sprintf((char*)number_buffer, "%d", d);
+        length = sprintf((char*)number_buffer, "%1.15g", d);
 
-
-        //Check whether the original double can be recovered
-        if ((sscanf((char*)number_buffer, "%d", &test) != 1) || ((int)test != d))
+        /* Check whether the original double can be recovered */
+        if ((sscanf((char*)number_buffer, "%lg", &test) != 1) || ((double)test != d))
         {
-            // If not, print with 17 decimal places of precision
-            //length = sprintf((char*)number_buffer, "%1.17g", d);
-            length = sprintf((char*)number_buffer, "%d", d);
+            /* If not, print with 17 decimal places of precision */
+            length = sprintf((char*)number_buffer, "%1.17g", d);
         }
     }
 

@@ -17,7 +17,6 @@
 #include <AP_BoardConfig/AP_BoardConfig_CAN.h>
 #include "./../../ArduCopter/config.h"
 #include <uavcan/helpers/heap_based_pool_allocator.hpp>
-#include "cJSON.h"
 
 #if NEWBROADCAST == ENABLED 
 

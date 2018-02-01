@@ -218,10 +218,9 @@ void Copter::userhook_init()
 	rf_abmode.init();
 #endif
 
-	//g2.newbroadcast.init();
-
-    newbroadcast.init();
-
+#if NEWBROADCAST == ENABLED
+   newbroadcast.init();
+#endif
 
 }
 #endif // end USERHOOK_INIT

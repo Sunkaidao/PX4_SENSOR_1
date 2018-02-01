@@ -125,7 +125,6 @@ void AP_NewBroadcast :: sendPayload(char *pArray,uint16_t len)
 {
     uint16_t frame_num = len / 8;
     uint8_t last_frame_num_b = len % 8;
-    uint32_t tstart = AP_HAL::micros();
 
     for(int16_t i = send_index; i<(frame_num+2); i++)
     {
@@ -413,7 +412,6 @@ void AP_NewBroadcast :: update_view()
 {
     update_view_action();
     update_view_reg_no();
-    update_view_flight_seq();
     update_view_now_time();
     update_view_state();
     update_view_flight_time();
@@ -512,7 +510,9 @@ uint64_t AP_NewBroadcast ::endian_big_to_little64u(uint64_t date64u)
 }
 
 void AP_NewBroadcast ::update()
-{
+{	
+   update_view_flight_seq();
+
    if(!_initialized)
 		return;
 

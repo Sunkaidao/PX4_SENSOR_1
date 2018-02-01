@@ -107,6 +107,9 @@
 #include <AC_Sprayer/AC_Sprayer.h>         // crop sprayer library
 #endif
 
+#include <cJSON/cJSON.h>         // crop sprayer library
+
+
 #if FLOWMETER == ENABLED
 #include <AP_Flowmeter/AP_Flowmeter.h>
 #endif
