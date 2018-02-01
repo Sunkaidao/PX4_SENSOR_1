@@ -218,6 +218,8 @@ void Copter::userhook_init()
 	rf_abmode.init();
 #endif
 
+
+//	cJSON_Version();
 }
 #endif // end USERHOOK_INIT
 
