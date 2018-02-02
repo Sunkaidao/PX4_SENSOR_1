@@ -151,8 +151,11 @@ void Copter::userhook_init()
 #if PROJECTGKXN == ENABLED
 	printf("PROJECTGKXN\n");
 #endif // end PROJECTGKXN == ENABLED
-
-
+	
+	//	added by ZhangYong
+#if PROJECTFB == ENABLED
+	printf("PROJECTFB\n");
+#endif	
 	//	added ebd
 
 	//	added by ZhangYong 20170705

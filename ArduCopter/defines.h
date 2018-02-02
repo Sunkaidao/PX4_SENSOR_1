@@ -80,6 +80,7 @@ enum aux_sw_func {
     AUXSW_ARMDISARM =           41,  // arm or disarm vehicle
     AUXSW_FS_PLD =				55,
     AUXSW_AUTO_HEIGHT = 		58,
+    AUXSW_SWITCH_TURBINE = 		59,
 
 //#if CHARGINGSTATION == ENABLED
     //baiyang added in 20170414
