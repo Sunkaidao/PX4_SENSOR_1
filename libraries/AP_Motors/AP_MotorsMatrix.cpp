@@ -35,6 +35,9 @@ void AP_MotorsMatrix::init(motor_frame_class frame_class, motor_frame_type frame
 
     // enable fast channels or instant pwm
     set_update_rate(_speed_hz);
+
+
+	
 }
 
 // set update rate to motors - a value in hertz
@@ -151,7 +154,8 @@ uint16_t AP_MotorsMatrix::get_motor_mask()
 // includes new scaling stability patch
 void AP_MotorsMatrix::output_armed_stabilizing()
 {
-    uint8_t i;                          // general purpose counter
+
+	uint8_t i;                          // general purpose counter
     float   roll_thrust;                // roll thrust input value, +/- 1.0
     float   pitch_thrust;               // pitch thrust input value, +/- 1.0
     float   yaw_thrust;                 // yaw thrust input value, +/- 1.0
@@ -165,6 +169,8 @@ void AP_MotorsMatrix::output_armed_stabilizing()
     float   thr_adj;                    // the difference between the pilot's desired throttle and throttle_thrust_best_rpy
 
 	//	added by ZhangYong for loging
+	static uint32_t lcl_cnt = 0;
+	
 	memset(&_mtr_log, 0, sizeof(struct MTR_log));
 	//	added end
 
@@ -181,7 +187,7 @@ void AP_MotorsMatrix::output_armed_stabilizing()
 	_mtr_log.rc_throttle_log = throttle_thrust;
 	//	added end
 
-    // sanity check throttle is above zero and below current limited throttle
+	// sanity check throttle is above zero and below current limited throttle
     if (throttle_thrust <= 0.0f) {
         throttle_thrust = 0.0f;
         limit.throttle_lower = true;
@@ -190,6 +196,9 @@ void AP_MotorsMatrix::output_armed_stabilizing()
         throttle_thrust = _throttle_thrust_max;
         limit.throttle_upper = true;
     }
+
+
+
 
     _throttle_avg_max = constrain_float(_throttle_avg_max, throttle_thrust, _throttle_thrust_max);
 
@@ -270,18 +279,29 @@ void AP_MotorsMatrix::output_armed_stabilizing()
 	_mtr_log.rpy_high_log = rpy_high;
 	//	added end
 
+#if PROJECTFB == DISABLE	
+
+
     // check everything fits
     throttle_thrust_best_rpy = MIN(0.5f - (rpy_low+rpy_high)/2.0, _throttle_avg_max);
 
 	//	added by zhangyong for loging 20180108
 	_mtr_log.thr_thrust_best_rpy_log = throttle_thrust_best_rpy;
 	//	added end
+
+//	if(0 == (lcl_cnt % 10))
+//		printf("rpy_low %4.2f, rpy_high %4.2f, rpy %4.2f\n", rpy_low, rpy_high, (rpy_high-rpy_low));
+
 	
+	
+	
+
     if (is_zero(rpy_low)){
         rpy_scale = 1.0f;
     } else {
         rpy_scale = constrain_float(-throttle_thrust_best_rpy/rpy_low, 0.0f, 1.0f);
     }
+
 
 	//	added by zhangyong for loging 20180108
 	_mtr_log.rpy_scale_log = rpy_scale;
@@ -322,6 +342,70 @@ void AP_MotorsMatrix::output_armed_stabilizing()
             _thrust_rpyt_out[i] = throttle_thrust_best_rpy + thr_adj + rpy_scale*_thrust_rpyt_out[i];
         }
     }
+
+	
+#else
+	throttle_thrust_best_rpy =(rpy_high - rpy_low)/2;
+
+	//	added by ZhangYong 20180202
+
+//	if(0 == (lcl_cnt % 10))
+//		printf("low:%4.2f abs:%4.2f high:%4.2f zo:%4.2f ", rpy_low, fabs(rpy_low), rpy_high, throttle_thrust_best_rpy);
+
+	if(throttle_thrust_best_rpy > 0.5)
+	{
+		rpy_scale = 0.5 / throttle_thrust_best_rpy;
+	}
+	else
+	{
+		rpy_scale = 1;
+	}
+
+//	if(0 == (lcl_cnt % 10))
+//		printf("sca:%4.2f ", rpy_scale);
+
+	if (rpy_scale < 1.0f){
+        // Full range is being used by roll, pitch, and yaw.
+        limit.roll_pitch = true;
+        limit.yaw = true;
+    }
+
+	
+	for (i=0; i<4; i++) {
+        if (motor_enabled[i]) {
+            _thrust_rpyt_out[i] =  fabs(rpy_low) + rpy_scale*_thrust_rpyt_out[i];
+//			if(0 == (lcl_cnt % 10))
+//			printf("%d:%4.2f ", i, _thrust_rpyt_out[i]);
+        }
+    }
+	
+	
+
+	for(i = 4; i < AP_MOTORS_MAX_NUM_MOTORS; i++)
+	{
+		if (motor_enabled[i]) {
+			if(0 == turbine)
+            	_thrust_rpyt_out[i] = throttle_thrust;
+			else if(1 == turbine)
+				_thrust_rpyt_out[i] = 0.07;
+			else if(2 == turbine)
+				_thrust_rpyt_out[i] = 1;
+			
+//			if(0 == (lcl_cnt % 10))
+//				printf("%d:%4.2f ", i, _thrust_rpyt_out[i]);
+        }
+	}
+
+//	if(0 == (lcl_cnt % 10))
+//		printf("\n");
+
+	//	added by zhangyong for loging 20180108
+	_mtr_log.rpy_scale_log = rpy_scale;
+	//	added end
+	//	added end
+#endif
+
+	lcl_cnt++;
 
     // constrain all outputs to 0.0f to 1.0f
     // test code should be run with these lines commented out as they should not do anything
@@ -567,6 +651,19 @@ void AP_MotorsMatrix::setup_motors(motor_frame_class frame_class, motor_frame_ty
                     add_motor_raw(AP_MOTORS_MOT_8, -1.0f, -0.333f, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  3);
                     success = true;
                     break;
+				//	added by ZhangYong 20180202
+				case MOTOR_FRAME_TYPE_Y6B:
+					add_motor(AP_MOTORS_MOT_1,   45, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 1);
+                    add_motor(AP_MOTORS_MOT_2, -135, AP_MOTORS_MATRIX_YAW_FACTOR_CCW, 3);
+                    add_motor(AP_MOTORS_MOT_3,  -45, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  4);
+                    add_motor(AP_MOTORS_MOT_4,  135, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  2);
+                    add_motor_raw(AP_MOTORS_MOT_5, 0, 0, 0, 5);
+                    add_motor_raw(AP_MOTORS_MOT_6, 0, 0, 0, 7);
+                    add_motor_raw(AP_MOTORS_MOT_7, 0, 0, 0, 8);
+                    add_motor_raw(AP_MOTORS_MOT_8, 0, 0, 0, 6);
+                    success = true;
+					break;
+				//	added end
                 default:
                     // octa frame class does not support this frame type
                     break;

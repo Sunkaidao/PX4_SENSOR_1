@@ -686,6 +686,37 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
 				}
 			}
 			break;
+			
+#if PROJECTFB == ENABLE
+		case AUXSW_SWITCH_TURBINE:
+		if (ch_flag == AUX_SWITCH_HIGH) 
+		{
+//			turbine = 2;
+
+			motors->set_turbine(2);
+			
+//			printf("HIGH %d\n", turbine);		
+		}
+		else if(ch_flag == AUX_SWITCH_MIDDLE)
+		{
+
+//			turbine = 1;
+
+			motors->set_turbine(1);
+			
+//			printf("MID %d\n", turbine);	
+		}
+		else
+		{
+//			turbine = 0;
+
+			motors->set_turbine(0);
+			
+//			printf("LOW %d\n", turbine);	
+			
+		}
+		break;	
+#endif
 
 #if CHARGINGSTATION == ENABLED			
         //baiyang added in 20170414

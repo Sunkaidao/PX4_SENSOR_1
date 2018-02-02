@@ -327,6 +327,14 @@
 //	added ebd
 
 
+//////////////////////////////////////////////////////////////////////////////
+//  PROJECT ZHANGBO @flyboard
+
+#ifndef PROJECTFB
+ # define PROJECTFB  ENABLED
+#endif
+
+
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -508,7 +516,7 @@
 // AUTH ()
 //
 #ifndef FXTX_AUTH
- #define FXTX_AUTH 	ENABLED
+ #define FXTX_AUTH 	DISABLE
 #endif
 
 #if FXTX_AUTH == ENABLED
