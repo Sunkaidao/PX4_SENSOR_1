@@ -36,6 +36,11 @@ bool Copter::althold_init(bool ignore_checks)
 void Copter::althold_run()
 {
     AltHoldModeState althold_state;
+	//	added by zhangyong for test purpose
+	static uint32_t lcl_cnt = 0;
+	//	added end
+
+	
     float takeoff_climb_rate = 0.0f;
 
     // initialize vertical speeds and acceleration
@@ -53,7 +58,12 @@ void Copter::althold_run()
     float target_yaw_rate = get_pilot_desired_yaw_rate(channel_yaw->get_control_in());
 
     // get pilot desired climb rate
-    float target_climb_rate = get_pilot_desired_climb_rate(channel_throttle->get_control_in());
+	//	-250	throttle min 0
+	//	0		throttle [40, 60]
+	//	250		throttle max 100
+	float target_climb_rate = get_pilot_desired_climb_rate(channel_throttle->get_control_in());
+
+	
     target_climb_rate = constrain_float(target_climb_rate, -g.pilot_velocity_z_max, g.pilot_velocity_z_max);
 
 #if FRAME_CONFIG == HELI_FRAME

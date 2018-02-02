@@ -402,6 +402,12 @@ void Copter::guided_takeoff_run()
 // called from guided_run
 void Copter::guided_pos_control_run()
 {
+	//	added by ZhangYong 20180202
+	//	in current control mode, guided, no terral follow, 
+	float target_climb_rate;
+	//	added end
+
+
     // if not auto armed or motors not enabled set throttle to zero and exit immediately
     if (!motors->armed() || !ap.auto_armed || !motors->get_interlock() || ap.land_complete) {
 #if FRAME_CONFIG == HELI_FRAME  // Helicopters always stabilize roll/pitch/yaw
@@ -431,6 +437,17 @@ void Copter::guided_pos_control_run()
 
     // run waypoint controller
     failsafe_terrain_set_status(wp_nav->update_wpnav());
+
+	//	added by ZhangYong 20180202 
+	//	in order to realize terra follow with rangefinder
+	if (rangefinder_alt_ok()) 
+	{
+		// if rangefinder is ok, use surface tracking
+		target_climb_rate = get_surface_tracking_climb_rate(0, pos_control->get_alt_target(), G_Dt);
+
+		pos_control->set_alt_target_from_climb_rate_ff(target_climb_rate, G_Dt, false);
+	}
+	//	added end
 
     // call z-axis position controller (wpnav should have already updated it's alt target)
     pos_control->update_z_controller();
