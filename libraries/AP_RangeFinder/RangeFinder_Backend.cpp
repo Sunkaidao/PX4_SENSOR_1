@@ -33,29 +33,45 @@ AP_RangeFinder_Backend::AP_RangeFinder_Backend(RangeFinder::RangeFinder_State &_
 // update status based on distance measurement
 void AP_RangeFinder_Backend::update_status()
 {
-    // check distance
-    if ((int16_t)state.distance_cm > state.max_distance_cm) {
-        set_status(RangeFinder::RangeFinder_OutOfRangeHigh);
-    } else if ((int16_t)state.distance_cm < state.min_distance_cm) {
-        set_status(RangeFinder::RangeFinder_OutOfRangeLow);
-    } else {
-        set_status(RangeFinder::RangeFinder_Good);
-    }
+	//	added by zhangyong 20180201
+	if(1 == state.enable)
+	{
+		//	added end
+		// check distance
+    	if ((int16_t)state.distance_cm > state.max_distance_cm) {
+    	    set_status(RangeFinder::RangeFinder_OutOfRangeHigh);
+    	} else if ((int16_t)state.distance_cm < state.min_distance_cm) {
+        	set_status(RangeFinder::RangeFinder_OutOfRangeLow);
+    	} else {
+        	set_status(RangeFinder::RangeFinder_Good);
+    	}
+	}
 }
 
 // set status and update valid count
 void AP_RangeFinder_Backend::set_status(RangeFinder::RangeFinder_Status _status)
 {
-    state.status = _status;
+	//added by zhangyong 20180201
+	if(1 == state.enable)
+    {
+    //	added end
+    	state.status = _status;
 
-    // update valid count
-    if (_status == RangeFinder::RangeFinder_Good) {
-        if (state.range_valid_count < 10) {
-            state.range_valid_count++;
-        }
-    } else {
-        state.range_valid_count = 0;
-    }
+    	// update valid count
+    	if (_status == RangeFinder::RangeFinder_Good) 
+		{
+        	if (state.range_valid_count < 10) 
+			{
+        	    state.range_valid_count++;
+        	}
+    	} 
+		else 
+		{
+        	state.range_valid_count = 0;
+    	}
+	//	added by zhangyong	
+	}
+	//	added end
 }
 
 /*
@@ -66,8 +82,17 @@ void AP_RangeFinder_Backend::set_status(RangeFinder::RangeFinder_Status _status)
  */
 void AP_RangeFinder_Backend::update_pre_arm_check()
 {
+	//	modified by zhangyong 20180201
     // return immediately if already passed or no sensor data
-    if (state.pre_arm_check || state.status == RangeFinder::RangeFinder_NotConnected || state.status == RangeFinder::RangeFinder_NoData) {
+    //if (state.pre_arm_check || state.status == RangeFinder::RangeFinder_NotConnected || state.status == RangeFinder::RangeFinder_NoData) {
+    //    return;
+    //}
+	//	modified end
+
+	if ((state.pre_arm_check) || \
+		(0 == state.enable) || \
+		(state.status == RangeFinder::RangeFinder_NotConnected) || \
+		(state.status == RangeFinder::RangeFinder_NoData)) {
         return;
     }
 
@@ -83,3 +108,18 @@ void AP_RangeFinder_Backend::update_pre_arm_check()
         state.pre_arm_check = true;
     }
 }
+
+//	added by ZhangYong 20180201
+RangeFinder::RangeFinder_Type AP_RangeFinder_Backend::type() 
+{
+	if(0 == state.enable)
+	{
+		return (RangeFinder::RangeFinder_Type)0;
+	}
+	else
+	{
+		return (RangeFinder::RangeFinder_Type)state.type.get(); 
+	}
+}
+//	added end
+

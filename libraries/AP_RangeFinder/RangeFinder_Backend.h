@@ -53,9 +53,19 @@ public:
             // turned off at runtime?
             return RangeFinder::RangeFinder_NotConnected;
         }
+
+		//	added by zhangyong 20180201
+		if(0 == state.enable)
+		{
+			return RangeFinder::RangeFinder_NotConnected;
+		}
+		//	added end
         return state.status;
     }
-    RangeFinder::RangeFinder_Type type() const { return (RangeFinder::RangeFinder_Type)state.type.get(); }
+	//	modified by zhangyong 20180201
+		RangeFinder::RangeFinder_Type type();
+	//	modified end
+    
 
     // true if sensor is returning data
     bool has_data() const {
@@ -69,6 +79,8 @@ public:
     // return a 3D vector defining the position offset of the sensor
     // in metres relative to the body frame origin
     const Vector3f &get_pos_offset() const { return state.pos_offset; }
+
+	RangeFinder::RangeFinder_State &get_state() const {return state;}
 
 protected:
 
