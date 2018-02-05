@@ -805,6 +805,10 @@ private:
     static const AP_Param::Info var_info[];
     static const struct LogStructure log_structure[];
 
+	//	added by ZhangYong for surface  tracking climb rate 20180205
+	float surface_tracking_climb_rate;
+	//	added end
+
 	//	added by ZhangYong 20171101
 	//	in order to save time when transmit mission_item in common mission plan
 	//	in order to not block the telemetry data when ABMission plan
