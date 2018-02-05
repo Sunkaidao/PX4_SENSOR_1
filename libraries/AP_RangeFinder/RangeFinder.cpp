@@ -143,6 +143,7 @@ const AP_Param::GroupInfo RangeFinder::var_info[] = {
     // @User: Standard
     AP_GROUPINFO("_ADDR", 23, RangeFinder, state[0].address, 0),
 
+
     // @Param: _POS_X
     // @DisplayName:  X position offset
     // @Description: X position of the first rangefinder in body frame. Positive X is forward of the origin. Use the zero range datum point if supplied.
@@ -168,6 +169,13 @@ const AP_Param::GroupInfo RangeFinder::var_info[] = {
     // @Values: 0:Forward, 1:Forward-Right, 2:Right, 3:Back-Right, 4:Back, 5:Back-Left, 6:Left, 7:Forward-Left, 24:Up, 25:Down
     // @User: Advanced
     AP_GROUPINFO("_ORIENT", 53, RangeFinder, state[0].orientation, ROTATION_PITCH_270),
+
+	// @Param: _ENABLE
+    // @DisplayName: Rangefinder enable
+    // @Description: enable of rangefinder
+    // @Values: 0:disable, 1:enable
+    // @User: Advanced
+    AP_GROUPINFO("_ENABLE", 57, RangeFinder, state[0].enable, 0),
 
 #if RANGEFINDER_MAX_INSTANCES > 1
     // @Param: 2_TYPE
@@ -287,6 +295,13 @@ const AP_Param::GroupInfo RangeFinder::var_info[] = {
     // @Values: 0:Forward, 1:Forward-Right, 2:Right, 3:Back-Right, 4:Back, 5:Back-Left, 6:Left, 7:Forward-Left, 24:Up, 25:Down
     // @User: Advanced
     AP_GROUPINFO("2_ORIENT", 54, RangeFinder, state[1].orientation, ROTATION_PITCH_270),
+
+	// @Param: _ENABLE
+    // @DisplayName: Rangefinder enable
+    // @Description: enable of rangefinder
+    // @Values: 0:disable, 1:enable
+    // @User: Advanced
+    AP_GROUPINFO("2_ENABLE", 58, RangeFinder, state[1].enable, 0),
 #endif
 
 #if RANGEFINDER_MAX_INSTANCES > 2
@@ -408,6 +423,13 @@ const AP_Param::GroupInfo RangeFinder::var_info[] = {
     // @Values: 0:Forward, 1:Forward-Right, 2:Right, 3:Back-Right, 4:Back, 5:Back-Left, 6:Left, 7:Forward-Left, 24:Up, 25:Down
     // @User: Advanced
     AP_GROUPINFO("3_ORIENT", 55, RangeFinder, state[2].orientation, ROTATION_PITCH_270),
+
+	// @Param: _ENABLE
+    // @DisplayName: Rangefinder enable
+    // @Description: enable of rangefinder
+    // @Values: 0:disable, 1:enable
+    // @User: Advanced
+    AP_GROUPINFO("3_ENABLE", 59, RangeFinder, state[2].enable, 0),
 #endif
 
 #if RANGEFINDER_MAX_INSTANCES > 3
@@ -529,6 +551,13 @@ const AP_Param::GroupInfo RangeFinder::var_info[] = {
     // @Values: 0:Forward, 1:Forward-Right, 2:Right, 3:Back-Right, 4:Back, 5:Back-Left, 6:Left, 7:Forward-Left, 24:Up, 25:Down
     // @User: Advanced
     AP_GROUPINFO("4_ORIENT", 56, RangeFinder, state[3].orientation, ROTATION_PITCH_270),
+
+	// @Param: _ENABLE
+    // @DisplayName: Rangefinder enable
+    // @Description: enable of rangefinder
+    // @Values: 0:disable, 1:enable
+    // @User: Advanced
+    AP_GROUPINFO("4_ENABLE", 60, RangeFinder, state[3].enable, 0),
 #endif
     
     AP_GROUPEND
@@ -560,21 +589,28 @@ void RangeFinder::init(void)
         // init called a 2nd time?
         return;
     }
-    for (uint8_t i=0; i<RANGEFINDER_MAX_INSTANCES; i++) {
-        detect_instance(i);
-        if (drivers[i] != nullptr) {
-            // we loaded a driver for this instance, so it must be
-            // present (although it may not be healthy)
-            num_instances = i+1;
-        }
-        // initialise pre-arm check variables
-        state[i].pre_arm_check = false;
-        state[i].pre_arm_distance_min = 9999;  // initialise to an arbitrary large value
-        state[i].pre_arm_distance_max = 0;
+    for (uint8_t i=0; i<RANGEFINDER_MAX_INSTANCES; i++) 
+	{
+//	added by ZhangYong 20180201
+		if(1 == state[i].enable)
+//	added end
+		{
+        	detect_instance(i);
+        	if (drivers[i] != nullptr) 
+			{
+            	// we loaded a driver for this instance, so it must be
+            	// present (although it may not be healthy)
+            	num_instances = i+1;
+        	}
+        	// initialise pre-arm check variables
+        	state[i].pre_arm_check = false;
+        	state[i].pre_arm_distance_min = 9999;  // initialise to an arbitrary large value
+        	state[i].pre_arm_distance_max = 0;
 
-        // initialise status
-        state[i].status = RangeFinder_NotConnected;
-        state[i].range_valid_count = 0;
+        	// initialise status
+        	state[i].status = RangeFinder_NotConnected;
+        	state[i].range_valid_count = 0;
+		}
     }
 }
 
@@ -584,17 +620,24 @@ void RangeFinder::init(void)
  */
 void RangeFinder::update(void)
 {
-    for (uint8_t i=0; i<num_instances; i++) {
-        if (drivers[i] != nullptr) {
-            if (state[i].type == RangeFinder_TYPE_NONE) {
-                // allow user to disable a rangefinder at runtime
-                state[i].status = RangeFinder_NotConnected;
-                state[i].range_valid_count = 0;
-                continue;
-            }
-            drivers[i]->update();
-            drivers[i]->update_pre_arm_check();
-        }
+    for (uint8_t i=0; i<num_instances; i++) 
+	{
+		//	added by zhangYong 20180201
+		if(1 == state[i].enable)
+		{
+        	if (drivers[i] != nullptr) 
+			{
+            	if (state[i].type == RangeFinder_TYPE_NONE) 
+				{
+                	// allow user to disable a rangefinder at runtime
+                	state[i].status = RangeFinder_NotConnected;
+                	state[i].range_valid_count = 0;
+                	continue;
+            	}
+            	drivers[i]->update();
+            	drivers[i]->update_pre_arm_check();
+        	}
+		}
     }
 }
 
@@ -742,21 +785,37 @@ AP_RangeFinder_Backend *RangeFinder::get_backend(uint8_t id) const {
     if (id >= num_instances) {
         return nullptr;
     }
+
+	//	added by zhangyong 20180201
+	if(0 == state[id].enable)
+		return nullptr;
+	//	added end	
+	
     if (drivers[id] != nullptr) {
         if (drivers[id]->type() == RangeFinder_TYPE_NONE) {
             // pretend it isn't here; disabled at runtime?
             return nullptr;
         }
     }
+	
     return drivers[id];
 };
 
 RangeFinder::RangeFinder_Status RangeFinder::status_orient(enum Rotation orientation) const
 {
     AP_RangeFinder_Backend *backend = find_instance(orientation);
+	//	
     if (backend == nullptr) {
         return RangeFinder_NotConnected;
     }
+
+	//	added by zhangyong 20180201
+	if(0 == backend->get_state().enable)
+	{
+		return RangeFinder_NotConnected;
+	}
+	//	added end
+	
     return backend->status();
 }
 
@@ -787,6 +846,14 @@ AP_RangeFinder_Backend *RangeFinder::find_instance(enum Rotation orientation) co
         if (backend->orientation() != orientation) {
             continue;
         }
+
+		//	added by zhangyong 20180201
+		if(0 == backend->get_state().enable)
+		{
+			continue;
+		}
+		//	added end
+		
         return backend;
     }
     return nullptr;
@@ -798,6 +865,14 @@ uint16_t RangeFinder::distance_cm_orient(enum Rotation orientation) const
     if (backend == nullptr) {
         return 0;
     }
+
+	//	added by zhangyong 20180201
+	if(0 == backend->get_state().enable)
+	{
+		return 0;
+	}
+		//	added end
+	
     return backend->distance_cm();
 }
 
@@ -807,6 +882,14 @@ uint16_t RangeFinder::voltage_mv_orient(enum Rotation orientation) const
     if (backend == nullptr) {
         return 0;
     }
+
+	//	added by zhangyong 20180201
+	if(0 == backend->get_state().enable)
+	{
+		return 0;
+	}
+		//	added end
+	
     return backend->voltage_mv();
 }
 
@@ -816,6 +899,14 @@ int16_t RangeFinder::max_distance_cm_orient(enum Rotation orientation) const
     if (backend == nullptr) {
         return 0;
     }
+
+	//	added by zhangyong 20180201
+	if(0 == backend->get_state().enable)
+	{
+		return 0;
+	}
+		//	added end
+	
     return backend->max_distance_cm();
 }
 
@@ -825,6 +916,14 @@ int16_t RangeFinder::min_distance_cm_orient(enum Rotation orientation) const
     if (backend == nullptr) {
         return 0;
     }
+
+	//	added by zhangyong 20180201
+	if(0 == backend->get_state().enable)
+	{
+		return 0;
+	}
+		//	added end
+	
     return backend->min_distance_cm();
 }
 
@@ -834,6 +933,14 @@ int16_t RangeFinder::ground_clearance_cm_orient(enum Rotation orientation) const
     if (backend == nullptr) {
         return 0;
     }
+
+	//	added by zhangyong 20180201
+	if(0 == backend->get_state().enable)
+	{
+		return 0;
+	}
+		//	added end
+	
     return backend->ground_clearance_cm();
 }
 
@@ -843,6 +950,14 @@ bool RangeFinder::has_data_orient(enum Rotation orientation) const
     if (backend == nullptr) {
         return false;
     }
+
+	//	added by zhangyong 20180201
+	if(0 == backend->get_state().enable)
+	{
+		return 0;
+	}
+		//	added end
+	
     return backend->has_data();
 }
 
@@ -852,6 +967,14 @@ uint8_t RangeFinder::range_valid_count_orient(enum Rotation orientation) const
     if (backend == nullptr) {
         return 0;
     }
+
+	//	added by zhangyong 20180201
+	if(0 == backend->get_state().enable)
+	{
+		return 0;
+	}
+		//	added end
+	
     return backend->range_valid_count();
 }
 
@@ -877,6 +1000,14 @@ const Vector3f &RangeFinder::get_pos_offset_orient(enum Rotation orientation) co
     if (backend == nullptr) {
         return pos_offset_zero;
     }
+
+	//	added by zhangyong 20180201
+	if(0 == backend->get_state().enable)
+	{
+		return pos_offset_zero;
+	}
+		//	added end
+	
     return backend->get_pos_offset();
 }
 
@@ -886,5 +1017,13 @@ MAV_DISTANCE_SENSOR RangeFinder::get_mav_distance_sensor_type_orient(enum Rotati
     if (backend == nullptr) {
         return MAV_DISTANCE_SENSOR_UNKNOWN;
     }
+
+	//	added by zhangyong 20180201
+	if(0 == backend->get_state().enable)
+	{
+		return MAV_DISTANCE_SENSOR_UNKNOWN;
+	}
+		//	added end
+	
     return backend->get_mav_distance_sensor_type();
 }
