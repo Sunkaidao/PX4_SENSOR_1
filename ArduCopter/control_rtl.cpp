@@ -146,6 +146,8 @@ void Copter::rtl_return_start()
 //      called by rtl_run at 100hz or more
 void Copter::rtl_climb_return_run()
 {
+	
+
     // if not auto armed or motor interlock not enabled set throttle to zero and exit immediately
     if (!motors->armed() || !ap.auto_armed || !motors->get_interlock()) {
 #if FRAME_CONFIG == HELI_FRAME  // Helicopters always stabilize roll/pitch/yaw
@@ -162,6 +164,10 @@ void Copter::rtl_climb_return_run()
         return;
     }
 
+	//	added by ZhangYong for surface tracking 20180205 when RTL
+	surface_tracking_climb_rate = 0;
+	//	added end
+
     // process pilot's yaw input
     float target_yaw_rate = 0;
     if (!failsafe.radio) {
@@ -177,6 +183,22 @@ void Copter::rtl_climb_return_run()
 
     // run waypoint controller
     failsafe_terrain_set_status(wp_nav->update_wpnav());
+
+	//	added by ZhangYong 20180202 
+	//	in order to realize terra follow with rangefinder
+	if (rangefinder_alt_ok()) 
+	{
+		//	added by zhangyong 20180205 
+		//printf("guided_pos_control_run\n");
+		//	added end
+		
+		// if rangefinder is ok, use surface tracking
+		surface_tracking_climb_rate = get_surface_tracking_climb_rate(0, pos_control->get_alt_target(), G_Dt);
+		//printf("%4.2f\n", target_climb_rate);
+
+		pos_control->set_alt_target_from_climb_rate_ff(surface_tracking_climb_rate, G_Dt, false);
+	}
+	//	added end
 
     // call z-axis position controller (wpnav should have already updated it's alt target)
     pos_control->update_z_controller();

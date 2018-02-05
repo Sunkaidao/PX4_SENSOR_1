@@ -77,7 +77,8 @@ void Copter::loiter_run()
 {
     LoiterModeState loiter_state;
     float target_yaw_rate = 0.0f;
-    float target_climb_rate = 0.0f;
+    //float target_climb_rate = 0.0f;
+	surface_tracking_climb_rate = 0;
     float takeoff_climb_rate = 0.0f;
 
     // initialize vertical speed and acceleration
@@ -96,9 +97,15 @@ void Copter::loiter_run()
         target_yaw_rate = get_pilot_desired_yaw_rate(channel_yaw->get_control_in());
 
         // get pilot desired climb rate
-        target_climb_rate = get_pilot_desired_climb_rate(channel_throttle->get_control_in());
-        target_climb_rate = constrain_float(target_climb_rate, -g.pilot_velocity_z_max, g.pilot_velocity_z_max);
-    } else {
+        //	modifief by ZhangYong 20180205 for surface tracking
+        //target_climb_rate = get_pilot_desired_climb_rate(channel_throttle->get_control_in());
+        //target_climb_rate = constrain_float(target_climb_rate, -g.pilot_velocity_z_max, g.pilot_velocity_z_max);
+		//	modified end
+		surface_tracking_climb_rate = get_pilot_desired_climb_rate(channel_throttle->get_control_in());
+        surface_tracking_climb_rate = constrain_float(surface_tracking_climb_rate, -g.pilot_velocity_z_max, g.pilot_velocity_z_max);
+		//	modified end
+		
+	} else {
         // clear out pilot desired acceleration in case radio failsafe event occurs and we do not switch to RTL for some reason
         wp_nav->clear_pilot_desired_acceleration();
     }
@@ -110,9 +117,16 @@ void Copter::loiter_run()
 
 #if FRAME_CONFIG == HELI_FRAME
     // helicopters are held on the ground until rotor speed runup has finished
-    bool takeoff_triggered = (ap.land_complete && (target_climb_rate > 0.0f) && motors->rotor_runup_complete());
+    //	modified by ZhangYong 20180205 for surface tracking
+    //bool takeoff_triggered = (ap.land_complete && (target_climb_rate > 0.0f) && motors->rotor_runup_complete());
+	//	modified end
+	bool takeoff_triggered = (ap.land_complete && (surface_tracking_climb_rate > 0.0f) && motors->rotor_runup_complete());
 #else
-    bool takeoff_triggered = ap.land_complete && (target_climb_rate > 0.0f);
+	//	modified by zhangyong 20180205 for surface tracking
+    //bool takeoff_triggered = ap.land_complete && (target_climb_rate > 0.0f);
+	//	modified end
+	bool takeoff_triggered = ap.land_complete && (surface_tracking_climb_rate > 0.0f);
+
 #endif
 
     // Loiter State Machine Determination
@@ -160,11 +174,18 @@ void Copter::loiter_run()
         }
 
         // get takeoff adjusted pilot and takeoff climb rates
-        takeoff_get_climb_rates(target_climb_rate, takeoff_climb_rate);
+        //	modified by zhangyong 20180205 for surface tracking
+        //takeoff_get_climb_rates(target_climb_rate, takeoff_climb_rate);
 
         // get avoidance adjusted climb rate
-        target_climb_rate = get_avoidance_adjusted_climbrate(target_climb_rate);
+        //target_climb_rate = get_avoidance_adjusted_climbrate(target_climb_rate);
+		//	modified end
+		takeoff_get_climb_rates(surface_tracking_climb_rate, takeoff_climb_rate);
 
+        // get avoidance adjusted climb rate
+        surface_tracking_climb_rate = get_avoidance_adjusted_climbrate(surface_tracking_climb_rate);
+
+		
         // run loiter controller
         wp_nav->update_loiter(ekfGndSpdLimit, ekfNavVelGainScaler);
 
@@ -172,15 +193,21 @@ void Copter::loiter_run()
         attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(wp_nav->get_roll(), wp_nav->get_pitch(), target_yaw_rate, get_smoothing_gain());
 
         // update altitude target and call position controller
-        pos_control->set_alt_target_from_climb_rate_ff(target_climb_rate, G_Dt, false);
+        //	modified by zhangyong 20180205 for surface tracking
+        //pos_control->set_alt_target_from_climb_rate_ff(target_climb_rate, G_Dt, false);
+		//	modified end
+		pos_control->set_alt_target_from_climb_rate_ff(surface_tracking_climb_rate, G_Dt, false);
         pos_control->add_takeoff_climb_rate(takeoff_climb_rate, G_Dt);
         pos_control->update_z_controller();
         break;
 
     case Loiter_Landed:
         // set motors to spin-when-armed if throttle below deadzone, otherwise full range (but motors will only spin at min throttle)
-        if (target_climb_rate < 0.0f) {
-            motors->set_desired_spool_state(AP_Motors::DESIRED_SPIN_WHEN_ARMED);
+		//	modified by zhangyong 20180205 for surface tracking
+		//	if (target_climb_rate < 0.0f) {
+		//	modified end
+		if (surface_tracking_climb_rate < 0.0f) {
+			motors->set_desired_spool_state(AP_Motors::DESIRED_SPIN_WHEN_ARMED);
         } else {
             motors->set_desired_spool_state(AP_Motors::DESIRED_THROTTLE_UNLIMITED);
         }
@@ -212,14 +239,25 @@ void Copter::loiter_run()
         // adjust climb rate using rangefinder
         if (rangefinder_alt_ok()) {
             // if rangefinder is ok, use surface tracking
-            target_climb_rate = get_surface_tracking_climb_rate(target_climb_rate, pos_control->get_alt_target(), G_Dt);
-        }
+            //	//	modified by zhangyong 20180205 for surface tracking
+            //target_climb_rate = get_surface_tracking_climb_rate(target_climb_rate, pos_control->get_alt_target(), G_Dt);
+			//	modified end
+
+			surface_tracking_climb_rate = get_surface_tracking_climb_rate(surface_tracking_climb_rate, pos_control->get_alt_target(), G_Dt);
+		}
 
         // get avoidance adjusted climb rate
-        target_climb_rate = get_avoidance_adjusted_climbrate(target_climb_rate);
+        //	//	modified by zhangyong 20180205 for surface tracking
+        //	target_climb_rate = get_avoidance_adjusted_climbrate(target_climb_rate);
+		//	modified end
+
+		surface_tracking_climb_rate = get_avoidance_adjusted_climbrate(surface_tracking_climb_rate);
 
         // update altitude target and call position controller
-        pos_control->set_alt_target_from_climb_rate_ff(target_climb_rate, G_Dt, false);
+        //	modified by zhangyong 20180205 for surface tracking
+        //	pos_control->set_alt_target_from_climb_rate_ff(target_climb_rate, G_Dt, false);
+		//	modified end
+		pos_control->set_alt_target_from_climb_rate_ff(surface_tracking_climb_rate, G_Dt, false);
         pos_control->update_z_controller();
         break;
     }
