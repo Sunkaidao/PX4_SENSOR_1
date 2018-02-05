@@ -573,6 +573,47 @@ void AP_MotorsMatrix::setup_motors(motor_frame_class frame_class, motor_frame_ty
                     add_motor(AP_MOTORS_MOT_4, 0, 160, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 2);
                     success = true;
                     break;
+				//	added by ZhangYong 20180205	
+				 case MOTOR_FRAME_TYPE_NEW_PLUS:
+                    /*
+                        The A-Shaped VTail is the exact same as a V-Shaped VTail, with one difference:
+                        - The Yaw factors are reversed, because the rear motors are facing different directions
+
+                        With V-Shaped VTails, the props make a V-Shape when spinning, but with
+                        A-Shaped VTails, the props make an A-Shape when spinning.
+                        - Rear thrust on a V-Shaped V-Tail Quad is outward
+                        - Rear thrust on an A-Shaped V-Tail Quad is inward
+
+                        Still functions the same as the V-Shaped VTail mixing below:
+                        - Yaw control is entirely in the rear motors
+                        - Roll is is entirely in the front motors
+                    */
+                    add_motor(AP_MOTORS_MOT_1,  90, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 2);
+                    add_motor(AP_MOTORS_MOT_2, -90, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 4);
+                    add_motor(AP_MOTORS_MOT_3,   0, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  1);
+                    add_motor(AP_MOTORS_MOT_4, 180, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  3);
+                    success = true;
+                    break;
+				 case MOTOR_FRAME_TYPE_NEW_X:
+                    /*
+                        The A-Shaped VTail is the exact same as a V-Shaped VTail, with one difference:
+                        - The Yaw factors are reversed, because the rear motors are facing different directions
+
+                        With V-Shaped VTails, the props make a V-Shape when spinning, but with
+                        A-Shaped VTails, the props make an A-Shape when spinning.
+                        - Rear thrust on a V-Shaped V-Tail Quad is outward
+                        - Rear thrust on an A-Shaped V-Tail Quad is inward
+
+                        Still functions the same as the V-Shaped VTail mixing below:
+                        - Yaw control is entirely in the rear motors
+                        - Roll is is entirely in the front motors
+                    */
+                    add_motor(AP_MOTORS_MOT_1,   45, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 1);
+                    add_motor(AP_MOTORS_MOT_2, -135, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 3);
+                    add_motor(AP_MOTORS_MOT_3,  -45, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  4);
+                    add_motor(AP_MOTORS_MOT_4,  135, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  2);
+                    success = true;
+                    break;	
                 default:
                     // quad frame class does not support this frame type
                     break;
@@ -599,6 +640,24 @@ void AP_MotorsMatrix::setup_motors(motor_frame_class frame_class, motor_frame_ty
                     add_motor(AP_MOTORS_MOT_6,-150, AP_MOTORS_MATRIX_YAW_FACTOR_CW,  4);
                     success = true;
                     break;
+				case MOTOR_FRAME_TYPE_NEW_PLUS:
+                    add_motor(AP_MOTORS_MOT_1,   0, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  1);
+                    add_motor(AP_MOTORS_MOT_2, 180, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 4);
+                    add_motor(AP_MOTORS_MOT_3,-120, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  5);
+                    add_motor(AP_MOTORS_MOT_4,  60, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 2);
+                    add_motor(AP_MOTORS_MOT_5, -60, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 6);
+                    add_motor(AP_MOTORS_MOT_6, 120, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  3);
+                    success = true;
+                    break;
+                case MOTOR_FRAME_TYPE_NEW_X:
+                    add_motor(AP_MOTORS_MOT_1,  90, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  2);
+                    add_motor(AP_MOTORS_MOT_2, -90, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 5);
+                    add_motor(AP_MOTORS_MOT_3, -30, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  6);
+                    add_motor(AP_MOTORS_MOT_4, 150, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 3);
+                    add_motor(AP_MOTORS_MOT_5,  30, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 1);
+                    add_motor(AP_MOTORS_MOT_6,-150, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  4);
+                    success = true;
+                    break;	
                 default:
                     // hexa frame class does not support this frame type
                     break;
@@ -663,6 +722,28 @@ void AP_MotorsMatrix::setup_motors(motor_frame_class frame_class, motor_frame_ty
                     add_motor_raw(AP_MOTORS_MOT_8, 0, 0, 0, 6);
                     success = true;
 					break;
+				case MOTOR_FRAME_TYPE_NEW_PLUS:
+                    add_motor(AP_MOTORS_MOT_1,    0,  AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  1);
+                    add_motor(AP_MOTORS_MOT_2,  180,  AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  5);
+                    add_motor(AP_MOTORS_MOT_3,   45,  AP_MOTORS_MATRIX_YAW_FACTOR_CW, 2);
+                    add_motor(AP_MOTORS_MOT_4,  135,  AP_MOTORS_MATRIX_YAW_FACTOR_CW, 4);
+                    add_motor(AP_MOTORS_MOT_5,  -45,  AP_MOTORS_MATRIX_YAW_FACTOR_CW, 8);
+                    add_motor(AP_MOTORS_MOT_6, -135,  AP_MOTORS_MATRIX_YAW_FACTOR_CW, 6);
+                    add_motor(AP_MOTORS_MOT_7,  -90,  AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  7);
+                    add_motor(AP_MOTORS_MOT_8,   90,  AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  3);
+                    success = true;
+                    break;
+                case MOTOR_FRAME_TYPE_NEW_X:
+                    add_motor(AP_MOTORS_MOT_1,   22.5f, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  1);
+                    add_motor(AP_MOTORS_MOT_2, -157.5f, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  5);
+                    add_motor(AP_MOTORS_MOT_3,   67.5f, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 2);
+                    add_motor(AP_MOTORS_MOT_4,  157.5f, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 4);
+                    add_motor(AP_MOTORS_MOT_5,  -22.5f, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 8);
+                    add_motor(AP_MOTORS_MOT_6, -112.5f, AP_MOTORS_MATRIX_YAW_FACTOR_CW, 6);
+                    add_motor(AP_MOTORS_MOT_7,  -67.5f, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  7);
+                    add_motor(AP_MOTORS_MOT_8,  112.5f, AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  3);
+                    success = true;
+                    break;
 				//	added end
                 default:
                     // octa frame class does not support this frame type
