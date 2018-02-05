@@ -198,6 +198,7 @@ struct PACKED log_Control_Tuning {
     float    terr_alt;
     int16_t  target_climb_rate;
     int16_t  climb_rate;
+	float	 rangefinder_climb_rate;
 	//	modified by ZhangYong 20180111
 	int32_t  mavlink_id33_rel_alt;
 	//	modified end
@@ -230,6 +231,7 @@ void Copter::Log_Write_Control_Tuning()
         target_climb_rate   	: (int16_t)pos_control->get_vel_target_z(),
         climb_rate          	: climb_rate,
 //		added by ZhangYong 20180111
+		rangefinder_climb_rate 	: surface_tracking_climb_rate,
 		mavlink_id33_rel_alt	: current_loc.alt
 //		added end
     };
@@ -731,7 +733,7 @@ const struct LogStructure Copter::log_structure[] = {
     { LOG_NAV_TUNING_MSG, sizeof(log_Nav_Tuning),       
       "NTUN", "Qffffffffffff", "TUS,DPX,DPY,PX,PY,DVX,DVY,VX,VY,DAccX,DAccY,VBX,VBY" },
     { LOG_CONTROL_TUNING_MSG, sizeof(log_Control_Tuning),
-      "CTUN", "Qffffffeccfhhi", "TimeUS,ThI,ABst,ThO,ThH,DAt,At,BAt,DSAt,SAt,TAt,DCRt,CRt,MAt" },
+      "CTUN", "Qffffffeccfhhfi", "TimeUS,TI,ABst,TO,TH,DAt,At,BAt,DSAt,SAt,TAt,DCRt,CRt,SCRt,MAt" },
     { LOG_PERFORMANCE_MSG, sizeof(log_Performance), 
       "PM",  "QHHIhBHII",    "TimeUS,NLon,NLoop,MaxT,PMT,I2CErr,INSErr,LogDrop,Mem" },
     { LOG_MOTBATT_MSG, sizeof(log_MotBatt),

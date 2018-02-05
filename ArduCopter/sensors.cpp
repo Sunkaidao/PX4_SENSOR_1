@@ -36,6 +36,8 @@ void Copter::init_rangefinder(void)
 // return rangefinder altitude in centimeters
 void Copter::read_rangefinder(void)
 {
+//	static uint32_t lcl_cnt = 0;
+
 #if RANGEFINDER_ENABLED == ENABLED
     rangefinder.update();
 
@@ -43,6 +45,12 @@ void Copter::read_rangefinder(void)
         should_log(MASK_LOG_CTUN)) {
         DataFlash.Log_Write_RFND(rangefinder);
     }
+
+/*	if(0 == lcl_cnt % 10)
+//		printf("read_rangefinder status %d cnt %d\n", rangefinder.status_orient(ROTATION_PITCH_270), \
+//												rangefinder.range_valid_count_orient(ROTATION_PITCH_270));
+*/
+//	lcl_cnt++;
 
     rangefinder_state.alt_healthy = ((rangefinder.status_orient(ROTATION_PITCH_270) == RangeFinder::RangeFinder_Good) && (rangefinder.range_valid_count_orient(ROTATION_PITCH_270) >= RANGEFINDER_HEALTH_MAX));
 
@@ -83,7 +91,16 @@ void Copter::read_rangefinder(void)
 // return true if rangefinder_alt can be used
 bool Copter::rangefinder_alt_ok()
 {
+//	static uint32_t lcl_cnt;
+	//	added by ZhangYong 20180205
+//	if(0 == lcl_cnt % 10)
+//		printf("rangefinder_alt_ok enabled %d alt_healthy %d\n", rangefinder_state.enabled, rangefinder_state.alt_healthy);
+	//	added end
+//	lcl_cnt ++;
+
+	
     return (rangefinder_state.enabled && rangefinder_state.alt_healthy);
+	
 }
 
 /*

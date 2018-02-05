@@ -315,33 +315,55 @@ void Copter::guided_set_angle(const Quaternion &q, float climb_rate_cms, bool us
 void Copter::guided_run()
 {
     // call the correct auto controller
+    //static uint32_t lcl_cnt;
     switch (guided_mode) {
 
     case Guided_TakeOff:
         // run takeoff controller
         guided_takeoff_run();
+		//	added by zhangYong 20180205
+		//if(0 == lcl_cnt % 10)
+		//	printf("guided_takeoff_run\n");
+		//	added end
         break;
 
     case Guided_WP:
         // run position controller
         guided_pos_control_run();
+		//	added by zhangYong 20180205
+		//if(0 == lcl_cnt % 10)
+		//	printf("guided_pos_control_run\n");
+		//	added end
         break;
 
     case Guided_Velocity:
         // run velocity controller
         guided_vel_control_run();
+		//	added by zhangYong 20180205
+		//if(0 == lcl_cnt % 10)
+		//	printf("guided_vel_control_run\n");
+		//	added end
         break;
 
     case Guided_PosVel:
         // run position-velocity controller
         guided_posvel_control_run();
+		//	added by zhangYong 20180205
+		//if(0 == lcl_cnt % 10)
+		//	printf("guided_posvel_control_run\n");
+		//	added end
         break;
 
     case Guided_Angle:
         // run angle controller
         guided_angle_control_run();
+		//	added by zhangYong 20180205
+		//if(0 == lcl_cnt % 10)
+		//	printf("guided_angle_control_run\n");
+		//	added end
         break;
     }
+//	lcl_cnt++;
  }
 
 // guided_takeoff_run - takeoff in guided mode
@@ -404,7 +426,7 @@ void Copter::guided_pos_control_run()
 {
 	//	added by ZhangYong 20180202
 	//	in current control mode, guided, no terral follow, 
-	float target_climb_rate;
+	surface_tracking_climb_rate = 0;
 	//	added end
 
 
@@ -442,10 +464,15 @@ void Copter::guided_pos_control_run()
 	//	in order to realize terra follow with rangefinder
 	if (rangefinder_alt_ok()) 
 	{
+		//	added by zhangyong 20180205 
+		//printf("guided_pos_control_run\n");
+		//	added end
+		
 		// if rangefinder is ok, use surface tracking
-		target_climb_rate = get_surface_tracking_climb_rate(0, pos_control->get_alt_target(), G_Dt);
+		surface_tracking_climb_rate = get_surface_tracking_climb_rate(0, pos_control->get_alt_target(), G_Dt);
+		//printf("%4.2f\n", target_climb_rate);
 
-		pos_control->set_alt_target_from_climb_rate_ff(target_climb_rate, G_Dt, false);
+		pos_control->set_alt_target_from_climb_rate_ff(surface_tracking_climb_rate, G_Dt, false);
 	}
 	//	added end
 
