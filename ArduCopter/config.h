@@ -331,7 +331,7 @@
 //  PROJECT ZHANGBO @flyboard
 
 #ifndef PROJECTFB
- # define PROJECTFB  ENABLED
+ # define PROJECTFB  DISABLED
 #endif
 
 
@@ -516,7 +516,7 @@
 // AUTH ()
 //
 #ifndef FXTX_AUTH
- #define FXTX_AUTH 	DISABLE
+ #define FXTX_AUTH 	ENABLED
 #endif
 
 #if FXTX_AUTH == ENABLED
