@@ -98,7 +98,9 @@ public:
     // get distance and angle to closest object (used for pre-arm check)
     //   returns true on success, false if no valid readings
     bool get_closest_object(float& angle_deg, float &distance) const;
-
+    //added by xusiming20180111 and used for log
+    bool   get_cmd_orient();
+	bool    get_valid_number();
     // get number of objects, angle and distance - used for non-GPS avoidance
     uint8_t get_object_count() const;
     bool get_object_angle_and_distance(uint8_t object_number, float& angle_deg, float &distance) const;
@@ -146,5 +148,9 @@ private:
 	//	added end
 
     void detect_instance(uint8_t instance);
-    void update_instance(uint8_t instance);  
+    void update_instance(uint8_t instance);
+	 //added by xusiming and used for control the orient of radar
+    AP_Int8 _apm[PROXIMITY_MAX_INSTANCES];
+	AP_Int16 _rate[PROXIMITY_MAX_INSTANCES];
+	// added end
 };

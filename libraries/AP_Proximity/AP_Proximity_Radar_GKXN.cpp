@@ -4,7 +4,11 @@
 #include <AP_Math/crc.h>
 #include <ctype.h>
 #include <stdio.h>
+#include "AP_Proximity_Backend.h"
+#include "AP_Proximity.h"
 #include "./../ArduCopter/Copter.h"
+
+
 
 
 
@@ -58,11 +62,11 @@ void AP_Proximity_Radar_GKXN::update(void)
 // get maximum and minimum distances (in meters) of primary sensor
 float AP_Proximity_Radar_GKXN::distance_max() const
 {
-    return 4.5f;
+    return 30.0f;
 }
 float AP_Proximity_Radar_GKXN::distance_min() const
 {
-    return 0.20f;
+    return 0.60f;
 }
 bool AP_Proximity_Radar_GKXN::send_sensor_command()
 {
@@ -72,23 +76,25 @@ bool AP_Proximity_Radar_GKXN::send_sensor_command()
 //	printf("send sensor command\n");
 	uint8_t checkByte=0;
 	int i,j;
-	uint8_t orientation=0x00;
 	for(i=0;i<8;i++)
     {
       TX_Buff[i]=0;
 	}
-	//float pitch_radar=ahrs.pitch_sensor;
-	//printf("pitch radar=%f",pitch_radar);
+	int32_t pitch_radar=0-get_table_angle();
+	int16_t pitch_msb=( pitch_radar & 0xFF00)>>8;
+	int16_t pitch_lsb=pitch_radar&0x00FF;
+//	printf("pitch radar=%u\n",pitch_radar);
 	TX_Buff[0]=0x55;
 	TX_Buff[1]=0x0C;
 	TX_Buff[2]=0x00;
 	TX_Buff[3]=0x00;
-	uint16_t rc2_in=RC_Channels::rc_channel(CH_2)->get_radio_in();
-	if (rc2_in<1600) orientation=0x00;
-	else if(rc2_in>1600) orientation=0x01;
-	TX_Buff[4]=orientation;
-	//printf("%x",orientation);
-	TX_Buff[6]=0x00;
+	
+	TX_Buff[4]=get_table_orient();
+//	printf("get_table_orient()=%x\n",TX_Buff[4]);
+    TX_Buff[5]=pitch_msb;
+//    printf("TX_Buff[5]=%x\n",TX_Buff[5]);
+	TX_Buff[6]=pitch_lsb;
+//	printf("TX_Buff[6]=%x\n",TX_Buff[6]);
 	for(j=0;j<7; j++)
 		{
 		checkByte += TX_Buff[j];
@@ -123,8 +129,9 @@ bool AP_Proximity_Radar_GKXN::read_sensor_data()
 	int      message_complete=0;
 	uint16_t d1=0x00;
 	uint16_t d2=0x00;
-    
-    while (nbytes-- > 0)  {
+	
+///*
+   while (nbytes-- > 0)  {
 		
        uint8_t data=uart->read();
 	//   printf("%x",data);
@@ -293,8 +300,9 @@ bool AP_Proximity_Radar_GKXN::read_sensor_data()
 		                           	}
 	   	}
        
-    }
-	//printf("\n");
+    }//*/
+
+
 	if (message_complete==1)
 		{
 	//	printf("message_complete==1");
@@ -318,7 +326,7 @@ void AP_Proximity_Radar_GKXN::update_sector_data(int16_t angle_deg, uint16_t dis
         _angle[sector] = angle_deg;
         _distance[sector] = ((float) distance_cm) / 100.0f;
 	   // printf(" _distance[sector] =%f\n", _distance[sector] );
-        _distance_valid[sector] = distance_cm ;
+        _distance_valid[sector] = (_distance[sector] >= distance_min()) && (_distance[sector] <= distance_max());
         _last_distance_received_ms = AP_HAL::millis();
         // update boundary used for avoidance
         update_boundary_for_sector(sector);

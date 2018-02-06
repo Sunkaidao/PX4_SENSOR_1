@@ -66,10 +66,12 @@ bool AP_RangeFinder_Radar_ZHIBO::get_reading(uint16_t &reading_cm)
 //			printf("case0 count=%d\n",count);
 //			 printf("case0 init \n");
 		 	}
-		 else if(data==0xf0)
+		 else if((data==0xf0)&&(nbytes==0))
 		 	{
 		 	//printf("no target\n");
 		 	message_state=0;
+			message_complete=1;
+			distance0=0x1388;
 		 	}
 		 else
 		 	{
@@ -116,7 +118,7 @@ bool AP_RangeFinder_Radar_ZHIBO::get_reading(uint16_t &reading_cm)
 				//	printf("count=%d\n",count);
 				//	printf("nbytes=%x\n",nbytes);
 			 		}
-			    else if(count==7)
+			    else if(count==8)
 					{
 					checksum+=data;
 					message_state=5;
