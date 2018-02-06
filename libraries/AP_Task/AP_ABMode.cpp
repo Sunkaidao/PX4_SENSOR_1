@@ -28,7 +28,7 @@ const AP_Param::GroupInfo AP_ABMode::var_info[] = {
 	// @DisplayName: AB width between routes
 	// @Parameter Type: float
 	// @unit: Meter
-	AP_GROUPINFO("WIDTH", 1, AP_ABMode, width, WIDTH_DEFAULT),
+	//AP_GROUPINFO("WIDTH", 1, AP_ABMode, width, WIDTH_DEFAULT),
 
 	// @Param: RELAY
 	// @DisplayName: Whether to go break point
@@ -75,6 +75,7 @@ AP_ABMode::AP_ABMode()
 {
 	AP_Param::setup_object_defaults(this, var_info);	
   	_initialised = false;
+	ab_mode.direction = ISRIGHT; 		// the right is default
 }
 
 AP_ABMode::~AP_ABMode()
@@ -91,11 +92,11 @@ bool AP_ABMode::init()
 	ab_mode.is_start = NO;
 	ab_mode.is_calc_wp = NO;
 	ab_mode.is_first_start = YES;
-	ab_mode.direction = ISRIGHT; 		// the right is default
 	alt_break = 0;
 	rgb_timer = 0;
 	rgb_flag = 0;
 	ab_mode.yaw = 0;
+    width = (copter.sprayer.get_unspray_dist()-50)/100.0f;
 	
 	memset( & ab_mode.a_loc, 0, sizeof(ab_mode.a_loc));
 	memset( & ab_mode.b_loc, 0, sizeof(ab_mode.b_loc));
@@ -517,7 +518,6 @@ bool AP_ABMode:: abmode_reset(void)
 	ab_mode.is_start = NO;
 	ab_mode.is_calc_wp = NO;
 	ab_mode.is_first_start = YES;
-	ab_mode.direction = ISRIGHT; 		// the right is default
 	alt_break = 0;  // unit:cm
 	rgb_timer = 0;
 	rgb_flag = 0;
