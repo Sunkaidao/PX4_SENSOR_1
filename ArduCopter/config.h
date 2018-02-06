@@ -242,7 +242,7 @@
 //	noted by ZhangYong 2017110
 //	if we disabled optflow firmware will die after boot 
 #ifndef OPTFLOW
- # define OPTFLOW       ENABLED
+ # define OPTFLOW       DISABLED
 #endif
 #ifndef VISUAL_ODOMETRY_ENABLED
 # define VISUAL_ODOMETRY_ENABLED DISABLED
@@ -325,6 +325,14 @@
 #endif
 
 //	added ebd
+
+
+//////////////////////////////////////////////////////////////////////////////
+//  PROJECT ZHANGBO @flyboard
+
+#ifndef PROJECTFB
+ # define PROJECTFB  DISABLED
+#endif
 
 
 
@@ -515,7 +523,7 @@
 #define AUTH_KEY_POS	0
 #define AUTH_KEY_LEN	10
 #define AUTH_ID_POS		(AUTH_KEY_POS + AUTH_KEY_LEN)
-#define AUTH_ID_LEN		20
+#define AUTH_ID_LEN		40
 #define AUTH_ENTER_POS	(AUTH_ID_POS + AUTH_ID_LEN)
 #define AUTH_ID_ARRAY_LEN	(AUTH_ENTER_POS + 4)
 

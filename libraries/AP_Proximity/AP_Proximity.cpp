@@ -31,7 +31,7 @@ const AP_Param::GroupInfo AP_Proximity::var_info[] = {
     // @Param: _TYPE
     // @DisplayName: Proximity type
     // @Description: What type of proximity sensor is connected
-    // @Values: 0:None,1:LightWareSF40C,2:MAVLink,3:TeraRangerTower,4:RangeFinder
+    // @Values: 0:None,1:LightWareSF40C,2:MAVLink,3:TeraRangerTower,4:RangeFinder,5:GKXN
     // @RebootRequired: True
     // @User: Standard
     AP_GROUPINFO("_TYPE",   1, AP_Proximity, _type[0], 0),
@@ -147,6 +147,14 @@ const AP_Param::GroupInfo AP_Proximity::var_info[] = {
     // @User: Standard
     AP_GROUPINFO("_IGN_WID6", 15, AP_Proximity, _ignore_width_deg[5], 0),
 
+	// @Param: ENABLE
+    // @DisplayName: Proximity enable
+    // @Description: Proximity enable, 0:disable, 1:enable
+    // @Units: 
+    // @Range: 
+    // @User: Standard
+    AP_GROUPINFO("_ENABLE", 19, AP_Proximity, _enable[0], 0),
+
 #if PROXIMITY_MAX_INSTANCES > 1
     // @Param: 2_TYPE
     // @DisplayName: Second Proximity type
@@ -170,6 +178,14 @@ const AP_Param::GroupInfo AP_Proximity::var_info[] = {
     // @Range: -180 180
     // @User: Standard
     AP_GROUPINFO("2_YAW_CORR", 18, AP_Proximity, _yaw_correction[1], PROXIMITY_YAW_CORRECTION_DEFAULT),
+
+	// @Param: ENABLE
+    // @DisplayName: Proximity enable
+    // @Description: Proximity enable, 0:disable, 1:enable
+    // @Units: 
+    // @Range: 
+    // @User: Standard
+    AP_GROUPINFO("2_ENABLE", 20, AP_Proximity, _enable[1], 0),
 #endif
 
     AP_GROUPEND

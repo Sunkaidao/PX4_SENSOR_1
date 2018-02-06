@@ -179,7 +179,7 @@ private:
         bool _is_check_term;                                     	///< current term is the checksum
         #else
         uint8_t _parity;                                            ///< NMEA message checksum accumulator
-        bool _is_checksum_term;                                     ///< current term is the checksum
+//        bool _is_checksum_term;                                     ///< current term is the checksum
     #endif
     //modified end
     

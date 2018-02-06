@@ -26,6 +26,12 @@
 #include <AP_HAL/AP_HAL.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>
 
+
+//	added by zhangyong 20180105
+#include <./../../ArduCopter/config.h>
+//	added end
+
+
 #define SERIALMANAGER_NUM_PORTS 6
 
  // console default baud rates and buffer sizes
@@ -159,18 +165,18 @@ public:
         SerialProtocol_PassOSD = 16,
         SerialProtocol_BCBMonitor = 17,
         SerialProtocol_BCBPMBus = 18,
-#if RNGRADAR == ENABLED
+//#if RNGRADAR == ENABLED
         SerialProtocol_Radar_NALEI=19 , 
         SerialProtocol_Radar_ZHIBO=20 ,
-#endif
-#if PROJECTGKXN==ENABLE
+//#endif
+//#if PROJECTGKXN==ENABLE
         SerialProtocol_Radar_GKXN=21 ,
-#endif
-#if CHARGINGSTATION == ENABLED
+//#endif
+//#if CHARGINGSTATION == ENABLED
         //biayang added in 20170612
         SerialProtocol_ChargingStation = 68,         //xiamen Charging Station
         //added end
-#endif
+//#endif
     };
 
     // Constructor

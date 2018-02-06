@@ -144,7 +144,7 @@ protected:
 private:
 	struct AP_Mission::Mission_Command target_cmd = {};
 
-	AP_Float width;
+	//AP_Float width;
 	AP_Int8  relay_spray;
 	AP_Float stop_time;
 	AP_Int8 relay_spray_mode;  //1:Ground station command  -1: remote controler command
@@ -158,6 +158,7 @@ private:
 	int8_t break_mode;  // 0:AB flight   1: break point, 2: calculate point
 	float_t rgb_timer;
 	int8_t rgb_flag;
+    float width;
 	
 	int32_t alt_break;
 	int32_t index;

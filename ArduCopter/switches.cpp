@@ -242,6 +242,7 @@ void Copter::init_aux_switch_function(int8_t ch_option, uint8_t ch_flag)
         case AUXSW_AVOID_ADSB:
         case AUXSW_PRECISION_LOITER:
         case AUXSW_AVOID_PROXIMITY:
+		case AUXSW_DIR_AB:
             do_aux_switch_function(ch_option, ch_flag);
             break;
     }
@@ -665,10 +666,13 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
 			break;
 
 		case AUXSW_AUTO_HEIGHT:
+			
+		
 			if (ch_flag == AUX_SWITCH_HIGH) 
 			{
 				height_replace_switch = 1;
-				height_replace_alt = current_loc.alt;
+				//	modified by ZhangYong for current_loc.alt differs from inertial_nav.get_altitude()
+				height_replace_alt = inertial_nav.get_altitude();
 			
 				set_mode(AUTO, MODE_REASON_TX_COMMAND);
 			}
@@ -683,6 +687,37 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
 				}
 			}
 			break;
+			
+#if PROJECTFB == ENABLE
+		case AUXSW_SWITCH_TURBINE:
+		if (ch_flag == AUX_SWITCH_HIGH) 
+		{
+//			turbine = 2;
+
+			motors->set_turbine(2);
+			
+//			printf("HIGH %d\n", turbine);		
+		}
+		else if(ch_flag == AUX_SWITCH_MIDDLE)
+		{
+
+//			turbine = 1;
+
+			motors->set_turbine(1);
+			
+//			printf("MID %d\n", turbine);	
+		}
+		else
+		{
+//			turbine = 0;
+
+			motors->set_turbine(0);
+			
+//			printf("LOW %d\n", turbine);	
+			
+		}
+		break;	
+#endif
 
 #if CHARGINGSTATION == ENABLED			
         //baiyang added in 20170414

@@ -80,16 +80,17 @@ enum aux_sw_func {
     AUXSW_ARMDISARM =           41,  // arm or disarm vehicle
     AUXSW_FS_PLD =				55,
     AUXSW_AUTO_HEIGHT = 		58,
+    AUXSW_SWITCH_TURBINE = 		59,
 
-#if CHARGINGSTATION == ENABLED
+//#if CHARGINGSTATION == ENABLED
     //baiyang added in 20170414
     AUXSW_FLIGHT =				79, //For Xiamen simulation flight test communication protocol
     AUXSW_BLASTOFF = 			80,
     //added end
     //baiyang added in 20170510
     AUXSW_DO_TAKEOFF		 =	83,  //Returns the alternate location specified height
-#endif
-#if ABMODE == ENABLED
+//#endif
+//#if ABMODE == ENABLED
 	//baiyang added in 20171030
 	AUXSW_RECORD_AB =			84,  //Record AB points
 	AUXSW_MODE_DIR_AB = 		85,  //Trigger AB mode and set AB direction
@@ -98,7 +99,7 @@ enum aux_sw_func {
 	AUXSW_DIR_AB =				86,  //Set AB direction
 	AUXSW_SET_ABMODE =			87,  //Trigger AB mode
 	//added end
-#endif
+//#endif
     AUXSW_SWITCH_MAX,
 };
 

@@ -8,7 +8,7 @@
 #include "AP_MotorsMulticopter.h"
 
 //	added by zhangyong 20180105
-//#include <../././ArduCopter/config.h>
+#include <./../../ArduCopter/config.h>
 //	added end
 
 #define AP_MOTORS_MATRIX_YAW_FACTOR_CW   -1
@@ -44,6 +44,7 @@ public:
     //  motor_seq is the motor's sequence number from 1 to the number of motors on the frame
     //  pwm value is an actual pwm value that will be output, normally in the range of 1000 ~ 2000
     void                output_test(uint8_t motor_seq, int16_t pwm);
+
 
     // output_to_motors - sends minimum values out to the motors
     void                output_to_motors();

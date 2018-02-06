@@ -61,6 +61,10 @@ public:
     // output - sends commands to the motors
     virtual void        output();
 
+	#if PROJECTFB == ENABLED	
+	void set_turbine(uint8_t para_turbine) {turbine = para_turbine; }
+#endif
+
     // output_min - sends minimum values out to the motors
     void                output_min();
 
@@ -224,4 +228,10 @@ protected:
 	//	added by ZhangYong 20180105 just fot loging
 	struct MTR_log _mtr_log;
 	//	added end 
+
+	//	added by ZhangYong 20180202
+#if PROJECTFB == ENABLE
+	uint8_t turbine;
+#endif
+	//	added end
 };

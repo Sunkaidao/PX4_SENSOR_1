@@ -31,9 +31,15 @@
 #include <AP_Compass/AP_Compass.h>
 #include <AP_RangeFinder/AP_RangeFinder.h>
 
+//	added by ZhangYong 20180125
+#include <./../../ArduCopter/config.h>
+//	added end
+
 //
 //Use the #HEADINGA message to resolve the heading,baiyang added in 20171208
+#if DGPS_HEADINGA == ENABLED
 #define GPS_YAW_CAL
+#endif
 
 class NavEKF2_core;
 class AP_AHRS;

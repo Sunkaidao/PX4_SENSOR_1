@@ -315,33 +315,55 @@ void Copter::guided_set_angle(const Quaternion &q, float climb_rate_cms, bool us
 void Copter::guided_run()
 {
     // call the correct auto controller
+    //static uint32_t lcl_cnt;
     switch (guided_mode) {
 
     case Guided_TakeOff:
         // run takeoff controller
         guided_takeoff_run();
+		//	added by zhangYong 20180205
+		//if(0 == lcl_cnt % 10)
+		//	printf("guided_takeoff_run\n");
+		//	added end
         break;
 
     case Guided_WP:
         // run position controller
         guided_pos_control_run();
+		//	added by zhangYong 20180205
+		//if(0 == lcl_cnt % 10)
+		//	printf("guided_pos_control_run\n");
+		//	added end
         break;
 
     case Guided_Velocity:
         // run velocity controller
         guided_vel_control_run();
+		//	added by zhangYong 20180205
+		//if(0 == lcl_cnt % 10)
+		//	printf("guided_vel_control_run\n");
+		//	added end
         break;
 
     case Guided_PosVel:
         // run position-velocity controller
         guided_posvel_control_run();
+		//	added by zhangYong 20180205
+		//if(0 == lcl_cnt % 10)
+		//	printf("guided_posvel_control_run\n");
+		//	added end
         break;
 
     case Guided_Angle:
         // run angle controller
         guided_angle_control_run();
+		//	added by zhangYong 20180205
+		//if(0 == lcl_cnt % 10)
+		//	printf("guided_angle_control_run\n");
+		//	added end
         break;
     }
+//	lcl_cnt++;
  }
 
 // guided_takeoff_run - takeoff in guided mode
@@ -402,6 +424,12 @@ void Copter::guided_takeoff_run()
 // called from guided_run
 void Copter::guided_pos_control_run()
 {
+	//	added by ZhangYong 20180202
+	//	in current control mode, guided, no terral follow, 
+	surface_tracking_climb_rate = 0;
+	//	added end
+
+
     // if not auto armed or motors not enabled set throttle to zero and exit immediately
     if (!motors->armed() || !ap.auto_armed || !motors->get_interlock() || ap.land_complete) {
 #if FRAME_CONFIG == HELI_FRAME  // Helicopters always stabilize roll/pitch/yaw
@@ -431,6 +459,22 @@ void Copter::guided_pos_control_run()
 
     // run waypoint controller
     failsafe_terrain_set_status(wp_nav->update_wpnav());
+
+	//	added by ZhangYong 20180202 
+	//	in order to realize terra follow with rangefinder
+	if (rangefinder_alt_ok()) 
+	{
+		//	added by zhangyong 20180205 
+		//printf("guided_pos_control_run\n");
+		//	added end
+		
+		// if rangefinder is ok, use surface tracking
+		surface_tracking_climb_rate = get_surface_tracking_climb_rate(0, pos_control->get_alt_target(), G_Dt);
+		//printf("%4.2f\n", target_climb_rate);
+
+		pos_control->set_alt_target_from_climb_rate_ff(surface_tracking_climb_rate, G_Dt, false);
+	}
+	//	added end
 
     // call z-axis position controller (wpnav should have already updated it's alt target)
     pos_control->update_z_controller();

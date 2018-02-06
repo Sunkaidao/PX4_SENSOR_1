@@ -107,6 +107,9 @@
 #include <AC_Sprayer/AC_Sprayer.h>         // crop sprayer library
 #endif
 
+#include <cJSON/cJSON.h>         // crop sprayer library
+
+
 #if FLOWMETER == ENABLED
 #include <AP_Flowmeter/AP_Flowmeter.h> 
 #endif
@@ -803,6 +806,10 @@ private:
     static const AP_Param::Info var_info[];
     static const struct LogStructure log_structure[];
 
+	//	added by ZhangYong for surface  tracking climb rate 20180205
+	float surface_tracking_climb_rate;
+	//	added end
+
 	//	added by ZhangYong 20171101
 	//	in order to save time when transmit mission_item in common mission plan
 	//	in order to not block the telemetry data when ABMission plan
@@ -897,9 +904,12 @@ private:
     void gcs_check_input(void);
     void Log_Write_AutoTune(uint8_t axis, uint8_t tune_step, float meas_target, float meas_min, float meas_max, float new_gain_rp, float new_gain_rd, float new_gain_sp, float new_ddt);
     void Log_Write_AutoTuneDetails(float angle_cd, float rate_cds);
+#if SPRAYER == ENABLED
+
 	//	added by ZhangYong 20170405
 	void Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_dist, uint8_t para_fm_warn, uint8_t para_pk_cnt);
 	//	added end
+#endif	
     void Log_Write_Current();
     void Log_Write_Optflow();
     void Log_Write_Nav_Tuning();

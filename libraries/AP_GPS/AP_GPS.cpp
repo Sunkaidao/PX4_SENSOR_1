@@ -920,7 +920,8 @@ void AP_GPS::send_mavlink_gps2_raw(mavlink_channel_t chan)
         rtk_age_ms(1));
 }
 
-#ifdef GPS_YAW_CAL
+//#ifdef GPS_YAW_CAL
+#if DGPS_HEADINGA == ENABLED
 //baiyang added in 20180108
 void AP_GPS::send_mavlink_gps_head_status(mavlink_channel_t chan)
 {
@@ -949,6 +950,7 @@ void AP_GPS::send_mavlink_gps_head_status(mavlink_channel_t chan)
 		0,
 		0,
 		0);
+
 }
 
 void AP_GPS::send_mavlink_gps2_head_status(mavlink_channel_t chan)
@@ -964,6 +966,7 @@ void AP_GPS::send_mavlink_gps2_head_status(mavlink_channel_t chan)
     }
     last_send_time_ms[chan] = last_message_time_ms(1);
 
+
 	mavlink_msg_da_gps2_sta_send(
 		chan,
 		last_send_time_ms[chan]*(uint64_t)1000, /*< Timestamp (micros since boot or Unix epoch)*/
@@ -973,6 +976,7 @@ void AP_GPS::send_mavlink_gps2_head_status(mavlink_channel_t chan)
 		0,
 		0,
 		0);
+
 }
 
 //added end
