@@ -745,7 +745,13 @@ struct PACKED log_Control {
 struct PACKED log_GKProx {
 	LOG_PACKET_HEADER;
 	uint64_t timestamp;
-	uint8_t test_log;
+    uint8_t   health   ;
+    float   dist0     ;     
+    float   dist180    ;    
+    float   cmdan      ;     
+    float closest_angle  ; 
+    float  closest_dist ;
+	float  valid_num;
 };
 
 
@@ -1251,7 +1257,7 @@ Format characters in the format string for binary log messages
     { LOG_CONTROL_MSG, sizeof(log_Control), \
       "CTR",  "QBBBH",     "TimeMS,ov,oa,rv,rc3" }, \
     { LOG_GKPROX_MSG, sizeof(log_GKProx), \
-      "GKPX",  "QB",     "TimeMS,t" }, \
+      "GKPX",  "QBffffff", "TimeUS,Health,front,back,CMDO,CAn,CDis,VALnum"}, \
 	{ LOG_PMBUS0_MSG, sizeof(log_BCBPMBus), \
 	 "PM0", PMBUS_FMT, PMBUS_LABELS }, \
 	{ LOG_PMBUS1_MSG, sizeof(log_BCBPMBus), \

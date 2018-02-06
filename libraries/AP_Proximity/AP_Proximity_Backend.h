@@ -56,7 +56,13 @@ public:
     // get distance and angle to closest object (used for pre-arm check)
     //   returns true on success, false if no valid readings
     bool get_closest_object(float& angle_deg, float &distance) const;
-
+	// added by xusiming and used for control the orientation of radar
+    // added by xusiming and used for control the orientation of radar
+    bool    get_comand_orient(double_t amplitude,double_t frequency);
+	uint8_t get_table_orient();
+	int32_t get_table_angle();
+	bool    get_valid();
+	//added end
     // get number of objects, angle and distance - used for non-GPS avoidance
     uint8_t get_object_count() const;
     bool get_object_angle_and_distance(uint8_t object_number, float& angle_deg, float &distance) const;
@@ -102,4 +108,13 @@ protected:
     // fence boundary
     Vector2f _sector_edge_vector[PROXIMITY_SECTORS_MAX];    // vector for right-edge of each sector, used to speed up calculation of boundary
     Vector2f _boundary_point[PROXIMITY_SECTORS_MAX];        // bounding polygon around the vehicle calculated conservatively for object avoidance
+    // added by xusiming 20180118 and used for control
+	private:		
+	int orient_flag=1;
+	uint16_t tick=0x00;
+	uint8_t orientation_flag=0x00;
+	Vector3f last_velocity;
+	int32_t table_angle=0;
+	bool valid_num =false;
+	//added end
 };

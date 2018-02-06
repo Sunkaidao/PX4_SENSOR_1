@@ -711,7 +711,7 @@ void Copter::one_hz_loop()
 								hal.rcin->get_rc_rc3_radio_in());
 
 	//	added by ZhangYong 20180116 to log GK proximity
-	DataFlash.Log_Write_GKProx();	
+	//DataFlash.Log_Write_GKProx(AP_Proximity &proximity);	
 	//	adde end
 
 }

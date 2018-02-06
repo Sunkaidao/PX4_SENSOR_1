@@ -220,7 +220,7 @@ public:
 	//	added end
 
 	//	added by ZhangYong 20180116 to log GK proximity
-	void Log_Write_GKProx();
+	void Log_Write_GKProx(AP_Proximity &proximity);
 	//	added end
 									
 	

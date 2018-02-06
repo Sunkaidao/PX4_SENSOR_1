@@ -374,6 +374,28 @@ bool AP_Proximity::get_closest_object(float& angle_deg, float &distance) const
     // get closest object from backend
     return drivers[primary_instance]->get_closest_object(angle_deg, distance);
 }
+//added by xusiming 20180206 and used for the control of the radar
+bool  AP_Proximity::get_cmd_orient()
+{
+
+	if ((drivers[primary_instance] == nullptr) || (_type[primary_instance] != Proximity_Type_Radar_GKXN)) {
+			return false;
+		}
+	int8_t phase=_apm[primary_instance].get();
+	int16_t time=_rate[primary_instance].get();
+    //	printf("_apm=%d\n",phase);
+	//printf("_rate=%d\n",time);
+   return drivers[primary_instance]->get_comand_orient(phase,time);
+}
+bool   AP_Proximity::get_valid_number()
+{
+	if ((drivers[primary_instance] == nullptr) || (_type[primary_instance] != Proximity_Type_Radar_GKXN)) {
+				return false;
+			}
+     return drivers[primary_instance]->get_valid();
+	//return 0;
+}
+
 
 // get number of objects, used for non-GPS avoidance
 uint8_t AP_Proximity::get_object_count() const

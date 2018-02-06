@@ -677,6 +677,7 @@ void Copter::Log_Write_Proximity()
 {
 #if PROXIMITY_ENABLED == ENABLED
     DataFlash.Log_Write_Proximity(g2.proximity);
+    DataFlash.Log_Write_GKProx(g2.proximity);
 #endif
 }
 

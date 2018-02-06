@@ -2180,13 +2180,33 @@ void DataFlash_Class::Log_Write_Control(uint8_t rc_override_active, \
 }
 
 //	added by ZhangYong 20180116 to log GK proximity
-void DataFlash_Class::Log_Write_GKProx()
+void DataFlash_Class::Log_Write_GKProx(AP_Proximity &proximity)
 {
-
+   // exit immediately if not enabled
+	   if (proximity.get_status() == AP_Proximity::Proximity_NotConnected) {
+		   return;
+	   }
+	 //  printf("Log_Write_Proximity\n");
+	AP_Proximity::Proximity_Distance_Array dist_array {};
+    proximity.get_horizontal_distances(dist_array);
+	 float cmd_ang=0;
+	cmd_ang=proximity.get_cmd_orient();
+	float close_ang = 0.0f, close_dist = 0.0f;
+    proximity.get_closest_object(close_ang, close_dist);
+     float valid=-1;
+	 valid=proximity.get_valid_number();
+	// printf("valid=%f",valid);
+	 
 	struct log_GKProx pkt = {
         LOG_PACKET_HEADER_INIT(LOG_GKPROX_MSG),
         timestamp     	: AP_HAL::micros64(),
-        test_log		: 8
+        health          : (uint8_t)proximity.get_status(),
+        dist0           : dist_array.distance[0],
+        dist180         : dist_array.distance[4],
+        cmdan           : cmd_ang,
+        closest_angle   : close_ang,
+        closest_dist    : close_dist,
+        valid_num       : valid,
     };
     WriteBlock(&pkt, sizeof(pkt));
 
