@@ -154,6 +154,24 @@ const AP_Param::GroupInfo AP_Proximity::var_info[] = {
     // @Range: 
     // @User: Standard
     AP_GROUPINFO("_ENABLE", 19, AP_Proximity, _enable[0], 0),
+    
+    // added by xusiming and used for controlling the orientation of sensor's table
+    // @Param: _apm
+    // @DisplayName: amplitude
+    // @Description: used for controlling the orientation of sensor's table
+    // @Units: cm/s
+    // @Range: 0 100
+    // @User: Standard
+     AP_GROUPINFO("_APM", 21, AP_Proximity,_apm[0], 40 ),
+    
+    // added by xusiming and used for controlling the orientation of sensor's table
+    // @Param: _rate
+    // @DisplayName: rate
+    // @Description: used for controlling the orientation of sensor's table
+    // @Units: hz
+    // @Range: 0 65536
+    // @User: Standard
+    AP_GROUPINFO("_RATE", 22, AP_Proximity,_rate[0], 20),
 
 #if PROXIMITY_MAX_INSTANCES > 1
     // @Param: 2_TYPE
