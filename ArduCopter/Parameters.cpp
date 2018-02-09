@@ -94,10 +94,10 @@ const AP_Param::Info Copter::var_info[] = {
 
 
 	// added by ZhangYong 20170721 for edition control
-   // @Param: 
+   // @Param:
    // @DisplayName: Edition management
    // @Description: Edition management
-   // @Range: 
+   // @Range:
    // @User: Advanced
    // @bits[31-28] major edition	   0002
    // @bits[27-20] project edition	   0000 0001
@@ -134,8 +134,8 @@ const AP_Param::Info Copter::var_info[] = {
 
 	// @Param: FLIGHT_TIME_HOUR_SHOLD
 
-    // @DisplayName: FLIGNT TIME SHRESHOLD OF THIS MAV IN HOUR, IF EXCEEDS THIS VALUE, ALARM 
-    // @Description: The shreshold of this amount of time (in hours), if exceeds this value, alarm 
+    // @DisplayName: FLIGNT TIME SHRESHOLD OF THIS MAV IN HOUR, IF EXCEEDS THIS VALUE, ALARM
+    // @Description: The shreshold of this amount of time (in hours), if exceeds this value, alarm
     // @User: Advanced
     // @Units: hours
     // @Range: 0 32768
@@ -157,10 +157,10 @@ const AP_Param::Info Copter::var_info[] = {
     // @DisplayName: payload Failsafe Enable
     // @Description: Controls whether failsafe will be invoked when payload event occurred
     // @Values: 0:GKXN flowmeter
-    // @		
+    // @
     // @User: Standard
     GSCALAR(failsafe_pld_type, "FS_PLD_TYPE", FS_PLD_NONE),
-	
+
 	// @Param: FS_PLD_ACTION
     // @DisplayName: payload Failsafe Enable
     // @Description: Controls whether failsafe will be invoked when payload event occurred
@@ -237,7 +237,7 @@ const AP_Param::Info Copter::var_info[] = {
     GSCALAR(fs_batt_mah,            "FS_BATT_MAH", FS_BATT_MAH_DEFAULT),
 
     GSCALAR(can_test_rt,            "CAN_TEST_RT", FS_BATT_MAH_DEFAULT),
-    
+
     // @Param: FS_GCS_ENABLE
     // @DisplayName: Ground Station Failsafe Enable
     // @Description: Controls whether failsafe will be invoked (and what action to take) when connection with Ground station is lost for at least 5 seconds. NB. The GCS Failsafe is only active when RC_OVERRIDE is being used to control the vehicle.
@@ -317,7 +317,7 @@ const AP_Param::Info Copter::var_info[] = {
     // @Increment: 10
     // @User: Standard
     GSCALAR(land_speed_high,        "LAND_SPEED_HIGH",   0),
-    
+
     // @Param: PILOT_VELZ_MAX
     // @DisplayName: Pilot maximum vertical speed
     // @Description: The maximum vertical velocity the pilot may request in cm/s
@@ -459,12 +459,12 @@ const AP_Param::Info Copter::var_info[] = {
     // @Values: 0:Do Nothing, 2:Flip, 3:Simple Mode, 4:RTL, 5:Save Trim, 7:Save WP, 9:Camera Trigger, 10:RangeFinder, 11:Fence, 13:Super Simple Mode, 14:Acro Trainer, 15:Sprayer, 16:Auto, 17:AutoTune, 18:Land, 19:Gripper, 21:Parachute Enable, 22:Parachute Release, 23:Parachute 3pos, 24:Auto Mission Reset, 25:AttCon Feed Forward, 26:AttCon Accel Limits, 27:Retract Mount, 28:Relay On/Off, 34:Relay2 On/Off, 35:Relay3 On/Off, 36:Relay4 On/Off, 29:Landing Gear, 30:Lost Copter Sound, 31:Motor Emergency Stop, 32:Motor Interlock, 33:Brake, 37:Throw, 38:ADSB-Avoidance, 39:PrecLoiter, 40:Object Avoidance, 41:ArmDisarm
     // @User: Standard
     //	modified by zhangyong 20171127
-#if PROJECTGKXN == DISABLED    
+#if PROJECTGKXN == DISABLED
     GSCALAR(ch7_option, "CH7_OPT",                  AUXSW_DO_NOTHING),
 #else
 	GSCALAR(ch7_option, "CH7_OPT",                  AUXSW_AUTO_HEIGHT),
 #endif
-	
+
     // @Param: CH8_OPT
     // @DisplayName: Channel 8 option
     // @Description: Select which function is performed when CH8 is above 1800 pwm
@@ -511,7 +511,7 @@ const AP_Param::Info Copter::var_info[] = {
     // @Range: 0 127
     // @User: Advanced
     GSCALAR(disarm_delay, "DISARM_DELAY",           AUTO_DISARMING_DELAY),
-    
+
     // @Param: ANGLE_MAX
     // @DisplayName: Angle Max
     // @Description: Maximum lean angle in all flight modes
@@ -880,7 +880,7 @@ const AP_Param::Info Copter::var_info[] = {
     // @Group: EK2_
     // @Path: ../libraries/AP_NavEKF2/AP_NavEKF2.cpp
     GOBJECTN(EKF2, NavEKF2, "EK2_", NavEKF2),
-    
+
     // @Group: EK3_
     // @Path: ../libraries/AP_NavEKF3/AP_NavEKF3.cpp
     GOBJECTN(EKF3, NavEKF3, "EK3_", NavEKF3),
@@ -892,7 +892,7 @@ const AP_Param::Info Copter::var_info[] = {
     // @Group: RSSI_
     // @Path: ../libraries/AP_RSSI/AP_RSSI.cpp
     GOBJECT(rssi, "RSSI_",  AP_RSSI),
-    
+
 #if RANGEFINDER_ENABLED == ENABLED
     // @Group: RNGFND
     // @Path: ../libraries/AP_RangeFinder/RangeFinder.cpp
@@ -972,7 +972,7 @@ const AP_Param::Info Copter::var_info[] = {
     // @Group:
     // @Path: Parameters.cpp
     GOBJECT(g2, "",  ParametersG2),
-    
+
     //baiyang added in 20170413
 #if CHARGINGSTATION == ENABLED
     // @Group: CHS_
@@ -988,7 +988,15 @@ const AP_Param::Info Copter::var_info[] = {
     GOBJECT(rf_abmode,"ABMODE_", AP_ABMode),
 #endif
     //added end
-    
+
+//baiyang added in 20180207
+#if NEWBROADCAST== ENABLED
+	// @Group: NBC_
+	// @Path: ../libraries/AP_NewBroadcast/AP_NewBroadcast.cpp
+	GOBJECT(newbroadcast,"NBC_", AP_NewBroadcast),
+#endif
+//added end
+
     AP_VAREND
 };
 
@@ -1110,7 +1118,11 @@ const AP_Param::GroupInfo ParametersG2::var_info[] = {
 	AP_SUBGROUPINFO(bcbpmbus, "PMBUS", 19, ParametersG2, AC_BCBPMBus),
 #endif
 
-
+/*
+ *#if NEWBROADCAST == ENABLED
+ *    AP_SUBGROUPINFO(newbroadcast, "NBC_",21,ParametersG2, AP_NewBroadcast),
+ *#endif
+ */
     // ID 19 reserved for TCAL (PR pending)
     // ID 20 reserved for TX_TYPE (PR pending)
     AP_GROUPEND
@@ -1193,7 +1205,7 @@ void Copter::load_parameters(void)
 
     // setup AP_Param frame type flags
     AP_Param::set_frame_type_flags(AP_PARAM_FRAME_COPTER);
-    
+
 }
 
 // handle conversion of PID gains from Copter-3.3 to Copter-3.4

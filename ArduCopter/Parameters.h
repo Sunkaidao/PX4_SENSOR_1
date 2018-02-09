@@ -56,7 +56,7 @@ public:
         k_param_g2, // 2nd block of parameters
         k_param_NavEKF3,
         k_param_BoardConfig_CAN,
-		//	added by ZhangYong for 
+		//	added by ZhangYong for
 		k_param_edition_management = 9,
 
         // simulation
@@ -194,7 +194,7 @@ public:
 		//	added by ZhangYong for flowmeter 20170718
 		k_param_flowmeter = 98,
 		//	added end
-                
+
         //
         // 100: Inertial Nav
         //
@@ -224,7 +224,7 @@ public:
         k_param_gcs3,
         k_param_gcs_pid_mask,    // 126
 
-		
+
 
 
         //	added by ZhangYong 20160905
@@ -393,7 +393,7 @@ public:
         k_param_DataFlash = 253, // 253 - Logging Group
 
         // 254,255: reserved
-        
+
         #if CHARGINGSTATION == ENABLED
         //baiyang added in 20170413
         k_param_chargingStation = 254,              //chargingStation
@@ -405,18 +405,22 @@ public:
         k_param_rf_abmode = 255,              //rf_abmode
         //added end
         #endif
-		
+
+		 #if NEWBROADCAST == ENABLED
+		 k_param_newbroadcast = 300,
+		 #endif
+
         // the k_param_* space is 9-bits in size
         // 511: reserved
     };
 
-    
-    //	added by ZhangYong for flight time 20170731  	
+
+    //	added by ZhangYong for flight time 20170731
     AP_Int16 flight_time_hour;
     AP_Int16 flight_time_hour_shold;
     AP_Int16 flight_time_sec;
     //	added emd
-      
+
     AP_Int16        format_version;
     AP_Int8         software_type;
 
@@ -434,7 +438,7 @@ public:
 	//	added end
 
 	AP_Int8 can_test_rt;
-	
+
     AP_Int8         telem_delay;
 
     AP_Float        throttle_filt;
@@ -464,7 +468,7 @@ public:
 
     AP_Int16        poshold_brake_rate;         // PosHold flight mode's rotation rate during braking in deg/sec
     AP_Int16        poshold_brake_angle_max;    // PosHold flight mode's max lean angle during braking in centi-degrees
-    
+
     // Waypoints
     //
     AP_Int32        rtl_loiter_time;
@@ -602,7 +606,7 @@ public:
 
     // whether to enforce acceptance of packets only from sysid_my_gcs
     AP_Int8 sysid_enforce;
-    
+
 #if ADVANCED_FAILSAFE == ENABLED
     // advanced failsafe library
     AP_AdvancedFailsafe_Copter afs;
@@ -620,13 +624,19 @@ public:
 
     // RC input channels
     RC_Channels rc_channels;
-    
+
     // control over servo output ranges
     SRV_Channels servo_channels;
 
 #if BCBPMBUS == ENABLED
 	AC_BCBPMBus bcbpmbus;
 #endif
+
+/*#if NEWBROADCAST == ENABLED*/
+////baiyang added in 20180206
+	//AP_NewBroadcast newbroadcast;
+////added end
+/*#endif*/
 
 };
 

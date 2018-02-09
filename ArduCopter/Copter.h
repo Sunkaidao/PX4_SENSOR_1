@@ -108,15 +108,15 @@
 #endif
 
 #if FLOWMETER == ENABLED
-#include <AP_Flowmeter/AP_Flowmeter.h> 
+#include <AP_Flowmeter/AP_Flowmeter.h>
 #endif
 
 #if BCBMONITOR == ENABLED
-#include <AC_BCBMonitor/AC_BCBMonitor.h> 
+#include <AC_BCBMonitor/AC_BCBMonitor.h>
 #endif
 
 #if BCBPMBUS == ENABLED
-#include <AC_BCBPMBus/AC_BCBPMBus.h> 
+#include <AC_BCBPMBus/AC_BCBPMBus.h>
 #endif
 
 //	added end
@@ -170,8 +170,11 @@
 #endif
 //added end
 
-#include <AP_CanTest/AP_CanTest.h>
-
+//baiyang added in 20180206
+#if NEWBROADCAST == ENABLED
+#include <AP_NewBroadcast/AP_NewBroadcast.h>
+#endif
+//added end
 
 
 class Copter : public AP_HAL::HAL::Callbacks {
@@ -196,14 +199,15 @@ public:
    //baiyang added in 20170717
 	friend class AC_Fence;
 	//added end
-#endif 
+#endif
 #if ABMODE == ENABLE
 	//baiyang added in 20171027
 	friend class AP_ABMode;
 	//added end
 #endif
-
-	friend class AP_CanTest;
+#if NEWBROADCAST == ENABLED
+	friend class AP_NewBroadcast;
+#endif
 
     Copter(void);
 
@@ -306,7 +310,7 @@ private:
 	uint32_t local_flight_time_sec = 0;
 	//	added end
 
-	
+
     GCS_Copter _gcs; // avoid using this; use gcs()
     GCS_Copter &gcs() { return _gcs; }
 
@@ -371,7 +375,7 @@ private:
 
     // altitude below which we do no navigation in auto takeoff
     float auto_takeoff_no_nav_alt_cm;
-    
+
     RCMapper rcmap;
 
     // board specific config
@@ -528,7 +532,7 @@ private:
     uint32_t control_sensors_present;
     uint32_t control_sensors_enabled;
     uint32_t control_sensors_health;
-    
+
     // Altitude
     // The cm/s we are moving up or down based on filtered data - Positive = UP
     int16_t climb_rate;
@@ -629,11 +633,9 @@ private:
 	edit_management.data.revision_edition = 4;
 	edit_management.words = 0x403021
 	*/
-	
+
 	Edition_management edit_management;
 	//	added end
-
-	AP_CanTest cantest;
 
     // Reference to the relay object
     AP_Relay relay;
@@ -664,15 +666,15 @@ private:
     AP_Rally_Copter rally;
 #endif
 
-    // RSSI 
-    AP_RSSI rssi;      
+    // RSSI
+    AP_RSSI rssi;
 
     // Crop Sprayer
 #if SPRAYER == ENABLED
     AC_Sprayer sprayer;
 #endif
 
-	//	added by ZhangYong 
+	//	added by ZhangYong
 #if PJTPASSOSD == ENABLED
 	AP_PassOSD passosd;
 #endif
@@ -717,7 +719,7 @@ private:
 	AP_ABMode rf_abmode;
 #endif
 	//added end
-	
+
 	//baiyang added in 20170830
 #if PTZ_CONTROL == ENABLED
 	AP_PtzControl PtzControl;
@@ -748,7 +750,7 @@ private:
 
 #if PROJECTGKXN == ENABLED
 	//	added by ZhangYong 20170407
-	
+
 	AP_Flowmeter flowmeter;
 	//	added end
 #endif
@@ -757,7 +759,12 @@ private:
 	AC_BCBMonitor bcbmonitor;
 #endif
 
-	
+//baiyang added in 20180206
+#if NEWBROADCAST == ENABLED
+	AP_NewBroadcast newbroadcast{sprayer};
+#endif
+//added end
+
 
     // last esc calibration notification update
     uint32_t esc_calibration_notify_update_ms;
@@ -801,7 +808,7 @@ private:
 
     // set when we are upgrading parameters from 3.4
     bool upgrading_frame_params;
-    
+
     static const AP_Scheduler::Task scheduler_tasks[];
     static const AP_Param::Info var_info[];
     static const struct LogStructure log_structure[];
@@ -891,7 +898,7 @@ private:
 #if BCBPMBUS == ENABLE
 	void init_bcbpmbus();
 	void update_bcbpmbus();
-#endif	
+#endif
 //	added end
     void init_visual_odom();
     void update_visual_odom();
@@ -937,7 +944,7 @@ private:
 	void Log_Write_BCBPMBus_Components();
 #endif
 //	added end
-	
+
     void Log_Write_Vehicle_Startup_Messages();
     void load_parameters(void);
     void convert_pid_parameters(void);

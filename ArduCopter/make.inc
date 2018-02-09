@@ -68,4 +68,4 @@ LIBRARIES += AP_Flowmeter
 LIBRARIES += AC_BCBPMBus
 LIBRARIES += AP_Task
 LIBRARIES += AP_PtzControl
-LIBRARIES += AP_CanTest
+LIBRARIES += AP_NewBroadcast
