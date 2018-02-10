@@ -348,12 +348,12 @@ void AP_NewBroadcast :: update_view_latitude()
 
 void AP_NewBroadcast :: update_view_height()
 {
-    view.height = copter.inertial_nav.get_position().z;
+    view.height = copter.inertial_nav.get_position().z*10;
 }
 
 void AP_NewBroadcast :: update_view_altitude()
 {
-    view.altitude = copter.gps.location().alt;
+    view.altitude = copter.gps.location().alt*100;
 }
 
 void AP_NewBroadcast :: update_view_path_angle()
