@@ -236,8 +236,6 @@ const AP_Param::Info Copter::var_info[] = {
     // @User: Standard
     GSCALAR(fs_batt_mah,            "FS_BATT_MAH", FS_BATT_MAH_DEFAULT),
 
-    GSCALAR(can_test_rt,            "CAN_TEST_RT", FS_BATT_MAH_DEFAULT),
-
     // @Param: FS_GCS_ENABLE
     // @DisplayName: Ground Station Failsafe Enable
     // @Description: Controls whether failsafe will be invoked (and what action to take) when connection with Ground station is lost for at least 5 seconds. NB. The GCS Failsafe is only active when RC_OVERRIDE is being used to control the vehicle.

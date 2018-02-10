@@ -37,6 +37,11 @@ const AP_Param::GroupInfo AP_NewBroadcast::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("FLI_SEQ", 1 , AP_NewBroadcast, _flight_seq, 0),
 
+    // @Param: ENABLE
+    // @DisplayName: NBC_ENABLE
+    // @Description:  Enable new Broadcast
+    // @User: Advanced
+    AP_GROUPINFO("ENABLE", 2 , AP_NewBroadcast, _enable, 1),
 
     AP_GROUPEND
 };
@@ -82,12 +87,13 @@ void AP_NewBroadcast :: sendJson(char *pJString,uint16_t len)
 {
     uint16_t frame_num = len / 8;
     uint8_t last_frame_num_b = len % 8;
+    uint32_t tstart = AP_HAL::micros();
 
     for(uint16_t i = 0; i<(frame_num+2); i++)
     {
         if(!_parent_can_mgr->getIface(0)->tx_pending())
         {
-             if(i<frame_num)
+            if(i<frame_num)
             {
                  if(!sendString(EXTENDID,pJString,i,8))
                  {
@@ -108,13 +114,16 @@ void AP_NewBroadcast :: sendJson(char *pJString,uint16_t len)
                     i--;
                 }
             }
-
         }
         else
         {
             i--;
         }
 
+        if(AP_HAL::micros() - tstart > 10000)
+        {
+            break;
+        }
     }
 }
 
@@ -144,10 +153,6 @@ bool AP_NewBroadcast :: sendString(frameType type,char *pJString,uint16_t index,
 
     result =  _parent_can_mgr->getIface(0)->send_rf(frame, uavcan::MonotonicTime::fromUSec(1), uavcan::CanIOFlagAbortOnError);
 
-//	printf("Send status %d\n",result);
-	//printf("Send Date: OK!\n");
-	//printf("tx pending %d\n",_parent_can_mgr->getIface(0)->tx_pending());
-
     return result;
 }
 
@@ -172,148 +177,8 @@ bool AP_NewBroadcast :: sendSeparatorSymbol(frameType type)
 
     result =  _parent_can_mgr->getIface(0)->send_rf(frame, uavcan::MonotonicTime::fromUSec(1), uavcan::CanIOFlagAbortOnError);
 
-	//printf("Send status %d\n",result);
-	//printf("Send Date: OK!\n");
-	//printf("tx pending %d\n",_parent_can_mgr->getIface(0)->tx_pending());
-
     return result;
 
-}
-
-void AP_NewBroadcast :: send_msg(uint8_t id_mode,uint8_t frame_mode,uint8_t length)
-{
-
-	uavcan::CanFrame frame;
-
-    if (id_mode == 0) {
-        frame.id = uavcan::CanFrame::MaskStdID & 0x12;
-    } else {
-        frame.id = uavcan::CanFrame::MaskExtID & 0x12;
-        frame.id |= uavcan::CanFrame::FlagEFF;
-    }
-
-    if (frame_mode != 0) {
-        frame.id |= uavcan::CanFrame::FlagRTR;
-    }
-
-    frame.dlc = length & 15;
-
-    frame.data[0] = uint8_t(0xFF & 0);
-    frame.data[1] = uint8_t(0xFF & 1);
-    frame.data[2] = uint8_t(0xFF & 2);
-    frame.data[3] = uint8_t(0xFF & 3);
-    frame.data[4] = uint8_t(0xFF & 4);
-    frame.data[5] = uint8_t(0xFF & 5);
-    frame.data[6] = uint8_t(0xFF & 6);
-    frame.data[7] = uint8_t(0xFF & 7);
-
-	printf("Send status %d\n",_parent_can_mgr->getIface(0)->send_rf(frame, uavcan::MonotonicTime::fromUSec(1), uavcan::CanIOFlagAbortOnError));
-	printf("Send Date: OK!\n");
-	printf("tx pending %d\n",_parent_can_mgr->getIface(0)->tx_pending());
-}
-
-/*
-void AP_NewBroadcast ::handle_msg()
-{
-	int32_t num;
-	num = _parent_can_mgr->getIface(0)->available();
-
-	if(num <= 0)
-		return;
-
-	uavcan::CanFrame out_frame;
-	uavcan::MonotonicTime out_ts_monotonic;
-    uavcan::UtcTime out_ts_utc;
-	uavcan::CanIOFlags out_flags;
-
-	for(int i = 0;i<num;i++)
-	{
-		_parent_can_mgr->getIface(0)->receive_rf(out_frame,out_ts_monotonic,out_ts_utc,out_flags);
-		printf("ExtID %2X\n",out_frame.id);
-		for(int j = 0;j<out_frame.dlc;j++)
-		{
-			printf("%2X \n",out_frame.data[j]);
-
-		}
-		//printf("****************\n");
-	}
-	printf("Receive: OK!\n");
-	timer = AP_HAL::millis();
-}
-*/
-
-bool AP_NewBroadcast ::read()
-{
-	int32_t num;
-	num = _parent_can_mgr->getIface(0)->available();
-
-	if(num <= 0)
-		return false;
-
-	uavcan::CanFrame out_frame;
-	uavcan::MonotonicTime out_ts_monotonic;
-    uavcan::UtcTime out_ts_utc;
-	uavcan::CanIOFlags out_flags;
-
-	for(int i = 0;i<num;i++)
-	{
-		_parent_can_mgr->getIface(0)->receive_rf(out_frame,out_ts_monotonic,out_ts_utc,out_flags);
-		for(int j = 0;j<out_frame.dlc;j++)
-		{
-			//printf("%c",out_frame.data[j]);
-            handle_msg(decode(out_frame.data[j]));
-		}
-	}
-//	printf("Receive: OK!\n");
-//	timer = AP_HAL::millis();
-	return true;
-}
-
-void AP_NewBroadcast:: handle_msg(int8_t result)
-{
-    switch(result)
-    {
-        case -1:
-            break;
-        case 0:
-            break;
-        case 1:
-            parseJson(JString);
-            break;
-    }
-}
-
-void AP_NewBroadcast::parseJson(char * pMsg)
-{
-    if(NULL == pMsg)
-    {
-        return;
-    }
-    cJSON * pJson = cJSON_Parse(pMsg);
-    if(NULL == pJson)
-    {
-        // parse faild, return
-        return ;
-    }
-
-    // get string from json
-    cJSON * pSub = cJSON_GetObjectItem(pJson, "action");
-    if(NULL == pSub)
-    {
-        //get object named "hello" faild
-    }
-    //printf("\n\n");
-    //printf("P:action : %d\n", pSub->valueint);
-
-    // get number from json
-    pSub = cJSON_GetObjectItem(pJson, "reg_no");
-    if(NULL == pSub)
-    {
-         //get number from json faild
-    }
-    //printf("P:reg_no : %s\n", pSub->valuestring);
-
-    cJSON_Delete(pJson);
 }
 
 char * AP_NewBroadcast :: makeViewJson()
@@ -361,250 +226,6 @@ char * AP_NewBroadcast :: makeViewJson()
 
      return p;
 }
-
-//JSON format output test
-char * AP_NewBroadcast:: makeJson()
-{
-     cJSON * pJsonRoot = NULL;
-
-     pJsonRoot = cJSON_CreateObject();
-     if(NULL == pJsonRoot)
-     {
-         //error happend here
-         printf("Create cJSON false");
-         return NULL;
-     }
-
-     cJSON_AddStringToObject(pJsonRoot, "reg_no", "1110023452");
-     cJSON_AddNumberToObject(pJsonRoot, "action", 0);
-     cJSON_AddNumberToObject(pJsonRoot, "now_time", 1516345485);
-     cJSON_AddNumberToObject(pJsonRoot, "spray_range", 6);
-     cJSON_AddNumberToObject(pJsonRoot, "altitude",10000);
-     cJSON_AddNumberToObject(pJsonRoot, "uav_id",0);
-     cJSON_AddNumberToObject(pJsonRoot, "latitude",2255325507);
-     cJSON_AddNumberToObject(pJsonRoot, "pitch_angle",500);
-     cJSON_AddNumberToObject(pJsonRoot, "index",0);
-     cJSON_AddNumberToObject(pJsonRoot, "flight_time",0);
-     cJSON_AddNumberToObject(pJsonRoot, "nozzle_diameter",10);
-     cJSON_AddNumberToObject(pJsonRoot, "horizontal_velocity",300);
-     cJSON_AddNumberToObject(pJsonRoot, "flight_seq",1);
-     cJSON_AddNumberToObject(pJsonRoot, "roll_angle",600);
-     cJSON_AddNumberToObject(pJsonRoot, "is_nozzle_work",0);
-     cJSON_AddNumberToObject(pJsonRoot, "nozzle_angle",60);
-     cJSON_AddNumberToObject(pJsonRoot, "state",1);
-     cJSON_AddNumberToObject(pJsonRoot, "nozzle_pressure",1000);
-     cJSON_AddNumberToObject(pJsonRoot, "longitude",1139460592);
-     cJSON_AddNumberToObject(pJsonRoot, "height",20000);
-     cJSON_AddNumberToObject(pJsonRoot, "path_angle",400);
-
-     char * p = cJSON_PrintUnformatted(pJsonRoot);
-     if(NULL == p)
-     {
-         //convert json list to string faild, exit
-         //because sub json pSubJson han been add to pJsonRoot, so just delete pJsonRoot, if you also delete pSubJson, it will coredump, and error is : double free
-         cJSON_Delete(pJsonRoot);
-         return NULL;
-     }
-
-     cJSON_Delete(pJsonRoot);
-
-     return p;
-}
-
-/*
- *char * AP_NewBroadcast:: makeJson()
- *{
- *     cJSON * pJsonRoot = NULL;
- *
- *     pJsonRoot = cJSON_CreateObject();
- *     if(NULL == pJsonRoot)
- *     {
- *         //error happend here
- *         return NULL;
- *     }
- *     cJSON_AddStringToObject(pJsonRoot, "hello", "hello world");
- *     //cJSON_AddNumberToObject(pJsonRoot, "number", 10010);
- *     //cJSON_AddNumberToObject(pJsonRoot, "bool", 1);
- *     cJSON * pSubJson = NULL;
- *     pSubJson = cJSON_CreateObject();
- *     if(NULL == pSubJson)
- *     {
- *         // create object faild, exit
- *         cJSON_Delete(pJsonRoot);
- *         return NULL;
- *     }
- *     cJSON_AddStringToObject(pSubJson, "subjsonobj", "a sub json string");
- *     cJSON_AddItemToObject(pJsonRoot, "subobj", pSubJson);
- *
- *     //char * p = cJSON_Print(pJsonRoot);
- *   // else use :
- *     char * p = cJSON_PrintUnformatted(pJsonRoot);
- *     if(NULL == p)
- *     {
- *         //convert json list to string faild, exit
- *         //because sub json pSubJson han been add to pJsonRoot, so just delete pJsonRoot, if you also delete pSubJson, it will coredump, and error is : double free
- *         cJSON_Delete(pJsonRoot);
- *         return NULL;
- *     }
- *     //free(p);
- *
- *     cJSON_Delete(pJsonRoot);
- *
- *     return p;
- *}
- */
-
-
-
-int8_t AP_NewBroadcast ::decode(char data)
-{
-    int8_t result = 0;
-
-    switch(data)
-    {
-        case '\r':
-        case '\n':
-            if(payload_offset != 0)
-            {
-                JString[payload_offset] = '\0';
-                payload_offset = 0;
-                result = 1;
-            }
-            break;
-        default:
-            if(payload_offset >= CJSON_STRING_LEN_MAX)
-            {
-                payload_offset = 0;
-                result = -1;
-            }
-            else
-            {
-                JString[payload_offset++] = data;
-            }
-            break;
-
-    }
-
-    return result;
-}
-
-/*
- *
- *void AP_NewBroadcast::decode(uint8_t data)
- *{
- *  msg_complete = false;
- *
- *  switch (step) {
- *  case 0:
- *    //init_data();
- *    if (data == 0xAA) {
- *      CRC = 0xFFFF;
- *      step = 1;
- *      valcheck = CRC16Value(data);
- *    } else {
- *      step = 0;
- *    }
- *    printf("%2X \n",data);
- *    break;
- *  case 1:
- *    if (data == 0x44) {
- *      step = 2;
- *      valcheck = CRC16Value(data);
- *    } else {
- *      step = 0;
- *    }
- *    printf("%2X \n",data);
- *    break;
- *  case 2:
- *    if (data == 0x18) {
- *      valcheck = CRC16Value(data);
- *      step = 3;
- *    } else {
- *      step = 0;
- *    }
- *    printf("%2X \n",data);
- *    break;
- *  case 3:
- *    msg_rx[msg_index].msgid = 0x00FF & data;
- *    valcheck = CRC16Value(data);
- *    step = 4;
- *    printf("%2X \n",data);
- *    break;
- *  case 4:
- *    msg_rx[msg_index].msgid = ((uint16_t)data << 8) + msg_rx[msg_index].msgid;
- *    valcheck = CRC16Value(data);
- *    step = 5;
- *    printf("%2X \n",data);
- *    break;
- *  case 5:
- *    msg_rx[msg_index].version = data;
- *    valcheck = CRC16Value(data);
- *    step = 6;
- *    printf("%2X \n",data);
- *    break;
- *  case 6:
- *    msg_rx[msg_index].length = 0x00FF & data;
- *    valcheck = CRC16Value(data);
- *    step = 7;
- *    printf("%2X \n",data);
- *    break;
- *  case 7:
- *    msg_rx[msg_index].length = ((uint16_t)data << 8) + msg_rx[msg_index].length;
- *    msg_rx[msg_index].payload_offset = 0;
- *    valcheck = CRC16Value(data);
- *    step = 8;
- *    printf("%2X \n",data);
- *    break;
- *  case 8:
- *    if (msg_rx[msg_index].payload_offset < sizeof(msg_rx[msg_index].payload) - 1)
- *    //msg_rx.length -= 8;
- *    //if ((msg_rx.length < sizeof(msg_rx.payload) - 1) && (msg_rx.length --)>=0)
- *    {
- *        msg_rx[msg_index].payload[msg_rx[msg_index].payload_offset++] = data;
- *        valcheck = CRC16Value(data);
- *    }
- *
- *    if(msg_rx[msg_index].payload_offset >= msg_rx[msg_index].length - 8)
- *    {
- *        step = 9;
- *    }
- *    printf("%2X l:%d\n",data,msg_rx[msg_index].length);
- *    break;
- *  case 9:
- *    if((valcheck >>8) == data)
- *    {
- *        step = 10;
- *    }
- *    else
- *    {
- *        step = 0;
- *    }
- *    printf("%2X val:%X\n",(uint8_t)(valcheck>>8),valcheck);
- *    break;
- *  case 10:
- *    if((valcheck & 0x00FF) == data)
- *    {
- *        msg_complete = true;
- *        msg_rx[msg_index].is_presence = true;
- *        msg_index++;
- *
- *        if(msg_index >= 3)
- *        {
- *            msg_index = 0;
- *        }
- *    }
- *    else
- *    {
- *        msg_complete = false;
- *    }
- *    step = 0;
- *    printf("%2X \n",(uint8_t)(valcheck&0x00FF));
- *    break;
- *  default:
- *    break;
- *  }
- *}
- */
 
  void AP_NewBroadcast :: update_view_action()
 {
@@ -807,45 +428,26 @@ void AP_NewBroadcast ::update()
 	if(!_initialized)
 		return;
 
-    update_view();
-
-    char * p = makeViewJson();
-
-    if(NULL == p)
+    if(!_enable)
     {
         return;
     }
 
-	if(copter.g.can_test_rt)
+	if(copter.gps.status() >= AP_GPS::GPS_OK_FIX_3D)
     {
-		read();
-    }
-	else
-    {
+        update_view();
+
+        char * p = makeViewJson();
+
+        if(NULL == p)
+        {
+            return;
+        }
+
         sendJson(p);
         free(p);
     }
 }
 
-
-/*Calculate a CRC value to be used by CRC calculation functions. */
-/*
- *#define CRC16_POLYNOMIAL   0xA001
- *uint16_t
- *AP_NewBroadcast ::CRC16Value(uint8_t data)
- *{
- *
- *    CRC ^= data;
- *    for (uint8_t i = 0; i < 8; i++)
- *    {
- *        if ( CRC & 1 )
- *            CRC = ( CRC >> 1 ) ^ CRC16_POLYNOMIAL;
- *        else
- *            CRC >>= 1;
- *    }
- *
- *    return CRC;
- *}
- */
 #endif
 
