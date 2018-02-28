@@ -171,7 +171,7 @@ const AP_Param::GroupInfo AP_Proximity::var_info[] = {
     // @Units: hz
     // @Range: 0 65536
     // @User: Standard
-    AP_GROUPINFO("_RATE", 22, AP_Proximity,_rate[0], 20),
+    AP_GROUPINFO("_RATE", 22, AP_Proximity,_rate[0], 50),
 
 #if PROXIMITY_MAX_INSTANCES > 1
     // @Param: 2_TYPE

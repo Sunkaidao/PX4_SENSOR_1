@@ -656,12 +656,12 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
 			if (ch_flag == AUX_SWITCH_HIGH) 
 			{
 //				printf("AUXSW_FS_PLD ON\n");
-				set_failsafe_payload(FAILSAFE_PLD_TYPE_PMBUS, true);
+				set_failsafe_payload(FAILSAFE_PLD_TYPE_FM, true);
 			}
 			else if(ch_flag == AUX_SWITCH_LOW)
 			{
 //				printf("AUXSW_FS_PLD OFF\n");
-				set_failsafe_payload(FAILSAFE_PLD_TYPE_PMBUS, false);
+				set_failsafe_payload(FAILSAFE_PLD_TYPE_FM, false);
 			}
 			break;
 

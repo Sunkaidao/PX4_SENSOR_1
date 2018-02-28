@@ -714,6 +714,20 @@ void Copter::one_hz_loop()
 	//DataFlash.Log_Write_GKProx(AP_Proximity &proximity);	
 	//	adde end
 
+	//	added by ZhangYong for test
+	//	...to do
+	/*
+	Location homeLocation;
+
+	homeLocation.lat = 0;
+	homeLocation.lng = 0;
+	homeLocation.alt = 0;
+	
+	printf("home, lat:%d, lng:%d, alt:%d\n", ahrs.get_home().lat, ahrs.get_home().lng, ahrs.get_home().alt);
+	printf("origal, %d, lat:%d, lng:%d, alt:%d\n", ahrs.get_origin(homeLocation), homeLocation.lat, homeLocation.lng, homeLocation.alt);
+	*/
+	//	added end
+
 }
 
 // called at 50hz

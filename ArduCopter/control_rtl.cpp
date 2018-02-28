@@ -186,7 +186,7 @@ void Copter::rtl_climb_return_run()
 
 	//	added by ZhangYong 20180202 
 	//	in order to realize terra follow with rangefinder
-	if (rangefinder_alt_ok()) 
+	/*if (rangefinder_alt_ok()) 
 	{
 		//	added by zhangyong 20180205 
 		//printf("guided_pos_control_run\n");
@@ -199,6 +199,7 @@ void Copter::rtl_climb_return_run()
 		pos_control->set_alt_target_from_climb_rate_ff(surface_tracking_climb_rate, G_Dt, false);
 	}
 	//	added end
+	*/
 
     // call z-axis position controller (wpnav should have already updated it's alt target)
     pos_control->update_z_controller();
@@ -469,8 +470,15 @@ void Copter::rtl_compute_return_target(bool terrain_following_allowed)
     // curr_alt is current altitude above home or above terrain depending upon use_terrain
     int32_t curr_alt = current_loc.alt;
 
+	
+
     // decide if we should use terrain altitudes
     rtl_path.terrain_used = terrain_use() && terrain_following_allowed;
+
+	//	added by ZhangYong 20180207
+	//printf("terrain_following_allowed:%d, terrain_use:%d\n", terrain_following_allowed, terrain_use());
+	//	added end
+	
     if (rtl_path.terrain_used) {
         // attempt to retrieve terrain alt for current location, stopping point and origin
         int32_t origin_terr_alt, return_target_terr_alt;
