@@ -462,7 +462,7 @@ void Copter::guided_pos_control_run()
 
 	//	added by ZhangYong 20180202 
 	//	in order to realize terra follow with rangefinder
-	if (rangefinder_alt_ok()) 
+	/*if (rangefinder_alt_ok()) 
 	{
 		//	added by zhangyong 20180205 
 		//printf("guided_pos_control_run\n");
@@ -473,7 +473,7 @@ void Copter::guided_pos_control_run()
 		//printf("%4.2f\n", target_climb_rate);
 
 		pos_control->set_alt_target_from_climb_rate_ff(surface_tracking_climb_rate, G_Dt, false);
-	}
+	}*/
 	//	added end
 
     // call z-axis position controller (wpnav should have already updated it's alt target)

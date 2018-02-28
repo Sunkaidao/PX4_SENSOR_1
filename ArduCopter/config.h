@@ -904,11 +904,11 @@ union PACKED PassOSD_data_status {
 
 //	modified end
 #ifndef AC_RALLY
- #define AC_RALLY   DISABLED
+ #define AC_RALLY   ENABLED
 #endif
 
 #ifndef AC_TERRAIN
- #define AC_TERRAIN DISABLED
+ #define AC_TERRAIN ENABLED
 #endif
 
 #if AC_TERRAIN && !AC_RALLY
