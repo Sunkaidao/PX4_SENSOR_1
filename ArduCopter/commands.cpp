@@ -38,8 +38,12 @@ void Copter::set_home_to_current_location_inflight() {
 // set_home_to_current_location - set home to current GPS location
 bool Copter::set_home_to_current_location(bool lock) {
     // get current location from EKF
-    Location temp_loc;
+
+	Location temp_loc;
     if (inertial_nav.get_location(temp_loc)) {
+
+		//printf("set_home_to_current_location, %d %d %d\n", temp_loc.lat, temp_loc.lng, temp_loc.alt);
+	
         return set_home(temp_loc, lock);
     }
     return false;
@@ -55,9 +59,14 @@ bool Copter::set_home(const Location& loc, bool lock)
         return false;
     }
 
+	//printf("set_home\n");
+
     // set EKF origin to home if it hasn't been set yet and vehicle is disarmed
     // this is required to allowing flying in AUTO and GUIDED with only an optical flow
     Location ekf_origin;
+
+	//printf("ahrs.get_origin(ekf_origin) %d\n", ahrs.get_origin(ekf_origin));
+	
     if (!motors->armed() && !ahrs.get_origin(ekf_origin)) {
         ahrs.set_origin(loc);
     }

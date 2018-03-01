@@ -201,6 +201,8 @@ void NavEKF3_core::ResetHeight(void)
 // Return true if the height datum reset has been performed
 bool NavEKF3_core::resetHeightDatum(void)
 {
+	//printf("3 resetHeightDatum\n");
+	
     if (activeHgtSource == HGT_SOURCE_RNG) {
         // by definition the height datum is at ground level so cannot perform the reset
         return false;

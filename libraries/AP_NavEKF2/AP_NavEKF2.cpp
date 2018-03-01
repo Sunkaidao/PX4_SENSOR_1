@@ -960,6 +960,8 @@ void NavEKF2::resetGyroBias(void)
 // If using a range finder for height no reset is performed and it returns false
 bool NavEKF2::resetHeightDatum(void)
 {
+	
+	
     bool status = true;
     if (core) {
         for (uint8_t i=0; i<num_cores; i++) {

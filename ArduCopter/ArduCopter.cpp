@@ -716,8 +716,8 @@ void Copter::one_hz_loop()
 
 	//	added by ZhangYong for test
 	//	...to do
-	/*
-	Location homeLocation;
+	
+	/*Location homeLocation;
 
 	homeLocation.lat = 0;
 	homeLocation.lng = 0;
@@ -727,6 +727,9 @@ void Copter::one_hz_loop()
 	printf("origal, %d, lat:%d, lng:%d, alt:%d\n", ahrs.get_origin(homeLocation), homeLocation.lat, homeLocation.lng, homeLocation.alt);
 	*/
 	//	added end
+
+
+	//printf("alt %4.2f baro %d\n", inertial_nav.get_altitude(), copter.baro_alt);
 
 }
 
