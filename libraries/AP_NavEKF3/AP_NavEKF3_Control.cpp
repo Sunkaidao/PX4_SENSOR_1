@@ -464,6 +464,8 @@ bool NavEKF3_core::assume_zero_sideslip(void) const
 // set the LLH location of the filters NED origin
 bool NavEKF3_core::setOriginLLH(const Location &loc)
 {
+	//printf("3 setOriginLLH\n");
+	
     if (PV_AidingMode == AID_ABSOLUTE) {
         return false;
     }
@@ -478,6 +480,7 @@ bool NavEKF3_core::setOriginLLH(const Location &loc)
 // Set the NED origin to be used until the next filter reset
 void NavEKF3_core::setOrigin()
 {
+//	printf("3 setOrigin\n");
     // assume origin at current GPS location (no averaging)
     EKF_origin = _ahrs->get_gps().location();
     // if flying, correct for height change from takeoff so that the origin is at field elevation

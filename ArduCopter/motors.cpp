@@ -188,6 +188,8 @@ bool Copter::init_arm_motors(bool arming_from_gcs)
 
     initial_armed_bearing = ahrs.yaw_sensor;
 
+	//	modified by ZhangYong to reset alt in GPS mode
+	/*
     if (ap.home_state == HOME_UNSET) {
         // Reset EKF altitude if home hasn't been set yet (we use EKF altitude as substitute for alt above home)
         ahrs.resetHeightDatum();
@@ -196,7 +198,21 @@ bool Copter::init_arm_motors(bool arming_from_gcs)
         // Reset home position if it has already been set before (but not locked)
         set_home_to_current_location(false);
     }
-    calc_distance_and_bearing();
+
+	calc_distance_and_bearing();*/
+
+	ahrs.resetHeightDatum();
+    Log_Write_Event(DATA_EKF_ALT_RESET);
+
+	if (ap.home_state == HOME_SET_NOT_LOCKED) {
+        // Reset home position if it has already been set before (but not locked)
+        set_home_to_current_location(false);
+		calc_distance_and_bearing();
+    }
+
+	//	modified end
+	
+   
 
     // enable gps velocity based centrefugal force compensation
     ahrs.set_correct_centrifugal(true);

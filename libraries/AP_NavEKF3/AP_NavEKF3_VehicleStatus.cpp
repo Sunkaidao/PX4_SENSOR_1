@@ -171,7 +171,10 @@ bool NavEKF3_core::calcGpsGoodToAlign(void)
     }
 
     // fail if satellite geometry is poor
-    bool hdopFail = (_ahrs->get_gps().get_hdop() > 250)  && (frontend->_gpsCheck & MASK_GPS_HDOP);
+    //	modified by ZhangYong to narrow the start of GPS ading
+    //	bool hdopFail = (_ahrs->get_gps().get_hdop() > 250)  && (frontend->_gpsCheck & MASK_GPS_HDOP);
+    //	modified end
+    bool hdopFail = (_ahrs->get_gps().get_hdop() > 200)  && (frontend->_gpsCheck & MASK_GPS_HDOP);
 
     // Report check result as a text string and bitmask
     if (hdopFail) {
@@ -183,7 +186,10 @@ bool NavEKF3_core::calcGpsGoodToAlign(void)
     }
 
     // fail if not enough sats
-    bool numSatsFail = (_ahrs->get_gps().num_sats() < 6) && (frontend->_gpsCheck & MASK_GPS_NSATS);
+    //	modified by ZhangYong to narrow the start of GPS ading
+    //	bool numSatsFail = (_ahrs->get_gps().num_sats() < 6) && (frontend->_gpsCheck & MASK_GPS_NSATS);
+	//	modified end
+	bool numSatsFail = (_ahrs->get_gps().num_sats() < 10) && (frontend->_gpsCheck & MASK_GPS_NSATS);
 
     // Report check result as a text string and bitmask
     if (numSatsFail) {
