@@ -371,7 +371,7 @@ void AP_NewBroadcast :: update_view_horizontal_velocity()
 
 void AP_NewBroadcast :: update_view_is_nozzle_work()
 {
-    view.is_nozzle_work = sprayer.get_running();
+    view.is_nozzle_work = sprayer.get_spraying();
 }
 
 void AP_NewBroadcast :: update_view_nozzle_diameter()
