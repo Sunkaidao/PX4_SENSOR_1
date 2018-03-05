@@ -301,7 +301,7 @@ void AP_NewBroadcast :: update_view_state()
         case 1:
             if(copter.motors->armed())
             {
-                if(AP_HAL::millis64()-timer>=3000)
+                if(AP_HAL::millis64()-timer>=15000)
                 {
                     view.state = 2;
                     state_step = 2;
