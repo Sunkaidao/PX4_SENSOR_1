@@ -26,6 +26,9 @@ using namespace PX4;
 #define REG_NO_STRING_LEN 32
 #define PAYLOAD_ARRAY_LEN 98
 
+#define PROCESSING 0
+#define COMPLETE 1 
+
 typedef struct
 {
     int32_t action;
@@ -111,6 +114,10 @@ private:
     Message_info view;
 	Message_send_union payload;
 
+	bool send_flag;
+	int16_t send_index;	
+	uint64_t send_last_time;
+		
 	static const uint16_t crc16tab[];
 public:
 	void update();

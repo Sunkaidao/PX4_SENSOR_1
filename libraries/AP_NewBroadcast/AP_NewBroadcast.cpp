@@ -96,6 +96,12 @@ void AP_NewBroadcast::init()
 {
 	_parent_can_mgr = (PX4CANManager *)hal.can_mgr[0];
 	timer = AP_HAL::millis();
+	send_last_time = AP_HAL::micros();
+
+	send_flag = COMPLETE;
+	send_index = 0;
+	memset( & view, 0, sizeof(view));
+	memset( & payload, 0, sizeof(payload));
 
 	if(_parent_can_mgr != NULL)
 	{
@@ -121,14 +127,18 @@ void AP_NewBroadcast :: sendPayload(char *pArray,uint16_t len)
     uint8_t last_frame_num_b = len % 8;
     uint32_t tstart = AP_HAL::micros();
 
-    for(uint16_t i = 0; i<(frame_num+2); i++)
+    for(int16_t i = send_index; i<(frame_num+2); i++)
     {
+    	 send_flag = PROCESSING;
+		 send_index = i+1;
+		
         if(!_parent_can_mgr->getIface(0)->tx_pending())
         {
             if(i<frame_num)
             {
                  if(!sendDataStream(EXTENDID,pArray,i,8))
                  {
+                    send_index = i;
                     i--;
                  }
             }
@@ -136,25 +146,30 @@ void AP_NewBroadcast :: sendPayload(char *pArray,uint16_t len)
             {
                 if(!sendDataStream(EXTENDID,pArray,i,last_frame_num_b))
                 {
+                    send_index = i;
                     i--;
                 }
             }
             else
             {
-                if(!sendCrc16(EXTENDID))
+                if(sendCrc16(EXTENDID))
                 {
-                    i--;
+                    send_flag = COMPLETE;
+					  send_index = 0;
+					  send_last_time = AP_HAL::micros();
                 }
+				  else
+				  {
+				      send_index = i;
+				  	  i--;
+				  }
             }
         }
         else
         {
+            send_index = i;
             i--;
-        }
-
-        if(AP_HAL::micros() - tstart > 10000)
-        {
-            break;
+			 break;
         }
     }
 }
@@ -508,25 +523,32 @@ void AP_NewBroadcast ::update()
 
    if(!_reg_no_complete)
    		return;
-   
-   if(copter.gps.status() >= AP_GPS::GPS_OK_FIX_3D) 
-   {
-   	   update_view();
-	   update_payload();
- 
-   	   sendPayload(payload.paylod_array);
-   }
 
-/*   
-   for(int i = 0; i < PAYLOAD_ARRAY_LEN; i++)
+   
+   if(copter.gps.status() < AP_GPS::GPS_OK_FIX_3D) 
    {
-	   printf("%X ",payload.paylod_array[i]);
+   		send_last_time = AP_HAL::micros();
+		return;
    }
-   printf("\n");
-   printf("now time: %d\n",(uint32_t)view.now_time);
-   printf("height: %d\n",view.height);
-   printf("\n\n");
-*/
+   
+
+	//TOOL:timeout detect,if true,do something,needn't use return.
+	//
+	//if(AP_HAL::micros()-send_last_time > 3000000)
+   		
+
+	//1Hz send 
+   if(AP_HAL::micros()-send_last_time < 1000000)
+   		return;
+   	
+   if(send_flag == COMPLETE)
+   {
+      update_view();
+      update_payload();
+   }
+	   
+   sendPayload(payload.paylod_array);
+   
 }
 
 const uint16_t AP_NewBroadcast ::crc16tab[] = {

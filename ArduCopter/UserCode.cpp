@@ -243,6 +243,11 @@ void Copter::userhook_50Hz()
 	  PtzControl.update();
 #endif // end PTZ_CONTROL == ENABLED
     //added end
+
+#if NEWBROADCAST == ENABLED
+	newbroadcast.update();
+#endif
+
 }
 #endif // end USERHOOK_50HZLOOP
 
@@ -278,10 +283,6 @@ void Copter::userhook_SuperSlowLoop()
 		  local_flight_time_sec++;
 	 }//	added end
 #endif
-
-    //g2.newbroadcast.update();
-
-    newbroadcast.update();
 
 }
 #endif
