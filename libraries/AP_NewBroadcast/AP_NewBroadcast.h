@@ -105,6 +105,7 @@ private:
     AP_Int8  _enable;
 	AP_Int8  _reg_no[REG_NO_STRING_LEN];
     AP_Int32 _flight_seq;
+	AP_Int8 _reg_no_complete;        //0:UAV registration number is not written to complete,1:complete
 	uint64_t timer;
 
     Message_info view;

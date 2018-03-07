@@ -75,6 +75,7 @@ const AP_Param::GroupInfo AP_NewBroadcast::var_info[] = {
 	AP_GROUPINFO("REG_NO29", 32 , AP_NewBroadcast, _reg_no[29], 0),
 	AP_GROUPINFO("REG_NO30", 33 , AP_NewBroadcast, _reg_no[30], 0),
 	AP_GROUPINFO("REG_NO31", 34 , AP_NewBroadcast, _reg_no[31], 0),
+	AP_GROUPINFO("REG_NO_COMP", 35 , AP_NewBroadcast, _reg_no_complete, 0),
 				
     AP_GROUPEND
 };
@@ -504,6 +505,9 @@ void AP_NewBroadcast ::update()
    {
        return;
    }
+
+   if(!_reg_no_complete)
+   		return;
    
    if(copter.gps.status() >= AP_GPS::GPS_OK_FIX_3D) 
    {
