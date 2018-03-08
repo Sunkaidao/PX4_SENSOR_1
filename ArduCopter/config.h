@@ -85,7 +85,7 @@
 
 //	modified by ZhangYong 20170915
 //#ifndef RANGEFINDER_ENABLED
-// # define RANGEFINDER_ENABLED 
+// # define RANGEFINDER_ENABLED
 //#endif
 //	modified end
 
@@ -237,10 +237,10 @@
 //#endif
 
 //	modified end
-//	
+//
 
 //	noted by ZhangYong 2017110
-//	if we disabled optflow firmware will die after boot 
+//	if we disabled optflow firmware will die after boot
 #ifndef OPTFLOW
  # define OPTFLOW       DISABLED
 #endif
@@ -296,7 +296,7 @@
 
 #ifndef RNGRADAR
  # define RNGRADAR ENABLED
-#endif 
+#endif
 
 
 #ifndef SPRAYER
@@ -547,7 +547,7 @@ struct current_gps_week_ms
 
 #endif
 
-//	
+//
 
 
 
@@ -595,14 +595,14 @@ struct PACKED PassOSD_data_struct {
 	uint8_t stx1;							//	1
 	uint8_t len;							//	2
 	uint8_t seq;							//	3
-		
+
 	uint16_t source_id;						//	4-5
 	uint16_t destination_id;				//	6-7
 
 	uint8_t comp_id;						//	8
 
 	uint8_t message_id;						//	9-10
-		
+
 	float voltage_battery;					//	11-14
 	float current_total_mah;				//	15-18
 
@@ -632,7 +632,7 @@ union PACKED PassOSD_data_status {
 	uint8_t bytes[];
 };
 
-//	added 
+//	added
 
 
 
@@ -995,13 +995,17 @@ union PACKED PassOSD_data_status {
 
 // baiyang added in 20170830
 //////////////////////////////////////////////////////////////////////////////
-//roflying fence
+//roflying camera ptz
 #ifndef PTZ_CONTROL
 #  define PTZ_CONTROL	DISABLED
 #endif
 
-
-
+//biayang added in 20180206
+//////////////////////////////////////////////////////////////////////////////
+//After networking,upload your own information
+#ifndef NEWBROADCAST
+#  define NEWBROADCAST  ENABLED
+#endif
 
 //baiyang added in 20170829
 /////////////////////////////////////////////////////////////////////////////////////

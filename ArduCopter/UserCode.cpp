@@ -5,7 +5,7 @@ void Copter::userhook_init()
 {
     // put your initialisation code here
     // this will be called once at start-up
-    
+
     //	added by ZhangYong
     //	get board id
 #if FXTX_AUTH == 1
@@ -18,14 +18,14 @@ void Copter::userhook_init()
     	memset(auth_msg, 0, 50);
     	memset(serial_id, 0, AUTH_ID_LEN);
 		memset(auth_id, 0, AUTH_ID_LEN);
-    
+
     	memset(&curr_gps_week_ms, 0, sizeof(struct current_gps_week_ms));
     //	memset(&id_para, 0, sizeof(union auth_id_para));
-    
-    	
+
+
     	(void)hal.util->get_system_id(serial_id);
 
-		
+
 		for(lcl_out_cnt = 0; lcl_out_cnt < 3; lcl_out_cnt ++)
 		{
 			for(lcl_cnt = 0; lcl_cnt < 4; lcl_cnt++)
@@ -34,7 +34,7 @@ void Copter::userhook_init()
 
 //				printf("%d\n", 6 + lcl_cnt *2 + lcl_out_cnt * 9);
 
-				
+
 				if(lcl_char_h < 0x40)
 					lcl_char_h -= 0x30;
 				else
@@ -46,21 +46,21 @@ void Copter::userhook_init()
 				lcl_char_l = serial_id[6 + lcl_cnt *2 + 1 + lcl_out_cnt * 9];
 
 //				printf("%d\n", 6 + lcl_cnt *2 + 1 + lcl_out_cnt * 9);
-	
-			
+
+
 				if(lcl_char_l < 0x40)
 					lcl_char_l -= 0x30;
 				else
 					lcl_char_l -= 0x37;
 
 				lcl_char_h |= lcl_char_l;
-		
+
 				auth_id[lcl_cnt + lcl_out_cnt * 4] = lcl_char_h;
 	//			printf("%02x\n", auth_id[lcl_cnt + lcl_out_cnt * 4]);
 			}
 		}
 
-    
+
     	sprintf(auth_msg, "0123456789%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n",	\
     		     (unsigned)serial_id[6], 	(unsigned)serial_id[7], 	(unsigned)serial_id[8], 	(unsigned)serial_id[9], 	(unsigned)serial_id[10], (unsigned)serial_id[11],	(unsigned)serial_id[12], (unsigned)serial_id[13], \
     		     (unsigned)serial_id[15], 	(unsigned)serial_id[16], 	(unsigned)serial_id[17], 	(unsigned)serial_id[18], 	(unsigned)serial_id[19], (unsigned)serial_id[20], 	(unsigned)serial_id[21], (unsigned)serial_id[22], \
@@ -68,9 +68,9 @@ void Copter::userhook_init()
 
 		memset(&fs_mk, 0, sizeof(FAILSAFE_MARKER));
 
-				 
+
 #endif		//	FXTX_AUTH == 1
-    //	added end 
+    //	added end
 
 #if FXTX_AUTH == 0
 	printf("License Disabled\n");
@@ -83,8 +83,8 @@ void Copter::userhook_init()
 	//	added end
 
 #elif FXTX_AUTH == 1
-	printf("License Enabled\n");	
-	
+	printf("License Enabled\n");
+
 	//	added by ZhangYong 20170705 for item_int
 	gcs().chan(0).set_mission_item_int(true);
 	gcs().chan(1).set_mission_item_int(true);
@@ -110,44 +110,44 @@ void Copter::userhook_init()
 	}
 	else
 	{
-		
+
 	}
 #endif // end PJTPASSOSD == ENABLED
-	
+
 #if PROJECTGKXN == ENABLED
 	if(nullptr != (serial_manager.find_serial(AP_SerialManager::SerialProtocol_FlowMeter_GKXN,0)))
 	{
 		flowmeter.init(serial_manager);
 	}
 	//height_replace = 0;
-		
+
 #endif // endf PROJECTGKXN == ENABLED
-	
+
 #if BCBMONITOR == ENABLED
-	
+
 	if(nullptr != (serial_manager.find_serial(AP_SerialManager::SerialProtocol_BCBMonitor,0)))
 	{
 		bcbmonitor.init(serial_manager);
 	}
-		
+
 #endif // end BCBMONITOR == ENABLED
-	
+
 #if BCBPMBUS == ENABLED
 	printf("PROJECTBCB\n");
 	printf("PMBUS\n");
-		
+
 	if(nullptr !=  serial_manager.find_serial(AP_SerialManager::SerialProtocol_BCBPMBus,0))
 	{
 		init_bcbpmbus();
 	}
 #endif // end BCBPMBUS == ENABLED
-	
+
 #if PJTPASSOSD == ENABLED
 	printf("PJTPASSOSD\n");
 #endif // end PJTPASSOSD == ENABLED
-	
-	
-	
+
+
+
 #if PROJECTGKXN == ENABLED
 	printf("PROJECTGKXN\n");
 #endif // end PROJECTGKXN == ENABLED
@@ -157,23 +157,23 @@ void Copter::userhook_init()
 	printf("PROJECTFB\n");
 #endif	
 	//	added ebd
-	
+
 	//	added by ZhangYong 20170705
 	printf("Mavlink capabilities %x\n", hal.util->get_capabilities());
 	//	added end
 
-    
+
     /*edit_management.words = g.edition_management;
-    
+
     printf("major_edition = 0x%x\n", edit_management.data.major_edition);
     printf("project_edition = 0x%x\n", edit_management.data.project_edition);
     printf("minor_edition = 0x%x\n", edit_management.data.minor_edition);
     printf("revision_edition = 0x%x\n", edit_management.data.revision_edition);
-    
+
     if(1 != edit_management.data.major_edition)
     {
     	edit_management.data.major_edition = 2;
-    
+
     	g.edition_management.set_and_save(edit_management.words);
     }*/
 	edit_management.words = g.edition_management;
@@ -197,7 +197,7 @@ void Copter::userhook_init()
 	//	improve the minor edition from 5 to 6
 	//	FXTX_AUTH debug get_system_id
 	if(edit_management.data.minor_edition <= 5)
-	{	
+	{
 		edit_management.data.minor_edition = 6;
 	}
 
@@ -206,7 +206,7 @@ void Copter::userhook_init()
 	printf("major_edition = 0x%x\n", edit_management.data.major_edition);
 	printf("project_edition = 0x%x\n", edit_management.data.project_edition);
 	printf("minor_edition = 0x%x\n", edit_management.data.minor_edition);
-	printf("revision_edition = 0x%x\n", edit_management.data.revision_edition);    
+	printf("revision_edition = 0x%x\n", edit_management.data.revision_edition);
 
 
 #if PTZ_CONTROL == ENABLED
@@ -221,8 +221,10 @@ void Copter::userhook_init()
 	rf_abmode.init();
 #endif
 
+#if NEWBROADCAST == ENABLED
+   newbroadcast.init();
+#endif
 
-//	cJSON_Version();
 }
 #endif // end USERHOOK_INIT
 
@@ -237,12 +239,16 @@ void Copter::userhook_FastLoop()
 void Copter::userhook_50Hz()
 {
     // put your 50Hz code here
-    
+
     //baiyang added in 20170804
 #if PTZ_CONTROL == ENABLED
 	  PtzControl.update();
 #endif // end PTZ_CONTROL == ENABLED
     //added end
+
+#if NEWBROADCAST == ENABLED
+	newbroadcast.update();
+#endif
 
 }
 #endif // end USERHOOK_50HZLOOP
