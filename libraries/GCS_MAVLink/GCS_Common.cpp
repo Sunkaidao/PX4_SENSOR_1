@@ -406,62 +406,10 @@ void GCS_MAVLINK::send_flight_time_thismav(int16_t para_flight_time_hour, \
 #endif
 
 
-#if PROJECTGKXN == ENABLED
-void GCS_MAVLINK::send_payload_status(AC_Sprayer *sprayer, AP_Flowmeter *flowmeter)
+//void GCS_MAVLINK::send_payload_status(AC_Sprayer *sprayer, AP_Flowmeter *flowmeter)
+/*
+void GCS_MAVLINK::send_payload_status(uint8_t payload_type, uint8_t *payload_status)
 {
-	static uint8_t lcl_cnt = 0;
-	uint8_t payload_type = 0;
-	uint8_t payload_status[8];
-	int16_t lcl_int16_t = 0;
-
-	memset(payload_status, 0, 8);
-
-//	payload_status[2] = 0x55;
-//	payload_status[3] = 0xaa;
-//	payload_status[4] = 0x55;
-//	payload_status[5] = 0xaa;
-//	payload_status[6] = 0x55;
-//	payload_status[7] = 0xaa;
-
-
-#if PROJECTGKXN == ENABLED
-	if(0 == (lcl_cnt % 2))
-	{
-		payload_type |= 0b00000001;
-		payload_status[0] = flowmeter->get_warning();
-		payload_status[1] = flowmeter->get_packet_cnt();
-	//	printf("waring %d\n", flowmeter->get_warning());
-	}
-	else
-	{
-		payload_type |= 0b00000010;
-
-		if(true == sprayer->get_enabled())
-		{
-			lcl_int16_t = sprayer->get_actual_pump_rate();
-
-			payload_status[0] = lcl_int16_t & 0x00FF;
-
-			payload_status[1] = lcl_int16_t >> 8;
-
-			payload_status[2] = sprayer->get_enabled();
-
-			payload_status[3] = sprayer->get_running();
-
-			payload_status[4] = sprayer->get_spraying();
-
-			payload_status[5] = sprayer->get_testing();
-
-/*			printf("run %d spray %d test %d, pr %d\n", sprayer->get_running(), \
-													sprayer->get_spraying(), \
-													sprayer->get_testing(), \
-													lcl_int16_t);
-*/		
-		}
-	}
-
-	
-#endif	
 	mavlink_msg_payload_status_send(chan, \
 										AP_HAL::millis(), \
 										payload_type, \
@@ -471,15 +419,17 @@ void GCS_MAVLINK::send_payload_status(AC_Sprayer *sprayer, AP_Flowmeter *flowmet
 										payload_status[3], \
 										payload_status[4], \
 										payload_status[5], \
-										0, \
-										0);
+										payload_status[6], \
+										payload_status[7]);
 
-	lcl_cnt++;
+
+
 
 	//printf("%d %d %d %d %d\n", lcl_cnt, payload_type, lcl_int16_t, payload_status[0], payload_status[1]);
+
 }
 
-#endif
+*/
 
 //	added end
 

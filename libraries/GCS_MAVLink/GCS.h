@@ -231,9 +231,9 @@ public:
     void send_accelcal_vehicle_position(uint32_t position);
 
 //	added by ZhangYong 20170406
-#if PROJECTGKXN == ENABLED
-	void send_payload_status(AC_Sprayer *sprayer, AP_Flowmeter *flowmeter) ;
-#endif
+
+//	void send_payload_status(uint8_t payload_type, uint8_t *payload_status) ;
+	//void send_payload_status(AC_Sprayer *sprayer, AP_Flowmeter *flowmeter) ;
 	
 #if FXTX_AUTH == ENABLED
 	void send_flight_time_thismav(int16_t para_flight_time_hour, \

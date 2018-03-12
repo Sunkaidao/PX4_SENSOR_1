@@ -23,6 +23,8 @@ MODULES		+= drivers/px4fmu
 #MODULES	+= drivers/blinkm
 #MODULES	+= modules/sensors
 
+#MODULES	+= examples/px4_simple_app
+
 #
 # System commands
 #

@@ -731,6 +731,8 @@ void Copter::one_hz_loop()
 
 	//printf("alt %4.2f baro %d\n", inertial_nav.get_altitude(), copter.baro_alt);
 
+//	gcs().send_text(MAV_SEVERITY_CRITICAL, "PMBUS develop");
+
 }
 
 // called at 50hz

@@ -900,6 +900,9 @@ private:
     void init_visual_odom();
     void update_visual_odom();
     void send_pid_tuning(mavlink_channel_t chan);
+	//	added by ZhangYong 20180312
+	void send_payload_status(mavlink_channel_t chan);
+	//	added end
     void gcs_data_stream_send(void);
     void gcs_check_input(void);
     void Log_Write_AutoTune(uint8_t axis, uint8_t tune_step, float meas_target, float meas_min, float meas_max, float new_gain_rp, float new_gain_rd, float new_gain_sp, float new_ddt);

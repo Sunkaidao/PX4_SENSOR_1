@@ -94,7 +94,7 @@ public:
     /// update - adjusts servo positions based on speed and requested quantity
     void update(int8_t ctl_mode, uint32_t wp_dist);
 
-	int16_t get_actual_pump_rate() {return actual_pump_rate;}
+	uint16_t get_actual_pump_rate() {return actual_pump_rate;}
 
 	uint32_t get_speed_over_min_time() {return _speed_over_min_time;}
 

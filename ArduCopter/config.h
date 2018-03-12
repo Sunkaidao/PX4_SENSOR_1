@@ -90,7 +90,7 @@
 //	modified end
 
 #ifndef RANGEFINDER_ENABLED
- # define RANGEFINDER_ENABLED ENABLED
+ # define RANGEFINDER_ENABLED DISABLED
 #endif
 
 #ifndef RANGEFINDER_HEALTH_MAX
@@ -136,7 +136,7 @@
 //	modified end
 
 #ifndef PROXIMITY_ENABLED
- # define PROXIMITY_ENABLED ENABLED
+ # define PROXIMITY_ENABLED DISABLED
 #endif
 
 #ifndef MAV_SYSTEM_ID
@@ -287,7 +287,7 @@
 //  PROJECT GKXN
 //	added by ZhangYong 20170712
 #ifndef PROJECTGKXN
- # define PROJECTGKXN ENABLED
+ # define PROJECTGKXN DISABLED
 #endif
 //	added ebd
 
@@ -295,12 +295,12 @@
 //  RADAR NALEI
 
 #ifndef RNGRADAR
- # define RNGRADAR ENABLED
+ # define RNGRADAR DISABLED
 #endif 
 
 
 #ifndef SPRAYER
- # define SPRAYER  ENABLED
+ # define SPRAYER  DISABLED
 #endif
 
 
@@ -311,7 +311,7 @@
 
 //	added by ZhangYong 20170720
 #ifndef PROJECTBCB
- # define PROJECTBCB DISABLED
+ # define PROJECTBCB ENABLED
 #endif
 
 #if PROJECTBCB == ENABLED
@@ -320,7 +320,7 @@
 #endif
 
 #ifndef BCBPMBUS
- # define BCBPMBUS DISABLED
+ # define BCBPMBUS ENABLED
 #endif
 #endif
 
@@ -339,9 +339,9 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //  GKXN FLOWMETER
-#if PROJECTGKXN == ENABLED
+#if PROJECTGKXN == DISABLED
 #ifndef FLOWMETER
- # define FLOWMETER  ENABLED
+ # define FLOWMETER  DISABLED
 #endif
 #endif
 
@@ -516,7 +516,7 @@
 // AUTH ()
 //
 #ifndef FXTX_AUTH
- #define FXTX_AUTH 	ENABLED
+ #define FXTX_AUTH 	DISABLED
 #endif
 
 #if FXTX_AUTH == ENABLED
@@ -904,11 +904,11 @@ union PACKED PassOSD_data_status {
 
 //	modified end
 #ifndef AC_RALLY
- #define AC_RALLY   ENABLED
+ #define AC_RALLY   DISABLED
 #endif
 
 #ifndef AC_TERRAIN
- #define AC_TERRAIN ENABLED
+ #define AC_TERRAIN DISABLED
 #endif
 
 #if AC_TERRAIN && !AC_RALLY
@@ -916,7 +916,7 @@ union PACKED PassOSD_data_status {
 #endif
 
 #ifndef AC_AVOID_ENABLED
- #define AC_AVOID_ENABLED   ENABLED
+ #define AC_AVOID_ENABLED   DISABLED
 #endif
 
 #if AC_AVOID_ENABLED && !PROXIMITY_ENABLED
@@ -975,7 +975,7 @@ union PACKED PassOSD_data_status {
 //charging Station
 //
 #ifndef CHARGINGSTATION
-  #  define CHARGINGSTATION	DISABLE
+  #  define CHARGINGSTATION	DISABLED
 #endif
 
 //baiyang added in 20170712
@@ -983,7 +983,7 @@ union PACKED PassOSD_data_status {
 //AB Mode
 //
 #ifndef ABMODE
-  #  define ABMODE	ENABLED
+  #  define ABMODE	DISABLED
 #endif
 
 // baiyang added in 20170830

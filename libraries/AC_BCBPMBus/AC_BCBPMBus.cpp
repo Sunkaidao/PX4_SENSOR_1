@@ -1372,6 +1372,8 @@ bool AC_BCBPMBus::set_component_slot_data(uint8_t idx)
 
 	_bcbpmbus_status[idx].should_log = true;
 
+	_bcbpmbus_status[idx].should_report = true;
+
 	_bcbpmbus_status[idx].new_data = true;
 
 	
@@ -1431,6 +1433,18 @@ void AC_BCBPMBus::componengt_slot_info_logged(uint8_t idx)
 	
 	_bcbpmbus_status[idx].should_log = false; 
 };
+
+void AC_BCBPMBus::componengt_slot_info_reported(uint8_t idx) 
+{ 
+	if(!(_enable.get()))
+		return;
+
+	if(false == _initialised)
+		return;
+	
+	_bcbpmbus_status[idx].should_report = false; 
+};
+
 
 
 
@@ -1506,10 +1520,35 @@ bool AC_BCBPMBus::should_log_componengt_slot_info(uint8_t idx)
 	}
 }
 
+bool AC_BCBPMBus::should_report_componengt_slot_info(uint8_t idx)
+{
+	if(!(_enable.get()))
+		return false;
+
+	if(false == _initialised)
+		return false;
 
 
+	if(idx >= AC_BCBPMBUS_MODULE_MAX_COMPONENT)
+	{
+		return false;
+	}
 
-
-
+	if(_bcbpmbus_status[idx].occupied)
+	{
+		if(true == _bcbpmbus_status[idx].should_report)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
 
 

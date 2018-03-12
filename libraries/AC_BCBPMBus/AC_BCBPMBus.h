@@ -102,6 +102,7 @@ public:
 
 		bool  should_log;
 		bool  new_data;
+		bool  should_report;
 }BCBPMBUS_STATUS;
 /*
 	typedef struct PACKED BCBPMBus_component_info_struct {
@@ -198,7 +199,12 @@ public:
 
 	bool should_log_componengt_slot_info(uint8_t idx);
 
+	
+	bool should_report_componengt_slot_info(uint8_t idx);
+
 	void componengt_slot_info_logged(uint8_t idx);
+
+	void componengt_slot_info_reported(uint8_t idx);
 
 	bool log_component_slot_info(uint8_t idx);
 

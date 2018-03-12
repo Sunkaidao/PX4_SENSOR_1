@@ -2262,15 +2262,15 @@ void DataFlash_Class::Log_Write_BCBPMBus(uint8_t msg_type, AC_BCBPMBus &vp_bcbpm
 	printf("Log_Write_BCBPMBus read_pout %d\n", vp_bcbpmbus.get_read_pout(lcl_index));
 */
 
-	vin = vp_bcbpmbus.get_read_vin(lcl_index);
-	iin = vp_bcbpmbus.get_read_iin(lcl_index);
-	vout = vp_bcbpmbus.get_read_vout(lcl_index);
-	iout = vp_bcbpmbus.get_read_iout(lcl_index);
+//	vin = vp_bcbpmbus.get_read_vin(lcl_index);
+//	iin = vp_bcbpmbus.get_read_iin(lcl_index);
+//	vout = vp_bcbpmbus.get_read_vout(lcl_index);
+//	iout = vp_bcbpmbus.get_read_iout(lcl_index);
 
-	vin = vin / 10;
-	iin = iin / 1000;
-	vout = vout / 10;
-	iout = iout /100;
+//	vin = vin / 10;
+//	iin = iin / 1000;
+//	vout = vout / 10;
+//	iout = iout /100;
 
    	struct log_BCBPMBus pkt_bcbpmbus = {
      	LOG_PACKET_HEADER_INIT(msg_type),
@@ -2283,10 +2283,10 @@ void DataFlash_Class::Log_Write_BCBPMBus(uint8_t msg_type, AC_BCBPMBus &vp_bcbpm
      	status_input        : vp_bcbpmbus.get_status_input(lcl_index),
      	status_temperature  : vp_bcbpmbus.get_status_temperature(lcl_index),
      	status_cml          : vp_bcbpmbus.get_status_cml(lcl_index),
-     	read_vin            : vin,
-     	read_iin            : iin,
-     	read_vout			: vout,
-     	read_iout			: iout,
+     	read_vin            : vp_bcbpmbus.get_read_vin(lcl_index),
+     	read_iin            : vp_bcbpmbus.get_read_iin(lcl_index),
+     	read_vout			: vp_bcbpmbus.get_read_vout(lcl_index),
+     	read_iout			: vp_bcbpmbus.get_read_iout(lcl_index),
      	read_temperature	: vp_bcbpmbus.get_read_temperature(lcl_index),
      	read_pout			: vp_bcbpmbus.get_read_pout(lcl_index)
     };

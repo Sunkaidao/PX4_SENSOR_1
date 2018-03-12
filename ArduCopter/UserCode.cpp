@@ -196,9 +196,11 @@ void Copter::userhook_init()
 	//	ABPoint, dual GPS antenna heaidng
 	//	improve the minor edition from 5 to 6
 	//	FXTX_AUTH debug get_system_id
-	if(edit_management.data.minor_edition <= 5)
+	//	improve the minor edition from 6 to 7
+	//	resetHeightDatum
+	if(edit_management.data.minor_edition != 7)
 	{	
-		edit_management.data.minor_edition = 6;
+		edit_management.data.minor_edition = 7;
 	}
 
 	g.edition_management.set_and_save(edit_management.words);

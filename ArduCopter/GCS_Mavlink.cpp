@@ -290,6 +290,192 @@ void Copter::send_pid_tuning(mavlink_channel_t chan)
     }
 }
 
+
+/*
+  send PID tuning message
+ */
+void Copter::send_payload_status(mavlink_channel_t chan)
+{
+	static uint8_t lcl_cnt = 0;
+	uint8_t payload_type = 0;
+	uint8_t payload_status[8];
+	int16_t lcl_uint16_t = 0;
+
+	memset(payload_status, 0, 8);
+
+//	payload_status[2] = 0x55;
+//	payload_status[3] = 0xaa;
+//	payload_status[4] = 0x55;
+//	payload_status[5] = 0xaa;
+//	payload_status[6] = 0x55;
+//	payload_status[7] = 0xaa;
+
+
+#if ((PROJECTGKXN == ENABLED)&&(SPRAYER == ENABLED)&&(FLOWMETER==ENABLED))
+	if(0 == (lcl_cnt % 2))
+	{
+		payload_type = 0b00000001;
+		payload_status[0] = flowmeter.get_warning();
+		payload_status[1] = flowmeter.get_packet_cnt();
+	//	printf("waring %d\n", flowmeter->get_warning());
+	}
+	else
+	{
+		payload_type = 0b00000010;
+
+		if(true == sprayer.get_enabled())
+		{
+			lcl_uint16_t = sprayer.get_actual_pump_rate();
+
+			payload_status[0] = lcl_uint16_t & 0x00FF;
+
+			payload_status[1] = lcl_uint16_t >> 8;
+
+			payload_status[2] = sprayer.get_enabled();
+
+			payload_status[3] = sprayer.get_running();
+
+			payload_status[4] = sprayer.get_spraying();
+
+			payload_status[5] = sprayer.get_testing();
+
+/*			printf("run %d spray %d test %d, pr %d\n", sprayer->get_running(), \
+													sprayer->get_spraying(), \
+													sprayer->get_testing(), \
+													lcl_int16_t);
+*/		
+		}
+	}
+
+
+	lcl_cnt++;
+	
+	mavlink_msg_payload_status_send(chan, \
+										AP_HAL::millis(), \
+										payload_type, \
+										payload_status[0], \
+										payload_status[1], \
+										payload_status[2], \
+										payload_status[3], \
+										payload_status[4], \
+										payload_status[5], \
+										payload_status[6], \
+										payload_status[7]);
+	
+#elif((PROJECTBCB == ENABLED)&&(BCBPMBUS == ENABLED))
+
+	for(lcl_cnt = 0; lcl_cnt < AC_BCBPMBUS_MODULE_MAX_COMPONENT; lcl_cnt++)
+	{
+		if(true == copter.g2.bcbpmbus.should_report_componengt_slot_info(lcl_cnt))
+		{
+//			printf("report_BCBPMBus_Components slot %d\n", lcl_cnt);
+
+			payload_type = 0b00000100;
+
+/*			
+			if(lcl_cnt == 0)
+			{
+				payload_status[0] = 1;
+				payload_status[1] = 0x50;
+				payload_status[2] = 0;
+				payload_status[3] = 3;
+				payload_status[4] = 4;
+				payload_status[5] = 5;
+				payload_status[6] = 6;
+				payload_status[7] = 7;
+			}
+			else if(lcl_cnt == 1)
+			{
+				payload_status[0] = 2;
+				payload_status[1] = 0x51;
+				payload_status[2] = 0;
+				payload_status[3] = 4;
+				payload_status[4] = 5;
+				payload_status[5] = 6;
+				payload_status[6] = 7;
+				payload_status[7] = 8;
+			}
+			else if(lcl_cnt == 2)
+			{
+				payload_status[0] = 3;
+				payload_status[1] = 0x52;
+				payload_status[2] = 0;
+				payload_status[3] = 5;
+				payload_status[4] = 6;
+				payload_status[5] = 7;
+				payload_status[6] = 8;
+				payload_status[7] = 9;
+			}
+			else
+			{
+				payload_status[0] = 4;
+				payload_status[1] = 0x53;
+				payload_status[2] = 0;
+				payload_status[3] = 6;
+				payload_status[4] = 7;
+				payload_status[5] = 8;
+				payload_status[6] = 9;
+				payload_status[7] = 10;
+			}
+
+	*/		
+
+			/*
+			0: sequence id of the packet
+			1: component id
+			2: vin H byte
+			3: vin L byte
+			4: iin
+			5: vout
+			6: iout
+			7: tempture
+			//	vin = vin / 10;
+			//	iin = iin / 1000;
+			//	vout = vout / 10;
+			//	iout = iout /100;
+			*/
+			payload_status[0] = g2.bcbpmbus.get_component_seq(lcl_cnt);
+			payload_status[1] = g2.bcbpmbus.get_component_id(lcl_cnt);
+
+			lcl_uint16_t = g2.bcbpmbus.get_read_vin(lcl_cnt);
+			lcl_uint16_t = lcl_uint16_t /10;
+			payload_status[3] = lcl_uint16_t & 0x00FF;
+			payload_status[2] = lcl_uint16_t >> 8;
+
+			lcl_uint16_t = g2.bcbpmbus.get_read_iin(lcl_cnt);
+			payload_status[4] = lcl_uint16_t / 1000;
+			
+			lcl_uint16_t = g2.bcbpmbus.get_read_vout(lcl_cnt);
+			payload_status[5] = lcl_uint16_t / 10;
+			
+			lcl_uint16_t = g2.bcbpmbus.get_read_iout(lcl_cnt);
+			payload_status[6] = lcl_uint16_t / 100;
+			
+			payload_status[7] = g2.bcbpmbus.get_read_temperature(lcl_cnt);
+			
+			mavlink_msg_payload_status_send(chan, \
+										AP_HAL::millis(), \
+										payload_type, \
+										payload_status[0], \
+										payload_status[1], \
+										payload_status[2], \
+										payload_status[3], \
+										payload_status[4], \
+										payload_status[5], \
+										payload_status[6], \
+										payload_status[7]);
+
+			//printf("mavlink_msg_payload_status_send %d\n", payload_status[0]);
+
+			g2.bcbpmbus.componengt_slot_info_reported(lcl_cnt);
+		}
+	}
+#endif
+
+	//printf("%d %d %d %d %d\n", lcl_cnt, payload_type, lcl_int16_t, payload_status[0], payload_status[1]);
+}
+
+
 uint8_t GCS_MAVLINK_Copter::sysid_my_gcs() const
 {
     return copter.g.sysid_my_gcs;
@@ -514,13 +700,13 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
 	
 
 //	added by ZhangYong 20170719
-#if PROJECTGKXN == ENABLED
+
 	case MSG_PLD_STATUS:
 		CHECK_PAYLOAD_SIZE(PAYLOAD_STATUS);
-		send_payload_status(&(copter.sprayer), &(copter.flowmeter));
+		copter.send_payload_status(chan);
+	
 
 		break;
-#endif	
 
         //baiyang added in 20170713
 #if CHARGINGSTATION == ENABLED
@@ -706,10 +892,8 @@ GCS_MAVLINK_Copter::data_stream_send(void)
         send_message(MSG_RAW_IMU3);  // SENSOR_OFFSETS
 
 //	adde by ZhangYong 20170719
-#if PROJECTGKXN == ENABLED
 		send_message(MSG_PLD_STATUS);
 	//	printf("A\n");
-#endif	
 
 #if FXTX_AUTH == ENABLED
 		send_message(MSG_FLIGHT_TIME);
@@ -2110,7 +2294,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
     //deprecated.  Use MAV_CMD_DO_DIGICAM_CONTROL
     case MAVLINK_MSG_ID_DIGICAM_CONTROL:
         copter.camera.control_msg(msg);
-        copter.log_picture();
+//        copter.log_picture();
         break;
 #endif // CAMERA == ENABLED
 

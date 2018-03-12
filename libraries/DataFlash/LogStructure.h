@@ -248,7 +248,7 @@ struct PACKED log_SPRAYER {
 	uint8_t testing;
 	uint32_t speed_over_min_time;
 	uint32_t speed_under_min_time;
-	int16_t actual_pump_rate;
+	uint16_t actual_pump_rate;
 	uint32_t wp_dist;
 	uint8_t fm_warn;
 	uint8_t pck_cnt;
@@ -1504,7 +1504,7 @@ Format characters in the format string for binary log messages
 	{ LOG_RSSI_MSG, sizeof(log_RSSI), \
       "RSSI",  "Qf",     "TimeUS,RXRSSI" }, \
 	{ LOG_SPRAYER_MSG, sizeof(log_SPRAYER), \
-      "SPY",  "QbBBBIIhIBB",     "TimeMS,ab,run,spy,tt,ot,ut,pr,wp,fm,pc" }, \
+      "SPY",  "QbBBBIIHIBB",     "TimeMS,ab,run,spy,tt,ot,ut,pr,wp,fm,pc" }, \
     { LOG_CD_MSG, sizeof(log_Communication_drops), \
 	 "CD", "Qif", "TMS,D2H,CD" }, \
 	{ LOG_PADCMD_MSG, sizeof(log_PADCMD), \
