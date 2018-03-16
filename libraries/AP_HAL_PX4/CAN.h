@@ -190,6 +190,14 @@ public:
     void handleTxInterrupt(uint64_t utc_usec);
     void handleRxInterrupt(uint8_t fifo_index, uint64_t utc_usec);
 
+	int16_t send_rf(const uavcan::CanFrame& frame, uavcan::MonotonicTime tx_deadline,
+							uavcan::CanIOFlags flags);
+
+	int16_t receive_rf(uavcan::CanFrame& out_frame, uavcan::MonotonicTime& out_ts_monotonic,
+                            uavcan::UtcTime& out_ts_utc, uavcan::CanIOFlags& out_flags);
+
+	bool begin(uint32_t bitrate,const OperatingMode mode);
+
     /**
      * This method is used to count errors and abort transmission on error if necessary.
      * This functionality used to be implemented in the SCE interrupt handler, but that approach was

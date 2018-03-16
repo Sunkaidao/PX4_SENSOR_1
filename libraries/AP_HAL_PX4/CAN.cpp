@@ -288,6 +288,20 @@ int PX4CAN::computeTimings(const uint32_t target_bitrate, Timings& out_timings)
     return 0;
 }
 
+int16_t PX4CAN::send_rf(const uavcan::CanFrame& frame, uavcan::MonotonicTime tx_deadline, uavcan::CanIOFlags flags)
+{
+	int16_t result;
+	result = send(frame, tx_deadline, flags);
+
+	if(result)
+	{
+		update_event_ -> _wait_semaphore.semcount = 0;
+	}
+
+	return result;
+
+}
+
 int16_t PX4CAN::send(const uavcan::CanFrame& frame, uavcan::MonotonicTime tx_deadline, uavcan::CanIOFlags flags)
 {
     if (frame.isErrorFrame() || frame.dlc > 8) {
@@ -360,6 +374,20 @@ int16_t PX4CAN::send(const uavcan::CanFrame& frame, uavcan::MonotonicTime tx_dea
     txi.abort_on_error = (flags & uavcan::CanIOFlagAbortOnError) != 0;
     txi.pending = true;
     return 1;
+}
+
+int16_t PX4CAN::receive_rf(uavcan::CanFrame& out_frame, uavcan::MonotonicTime& out_ts_monotonic,
+                        uavcan::UtcTime& out_ts_utc, uavcan::CanIOFlags& out_flags)
+{
+	int16_t result;
+	result = receive(out_frame, out_ts_monotonic, out_ts_utc,out_flags);
+
+	if(result)
+	{
+		update_event_ -> _wait_semaphore.semcount = 0;
+	}
+
+	return result;
 }
 
 int16_t PX4CAN::receive(uavcan::CanFrame& out_frame, uavcan::MonotonicTime& out_ts_monotonic,
@@ -776,6 +804,18 @@ bool PX4CAN::begin(uint32_t bitrate)
     return initialized_;
 }
 
+bool PX4CAN::begin(uint32_t bitrate,const OperatingMode mode)
+{
+    if (init(bitrate, mode) == 0) {
+        bitrate_ = bitrate;
+        initialized_ = true;
+    } else {
+        initialized_ = false;
+    }
+    return initialized_;
+}
+
+
 void PX4CAN::reset()
 {
     if (initialized_ && bitrate_ != 0) {
@@ -998,7 +1038,8 @@ int PX4CANManager::init(const uint32_t bitrate, const PX4CAN::OperatingMode mode
 #endif
 
         ifaces[_ifaces_out_to_in[can_number]]->set_update_event(&update_event_);
-        res = ifaces[_ifaces_out_to_in[can_number]]->init(bitrate, mode);
+        //res = ifaces[_ifaces_out_to_in[can_number]]->init(bitrate, mode);
+		 res = ifaces[_ifaces_out_to_in[can_number]]->begin(bitrate, mode);
         if (res < 0) {
             ifaces[_ifaces_out_to_in[can_number]] = nullptr;
             return res;
