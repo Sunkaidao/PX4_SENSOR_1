@@ -144,13 +144,6 @@ public:
     void update_view_spray_range();
 	void update_payload();
 
-	//Big-endian to Little-endian
-	uint16_t endian_big_to_little16u(uint16_t date16u);
-	int16_t endian_big_to_little16(int16_t date16);
-	uint32_t endian_big_to_little32u(uint32_t date32u);
-	int32_t endian_big_to_little32(int32_t date32);
-	uint64_t endian_big_to_little64u(uint64_t date64u);
-
 	void sendPayload(char *pArray);
 	void sendPayload(char *pArray,uint16_t len);
 	bool sendDataStream(frameType type,char *pArray,uint16_t index,uint8_t length);

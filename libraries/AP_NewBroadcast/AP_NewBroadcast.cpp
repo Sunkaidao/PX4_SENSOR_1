@@ -441,72 +441,29 @@ void AP_NewBroadcast :: update_payload()
 		payload._payload_s.reg_no[i] = view.reg_no[i];
 	}
 	
-	payload._payload_s.flight_seq = endian_big_to_little16u(view.flight_seq);
+	payload._payload_s.flight_seq = view.flight_seq;
 	
-	payload._payload_s.now_time = endian_big_to_little64u(view.now_time);
+	payload._payload_s.now_time = view.now_time;
 	payload._payload_s.state = view.state;
-	payload._payload_s.flight_time = endian_big_to_little32u(view.flight_time);
-	payload._payload_s.longitude = endian_big_to_little32(view.longitude);
-	payload._payload_s.latitude = endian_big_to_little32(view.latitude);
-	payload._payload_s.height = endian_big_to_little32(view.height);
-	payload._payload_s.altitude = endian_big_to_little32(view.altitude);
-	payload._payload_s.path_angle = endian_big_to_little16(view.path_angle);
-	payload._payload_s.pitch_angle = endian_big_to_little16(view.pitch_angle);
-	payload._payload_s.roll_angle = endian_big_to_little16(view.roll_angle);
-	payload._payload_s.horizontal_velocity = endian_big_to_little16(view.horizontal_velocity);
-	payload._payload_s.is_nozzle_work = endian_big_to_little16(view.is_nozzle_work);
-	payload._payload_s.nozzle_diameter = endian_big_to_little16(view.nozzle_diameter);
-	payload._payload_s.nozzle_angle= endian_big_to_little16(view.nozzle_angle);
-	payload._payload_s.nozzle_pressure = endian_big_to_little16(view.nozzle_pressure);
-	payload._payload_s.spray_range = endian_big_to_little16(view.spray_range);
+	payload._payload_s.flight_time = view.flight_time;
+	payload._payload_s.longitude = view.longitude;
+	payload._payload_s.latitude = view.latitude;
+	payload._payload_s.height = view.height;
+	payload._payload_s.altitude = view.altitude;
+	payload._payload_s.path_angle = view.path_angle;
+	payload._payload_s.pitch_angle = view.pitch_angle;
+	payload._payload_s.roll_angle = view.roll_angle;
+	payload._payload_s.horizontal_velocity = view.horizontal_velocity;
+	payload._payload_s.is_nozzle_work = view.is_nozzle_work;
+	payload._payload_s.nozzle_diameter = view.nozzle_diameter;
+	payload._payload_s.nozzle_angle= view.nozzle_angle;
+	payload._payload_s.nozzle_pressure = view.nozzle_pressure;
+	payload._payload_s.spray_range = view.spray_range;
 
 	for(int i = 0; i < 14; i++)
 	{
 		payload._payload_s.reserved[i] = 0;
 	}
-}
-
-uint16_t AP_NewBroadcast ::endian_big_to_little16u(uint16_t date16u)
-{
-	uint16_t temp;
-	temp = ((date16u&0xff00)>>8) + ((date16u&0x00ff)<<8);
-
-	return temp;
-}
-
-int16_t AP_NewBroadcast ::endian_big_to_little16(int16_t date16)
-{
-	int16_t temp;
-	temp = ((date16&0xff00)>>8) + ((date16&0x00ff)<<8);
-
-	return temp;
-}
-
-uint32_t AP_NewBroadcast ::endian_big_to_little32u(uint32_t date32u)
-{
-	uint32_t temp;
-	temp = ((date32u&0xff000000)>>24) + ((date32u&0x00ff0000)>>8) + ((date32u&0x0000ff00)<<8) + ((date32u&0x000000ff)<<24);
-
-	return temp;
-}
-
-int32_t AP_NewBroadcast ::endian_big_to_little32(int32_t date32)
-{
-	int32_t temp;
-	temp = ((date32&0xff000000)>>24) + ((date32&0x00ff0000)>>8) + ((date32&0x0000ff00)<<8) + ((date32&0x000000ff)<<24);
-
-	return temp;
-}
-
-uint64_t AP_NewBroadcast ::endian_big_to_little64u(uint64_t date64u)
-{
-	uint64_t temp;
-	temp = ((date64u&0xff00000000000000)>>56) + ((date64u&0x00ff000000000000)>>40) + \
-		((date64u&0x0000ff0000000000)>>24) + ((date64u&0x000000ff00000000)>>8) + \
-		((date64u&0x00000000ff000000)<<8) + ((date64u&0x0000000000ff0000)<<24) + \
-		((date64u&0x000000000000ff00)<<40) + ((date64u&0x00000000000000ff)<<56);
-
-	return temp;
 }
 
 void AP_NewBroadcast ::update()
