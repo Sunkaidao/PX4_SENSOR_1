@@ -90,7 +90,7 @@
 //	modified end
 
 #ifndef RANGEFINDER_ENABLED
- # define RANGEFINDER_ENABLED DISABLED
+ # define RANGEFINDER_ENABLED ENABLED
 #endif
 
 #ifndef RANGEFINDER_HEALTH_MAX
@@ -136,7 +136,7 @@
 //	modified end
 
 #ifndef PROXIMITY_ENABLED
- # define PROXIMITY_ENABLED DISABLED
+ # define PROXIMITY_ENABLED ENABLED
 #endif
 
 #ifndef MAV_SYSTEM_ID
@@ -286,7 +286,7 @@
 //  PROJECT GKXN
 //	added by ZhangYong 20170712
 #ifndef PROJECTGKXN
- # define PROJECTGKXN DISABLED
+ # define PROJECTGKXN ENABLED
 #endif
 //	added ebd
 
@@ -309,7 +309,7 @@
 
 //	added by ZhangYong 20170720
 #ifndef PROJECTBCB
- # define PROJECTBCB ENABLED
+ # define PROJECTBCB DISABLED
 #endif
 
 #if PROJECTBCB == ENABLED
@@ -318,7 +318,7 @@
 #endif
 
 #ifndef BCBPMBUS
- # define BCBPMBUS ENABLED
+ # define BCBPMBUS DISABLED
 #endif
 #endif
 
@@ -337,9 +337,9 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //  GKXN FLOWMETER
-#if PROJECTGKXN == DISABLED
+#if PROJECTGKXN == ENABLED
 #ifndef FLOWMETER
- # define FLOWMETER  DISABLED
+ # define FLOWMETER  ENABLED
 #endif
 #endif
 
@@ -514,7 +514,7 @@
 // AUTH ()
 //
 #ifndef FXTX_AUTH
- #define FXTX_AUTH 	DISABLED
+ #define FXTX_AUTH 	ENABLED
 #endif
 
 #if FXTX_AUTH == ENABLED
@@ -902,11 +902,11 @@ union PACKED PassOSD_data_status {
 
 //	modified end
 #ifndef AC_RALLY
- #define AC_RALLY   DISABLED
+ #define AC_RALLY   ENABLED
 #endif
 
 #ifndef AC_TERRAIN
- #define AC_TERRAIN DISABLED
+ #define AC_TERRAIN ENABLED
 #endif
 
 #if AC_TERRAIN && !AC_RALLY
@@ -914,7 +914,7 @@ union PACKED PassOSD_data_status {
 #endif
 
 #ifndef AC_AVOID_ENABLED
- #define AC_AVOID_ENABLED   DISABLED
+ #define AC_AVOID_ENABLED   ENABLED
 #endif
 
 #if AC_AVOID_ENABLED && !PROXIMITY_ENABLED
@@ -981,7 +981,7 @@ union PACKED PassOSD_data_status {
 //AB Mode
 //
 #ifndef ABMODE
-  #  define ABMODE	DISABLED
+  #  define ABMODE	ENABLED
 #endif
 
 // baiyang added in 20170830

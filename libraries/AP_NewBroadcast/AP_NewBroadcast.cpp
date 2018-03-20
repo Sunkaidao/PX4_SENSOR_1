@@ -106,12 +106,12 @@ void AP_NewBroadcast::init()
 	if(_parent_can_mgr != NULL)
 	{
 		_initialized = true;
-		printf("New Broadcast init success\n");
+//		printf("New Broadcast init success\n");
 	}
 	else
 	{
 		_initialized = false;
-		printf("New Broadcast init false\n");
+//		printf("New Broadcast init false\n");
 	}
 }
 
