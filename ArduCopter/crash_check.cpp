@@ -146,7 +146,7 @@ void Copter::parachute_release()
     parachute.release();
 
     // deploy landing gear
-    landinggear.set_position(AP_LandingGear::LandingGear_Deploy);
+    landinggear.set_position(AP_LandingGear::LandingGear_Deploy, inertial_nav.get_altitude() / 100, motors->armed());
 }
 
 // parachute_manual_release - trigger the release of the parachute, after performing some checks for pilot error

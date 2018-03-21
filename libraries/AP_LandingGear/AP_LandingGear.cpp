@@ -33,6 +33,17 @@ const AP_Param::GroupInfo AP_LandingGear::var_info[] = {
     // @User: Standard
     AP_GROUPINFO("STARTUP", 2, AP_LandingGear, _startup_behaviour, (uint8_t)AP_LandingGear::LandingGear_Startup_WaitForPilotInput),
 
+	
+	// modified by ZhangYong for wanghua
+	// @Param: SERVO_LOW_LIMIT
+	// @DisplayName: Landing Gear Servo deployed only be armed & height > SERVO_LOW_LIMIT
+	// @Description: Servo deployed only be armed & height > SERVO_LOW_LIMIT
+	// @Range: ��200  
+	// @Units: meter
+	// @Increment: 
+	// @User: Standard
+	AP_GROUPINFO("SERVO_LOWHT", 3, AP_LandingGear, _servo_low_ht, AP_LANDINGGEAR_SERVO_DEPLOY_LOW_LIMIT),
+
     AP_GROUPEND
 };
 
@@ -54,12 +65,25 @@ void AP_LandingGear::init()
 }
 
 /// set landing gear position to retract, deploy or deploy-and-keep-deployed
-void AP_LandingGear::set_position(LandingGearCommand cmd)
+void AP_LandingGear::set_position(LandingGearCommand cmd, float current_alt, bool armed)
 {
     switch (cmd) {
         case LandingGear_Retract:
             if (!_deploy_lock) {
-                retract();
+				//	modified by zhangyong 20180320
+				//	modified end
+				//retract();
+				if((_servo_low_ht <= 0))
+				{
+					retract();
+				}
+				else
+				{
+					if((current_alt > _servo_low_ht) && (true == armed))
+					{
+						retract();
+					}
+				}
             }
             break;
         case LandingGear_Deploy:

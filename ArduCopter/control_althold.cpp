@@ -138,7 +138,8 @@ void Copter::althold_run()
 		//	modified end
         takeoff_get_climb_rates(surface_tracking_climb_rate, takeoff_climb_rate);
         // get avoidance adjusted climb rate
-        surface_tracking_climb_rate = get_avoidance_adjusted_climbrate(surface_tracking_climb_rate);
+        //	//	removed by ZhangYong 20180321 for bad performance
+        //	surface_tracking_climb_rate = get_avoidance_adjusted_climbrate(surface_tracking_climb_rate);
 
         // call attitude controller
         attitude_control->input_euler_angle_roll_pitch_euler_rate_yaw(target_roll, target_pitch, target_yaw_rate, get_smoothing_gain());
@@ -175,7 +176,9 @@ void Copter::althold_run()
 
 #if AC_AVOID_ENABLED == ENABLED
         // apply avoidance
-        avoid.adjust_roll_pitch(target_roll, target_pitch, aparm.angle_max);
+        //	removed by ZhangYong 20180321 for bad performance
+        //avoid.adjust_roll_pitch(target_roll, target_pitch, aparm.angle_max);
+		//	removed end
 #endif
 
         // call attitude controller
@@ -198,7 +201,8 @@ void Copter::althold_run()
         // call position controller
         //pos_control->set_alt_target_from_climb_rate_ff(target_climb_rate, G_Dt, false);
 		//	modified end
-        surface_tracking_climb_rate = get_avoidance_adjusted_climbrate(surface_tracking_climb_rate);
+		//	removed by ZhangYong 20180321 for bad performance
+        //	surface_tracking_climb_rate = get_avoidance_adjusted_climbrate(surface_tracking_climb_rate);
 
         // call position controller
         pos_control->set_alt_target_from_climb_rate_ff(surface_tracking_climb_rate, G_Dt, false);

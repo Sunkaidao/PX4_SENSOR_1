@@ -18,7 +18,11 @@ void Copter::landinggear_update()
        (control_mode == RTL && (rtl_state == RTL_LoiterAtHome || rtl_state == RTL_Land || rtl_state == RTL_FinalDescent)) ||
        (control_mode == AUTO && auto_mode == Auto_Land) ||
        (control_mode == AUTO && auto_mode == Auto_RTL && (rtl_state == RTL_LoiterAtHome || rtl_state == RTL_Land || rtl_state == RTL_FinalDescent))) {
-        landinggear.set_position(AP_LandingGear::LandingGear_Deploy_And_Keep_Deployed);
+        landinggear.set_position(AP_LandingGear::LandingGear_Deploy_And_Keep_Deployed, \
+															inertial_nav.get_altitude(), \
+															motors->armed());
+
+		//landinggear.set_position(AP_LandingGear::LandingGear_Deploy_And_Keep_Deployed);
     }
 
     // send event message to datalog if status has changed

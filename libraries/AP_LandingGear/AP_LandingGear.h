@@ -8,6 +8,9 @@
 #define AP_LANDINGGEAR_SERVO_RETRACT_PWM_DEFAULT    1250    // default PWM value to move servo to when landing gear is up
 #define AP_LANDINGGEAR_SERVO_DEPLOY_PWM_DEFAULT     1750    // default PWM value to move servo to when landing gear is down
 
+#define AP_LANDINGGEAR_SERVO_DEPLOY_LOW_LIMIT				    1000		// default, landgear can only be deployed above this height
+
+
 /// @class	AP_LandingGear
 /// @brief	Class managing the control of landing gear
 class AP_LandingGear {
@@ -42,7 +45,8 @@ public:
     bool deployed() const { return _deployed; }
 
     /// set landing gear position to retract, deploy or deploy-and-keep-deployed
-    void set_position(LandingGearCommand cmd);
+    void set_position(LandingGearCommand cmd, float current_alt, bool armed);
+	//void set_position(LandingGearCommand cmd);
 
     static const struct AP_Param::GroupInfo        var_info[];
 
@@ -52,6 +56,9 @@ private:
     AP_Int16    _servo_retract_pwm;     // PWM value to move servo to when gear is retracted
     AP_Int16    _servo_deploy_pwm;      // PWM value to move servo to when gear is deployed
     AP_Int8     _startup_behaviour;     // start-up behaviour (see LandingGearStartupBehaviour)
+    //	addded by zhangyong 20180320
+	AP_Float	_servo_low_ht;
+	//	added end
 
     // internal variables
     bool        _deployed;              // true if the landing gear has been deployed, initialized false

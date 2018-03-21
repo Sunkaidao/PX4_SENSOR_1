@@ -547,10 +547,16 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
        case AUXSW_LANDING_GEAR:
             switch (ch_flag) {
                 case AUX_SWITCH_LOW:
-                    landinggear.set_position(AP_LandingGear::LandingGear_Deploy);
+                    //landinggear.set_position(AP_LandingGear::LandingGear_Deploy);
+					landinggear.set_position(AP_LandingGear::LandingGear_Deploy, \
+															inertial_nav.get_altitude(), \
+															motors->armed());
                     break;
                 case AUX_SWITCH_HIGH:
-                    landinggear.set_position(AP_LandingGear::LandingGear_Retract);
+                    //landinggear.set_position(AP_LandingGear::LandingGear_Retract);
+					landinggear.set_position(AP_LandingGear::LandingGear_Retract, \
+															inertial_nav.get_altitude(), \
+															motors->armed());
                     break;
             }
             break;
