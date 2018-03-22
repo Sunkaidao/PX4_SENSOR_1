@@ -205,6 +205,15 @@ void Copter::userhook_init()
 		g.edition_management.set_and_save(edit_management.words);
 	}
 
+	
+	//	4G communications
+	//	rewrite landinggear
+	if(edit_management.data.revision_edition != 5)
+	{	
+		edit_management.data.revision_edition = 5;
+		g.edition_management.set_and_save(edit_management.words);
+	}
+
 
 	printf("major_edition = 0x%x\n", edit_management.data.major_edition);
 	printf("project_edition = 0x%x\n", edit_management.data.project_edition);

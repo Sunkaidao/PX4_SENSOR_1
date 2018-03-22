@@ -696,9 +696,6 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
         send_battery_status(copter.battery);
         break;
 
-	
-	
-
 //	added by ZhangYong 20170719
 
 	case MSG_PLD_STATUS:
@@ -894,10 +891,6 @@ GCS_MAVLINK_Copter::data_stream_send(void)
 //	adde by ZhangYong 20170719
 		send_message(MSG_PLD_STATUS);
 	//	printf("A\n");
-
-#if FXTX_AUTH == ENABLED
-		send_message(MSG_FLIGHT_TIME);
-#endif
 
 //	added end
         
