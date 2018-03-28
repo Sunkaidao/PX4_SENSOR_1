@@ -159,6 +159,8 @@ void AP_BoardConfig::px4_init_safety()
  */
 void AP_BoardConfig::px4_setup_sbus(void)
 {
+	//printf("px4_setup_sbus 20180321\n");
+
 #if CONFIG_HAL_BOARD == HAL_BOARD_PX4
     if (px4.sbus_out_rate.get() >= 1) {
         static const struct {
@@ -534,6 +536,8 @@ void AP_BoardConfig::px4_autodetect(void)
  */
 void AP_BoardConfig::px4_setup()
 {
+	//printf("px4_setup 20180321");
+
     px4_setup_peripherals();
     px4_setup_pwm();
     px4_setup_safety_mask();

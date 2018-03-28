@@ -337,11 +337,11 @@ void AP_Proximity::detect_instance(uint8_t instance)
 #if PROJECTGKXN == ENABLE
 	 if (type == Proximity_Type_Radar_GKXN) {
         if (AP_Proximity_Radar_GKXN::detect(serial_manager))
-			{
+		{
             state[instance].instance = instance;
             drivers[instance] = new AP_Proximity_Radar_GKXN(*this, state[instance], serial_manager);
             return;
-		    }
+		}
     }
 #endif	
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL

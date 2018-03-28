@@ -486,8 +486,8 @@ void PX4RCOutput::_send_outputs(void)
             }
         }
 
-		//	added by ZhangYong
-		//	printf("_sbus_enabled %d to_send %d\n", _sbus_enabled, to_send); 1 16
+		//	added by ZhangYong 20180321
+		//printf("_sbus_enabled %d to_send %d\n", _sbus_enabled, to_send);
 		//	added end
 		
         if (to_send > 0) {
@@ -600,6 +600,8 @@ void PX4RCOutput::timer_tick(void)
  */
 bool PX4RCOutput::enable_sbus_out(uint16_t rate_hz)
 {
+	//printf("enable_sbus_out 20180321\n");
+
     int fd = open("/dev/px4io", 0);
     if (fd == -1) {
         return false;

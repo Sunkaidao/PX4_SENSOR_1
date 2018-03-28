@@ -323,29 +323,12 @@ void Copter::init_disarm_motors()
     {
     	 g.flight_time_sec.set_and_save(lcl_flight_time_sec);
     }
+
+	local_flight_time_sec = 0;
     //added end
 #endif
       
     ap.in_arming_delay = false;
-
-	//	added by ZhangYong for mav flight 20170731
-	lcl_flight_time_sec = local_flight_time_sec;
-	
-    lcl_flight_time_sec += g.flight_time_sec;
-
-	
-	if(lcl_flight_time_sec >= 3600)
-	{
-		g.flight_time_sec.set_and_save(lcl_flight_time_sec % 3600);
-
-		lcl_flight_time_hour = g.flight_time_hour;
-		
-		g.flight_time_hour.set_and_save((lcl_flight_time_hour + lcl_flight_time_sec / 3600));
-	}
-	else
-	{
-		g.flight_time_sec.set_and_save(lcl_flight_time_sec);
-	}
 	
 }
 

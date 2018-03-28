@@ -640,12 +640,12 @@ void Copter::one_hz_loop()
 #endif
 
 #if PROJECTGKXN == ENABLED
-	if(motors->armed())
+/*	if(motors->armed())
 	{
 		local_flight_time_sec++;
 		
 	}//	added end
-#endif
+*/#endif
 
 
 //		added by ZhangYong
