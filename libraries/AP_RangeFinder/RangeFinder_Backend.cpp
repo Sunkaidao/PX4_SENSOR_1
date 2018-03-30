@@ -34,7 +34,7 @@ AP_RangeFinder_Backend::AP_RangeFinder_Backend(RangeFinder::RangeFinder_State &_
 void AP_RangeFinder_Backend::update_status()
 {
 	//	added by zhangyong 20180201
-	if(1 == state.enable)
+//	if(1 == state.enable)
 	{
 		//	added end
 		// check distance
@@ -52,7 +52,7 @@ void AP_RangeFinder_Backend::update_status()
 void AP_RangeFinder_Backend::set_status(RangeFinder::RangeFinder_Status _status)
 {
 	//added by zhangyong 20180201
-	if(1 == state.enable)
+//	if(1 == state.enable)
     {
     //	added end
     	state.status = _status;
@@ -90,7 +90,6 @@ void AP_RangeFinder_Backend::update_pre_arm_check()
 	//	modified end
 
 	if ((state.pre_arm_check) || \
-		(0 == state.enable) || \
 		(state.status == RangeFinder::RangeFinder_NotConnected) || \
 		(state.status == RangeFinder::RangeFinder_NoData)) {
         return;
@@ -112,14 +111,7 @@ void AP_RangeFinder_Backend::update_pre_arm_check()
 //	added by ZhangYong 20180201
 RangeFinder::RangeFinder_Type AP_RangeFinder_Backend::type() 
 {
-	if(0 == state.enable)
-	{
-		return (RangeFinder::RangeFinder_Type)0;
-	}
-	else
-	{
 		return (RangeFinder::RangeFinder_Type)state.type.get(); 
-	}
 }
 //	added end
 

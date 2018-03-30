@@ -55,11 +55,11 @@ public:
         }
 
 		//	added by zhangyong 20180201
-		if(0 == state.enable)
-		{
-			return RangeFinder::RangeFinder_NotConnected;
+/*		if(0 == state.enable)
+//		{
+//			return RangeFinder::RangeFinder_NotConnected;
 		}
-		//	added end
+*/		//	added end
         return state.status;
     }
 	//	modified by zhangyong 20180201
@@ -69,6 +69,9 @@ public:
 
     // true if sensor is returning data
     bool has_data() const {
+
+//		printf("has_data %d\n", state.status);
+		
         return ((state.status != RangeFinder::RangeFinder_NotConnected) &&
                 (state.status != RangeFinder::RangeFinder_NoData));
     }

@@ -42,16 +42,16 @@ void AP_Proximity_RangeFinder::update(void)
         return;
     }
 
-//	printf("AP_Proximity_RangeFinder::update rngfnd ok\n");
-
     // look through all rangefinders
     for (uint8_t i=0; i<rngfnd->num_sensors(); i++) {
         AP_RangeFinder_Backend *sensor = rngfnd->get_backend(i);
         if (sensor == nullptr) {
+//			printf("%d nullptr\n", i);
             continue;
         }
         if (sensor->has_data()) {
             // check for horizontal range finders
+//            printf("update o:%d\n", sensor->orientation());
             if (sensor->orientation() <= ROTATION_YAW_315) {
                 uint8_t sector = (uint8_t)sensor->orientation();
                 _angle[sector] = sector * 45;
@@ -61,8 +61,6 @@ void AP_Proximity_RangeFinder::update(void)
                 _distance_valid[sector] = (_distance[sector] >= _distance_min) && (_distance[sector] <= _distance_max);
                 _last_update_ms = AP_HAL::millis();
                 update_boundary_for_sector(sector);
-
-//				printf("AP_Proximity_RangeFinder::update %4.2f\n", _distance[sector]);	
             }
             // check upward facing range finder
             if (sensor->orientation() == ROTATION_PITCH_90) {
@@ -82,7 +80,7 @@ void AP_Proximity_RangeFinder::update(void)
         set_status(AP_Proximity::Proximity_Good);
     }
 
-//	printf("AP_Proximity_RangeFinder::update %d\n", state.status);
+	//printf("AP_Proximity_RangeFinder::update %d\n", state.status);
 }
 
 // get distance upwards in meters. returns true on success

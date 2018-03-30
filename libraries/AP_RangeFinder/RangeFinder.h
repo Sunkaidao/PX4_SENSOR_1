@@ -109,7 +109,7 @@ public:
         AP_Vector3f pos_offset; // position offset in body frame
         AP_Int8  orientation;
 		//	added by ZhangYong 20180201
-		AP_Int8 enable;
+//		AP_Int8 enable;
 		//	added end
     };
 
