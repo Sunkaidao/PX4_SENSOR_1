@@ -725,7 +725,13 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
 #endif
 //	added end
 
-
+//baiyang added in 20180409
+	case MSG_NEWBROADCAST_FLIGHT_STA:
+		CHECK_PAYLOAD_SIZE(NEWBROADCAST_FLIGHT_STA);
+		copter.newbroadcast.send_flight_status(chan);
+		break;
+//added end
+		
 	default:
 		return GCS_MAVLINK::try_send_message(id);
 		break;
@@ -922,6 +928,13 @@ GCS_MAVLINK_Copter::data_stream_send(void)
 		send_message(MSG_DA_GPS_STA);
 		send_message(MSG_DA_GPS2_STA);
 #endif
+
+#if NEWBROADCAST == ENABLED
+//baiyang added in 20180409
+		send_message(MSG_NEWBROADCAST_FLIGHT_STA);
+//added end
+#endif
+
     }
     
     if (copter.gcs_out_of_time) return;
@@ -2360,6 +2373,17 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
         copter.g2.visual_odom.handle_msg(msg);
 #endif
         break;
+
+#if NEWBROADCAST == ENABLED
+//baiyang added in 20180409
+	case MAVLINK_MSG_ID_NEWBROADCAST_STR:
+		 mavlink_newbroadcast_str_t packet;
+        mavlink_msg_newbroadcast_str_decode(msg, &packet);
+		
+		 copter.newbroadcast.handle_msg_newbroadcast_str(packet,chan);
+		 break;
+//added end
+#endif
 
     default:
         handle_common_message(msg);
