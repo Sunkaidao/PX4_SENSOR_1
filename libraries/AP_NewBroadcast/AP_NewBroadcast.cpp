@@ -108,7 +108,7 @@ void AP_NewBroadcast::init()
 	memset( & view, 0, sizeof(view));
 	memset( & payload, 0, sizeof(payload));
 
-	if(_parent_can_mgr != NULL)
+	if(_parent_can_mgr != NULL && (_parent_can_mgr->get_UAVCAN() == nullptr))
 	{
 		_initialized = true;
 //		printf("New Broadcast init success\n");
