@@ -318,22 +318,10 @@ void AP_NewBroadcast ::send_flight_status(mavlink_channel_t chan)
 		
 }
 
- void AP_NewBroadcast :: update_view_action()
+void AP_NewBroadcast :: update_view_action()
 {
     view.action = 0;
 }
-
-/*
-void AP_NewBroadcast :: update_view_reg_no()
-{
-    //uint8_t length = sprintf((char*)view.number_buffer, "%d", _reg_no.get());
-    //view.number_buffer[length] = '\0';
-    for(int i = 0; i < REG_NO_STRING_LEN; i++)
-    {
-    	view.reg_no[i] = _reg_no[i];
-    }
-}
-*/
 
 void AP_NewBroadcast :: update_view_reg_no(const mavlink_newbroadcast_str_t &packet,mavlink_channel_t chan)
 {
@@ -538,7 +526,11 @@ void AP_NewBroadcast :: update_view_flight_control()
 {	
 	for(int i = 0; i < FLIGHT_CONTROL_STRING_LEN; i++)
 	{
-		view.flight_control[i] = copter.auth_msg[i+18];
+#if FXTX_AUTH == ENABLED 
+		view.flight_control[i] = copter.auth_msg[i+18]; 
+#else 
+		view.flight_control[i] = 0; 
+#endif 
 	}
 }
 void AP_NewBroadcast :: update_view_remain_dose()
