@@ -277,6 +277,10 @@ void Copter::userhook_MediumLoop()
 	rf_abmode.update();
 #endif
 
+#if NEWBROADCAST == ENABLED
+		newbroadcast.update_view();
+#endif
+
 }
 #endif
 

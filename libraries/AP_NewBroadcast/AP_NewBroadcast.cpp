@@ -63,21 +63,6 @@ const AP_Param::GroupInfo AP_NewBroadcast::var_info[] = {
 	AP_GROUPINFO("REG_NO17", 20 , AP_NewBroadcast, _reg_no[17], 0),
 	AP_GROUPINFO("REG_NO18", 21 , AP_NewBroadcast, _reg_no[18], 0),
 	AP_GROUPINFO("REG_NO19", 22 , AP_NewBroadcast, _reg_no[19], 0),
-	/*
-	AP_GROUPINFO("REG_NO20", 23 , AP_NewBroadcast, _reg_no[20], 0),
-	AP_GROUPINFO("REG_NO21", 24 , AP_NewBroadcast, _reg_no[21], 0),
-	AP_GROUPINFO("REG_NO22", 25 , AP_NewBroadcast, _reg_no[22], 0),
-	AP_GROUPINFO("REG_NO23", 26 , AP_NewBroadcast, _reg_no[23], 0),
-	AP_GROUPINFO("REG_NO24", 27 , AP_NewBroadcast, _reg_no[24], 0),
-	AP_GROUPINFO("REG_NO25", 28 , AP_NewBroadcast, _reg_no[25], 0),
-	AP_GROUPINFO("REG_NO26", 29 , AP_NewBroadcast, _reg_no[26], 0),
-	AP_GROUPINFO("REG_NO27", 30 , AP_NewBroadcast, _reg_no[27], 0),
-	AP_GROUPINFO("REG_NO28", 31 , AP_NewBroadcast, _reg_no[28], 0),
-	AP_GROUPINFO("REG_NO29", 32 , AP_NewBroadcast, _reg_no[29], 0),
-	AP_GROUPINFO("REG_NO30", 33 , AP_NewBroadcast, _reg_no[30], 0),
-	AP_GROUPINFO("REG_NO31", 34 , AP_NewBroadcast, _reg_no[31], 0),
-	*/
-	//AP_GROUPINFO("REG_NO_COMP", 35 , AP_NewBroadcast, _reg_no_complete, 0),
 
     AP_GROUPEND
 };
@@ -243,14 +228,6 @@ MAV_RESULT AP_NewBroadcast::handle_msg_newbroadcast_str(const mavlink_newbroadca
 {
 	 MAV_RESULT result = MAV_RESULT_FAILED;
  
-	 /*printf("%4.2f %4.2f %4.2f %4.2f %4.2f %4.2f %4.2f\n", packet.param1, \
-															 packet.param2, \
-															 packet.param3, \
-															 packet.param4, \
-															 packet.param5, \
-															 packet.param6, \
-															 packet.param7);
- */
 	 switch (packet.type) {
 		 case REG_NO: {
 
@@ -315,7 +292,7 @@ void AP_NewBroadcast ::send_flight_status(mavlink_channel_t chan)
 		view.flight_length,
 		view.flight_seq,
 		view.state);
-		
+
 }
 
 void AP_NewBroadcast :: update_view_action()
@@ -383,7 +360,7 @@ void AP_NewBroadcast :: update_view_flight_seq()
                 if(AP_HAL::millis64()-timer>=5000)
                 {
                     _flight_seq += 1;
-                    _flight_seq.set_and_save_ifchanged(_flight_seq.get());
+                    _flight_seq.set_and_save(_flight_seq);
                     view_step = 2;
                 }
             }
@@ -553,7 +530,7 @@ void AP_NewBroadcast :: update_view_flight_area()
 	switch(step)
 	{
 		case 0:
-			if(sprayer.get_spraying())
+			if(sprayer.get_spraying()&&copter.motors->armed())
 			{
 				spraying_start.lat = copter.inertial_nav.get_latitude();
 				spraying_start.lng = copter.inertial_nav.get_longitude();
@@ -563,15 +540,19 @@ void AP_NewBroadcast :: update_view_flight_area()
 			}
 			break;
 		case 1:
-			if(sprayer.get_spraying())
+			if(sprayer.get_spraying()&&copter.motors->armed())
 			{
 				spraying_end.lat = copter.inertial_nav.get_latitude();
 				spraying_end.lng = copter.inertial_nav.get_longitude();
 				
-				//distance = get_distance(spraying_start,spraying_end);
 				flight_area_m2_curr = get_distance(spraying_start,spraying_end)*((sprayer.get_unspray_dist()-50)/100);
 				
 				view.flight_area = (flight_area_m2_curr + flight_area_m2_pre)*0.015f;
+			}
+			else if(!copter.motors->armed())
+			{
+				flight_area_m2_pre = 0;
+				flight_area_m2_curr = 0;
 			}
 			else
 			{
@@ -613,7 +594,7 @@ void AP_NewBroadcast :: update_view_flight_length()
 			else
 			{
 				step = 0;
-				flight_seq_pre = _flight_seq.get();
+				flight_seq_pre = _flight_seq;
 			}
 			break;
 	}
@@ -642,6 +623,9 @@ void AP_NewBroadcast :: update_view()
 	update_view_remain_dose();
 	update_view_used_dose();
 	update_view_cur_flow();
+	update_view_flight_seq();
+   	update_view_flight_length();
+   	update_view_flight_area();
 }
 
 void AP_NewBroadcast :: update_payload()
@@ -702,10 +686,6 @@ void AP_NewBroadcast :: update_payload()
 
 void AP_NewBroadcast ::update()
 {	
-   update_view_flight_seq();
-   update_view_flight_area();
-   update_view_flight_length();
-
    if(!_initialized)
 		return;
 
@@ -732,7 +712,6 @@ void AP_NewBroadcast ::update()
    	
    if(send_flag == COMPLETE)
    {
-      update_view();
       update_payload();
    }
 	   
