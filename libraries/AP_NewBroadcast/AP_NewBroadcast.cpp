@@ -63,20 +63,7 @@ const AP_Param::GroupInfo AP_NewBroadcast::var_info[] = {
 	AP_GROUPINFO("REG_NO17", 20 , AP_NewBroadcast, _reg_no[17], 0),
 	AP_GROUPINFO("REG_NO18", 21 , AP_NewBroadcast, _reg_no[18], 0),
 	AP_GROUPINFO("REG_NO19", 22 , AP_NewBroadcast, _reg_no[19], 0),
-	AP_GROUPINFO("REG_NO20", 23 , AP_NewBroadcast, _reg_no[20], 0),
-	AP_GROUPINFO("REG_NO21", 24 , AP_NewBroadcast, _reg_no[21], 0),
-	AP_GROUPINFO("REG_NO22", 25 , AP_NewBroadcast, _reg_no[22], 0),
-	AP_GROUPINFO("REG_NO23", 26 , AP_NewBroadcast, _reg_no[23], 0),
-	AP_GROUPINFO("REG_NO24", 27 , AP_NewBroadcast, _reg_no[24], 0),
-	AP_GROUPINFO("REG_NO25", 28 , AP_NewBroadcast, _reg_no[25], 0),
-	AP_GROUPINFO("REG_NO26", 29 , AP_NewBroadcast, _reg_no[26], 0),
-	AP_GROUPINFO("REG_NO27", 30 , AP_NewBroadcast, _reg_no[27], 0),
-	AP_GROUPINFO("REG_NO28", 31 , AP_NewBroadcast, _reg_no[28], 0),
-	AP_GROUPINFO("REG_NO29", 32 , AP_NewBroadcast, _reg_no[29], 0),
-	AP_GROUPINFO("REG_NO30", 33 , AP_NewBroadcast, _reg_no[30], 0),
-	AP_GROUPINFO("REG_NO31", 34 , AP_NewBroadcast, _reg_no[31], 0),
-	AP_GROUPINFO("REG_NO_COMP", 35 , AP_NewBroadcast, _reg_no_complete, 0),
-				
+
     AP_GROUPEND
 };
 
@@ -100,10 +87,13 @@ void AP_NewBroadcast::init()
 
 	send_flag = COMPLETE;
 	send_index = 0;
+	flight_seq_pre = _flight_seq.get();
+	flight_area_m2_curr = 0;
+	flight_area_m2_pre = 0;
 	memset( & view, 0, sizeof(view));
 	memset( & payload, 0, sizeof(payload));
 
-	if(_parent_can_mgr != NULL)
+	if(_parent_can_mgr != NULL && (_parent_can_mgr->get_UAVCAN() == nullptr))
 	{
 		_initialized = true;
 //		printf("New Broadcast init success\n");
@@ -231,19 +221,120 @@ bool AP_NewBroadcast :: sendCrc16(frameType type)
 
 }
 
- void AP_NewBroadcast :: update_view_action()
+ /*
+   handle an msg_newbroadcast_str
+  */
+MAV_RESULT AP_NewBroadcast::handle_msg_newbroadcast_str(const mavlink_newbroadcast_str_t &packet,mavlink_channel_t chan)
+{
+	 MAV_RESULT result = MAV_RESULT_FAILED;
+ 
+	 switch (packet.type) {
+		 case REG_NO: {
+
+			 update_view_reg_no(packet,chan);
+			 result = MAV_RESULT_ACCEPTED; 
+			 break;
+		 }
+		 case REG_NO_REQUEST: {
+
+			 send_reg_no(chan);
+			 result = MAV_RESULT_ACCEPTED; 
+			 break;
+		 }
+			 
+		 case TASK_ID: {
+		 	
+		 	 update_view_task_id(packet,chan);
+			 result = MAV_RESULT_ACCEPTED; 
+			 break;
+		 }
+		 case APP_VER_NO: {
+
+			 update_view_app_ver_no(packet,chan);
+			 result = MAV_RESULT_ACCEPTED;
+			 break;
+		 }
+		 case TP_REG_NO: {
+
+			 update_view_tp_reg_no(packet,chan);
+			 result = MAV_RESULT_ACCEPTED;
+			 break;
+		 }
+		 default:
+		 	break;
+	 }
+
+	 return result;
+}
+
+void AP_NewBroadcast ::send_reg_no(mavlink_channel_t chan)
+{
+	int8_t reg_no[REG_NO_STRING_LEN];
+		
+	for(int i = 0; i < REG_NO_STRING_LEN; i++)
+    {
+    	reg_no[i] = _reg_no[i];  //May be wrong
+    }
+	
+	mavlink_msg_newbroadcast_str_send(
+		chan,
+		REG_NO_REQUEST,
+		0,
+		reg_no);
+}
+
+void AP_NewBroadcast ::send_flight_status(mavlink_channel_t chan)
+{
+
+	mavlink_msg_newbroadcast_flight_sta_send(
+		chan,
+		view.flight_area,
+		view.flight_length,
+		view.flight_seq,
+		view.state);
+
+}
+
+void AP_NewBroadcast :: update_view_action()
 {
     view.action = 0;
 }
 
-void AP_NewBroadcast :: update_view_reg_no()
+void AP_NewBroadcast :: update_view_reg_no(const mavlink_newbroadcast_str_t &packet,mavlink_channel_t chan)
 {
-    //uint8_t length = sprintf((char*)view.number_buffer, "%d", _reg_no.get());
-    //view.number_buffer[length] = '\0';
-    for(int i = 0; i < REG_NO_STRING_LEN; i++)
-    {
-    	view.reg_no[i] = _reg_no[i];
-    }
+   	for(int i = 0; i < REG_NO_STRING_LEN; i++)
+   	{
+    	view.reg_no[i] = packet.string[i];
+		_reg_no[i].set_and_save_ifchanged(packet.string[i]);
+   	}
+
+	mavlink_msg_newbroadcast_str_send_struct(chan,&packet);
+}
+
+void AP_NewBroadcast ::update_view_task_id(const mavlink_newbroadcast_str_t &packet,mavlink_channel_t chan)
+{
+	for(int i = 0; i < TASK_ID_STRING_LEN; i++)
+   	{
+    	view.task_id[i] = packet.string[i];
+   	}
+
+	mavlink_msg_newbroadcast_str_send_struct(chan,&packet);
+}
+
+void AP_NewBroadcast ::update_view_app_ver_no(const mavlink_newbroadcast_str_t &packet,mavlink_channel_t chan)
+{
+	for(int i = 0; i < APP_VER_NO_STRING_LEN; i++)
+   	{
+    	view.app_ver_no[i] = packet.string[i];
+   	}
+
+	mavlink_msg_newbroadcast_str_send_struct(chan,&packet);
+}
+
+void AP_NewBroadcast ::update_view_tp_reg_no(const mavlink_newbroadcast_str_t &packet,mavlink_channel_t chan)
+{
+   	view.tp_reg_no = packet.tp_reg_no;
+	mavlink_msg_newbroadcast_str_send_struct(chan,&packet);
 }
 
 void AP_NewBroadcast :: update_view_flight_seq()
@@ -266,10 +357,10 @@ void AP_NewBroadcast :: update_view_flight_seq()
         case 1:
             if(copter.motors->armed())
             {
-                if(AP_HAL::millis64()-timer>=15000)
+                if(AP_HAL::millis64()-timer>=5000)
                 {
                     _flight_seq += 1;
-                    _flight_seq.set_and_save_ifchanged(_flight_seq.get());
+                    _flight_seq.set_and_save(_flight_seq);
                     view_step = 2;
                 }
             }
@@ -316,7 +407,7 @@ void AP_NewBroadcast :: update_view_state()
         case 1:
             if(copter.motors->armed())
             {
-                if(AP_HAL::millis64()-timer>=15000)
+                if(AP_HAL::millis64()-timer>=5000)
                 {
                     view.state = 2;
                     state_step = 2;
@@ -408,10 +499,110 @@ void AP_NewBroadcast :: update_view_spray_range()
     view.spray_range = (sprayer.get_unspray_dist()-50)/10;
 }
 
+void AP_NewBroadcast :: update_view_flight_control()
+{	
+	for(int i = 0; i < FLIGHT_CONTROL_STRING_LEN; i++)
+	{
+#if FXTX_AUTH == ENABLED 
+		view.flight_control[i] = copter.auth_msg[i+18]; 
+#else 
+		view.flight_control[i] = 0; 
+#endif 
+	}
+}
+void AP_NewBroadcast :: update_view_remain_dose()
+{
+	view.remain_dose = 0;
+}
+void AP_NewBroadcast :: update_view_used_dose()
+{
+	view.used_dose = 0;
+}
+void AP_NewBroadcast :: update_view_cur_flow()
+{
+	view.cur_flow = 0;
+}
+void AP_NewBroadcast :: update_view_flight_area()
+{
+	static uint8_t step = 0;
+	//float distance; //uint: meter
+	
+	switch(step)
+	{
+		case 0:
+			if(sprayer.get_spraying()&&copter.motors->armed())
+			{
+				spraying_start.lat = copter.inertial_nav.get_latitude();
+				spraying_start.lng = copter.inertial_nav.get_longitude();
+				
+				step = 1;
+				flight_area_m2_pre += flight_area_m2_curr;
+			}
+			break;
+		case 1:
+			if(sprayer.get_spraying()&&copter.motors->armed())
+			{
+				spraying_end.lat = copter.inertial_nav.get_latitude();
+				spraying_end.lng = copter.inertial_nav.get_longitude();
+				
+				flight_area_m2_curr = get_distance(spraying_start,spraying_end)*((sprayer.get_unspray_dist()-50)/100);
+				
+				view.flight_area = (flight_area_m2_curr + flight_area_m2_pre)*0.015f;
+			}
+			else if(!copter.motors->armed())
+			{
+				flight_area_m2_pre = 0;
+				flight_area_m2_curr = 0;
+			}
+			else
+			{
+				step = 0;
+			}
+			break;
+	}
+}
+void AP_NewBroadcast :: update_view_flight_length()
+{
+	static uint8_t step = 0;
+	
+	switch(step)
+	{
+		case 0:
+			if(flight_seq_pre != _flight_seq.get())
+			{
+				flight_seq_originate.lat = copter.inertial_nav.get_latitude();
+				flight_seq_originate.lng = copter.inertial_nav.get_longitude();
+				
+				step = 1;
+				flight_seq_pre = _flight_seq.get();
+			}
+			break;
+		case 1:
+			if(flight_seq_pre == _flight_seq.get())
+			{
+				flight_seq_current.lat = copter.inertial_nav.get_latitude();
+				flight_seq_current.lng = copter.inertial_nav.get_longitude();
+				
+				view.flight_length = get_distance(flight_seq_originate,flight_seq_current);
+
+				if(!copter.motors->armed())
+				{
+					step = 0;
+					flight_seq_pre = _flight_seq.get();
+				}
+			}
+			else
+			{
+				step = 0;
+				flight_seq_pre = _flight_seq;
+			}
+			break;
+	}
+}
+
 void AP_NewBroadcast :: update_view()
 {
     update_view_action();
-    update_view_reg_no();
     update_view_now_time();
     update_view_state();
     update_view_flight_time();
@@ -428,6 +619,13 @@ void AP_NewBroadcast :: update_view()
     update_view_nozzle_angle();
     update_view_nozzle_pressure();
     update_view_spray_range();
+	update_view_flight_control();
+	update_view_remain_dose();
+	update_view_used_dose();
+	update_view_cur_flow();
+	update_view_flight_seq();
+   	update_view_flight_length();
+   	update_view_flight_area();
 }
 
 void AP_NewBroadcast :: update_payload()
@@ -460,7 +658,27 @@ void AP_NewBroadcast :: update_payload()
 	payload._payload_s.nozzle_pressure = view.nozzle_pressure;
 	payload._payload_s.spray_range = view.spray_range;
 
-	for(int i = 0; i < 14; i++)
+	for(int i = 0; i < FLIGHT_CONTROL_STRING_LEN; i++)
+	{		
+		payload._payload_s.flight_control[i] = view.flight_control[i];
+	}
+	for(int i = 0; i < TASK_ID_STRING_LEN; i++)
+	{		
+		payload._payload_s.task_id[i] = view.task_id[i];
+	}
+	for(int i = 0; i < APP_VER_NO_STRING_LEN; i++)
+	{		
+		payload._payload_s.app_ver_no[i] = view.app_ver_no[i];
+	}
+
+	payload._payload_s.tp_reg_no = view.tp_reg_no;
+	payload._payload_s.remain_dose = view.remain_dose;
+	payload._payload_s.used_dose = view.used_dose;
+	payload._payload_s.cur_flow = view.cur_flow;
+	payload._payload_s.flight_area = view.flight_area;
+	payload._payload_s.flight_length = view.flight_length;
+	
+	for(int i = 0; i < RESERVED_NUM; i++)
 	{
 		payload._payload_s.reserved[i] = 0;
 	}
@@ -468,8 +686,6 @@ void AP_NewBroadcast :: update_payload()
 
 void AP_NewBroadcast ::update()
 {	
-   update_view_flight_seq();
-
    if(!_initialized)
 		return;
 
@@ -478,16 +694,12 @@ void AP_NewBroadcast ::update()
        return;
    }
 
-   if(!_reg_no_complete)
-   		return;
-
-   
    if(copter.gps.status() < AP_GPS::GPS_OK_FIX_3D) 
    {
    		send_last_time = AP_HAL::micros();
 		return;
    }
-   
+
 
 	//TOOL:timeout detect,if true,do something,needn't use return.
 	//
@@ -500,7 +712,6 @@ void AP_NewBroadcast ::update()
    	
    if(send_flag == COMPLETE)
    {
-      update_view();
       update_payload();
    }
 	   
