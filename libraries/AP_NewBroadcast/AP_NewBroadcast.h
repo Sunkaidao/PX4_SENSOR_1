@@ -28,7 +28,7 @@ using namespace PX4;
 #define FLIGHT_CONTROL_STRING_LEN 16
 #define TASK_ID_STRING_LEN 16
 #define APP_VER_NO_STRING_LEN 16
-#define RESERVED_NUM 18
+#define RESERVED_NUM 14
 
 #define PROCESSING 0
 #define COMPLETE 1 
@@ -57,7 +57,7 @@ typedef struct
 	char flight_control[FLIGHT_CONTROL_STRING_LEN];
 	char task_id[TASK_ID_STRING_LEN];
 	char app_ver_no[APP_VER_NO_STRING_LEN];
-	uint32_t tp_reg_no;
+	uint64_t tp_reg_no;
 	uint16_t remain_dose;
 	uint16_t used_dose;
 	uint16_t cur_flow;
@@ -92,7 +92,7 @@ typedef struct
 	char flight_control[FLIGHT_CONTROL_STRING_LEN];
 	char task_id[TASK_ID_STRING_LEN];
 	char app_ver_no[APP_VER_NO_STRING_LEN];
-	uint32_t tp_reg_no;
+	uint64_t tp_reg_no;
 	uint16_t remain_dose;
 	uint16_t used_dose;
 	uint16_t cur_flow;
