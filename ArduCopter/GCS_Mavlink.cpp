@@ -366,92 +366,206 @@ void Copter::send_payload_status(mavlink_channel_t chan)
 
 	for(lcl_cnt = 0; lcl_cnt < AC_BCBPMBUS_MODULE_MAX_COMPONENT; lcl_cnt++)
 	{
-		if(true == copter.g2.bcbpmbus.should_report_componengt_slot_info(lcl_cnt))
+//		if(true == copter.g2.bcbpmbus.should_report_componengt_slot_info(lcl_cnt))
 		{
 //			printf("report_BCBPMBus_Components slot %d\n", lcl_cnt);
 
 			payload_type = 0b00000100;
 
-/*			
-			if(lcl_cnt == 0)
-			{
-				payload_status[0] = 1;
-				payload_status[1] = 0x50;
-				payload_status[2] = 0;
-				payload_status[3] = 3;
-				payload_status[4] = 4;
-				payload_status[5] = 5;
-				payload_status[6] = 6;
-				payload_status[7] = 7;
-			}
-			else if(lcl_cnt == 1)
-			{
-				payload_status[0] = 2;
-				payload_status[1] = 0x51;
-				payload_status[2] = 0;
-				payload_status[3] = 4;
-				payload_status[4] = 5;
-				payload_status[5] = 6;
-				payload_status[6] = 7;
-				payload_status[7] = 8;
-			}
-			else if(lcl_cnt == 2)
-			{
-				payload_status[0] = 3;
-				payload_status[1] = 0x52;
-				payload_status[2] = 0;
-				payload_status[3] = 5;
-				payload_status[4] = 6;
-				payload_status[5] = 7;
-				payload_status[6] = 8;
-				payload_status[7] = 9;
-			}
-			else
-			{
-				payload_status[0] = 4;
-				payload_status[1] = 0x53;
-				payload_status[2] = 0;
-				payload_status[3] = 6;
-				payload_status[4] = 7;
-				payload_status[5] = 8;
-				payload_status[6] = 9;
-				payload_status[7] = 10;
-			}
-
-	*/		
-
 			/*
-			0: sequence id of the packet
+			0: sequence id of the packet 0xA0, 0xA1
 			1: component id
-			2: vin H byte
-			3: vin L byte
-			4: iin
-			5: vout
-			6: iout
-			7: tempture
+			----------------------
+			2: vin H byte (0xA0)
+			3: vin L byte (0xA0)
+			4: iin H byte (0xA0)
+			5: iin L byte (0xA0)
+			6: vout H byte (0xA0)
+			7: vout L byte (0xA0)
+			-----------------------
+			2: iout H byte (0xA1)
+			3: iout L byte (0xA1)
+			4: temp H byte (0xA1)
+			5: temp L byte (0xA1)
+			6: SW H byte (0xA1)
+			7: SW L byte (0xA1)		
 			//	vin = vin / 10;
 			//	iin = iin / 1000;
 			//	vout = vout / 10;
 			//	iout = iout /100;
 			*/
-			payload_status[0] = g2.bcbpmbus.get_component_seq(lcl_cnt);
+			//	payload_status[0] = g2.bcbpmbus.get_component_seq(lcl_cnt);
+			payload_status[0] = 0xA0;
 			payload_status[1] = g2.bcbpmbus.get_component_id(lcl_cnt);
 
+
 			lcl_uint16_t = g2.bcbpmbus.get_read_vin(lcl_cnt);
-			lcl_uint16_t = lcl_uint16_t /10;
 			payload_status[3] = lcl_uint16_t & 0x00FF;
 			payload_status[2] = lcl_uint16_t >> 8;
-
+			
+			
 			lcl_uint16_t = g2.bcbpmbus.get_read_iin(lcl_cnt);
-			payload_status[4] = lcl_uint16_t / 1000;
-			
+			payload_status[5] = lcl_uint16_t & 0x00FF;
+			payload_status[4] = lcl_uint16_t >> 8;
+
 			lcl_uint16_t = g2.bcbpmbus.get_read_vout(lcl_cnt);
-			payload_status[5] = lcl_uint16_t / 10;
+			payload_status[7] = lcl_uint16_t & 0x00FF;
+			payload_status[6] = lcl_uint16_t >> 8;
+
+			switch(lcl_cnt)
+			{
+				case 0:
+					payload_status[1] = 0x50;
+					lcl_uint16_t = 3790;
+					payload_status[3] = lcl_uint16_t & 0x00FF;
+					payload_status[2] = lcl_uint16_t >> 8;
+
+					lcl_uint16_t = 4000;
+					payload_status[5] = lcl_uint16_t & 0x00FF;
+					payload_status[4] = lcl_uint16_t >> 8;
+
+					lcl_uint16_t = 460;
+					payload_status[7] = lcl_uint16_t & 0x00FF;
+					payload_status[6] = lcl_uint16_t >> 8;
+					break;
+				case 1:
+					payload_status[1] = 0x51;
+					lcl_uint16_t = 3791;
+					payload_status[3] = lcl_uint16_t & 0x00FF;
+					payload_status[2] = lcl_uint16_t >> 8;
+
+					lcl_uint16_t = 4001;
+					payload_status[5] = lcl_uint16_t & 0x00FF;
+					payload_status[4] = lcl_uint16_t >> 8;
+
+					lcl_uint16_t = 461;
+					payload_status[7] = lcl_uint16_t & 0x00FF;
+					payload_status[6] = lcl_uint16_t >> 8;
+					break;
+				case 2:
+					payload_status[1] = 0x52;
+					lcl_uint16_t = 3792;
+					payload_status[3] = lcl_uint16_t & 0x00FF;
+					payload_status[2] = lcl_uint16_t >> 8;
+
+					lcl_uint16_t = 4002;
+					payload_status[5] = lcl_uint16_t & 0x00FF;
+					payload_status[4] = lcl_uint16_t >> 8;
+
+					lcl_uint16_t = 462;
+					payload_status[7] = lcl_uint16_t & 0x00FF;
+					payload_status[6] = lcl_uint16_t >> 8;
+					break;
+				case 3:
+					payload_status[1] = 0x53;
+					lcl_uint16_t = 3793;
+					payload_status[3] = lcl_uint16_t & 0x00FF;
+					payload_status[2] = lcl_uint16_t >> 8;
+
+					lcl_uint16_t = 4003;
+					payload_status[5] = lcl_uint16_t & 0x00FF;
+					payload_status[4] = lcl_uint16_t >> 8;
+
+					lcl_uint16_t = 463;
+					payload_status[7] = lcl_uint16_t & 0x00FF;
+					payload_status[6] = lcl_uint16_t >> 8;
+					break;
+				default:
+					payload_status[1] = 0x00;
+					break;
+			}
+
 			
+			
+			mavlink_msg_payload_status_send(chan, \
+										AP_HAL::millis(), \
+										payload_type, \
+										payload_status[0], \
+										payload_status[1], \
+										payload_status[2], \
+										payload_status[3], \
+										payload_status[4], \
+										payload_status[5], \
+										payload_status[6], \
+										payload_status[7]);
+
+			payload_status[0] = 0xA1;
+
 			lcl_uint16_t = g2.bcbpmbus.get_read_iout(lcl_cnt);
-			payload_status[6] = lcl_uint16_t / 100;
+			payload_status[3] = lcl_uint16_t & 0x00FF;
+			payload_status[2] = lcl_uint16_t >> 8;
 			
-			payload_status[7] = g2.bcbpmbus.get_read_temperature(lcl_cnt);
+			lcl_uint16_t = g2.bcbpmbus.get_read_temperature(lcl_cnt);
+			payload_status[5] = lcl_uint16_t & 0x00FF;
+			payload_status[4] = lcl_uint16_t >> 8;
+
+			lcl_uint16_t = g2.bcbpmbus.get_status_word(lcl_cnt);
+			payload_status[7] = lcl_uint16_t & 0x00FF;
+			payload_status[6] = lcl_uint16_t >> 8;
+
+			switch(lcl_cnt)
+			{
+				case 0:
+					payload_status[1] = 0x50;
+					lcl_uint16_t = 3400;
+					payload_status[3] = lcl_uint16_t & 0x00FF;
+					payload_status[2] = lcl_uint16_t >> 8;
+
+					lcl_uint16_t = 83;
+					payload_status[5] = lcl_uint16_t & 0x00FF;
+					payload_status[4] = lcl_uint16_t >> 8;
+
+					lcl_uint16_t = 0;
+					payload_status[7] = lcl_uint16_t & 0x00FF;
+					payload_status[6] = lcl_uint16_t >> 8;
+					break;
+				case 1:
+					payload_status[1] = 0x51;
+					lcl_uint16_t = 3401;
+					payload_status[3] = lcl_uint16_t & 0x00FF;
+					payload_status[2] = lcl_uint16_t >> 8;
+
+					lcl_uint16_t = 84;
+					payload_status[5] = lcl_uint16_t & 0x00FF;
+					payload_status[4] = lcl_uint16_t >> 8;
+
+					lcl_uint16_t = 1;
+					payload_status[7] = lcl_uint16_t & 0x00FF;
+					payload_status[6] = lcl_uint16_t >> 8;
+					break;
+				case 2:
+					payload_status[1] = 0x52;
+					lcl_uint16_t = 3402;
+					payload_status[3] = lcl_uint16_t & 0x00FF;
+					payload_status[2] = lcl_uint16_t >> 8;
+
+					lcl_uint16_t = 85;
+					payload_status[5] = lcl_uint16_t & 0x00FF;
+					payload_status[4] = lcl_uint16_t >> 8;
+
+					lcl_uint16_t = 2;
+					payload_status[7] = lcl_uint16_t & 0x00FF;
+					payload_status[6] = lcl_uint16_t >> 8;
+					break;
+				case 3:
+					payload_status[1] = 0x53;
+					lcl_uint16_t = 3403;
+					payload_status[3] = lcl_uint16_t & 0x00FF;
+					payload_status[2] = lcl_uint16_t >> 8;
+
+					lcl_uint16_t = 86;
+					payload_status[5] = lcl_uint16_t & 0x00FF;
+					payload_status[4] = lcl_uint16_t >> 8;
+
+					lcl_uint16_t = 3;
+					payload_status[7] = lcl_uint16_t & 0x00FF;
+					payload_status[6] = lcl_uint16_t >> 8;
+					break;
+				default:
+					payload_status[1] = 0x00;
+					break;
+			}
+			
 			
 			mavlink_msg_payload_status_send(chan, \
 										AP_HAL::millis(), \
@@ -1899,29 +2013,6 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
         }
         //	added end
 #endif	
-
-
-        #if FXTX_AUTH == ENABLED
-        //	added by ZhangYong
-        if(MAV_CMD_AUTH_PROTOCAL == packet.command)
-        {
-            if(MAV_RESULT_FAILED == result)
-            {
-          			gcs().send_statustext(MAV_SEVERITY_CRITICAL,0xFF, copter.auth_msg);
-					copter.notify.send_text(copter.auth_msg);
-          	}
-          	else if(MAV_RESULT_DENIED == result)
-          	{
-          			copter.auth_state_ms = auth_state_denied;
-          	}
-          	else
-          	{
-          			copter.auth_state_ms = auth_state_success;
-          	}	
-        }
-        //	added end
-        #endif	
-        
         break;
     }
 

@@ -1510,7 +1510,7 @@ Format characters in the format string for binary log messages
 	{ LOG_PADCMD_MSG, sizeof(log_PADCMD), \
 	 "PAD", "QI", "TMS,MID" }, \
 	{ LOG_MTR_MSG, sizeof(log_MTR), \
-     "MTR",  "QffffffffffBBBB",     "TimeMS,r,p,t,y,thr,ya,rpyl,rpyh,thrb,sc,r,p,tl,tu" }, \
+     "MTR",  "QffffffffffBBBB",     "TimeMS,r,p,t,y,thr,ya,rpyl,rpyh,thrb,sc,lr,lp,tl,tu" }, \
     { LOG_CONTROL_MSG, sizeof(log_Control), \
       "CTR",  "QBBBH",     "TimeMS,ov,oa,rv,rc3" }, \
     { LOG_GKPROX_MSG, sizeof(log_GKProx), \

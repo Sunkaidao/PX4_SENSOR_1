@@ -19,6 +19,9 @@ public:
     bool all_checks_passing(bool arming_from_gcs);
     void pre_arm_rc_checks(bool display_failure);
 
+	
+    void set_pre_arm_check(bool b);
+
 protected:
 
     bool pre_arm_checks(bool display_failure) override;
@@ -41,7 +44,7 @@ protected:
     bool barometer_checks(bool display_failure);
     bool rc_calibration_checks(bool display_failure);
 
-    void set_pre_arm_check(bool b);
+    //void set_pre_arm_check(bool b);
     void set_pre_arm_rc_check(bool b);
 
     //baiyang added in 20170703

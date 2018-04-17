@@ -81,6 +81,10 @@ void Copter::enable_motor_output()
     // enable motors
     motors->enable();
     motors->output_min();
+
+	//	20180417
+	//	printf("enable_motor_output ap.pre_arm_check %d\n", ap.pre_arm_check);
+	//	end
 }
 
 void Copter::read_radio()
