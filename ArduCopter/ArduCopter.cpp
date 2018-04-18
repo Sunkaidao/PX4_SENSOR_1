@@ -733,6 +733,9 @@ void Copter::one_hz_loop()
 
 //	gcs().send_text(MAV_SEVERITY_CRITICAL, "PMBUS develop");
 
+//	printf("one_hz_loop: ap.pre_arm_check %d, motor->armed() %d\n", ap.pre_arm_check, motors->armed());
+
+
 }
 
 // called at 50hz

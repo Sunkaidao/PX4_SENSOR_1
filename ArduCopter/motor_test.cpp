@@ -24,6 +24,10 @@ void Copter::motor_test_output()
         return;
     }
 
+	//	20180417
+	//printf("motor_test_output %d\n", ap.pre_arm_check);
+	//	end
+
     // check for test timeout
     if ((AP_HAL::millis() - motor_test_start_ms) >= motor_test_timeout_ms) {
         // stop motor test
@@ -131,6 +135,10 @@ uint8_t Copter::mavlink_motor_test_start(mavlink_channel_t chan, uint8_t motor_s
             g.failsafe_battery_enabled = FS_BATT_DISABLED;
             g.failsafe_gcs = FS_GCS_DISABLED;
 
+			//	added by ZhangYong 20180417
+			pre_arm_check_motor_test = ap.pre_arm_check;
+			//	added end
+
             // turn on notify leds
             AP_Notify::flags.esc_calibration = true;
         }
@@ -171,6 +179,11 @@ void Copter::motor_test_stop()
     g.failsafe_throttle.load();
     g.failsafe_battery_enabled.load();
     g.failsafe_gcs.load();
+
+	//	added by zhangyong 20180417
+	//ap.pre_arm_check = pre_arm_check_motor_test;
+	arming.set_pre_arm_check(pre_arm_check_motor_test);
+	//	adedd
 
     // turn off notify leds
     AP_Notify::flags.esc_calibration = false;

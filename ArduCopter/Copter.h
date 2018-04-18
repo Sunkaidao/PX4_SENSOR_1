@@ -238,6 +238,8 @@ private:
     Parameters g;
     ParametersG2 g2;
 
+	
+
     // main loop scheduler
     AP_Scheduler scheduler;
 
@@ -827,6 +829,10 @@ private:
 	//	0: common mission plan
 	//	1: ABMission plan
 	bool ABMission_switch;
+	//	added end
+
+	//	added by ZhangYong 20180417
+	bool pre_arm_check_motor_test;
 	//	added end
 
     void compass_accumulate(void);

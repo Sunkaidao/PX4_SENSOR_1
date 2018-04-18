@@ -21,6 +21,9 @@ void AP_Arming_Copter::update(void)
     }
 
     if (pre_arm_checks(display_fail)) {
+		//	20180417
+		//	printf("AP_Arming_Copter::update\n");
+		//	end
         set_pre_arm_check(true);
     }
 }
@@ -29,6 +32,9 @@ void AP_Arming_Copter::update(void)
 bool AP_Arming_Copter::all_checks_passing(bool arming_from_gcs)
 {
     if (pre_arm_checks(true)) {
+		//	20180417
+		//	printf("AP_Arming_Copter::all_checks_passing\n");
+		//	end
         set_pre_arm_check(true);
     } else {
         return false;
@@ -119,6 +125,9 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
 
     // succeed if pre arm checks are disabled
     if (checks_to_perform == ARMING_CHECK_NONE) {
+		//	20180417
+		//	printf("AP_Arming_Copter::pre_arm_checks\n");
+		//	end
         set_pre_arm_check(true);
         set_pre_arm_rc_check(true);
 
@@ -1056,6 +1065,7 @@ enum HomeState AP_Arming_Copter::home_status() const
 
 void AP_Arming_Copter::set_pre_arm_check(bool b)
 {
+//	printf("set_pre_arm_check %d\n", b);
     if(copter.ap.pre_arm_check != b) {
         copter.ap.pre_arm_check = b;
         AP_Notify::flags.pre_arm_check = b;
