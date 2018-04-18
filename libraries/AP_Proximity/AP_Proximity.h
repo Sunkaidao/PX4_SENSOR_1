@@ -101,6 +101,11 @@ public:
     //added by xusiming20180111 and used for log
     bool   get_cmd_orient();
 	bool    get_valid_number();
+	bool   get_front_radar_warning();
+	bool   get_back_radar_warning();
+	uint16_t get_radar_uncomplete();
+	uint16_t get_radar_error();
+	//added end
     // get number of objects, angle and distance - used for non-GPS avoidance
     uint8_t get_object_count() const;
     bool get_object_angle_and_distance(uint8_t object_number, float& angle_deg, float &distance) const;
@@ -152,5 +157,6 @@ private:
 	 //added by xusiming and used for control the orient of radar
     AP_Int8 _apm[PROXIMITY_MAX_INSTANCES];
 	AP_Int16 _rate[PROXIMITY_MAX_INSTANCES];
+	AP_Int8 _table_enable[PROXIMITY_MAX_INSTANCES];
 	// added end
 };

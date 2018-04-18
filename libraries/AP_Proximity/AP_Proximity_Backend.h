@@ -58,10 +58,14 @@ public:
     bool get_closest_object(float& angle_deg, float &distance) const;
 	// added by xusiming and used for control the orientation of radar
     // added by xusiming and used for control the orientation of radar
-    bool    get_comand_orient(double_t amplitude,double_t frequency);
+    bool    get_comand_orient(double_t amplitude,double_t frequency,int8_t ctstate);
 	uint8_t get_table_orient();
 	int32_t get_table_angle();
 	bool    get_valid();
+	bool get_front_warning();
+	bool get_back_warning();
+	uint16_t get_uncomplete();
+	uint16_t get_error();
 	//added end
     // get number of objects, angle and distance - used for non-GPS avoidance
     uint8_t get_object_count() const;
@@ -109,6 +113,12 @@ protected:
     Vector2f _sector_edge_vector[PROXIMITY_SECTORS_MAX];    // vector for right-edge of each sector, used to speed up calculation of boundary
     Vector2f _boundary_point[PROXIMITY_SECTORS_MAX];        // bounding polygon around the vehicle calculated conservatively for object avoidance
     // added by xusiming 20180118 and used for control
+    // added by xusiming 20180118 and used for control
+    bool front_warning;
+	bool back_warning;
+	uint16_t uncm_num=0;
+	uint16_t error_num=0;
+	
 	private:		
 	int orient_flag=1;
 	uint16_t tick=0x00;
@@ -116,5 +126,6 @@ protected:
 	Vector3f last_velocity;
 	int32_t table_angle=0;
 	bool valid_num =false;
+	uint8_t warn_table=0;
 	//added end
 };

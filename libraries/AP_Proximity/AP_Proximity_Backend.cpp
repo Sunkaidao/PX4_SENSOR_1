@@ -69,13 +69,15 @@ bool AP_Proximity_Backend::get_closest_object(float& angle_deg, float &distance)
 }
 //added by xusiming and used for log
 //added by xusiming and used for log
-bool AP_Proximity_Backend::get_comand_orient(double_t amplitude,double_t frequency)
-{
-
+bool AP_Proximity_Backend::get_comand_orient(double_t amplitude,double_t frequency,int8_t ctstate)
+{    
+//added  one parameter to control the function of the table 
+	  if(ctstate==0)
+		{
+		return false;
+		}
+    
 	Vector3f &velocity_bf =copter.inertial_nav.get_velocity_bf();
-//	printf("velocity_bf.x=%f\n",velocity_bf.x);
-//	printf("amplitude=%lf\n",amplitude);
-	//printf("frequency=%lf\n",frequency);
 	uint8_t message_complete=0;
     uint8_t message_state=0;
 	int    i=0;
@@ -84,54 +86,47 @@ bool AP_Proximity_Backend::get_comand_orient(double_t amplitude,double_t frequen
 		switch(message_state)
 			{
 			   case 0:
-			 //  	printf("case0\n");
 			   	if((orient_flag*velocity_bf.x<0)&&((velocity_bf.x*velocity_bf.x)> (amplitude*amplitude) ))
 			   		{
 			   		message_state=1;
-				//	printf("goto case1\n");
 			   		}
 				else
 					{
 					message_state=0;
-				//	printf("keep case0\n");
 					}
 				break;
-				   case 1:
-				 //   printf("case1\n");
-				   	if(last_velocity.x*velocity_bf.x>0)
-				   		{
-				   		tick++;
-						message_state=2;
-				   		}
-					else 
-						{
-						tick=0;
-						message_state=0;
-						}
-					break;
-					   case 2:
-					//   	printf("case2\n");
-					   	if(tick>frequency)
-					   		{
-					   		tick=0;
-							message_complete=1;
-					   		}
-						else 
-							{
-							message_state=0;
-							}
-						break;
+			   case 1:
+				 if(last_velocity.x*velocity_bf.x>0)
+				   	{
+				   	tick++;
+					message_state=2;
+				   	}
+				 else 
+					{
+					tick=0;
+					message_state=0;
+					}
+			   break;
+			   case 2:
+				 if(tick>frequency)
+				    {
+					tick=0;
+					message_complete=1;
+					}
+				 else 
+				    {
+				    message_state=0;
+					}
+			   break;
 			}
 		}
-    // 	printf("tick=%x\n",tick);
     last_velocity.x=velocity_bf.x;
-	//printf("last_velocity=%f\n",last_velocity.x);
 	if (message_complete==1)
 		{
 		orientation_flag=(orientation_flag^0x01);
 		orient_flag=0-orient_flag;
 		}
-	
+	//the following code is used for the telecontroller control mode and time control mode
 		/*if ((orient_flag*velocity_bf.x<0)&&((velocity_bf.x*velocity_bf.x)> amplitude) )
 			{
              //record the change time
@@ -171,6 +166,23 @@ uint8_t AP_Proximity_Backend::get_table_orient()
 	return orientation_flag;
 
 }
+bool AP_Proximity_Backend::get_front_warning()
+{
+ return front_warning;
+}
+bool AP_Proximity_Backend::get_back_warning()
+{
+ return back_warning;
+}
+uint16_t AP_Proximity_Backend::get_uncomplete()
+{
+return uncm_num;
+}
+uint16_t AP_Proximity_Backend::get_error()
+{
+return	error_num;
+}
+
 int32_t AP_Proximity_Backend::get_table_angle()
 {
    table_angle=copter.ahrs.pitch_sensor;

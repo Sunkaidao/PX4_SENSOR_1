@@ -53,10 +53,32 @@ void AP_Proximity_Radar_GKXN::update(void)
     // check for timeout and set health status
     if ((_last_distance_received_ms == 0) || (AP_HAL::millis() - _last_distance_received_ms > PROXIMITY_Radar_GKXN_TIMEOUT_MS)) {
         set_status(AP_Proximity::Proximity_NoData);
-	//	printf("%x\n",_last_distance_received_ms);
     } else {
         set_status(AP_Proximity::Proximity_Good);
     }
+	/*// added the start delay and set the delay 5000ms
+	// check for timeout and set health status
+    if (start_flag==1)
+    	{
+    	_start_GKXN_time=AP_HAL::millis();
+		start_flag=0;
+		set_status(AP_Proximity::Proximity_Good);
+    	}
+	else
+		{
+		if(AP_HAL::millis()-_start_GKXN_time<5000)
+			{
+			set_status(AP_Proximity::Proximity_Good);
+		    }
+		else
+			{
+            if ((_last_distance_received_ms == 0) || (AP_HAL::millis() - _last_distance_received_ms > PROXIMITY_Radar_GKXN_TIMEOUT_MS)) {
+            set_status(AP_Proximity::Proximity_NoData);
+            } else {
+            set_status(AP_Proximity::Proximity_Good);
+            }
+			}
+		}*/
 }
 
 // get maximum and minimum distances (in meters) of primary sensor
@@ -116,11 +138,10 @@ bool AP_Proximity_Radar_GKXN::send_sensor_command()
 
 bool AP_Proximity_Radar_GKXN::read_sensor_data()
 {   
-    if (uart == nullptr) {
+   if (uart == nullptr) {
         return false;
     }
     int16_t nbytes = uart->available();
-	//printf("nbytes=%x\n",nbytes);
 	uint16_t front_data_back=0;
 	uint16_t back_data_back=0;
 	int      k=0;
@@ -129,14 +150,17 @@ bool AP_Proximity_Radar_GKXN::read_sensor_data()
 	int      message_complete=0;
 	uint16_t d1=0x00;
 	uint16_t d2=0x00;
-	
-///*
+	uint8_t front_data_valid=0;
+	uint8_t back_data_valid=0;
+	uint8_t front_data_warning=0;
+	uint8_t back_data_warning=0;
+
    while (nbytes-- > 0)  {
 		
        uint8_t data=uart->read();
-	//   printf("%x",data);
 	   switch(message_state)
-	   	{case 0:
+	   	{
+	   	case 0:
 	   	  if(data==0x55)
 	   	  	{_num_error.Time_Head_error=0;
 		     _num_error.Time_Invalid_data=0;
@@ -145,10 +169,14 @@ bool AP_Proximity_Radar_GKXN::read_sensor_data()
 	         back_data_back=0;
 			 checksum=0x00;
 			 k=0;
+			 front_warning=0;
+			 back_warning=0;
 			 checksum+=data;
+			 front_data_warning=0;
+	         back_data_warning=0;
 			 message_complete=0;
 			 message_state=1;
-			 // printf("case0\n");
+			 
 	   	  	}
 		  else
 		 	{
@@ -156,12 +184,11 @@ bool AP_Proximity_Radar_GKXN::read_sensor_data()
 		 	message_state=0;
 		 	}
 		 break;
-		  case 1:
+		case 1:
 		  if(data==0x0C)
 		  	{
 		  	message_state=2;
 			checksum+=data;
-		//	printf("case1\n");
 		  	}
 		  else
 		 	{
@@ -169,145 +196,162 @@ bool AP_Proximity_Radar_GKXN::read_sensor_data()
 		 	message_state=0;
 		 	}
 		  break;
-		  case 2:
-		 // printf("case2 data=%x",data);
-		 	if(data==0x0B)
-		 		{
-		 		message_state=3;
-			    checksum+=data;
-		 		}
+		case 2:
+		   if(data==0x0B)
+		 	{
+		 	message_state=3;
+			checksum+=data;
+		 	}
 			else
 		 	{
 		 	_num_error.Time_Invalid_data++;
 		 	message_state=0;
 		 	}
 			break;
-			case 3:
-			//	printf("case3\n");
-				if(data!=0xff)
-				{
-				front_data_back=(data<<8);
-			    checksum+=data;
-				message_state=4;
-				//printf("front_data_back=%x\n",front_data_back);
-			//	printf("case3 data=%x\n",data);
-				}
-				else
-				{
-				front_data_back=(data<<8);
-				checksum+=data;
-				k=1;
-				message_state=4;
-					}
-			    break;
-				   case 4:
-				//   	printf("Case4\n");
-					   if((k==1)&&(data==0xff))
-				   {
-				       k=0;
-			           checksum+=data;
-					   front_data_back+=data;
-					   message_state=5;
-				     }
-				      else
-				   {
-				      front_data_back+=data;
-				      checksum+=data;
-				      k=0;
-				      message_state=5;
-			//		  printf("case4 data=%x\n",data);
-					}
-			          break;
-					 case 5:
-					 //	printf("case5\n");
-					 	if(data!=0xff)
-				        {
-				         back_data_back=(data<<8);
-			             checksum+=data;
-				         message_state=6;
-				        }
-				        else
-				        {
-				         back_data_back=(data<<8);
-				         checksum+=data;
-				         k=1;
-				         message_state=6;
-					     }
-			            break;
-						case 6:
-							//printf("case6\n");
-							if((k==1)&&(data==0xff))
-				             {
-				               k=0;
-							   checksum+=data;
-							 //  printf("back_data_back=%x\n",back_data_back);
-							   back_data_back+=data;
-							//   printf("back_data_back+=%x\n",back_data_back);
-				               message_state=7;
-			                   
-				             }
-				            else
-				            {
-				              back_data_back+=data;
-				              checksum+=data;
-				              k=0;
-				              message_state=7;
-					         }
-			                break;
-							case 7:
-							//	printf("case7\n");
-								checksum+=data;
-							//    printf("checksum=%x",checksum);
-								message_state=8;
-							 break;
-							 case 8:
-							 //	printf("case8\n");
-							 	checksum+=data;
-								message_state=9;
-							  break;
-							  case 9:
-							  //	printf("case9 before data=%x",data);
-							  //	printf("case9\n");
-							  	if ((data&0x01)==0x01)
-							  		{
-							  		_num_error.Time_Invalid_data++;
-									message_state=10;
-									checksum+=data;
-							  		}
-							    else
-									{
-								//	printf("case9 data=%x",data);
-									checksum+=data;
-									message_state=10;
-								//	printf("checksum=%x",checksum);
-									}
-								break;
-								case 10:
-								//	printf("case10\n");
-								//printf("checksum=%x\n",checksum);
-								//printf("data=%x\n",data);
-									if(data==(checksum&0xff))
-										{//printf("checksum right\n");
-										 message_complete=1;
-									     d1=front_data_back;
-									//	 printf("d1=%x\n",d1);
-									     d2=back_data_back;
-										//  printf("d2=%x\n",d2);
-										}
-		                           else
-		                           	{
-		                           	message_state=0;
-		                           	}
+		case 3:
+			if(data!=0xff)
+			{
+			front_data_back=(data<<8);
+			checksum+=data;
+			message_state=4;
+			}
+			else
+			{
+			front_data_back=(data<<8);
+			checksum+=data;
+			k=1;
+			message_state=4;
+			}
+			break;
+		case 4:
+			if((k==1)&&(data==0xff))
+			{
+		     k=0;
+			 checksum+=data;
+			 front_data_back+=data;
+			 message_state=5;
+			 front_data_valid++;
+			}
+		    else
+			{
+		     front_data_back+=data;
+			 checksum+=data;
+			 k=0;
+			 message_state=5;
+			}
+		break;
+		case 5:
+		    if(data!=0xff)
+		    {
+			back_data_back=(data<<8);
+			checksum+=data;
+		    message_state=6;
+		    }
+		    else
+		    {
+		    back_data_back=(data<<8);
+		    checksum+=data;
+			k=1;
+			message_state=6;
+			}
+		break;
+		case 6:
+	        if((k==1)&&(data==0xff))
+		    {
+		    k=0;
+			checksum+=data;
+			back_data_back+=data;
+		    message_state=7;
+			back_data_valid++;
+		    }
+		    else
+			{
+			back_data_back+=data;
+			checksum+=data;
+			k=0;
+		    message_state=7;
+			}
+		break;
+		case 7:
+			checksum+=data;
+			message_state=8;
+		break;
+		case 8:
+			checksum+=data;
+			message_state=9;
+		break;
+		case 9:
+		    if (((data&0x01)!=0x01)&&(((data>>3)&0x01)!=0x01))
+		    {
+		    checksum+=data;
+		    message_state=10;
+		    }
+			else if (((data&0x01)==0x01)&&(front_data_valid!=0))
+		    {
+		     message_state=10;
+		     checksum+=data;
+			 front_data_warning=1; 
+		    }
+			else if((((data>>2)&0x01)==0x01)&&(back_data_valid!=0))
+			{
+		     message_state=10;
+		     checksum+=data;
+			 back_data_warning=1;
+			}
+		    else
+		    {
+		    checksum+=data;
+		    message_state=10;
+		    }
+		break;
+		case 10:
+			if(data==(checksum&0xff))
+		    {
+			message_complete=1;
+			d1=front_data_back;
+			d2=back_data_back;
+		    }
+		    else
+		    {
+		    _num_error.Time_Checksum_error++;
+		    message_state=0;
+		    }
+		break;
+		default:
+			_num_error.Time_Invalid_data++;
+		break;
 	   	}
        
-    }//*/
+    }
 
 
 	if (message_complete==1)
 		{
-	//	printf("message_complete==1");
+		// record the warning message
+		if(front_data_warning==0)
+		{
 		update_sector_data(0, d1);
+		}
+		else
+		{
+		front_warning=1;
+		}
+		if(back_data_warning==0)
+		{
 		update_sector_data(180, d2);
+		}
+		else
+		{
+		back_warning=1;
+		}
+		}
+	else
+		{
+		uncm_num++;
+		if((_num_error.Time_Head_error!=0)||(_num_error.Time_Checksum_error!=0)||(_num_error.Time_Invalid_data!=0))
+   	    {
+   	    error_num++;
+   	    }
 		}
     return true;
 }

@@ -36,9 +36,15 @@ private:
 	{
 		uint8_t Time_Head_error;
 		uint8_t Time_Invalid_data;
-		uint8_t Time_Payload_error;
 		uint8_t Time_Tail_error;
 	}_num_error;
-
+	
+	uint8_t message_state=0;
+	int      count=0;
+	uint8_t checksum = 0x00;
+    uint16_t distance0= 0;
+	uint16_t distance1=0;
+	uint16_t num=0;
+	uint8_t tick=0;
 };
 
