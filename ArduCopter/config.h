@@ -514,7 +514,7 @@
 // AUTH ()
 //
 #ifndef FXTX_AUTH
- #define FXTX_AUTH 	DISABLED
+ #define FXTX_AUTH 	ENABLED
 #endif
 
 #if FXTX_AUTH == ENABLED
@@ -988,7 +988,7 @@ union PACKED PassOSD_data_status {
 //////////////////////////////////////////////////////////////////////////////
 //roflying fence
 #ifndef RF_FENCE
-#  define RF_FENCE	DISABLE
+#  define RF_FENCE	   ENABLED
 #endif
 
 // baiyang added in 20170830

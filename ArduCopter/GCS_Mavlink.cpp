@@ -2008,7 +2008,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
         	if(MAV_RESULT_FAILED == result)
             {
  //           	printf("2\n");
-				copter.gcs().send_text(MAV_SEVERITY_CRITICAL, copter.auth_msg);
+				gcs().send_statustext(MAV_SEVERITY_CRITICAL,0xFF, copter.auth_msg); 
             //	send_statustext_all(auth_msg);
 			}
 			else if(MAV_RESULT_DENIED == result)
