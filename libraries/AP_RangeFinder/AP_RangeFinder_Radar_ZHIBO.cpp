@@ -22,189 +22,114 @@ bool AP_RangeFinder_Radar_ZHIBO::detect(AP_SerialManager &serial_manager)
 }
 bool AP_RangeFinder_Radar_ZHIBO::get_reading(uint16_t &reading_cm)
 {   
-	uint8_t checksum = 0x00;
-	uint16_t distance0 = 0;
-	uint16_t distance1=0;
-	uint8_t message_state=0;
-	uint8_t message_complete=0;
-	int      count=0;
-	int      target_num=0;
-	//printf("radar get reading \n");
-	
-    if (uart == nullptr) {
-        return false;
-	 //	printf("nullptr fasle\n");
-    }
-  
-    // set buffer and init
-	int16_t nbytes = uart->available();
-//	printf("nbytes=%x",nbytes);
-	reading_cm=0;
-	while (nbytes-- > 0)
-		{
-		uint16_t data=uart->read();
-	//printf("data=%x\n",data);
-	//printf("read data from radar\n");
-	//check the message is complete or not 
-	switch(message_state)
-		{
-		case 0:
-		 if(data==0xfe)
-		 	{
-		     _num_error.Time_Head_error=0;
-		     _num_error.Time_Invalid_data=0;
-			 _num_error.Time_Payload_error=0;
-			 _num_error.Time_Tail_error=0 ; 
-			 count=0;
-			 checksum=0x00;
-			 distance0=distance1=0;
-			 message_complete=0;
-			 target_num=0;
-			 checksum+=data; 
-			 count+=1;
-			 message_state=1;
-//			printf("case0 count=%d\n",count);
-//			 printf("case0 init \n");
-		 	}
-		 else if((data==0xf0)&&(nbytes==0))
-		 	{
-		 	//printf("no target\n");
-		 	message_state=0;
-			message_complete=1;
-			distance0=0x1388;
-		 	}
-		 else
-		 	{
-		 	_num_error.Time_Head_error++;
-		 	message_state=0;
-		 	}
-		 break;
-		 case 1:
-		  if((data>0)&&(data<4))
-		 	{target_num=data;
-		     checksum+=data;
-		     count+=1;
-		 	message_state=2;
-//			printf("case1 count=%d\n",count);
-//		     printf("case1  \n");
-		 	}
-		  else
-		 	{
-		 	_num_error.Time_Invalid_data++;
-		 	message_state=0;
-		 	}
-		  break;
-		  case 2:
-		  	
-		//  printf("case2 \n");
-		 	if(target_num>0)
-		 		{
-		 //		printf("target_num=%d\n",target_num);
-		 		distance1=0;
-			    distance1=data*0x80;
-				checksum+=data;
-				count+=1;
-				message_state=3;
-			//	printf("case2 count=%d\n",count);
-		 		}
-		    else if(target_num==0)
-		    	{
-		    //	printf("target_num==0\n");
-			    if(count<7)
-			 		{
-			 		checksum+=data;
-					count+=1;
-			 		message_state=4;
-				//	printf("count=%d\n",count);
-				//	printf("nbytes=%x\n",nbytes);
-			 		}
-			    else if(count==8)
-					{
-					checksum+=data;
-					message_state=5;
-				//	printf("count==8\n");
-					}
-		    	}
-			else 
-				{
-				_num_error.Time_Payload_error++;
-				message_state=0;
-				}
-			break;
-		    case 3:
-			//	printf("case3\n");
-			 
-				distance1+=data;
-				checksum+=data;
-				target_num-=1;
-				count+=1;
-				if(distance0==0)
-					{distance0=distance1;
-					message_state=2;
-					}
-				else 
-					{ 
-				if (distance0>distance1)
-					{
-					distance0=distance1;
-					}
-				message_state=2;
-//				printf("distance1=%x\n",distance1);
-//				printf("distance0=%x\n",distance0);
-				}
-			//	printf("case3 count=%d\n",count);
-			 break;
-			 case 4:
-			 //	printf("case4\n");
-			 	if(count<7)
-			 		{
-			 		checksum+=data;
-					count+=1;
-			 		message_state=4;
-			//		printf("count=%d\n",count);
-			//		printf("nbytes=%x\n",nbytes);
-			 		}
-			    else if(count==7)
-					{
-					checksum+=data;
-					message_state=5;
-				//	printf("count==7\n");
-				//	printf("nbytes=%x\n",nbytes);
-					}
-				else
-					{
-					_num_error.Time_Payload_error++;
-				    message_state=0;
-				//	printf("case 4 error\n");
-					}
-				break;
-				case 5:
-				//	printf("case5 \n");
-					if(data==(checksum&0x007f))
-						{
-						message_complete=1;
-						message_state=0;
-					//	printf("message complete\n");
+	if (uart == nullptr) {
+		   return false;
+	   }
+	  // tick++;
+	   uint8_t numc,j;
+	   uint8_t k;
+	   uint8_t *p1;
+	   uint8_t nbytes = uart->available();
+	   reading_cm=0;
+	   if(nbytes!=0)
+	   {p1=new uint8_t [nbytes];
+	   for(k=0;k<nbytes;k++)
+		   {
+		   uint8_t data=uart->read();
+		   p1[k]=data;
+		   }
+	   numc=nbytes;
+	   while (nbytes-- > 0)
+		   {
+		   j=numc-nbytes-1;
+		   switch(message_state)
+			   {
+			   case 0:
+				   if(p1[j]==0xfe)
+					   {
+						_num_error.Time_Head_error=0;
+						_num_error.Time_Invalid_data=0;
+						_num_error.Time_Tail_error=0 ; 
+						count=0;
+						checksum=0x00;
+						distance0=distance1=0;
+						checksum+=p1[j]; 
+						message_state=1;
+						reading_cm=0;
+					   }
+				   else if(p1[j]==0xf0)
+					   {
+						 message_state=0;
+						 reading_cm=0x1388;
 						}
-					else
-						{
-						_num_error.Time_Tail_error++;
-						message_state=0;
-						}
-					break;
-				   
-								
-		}
-   	
-   }
-   	
-	if(message_complete==1)
-	{
-//		printf("diatance0=%x\n",distance0);
-		reading_cm=distance0;
-		
-//		printf("reading_cm=%x\n",reading_cm);
-	}
+				   else
+					   {
+						 _num_error.Time_Head_error++;
+						 message_state=0;
+					   }
+			   break;
+			   case 1:	
+				   if((p1[j]>0)&&(p1[j]<4))
+					   {
+					   checksum+=p1[j];
+					   message_state=2;
+					   }
+				   else 
+					   {
+					   message_state=0;
+					   _num_error.Time_Invalid_data++;
+					   }
+			   break;
+			   case 2:
+			   	   distance0=p1[j];
+			       checksum+=p1[j];
+				   message_state=3;
+			   break;
+			   case 3:
+			   	    distance1=p1[j];
+				    checksum+=p1[j];
+				    message_state=4;
+			   break;
+			   case 4:
+			      if(count<4)
+					   {
+					   checksum+=p1[j];
+					   count++;
+					   message_state=4;
+					   }	
+				   else if(count==4)
+					   {
+					   if(p1[j]==(checksum&0x007f))
+						   {
+						  reading_cm=distance0*0x80+distance1;
+						  message_state=0;  
+						   }
+					   else
+						   {
+						   message_state=0;
+						   _num_error.Time_Tail_error++;
+						   } 
+					   }
+				   else 
+					   {
+					   message_state=0;
+					   _num_error.Time_Invalid_data++;
+					   }
+			   break;
+			   default:
+			   break;								   
+			   }
+		 /*  //record the number of mistake
+		  if((_num_error.Time_Head_error!=0)||(_num_error.Time_Invalid_data!=0)||(_num_error.Time_Tail_error!=0))
+		   	{num++;}
+		   if(tick==50)
+		   	{
+			tick=0;
+			num=0;
+		   	}*/
+		   }
+	   delete[] p1;
+	   }  
 	return true;
 	}	
 	

@@ -172,6 +172,15 @@ const AP_Param::GroupInfo AP_Proximity::var_info[] = {
     // @Range: 0 65536
     // @User: Standard
     AP_GROUPINFO("_RATE", 22, AP_Proximity,_rate[0], 50),
+    
+    // added by xusiming and used for controlling the orientation of sensor's table
+    // @Param: ENABLE
+    // @DisplayName: _TABLE_ENABLE
+	// @Description: enable the sensor's table
+	// @Units: 
+	// @Range: 0 1
+	// @User: Standard
+	AP_GROUPINFO("_TABLE_ENABLE", 23, AP_Proximity,_table_enable[0], 0),
 
 #if PROXIMITY_MAX_INSTANCES > 1
     // @Param: 2_TYPE
@@ -417,9 +426,8 @@ bool  AP_Proximity::get_cmd_orient()
 		}
 	int8_t phase=_apm[primary_instance].get();
 	int16_t time=_rate[primary_instance].get();
-    //	printf("_apm=%d\n",phase);
-	//printf("_rate=%d\n",time);
-   return drivers[primary_instance]->get_comand_orient(phase,time);
+	int8_t status=_table_enable[primary_instance].get();
+   return drivers[primary_instance]->get_comand_orient(phase,time,status);
 }
 bool   AP_Proximity::get_valid_number()
 {
@@ -429,6 +437,42 @@ bool   AP_Proximity::get_valid_number()
      return drivers[primary_instance]->get_valid();
 	//return 0;
 }
+bool   AP_Proximity::get_front_radar_warning()
+{
+	if ((drivers[primary_instance] == nullptr) || (_type[primary_instance] != Proximity_Type_Radar_GKXN)) {
+				return false;
+			}
+     return drivers[primary_instance]->get_front_warning();
+	//return 0;
+}
+
+bool   AP_Proximity::get_back_radar_warning()
+{
+	if ((drivers[primary_instance] == nullptr) || (_type[primary_instance] != Proximity_Type_Radar_GKXN)) {
+				return false;
+			}
+     return drivers[primary_instance]->get_back_warning();
+	//return 0;
+}
+
+uint16_t   AP_Proximity::get_radar_uncomplete()
+{
+	if ((drivers[primary_instance] == nullptr) || (_type[primary_instance] != Proximity_Type_Radar_GKXN)) {
+				return false;
+			}
+     return drivers[primary_instance]->get_uncomplete();
+	//return 0;
+}
+
+uint16_t   AP_Proximity::get_radar_error()
+{
+	if ((drivers[primary_instance] == nullptr) || (_type[primary_instance] != Proximity_Type_Radar_GKXN)) {
+				return false;
+			}
+     return drivers[primary_instance]->get_error();
+	//return 0;
+}
+//added end
 
 
 // get number of objects, used for non-GPS avoidance

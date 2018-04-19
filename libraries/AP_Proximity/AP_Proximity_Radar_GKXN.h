@@ -49,5 +49,7 @@ private:
 
     // request related variables
     uint32_t _last_distance_received_ms;    // system time of last distance measurement received from sensor
+    //uint8_t start_flag=1;           //record the first start time of the cord
+    //uint32_t _start_GKXN_time;      
 };
 

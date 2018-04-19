@@ -757,6 +757,10 @@ struct PACKED log_GKProx {
     float closest_angle  ; 
     float  closest_dist ;
 	float  valid_num;
+	bool   front_warn;
+	bool   back_warn;
+	uint16_t unc_num;
+	uint16_t error_num;
 };
 
 
@@ -1514,7 +1518,7 @@ Format characters in the format string for binary log messages
     { LOG_CONTROL_MSG, sizeof(log_Control), \
       "CTR",  "QBBBH",     "TimeMS,ov,oa,rv,rc3" }, \
     { LOG_GKPROX_MSG, sizeof(log_GKProx), \
-      "GKPX",  "QBffffff", "TimeUS,Health,front,back,CMDO,CAn,CDis,VALnum"}, \
+      "GKPX",  "QBffffffBBHH", "TimeUS,Health,front,back,CMDO,CAn,CDis,VALnum,front_warn,back_warn,unc_num,error_num"}, \
 	{ LOG_PMBUS0_MSG, sizeof(log_BCBPMBus), \
 	 "PM0", PMBUS_FMT, PMBUS_LABELS }, \
 	{ LOG_PMBUS1_MSG, sizeof(log_BCBPMBus), \

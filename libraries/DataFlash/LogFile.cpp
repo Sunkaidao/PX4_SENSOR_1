@@ -2197,7 +2197,14 @@ void DataFlash_Class::Log_Write_GKProx(AP_Proximity &proximity)
     proximity.get_closest_object(close_ang, close_dist);
      float valid=-1;
 	 valid=proximity.get_valid_number();
-	// printf("valid=%f",valid);
+	bool front_warning=0;
+	bool back_warning=0;
+	front_warning=proximity.get_front_radar_warning();
+	back_warning=proximity.get_back_radar_warning();
+	uint16_t uncomplete_number=0;
+	uncomplete_number=proximity.get_radar_uncomplete();
+	uint16_t error_number=0;
+	error_number=proximity.get_radar_error();
 	 
 	struct log_GKProx pkt = {
         LOG_PACKET_HEADER_INIT(LOG_GKPROX_MSG),
@@ -2209,6 +2216,10 @@ void DataFlash_Class::Log_Write_GKProx(AP_Proximity &proximity)
         closest_angle   : close_ang,
         closest_dist    : close_dist,
         valid_num       : valid,
+        front_warn      : front_warning,
+        back_warn       : back_warning,
+        unc_num         : uncomplete_number,
+        error_num       : error_number, 
     };
     WriteBlock(&pkt, sizeof(pkt));
 
