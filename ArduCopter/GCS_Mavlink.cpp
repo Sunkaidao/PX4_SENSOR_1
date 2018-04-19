@@ -1640,13 +1640,22 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 
 			//printf("0w:0x%x vs 0x%x\n", id_para.serial[0], packet.param1);
 
-			
+			//	added by ZhangYong for auth access 20170418
+//			for(lcl_counter = 0; lcl_counter < 12; lcl_counter++)
+//			{
+				
+				//	added by ZhangYong 20161021
+//				printf("%d: %x vs %x\n", lcl_counter, id_para.data[lcl_counter], copter.auth_id[lcl_counter]);
+				//	added	end
+//				if(id_para.data[lcl_counter] != copter.auth_id[lcl_counter])
+//					break;
+//			}
 
 			for(lcl_counter = 0; lcl_counter < 12; lcl_counter++)
 			{
 				
 				//	added by ZhangYong 20161021
-				//printf("%d: %x vs %x\n", lcl_counter, id_para.data[lcl_counter], copter.auth_id[lcl_counter]);
+				//	printf("%d: %x vs %x\n", lcl_counter, id_para.data[lcl_counter], copter.auth_id[lcl_counter]);
 				//	added	end
 				if(id_para.data[lcl_counter] != copter.auth_id[lcl_counter])
 					break;
@@ -2008,7 +2017,8 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
         	if(MAV_RESULT_FAILED == result)
             {
  //           	printf("2\n");
-				copter.gcs().send_text(MAV_SEVERITY_CRITICAL, copter.auth_msg);
+ 				gcs().send_statustext(MAV_SEVERITY_CRITICAL, 0xFF, copter.auth_msg);
+		//		gcs().send_text(MAV_SEVERITY_CRITICAL, copter.auth_msg);
             //	send_statustext_all(auth_msg);
 			}
 			else if(MAV_RESULT_DENIED == result)

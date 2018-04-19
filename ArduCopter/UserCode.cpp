@@ -66,6 +66,14 @@ void Copter::userhook_init()
     		     (unsigned)serial_id[15], 	(unsigned)serial_id[16], 	(unsigned)serial_id[17], 	(unsigned)serial_id[18], 	(unsigned)serial_id[19], (unsigned)serial_id[20], 	(unsigned)serial_id[21], (unsigned)serial_id[22], \
     		     (unsigned)serial_id[24], 	(unsigned)serial_id[25], 	(unsigned)serial_id[26], 	(unsigned)serial_id[27], 	(unsigned)serial_id[28], (unsigned)serial_id[29], 	(unsigned)serial_id[30], (unsigned)serial_id[31]);
 
+
+		//	20180418		 
+		printf("0123456789%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n",	 \
+								  (unsigned)serial_id[6],	 (unsigned)serial_id[7],	 (unsigned)serial_id[8],	 (unsigned)serial_id[9],	 (unsigned)serial_id[10], (unsigned)serial_id[11],	 (unsigned)serial_id[12], (unsigned)serial_id[13], \
+								  (unsigned)serial_id[15],	 (unsigned)serial_id[16],	 (unsigned)serial_id[17],	 (unsigned)serial_id[18],	 (unsigned)serial_id[19], (unsigned)serial_id[20],	 (unsigned)serial_id[21], (unsigned)serial_id[22], \
+								  (unsigned)serial_id[24],	 (unsigned)serial_id[25],	 (unsigned)serial_id[26],	 (unsigned)serial_id[27],	 (unsigned)serial_id[28], (unsigned)serial_id[29],	 (unsigned)serial_id[30], (unsigned)serial_id[31]);
+		
+			
 		memset(&fs_mk, 0, sizeof(FAILSAFE_MARKER));
 
 
