@@ -169,6 +169,8 @@ public:
      */
     bool pre_arm_check() const;
 
+	int8_t get_state0_type(){return state[0].type;}
+
 
 private:
     RangeFinder_State state[RANGEFINDER_MAX_INSTANCES];

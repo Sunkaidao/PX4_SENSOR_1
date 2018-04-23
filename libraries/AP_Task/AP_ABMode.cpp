@@ -610,10 +610,20 @@ void AP_ABMode:: set_wp_cmd(uint8_t type,const Location &target, AP_Mission::Mis
 void AP_ABMode:: set_wp_alt_and_type(Location &cmd_location)
 {
 	int32_t temp_alt;
-	temp_alt = MAX(ab_mode.a_loc.alt,ab_mode.b_loc.alt);
+	cmd_location.options = 0;
 	
+	temp_alt = MAX(ab_mode.a_loc.alt,ab_mode.b_loc.alt);
 	cmd_location.alt = MAX(alt_break,temp_alt);
-	cmd_location.flags.relative_alt = 1;
+	
+	if(copter.rangefinder.get_state0_type() == 0)
+	{
+		cmd_location.flags.relative_alt = 1;
+	}
+	else
+	{
+		cmd_location.flags.relative_alt = 1;
+		cmd_location.flags.terrain_alt = 1;
+	}
 }
 
 void AP_ABMode:: adjust_yaw()
