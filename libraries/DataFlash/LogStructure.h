@@ -1138,7 +1138,7 @@ struct PACKED log_Proximity {
 #define RTK_FMT   "Qfhb"
 
 // see "struct log_TWP" and "Log_Write_TWP":
-#define TWP_LABELS "TimeUS,lat,lng,alt,a_type,index,dir,yaw,Hlat,Hlng"
+#define TWP_LABELS "TimeUS,lat,lng,alt,a_type,index1,dir,yaw,Hlat,Hlng"
 #define TWP_FMT   "QiiiBibfii"
 
 #define GYR_LABELS "TimeUS,SampleUS,GyrX,GyrY,GyrZ"
@@ -1514,11 +1514,11 @@ Format characters in the format string for binary log messages
 	{ LOG_PADCMD_MSG, sizeof(log_PADCMD), \
 	 "PAD", "QI", "TMS,MID" }, \
 	{ LOG_MTR_MSG, sizeof(log_MTR), \
-     "MTR",  "QffffffffffBBBB",     "TimeMS,r,p,t,y,thr,ya,rpyl,rpyh,thrb,sc,lr,lp,tl,tu" }, \
+     "MTR",  "QffffffffffBBBB",     "TimeMS,r,p,t,y,thr,ya,rpyl,rpyh,thrb,sc,r1,p1,tl,tu" }, \
     { LOG_CONTROL_MSG, sizeof(log_Control), \
       "CTR",  "QBBBH",     "TimeMS,ov,oa,rv,rc3" }, \
     { LOG_GKPROX_MSG, sizeof(log_GKProx), \
-      "GKPX",  "QBffffBBHH", "TimeUS,Health,front,back,CMDO,VALnum,fwarn,bwarn,unc,err"}, \
+      "GKPX",  "QBffffffBBHH", "TimeUS,Health,front,back,CMDO,CAn,CDis,Vnum,fwarn,bwarn,unc,err"}, \
 	{ LOG_PMBUS0_MSG, sizeof(log_BCBPMBus), \
 	 "PM0", PMBUS_FMT, PMBUS_LABELS }, \
 	{ LOG_PMBUS1_MSG, sizeof(log_BCBPMBus), \

@@ -92,6 +92,7 @@ void AP_NewBroadcast::init()
 	flight_area_m2_pre = 0;
 	memset( & view, 0, sizeof(view));
 	memset( & payload, 0, sizeof(payload));
+	update_view_flight_control();
 
 	if(_parent_can_mgr != NULL && (_parent_can_mgr->get_UAVCAN() == nullptr))
 	{
@@ -619,7 +620,6 @@ void AP_NewBroadcast :: update_view()
     update_view_nozzle_angle();
     update_view_nozzle_pressure();
     update_view_spray_range();
-	update_view_flight_control();
 	update_view_remain_dose();
 	update_view_used_dose();
 	update_view_cur_flow();

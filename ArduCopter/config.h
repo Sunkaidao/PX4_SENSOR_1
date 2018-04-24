@@ -988,7 +988,7 @@ union PACKED PassOSD_data_status {
 //////////////////////////////////////////////////////////////////////////////
 //roflying fence
 #ifndef RF_FENCE
-#  define RF_FENCE	DISABLE
+#  define RF_FENCE	   ENABLED
 #endif
 
 // baiyang added in 20170830

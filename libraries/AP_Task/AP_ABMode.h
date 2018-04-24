@@ -35,7 +35,7 @@ typedef struct _abmode
 	Vector3d a_pos;
 	Vector3d b_pos;
 	bool is_start;
-	bool is_first_start;
+	int8_t is_first_start;
 	bool direction;		// 1:right		0:left
 	float yaw;
 }ABPOINT;
