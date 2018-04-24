@@ -189,12 +189,14 @@ void Copter::userhook_init()
 	if(edit_management.data.major_edition != 2)
 	{
 		edit_management.data.major_edition = 2;
+		g.edition_management.set_and_save(edit_management.words);
 	}
 
 #if PROJECTGKXN == ENABLED
 	if(edit_management.data.project_edition != 1)
 	{
 		edit_management.data.project_edition = 1;
+		g.edition_management.set_and_save(edit_management.words);
 	}
 #endif	// end PROJECTGKXN == ENABLED
 

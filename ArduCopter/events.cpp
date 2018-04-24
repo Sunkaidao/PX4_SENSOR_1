@@ -233,12 +233,14 @@ void Copter::failsafe_payload_on_event(void)
 					switch(g.failsafe_pld_action)
 					{
 						case FS_PLD_ENABLED_ALWAYS_LAND:
-						case FS_PLD_ENABLED_ALWAYS_RTL:
-							
-							set_mode_RTL_or_land_with_pause(MODE_REASON_PAYLOAD_FAILSAFE);
-								
-            				
+							set_mode_land_with_pause(MODE_REASON_PAYLOAD_FAILSAFE);
 							break;
+							
+						
+						case FS_PLD_ENABLED_ALWAYS_RTL:
+							set_mode_RTL_or_land_with_pause(MODE_REASON_PAYLOAD_FAILSAFE);
+							break;
+
 						default:
 							break;
 						

@@ -366,7 +366,7 @@ void Copter::send_payload_status(mavlink_channel_t chan)
 
 	for(lcl_cnt = 0; lcl_cnt < AC_BCBPMBUS_MODULE_MAX_COMPONENT; lcl_cnt++)
 	{
-//		if(true == copter.g2.bcbpmbus.should_report_componengt_slot_info(lcl_cnt))
+		if(true == copter.g2.bcbpmbus.should_report_componengt_slot_info(lcl_cnt))
 		{
 //			printf("report_BCBPMBus_Components slot %d\n", lcl_cnt);
 
@@ -412,7 +412,7 @@ void Copter::send_payload_status(mavlink_channel_t chan)
 			payload_status[7] = lcl_uint16_t & 0x00FF;
 			payload_status[6] = lcl_uint16_t >> 8;
 
-			switch(lcl_cnt)
+/*			switch(lcl_cnt)
 			{
 				case 0:
 					payload_status[1] = 0x50;
@@ -474,7 +474,7 @@ void Copter::send_payload_status(mavlink_channel_t chan)
 					payload_status[1] = 0x00;
 					break;
 			}
-
+*/
 			
 			
 			mavlink_msg_payload_status_send(chan, \
@@ -503,7 +503,7 @@ void Copter::send_payload_status(mavlink_channel_t chan)
 			payload_status[7] = lcl_uint16_t & 0x00FF;
 			payload_status[6] = lcl_uint16_t >> 8;
 
-			switch(lcl_cnt)
+/*			switch(lcl_cnt)
 			{
 				case 0:
 					payload_status[1] = 0x50;
@@ -565,7 +565,7 @@ void Copter::send_payload_status(mavlink_channel_t chan)
 					payload_status[1] = 0x00;
 					break;
 			}
-			
+	*/		
 			
 			mavlink_msg_payload_status_send(chan, \
 										AP_HAL::millis(), \

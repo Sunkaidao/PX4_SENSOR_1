@@ -1518,7 +1518,7 @@ Format characters in the format string for binary log messages
     { LOG_CONTROL_MSG, sizeof(log_Control), \
       "CTR",  "QBBBH",     "TimeMS,ov,oa,rv,rc3" }, \
     { LOG_GKPROX_MSG, sizeof(log_GKProx), \
-      "GKPX",  "QBffffffBBHH", "TimeUS,Health,front,back,CMDO,CAn,CDis,VALnum,front_warn,back_warn,unc_num,error_num"}, \
+      "GKPX",  "QBffffBBHH", "TimeUS,Health,front,back,CMDO,VALnum,fwarn,bwarn,unc,err"}, \
 	{ LOG_PMBUS0_MSG, sizeof(log_BCBPMBus), \
 	 "PM0", PMBUS_FMT, PMBUS_LABELS }, \
 	{ LOG_PMBUS1_MSG, sizeof(log_BCBPMBus), \
