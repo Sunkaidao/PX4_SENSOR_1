@@ -1,4 +1,19 @@
 /*
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
  *
  *      Author: Breeder Bai
  */
@@ -19,104 +34,23 @@
 #include "./../../ArduCopter/config.h"
 #include <uavcan/helpers/heap_based_pool_allocator.hpp>
 
+#include "AP_NewBroadcast_CAN.h"
+#include "NewBroadcast_Backend.h"
+
 #if NEWBROADCAST == ENABLED 
 
 using namespace PX4;
 
-#define REG_NO_STRING_LEN 20
-#define PAYLOAD_ARRAY_LEN 148
-#define FLIGHT_CONTROL_STRING_LEN 16
-#define TASK_ID_STRING_LEN 16
-#define APP_VER_NO_STRING_LEN 16
-#define RESERVED_NUM 14
-
-#define PROCESSING 0
-#define COMPLETE 1 
-
-typedef struct
-{
-    uint8_t action;
-    char reg_no[REG_NO_STRING_LEN]; /* temporary buffer to print the number into */
-    uint16_t flight_seq;
-    uint32_t now_time;  //uint: s
-    uint8_t state;
-    uint32_t flight_time;
-    int32_t longitude;
-    int32_t latitude;
-    int32_t height;
-    int32_t altitude;
-    int16_t path_angle;
-    int16_t pitch_angle;
-    int16_t roll_angle;
-    int16_t horizontal_velocity;
-    int16_t is_nozzle_work;
-    int16_t nozzle_diameter;
-    int16_t nozzle_angle;
-    int16_t nozzle_pressure;
-    int16_t spray_range;
-	char flight_control[FLIGHT_CONTROL_STRING_LEN];
-	char task_id[TASK_ID_STRING_LEN];
-	char app_ver_no[APP_VER_NO_STRING_LEN];
-	uint64_t tp_reg_no;
-	uint16_t remain_dose;
-	uint16_t used_dose;
-	uint16_t cur_flow;
-	uint16_t flight_area;    //uint: mu*10
-	uint16_t flight_length;  //uint: m
-}Message_info;
-
-#pragma  pack (push,1)
-typedef struct
-{
-	uint8_t frame_header0;
-	uint8_t frame_header1;
-    uint8_t action;
-    char reg_no[REG_NO_STRING_LEN]; /* temporary buffer to print the number into */
-    uint16_t flight_seq;
-    uint32_t now_time;      //uint: s
-    uint8_t state;
-    uint32_t flight_time;
-    int32_t longitude;
-    int32_t latitude;
-    int32_t height;
-    int32_t altitude;
-    int16_t path_angle;
-    int16_t pitch_angle;
-    int16_t roll_angle;
-    int16_t horizontal_velocity;
-    int16_t is_nozzle_work;
-    int16_t nozzle_diameter;
-    int16_t nozzle_angle;
-    int16_t nozzle_pressure;
-    int16_t spray_range;
-	char flight_control[FLIGHT_CONTROL_STRING_LEN];
-	char task_id[TASK_ID_STRING_LEN];
-	char app_ver_no[APP_VER_NO_STRING_LEN];
-	uint64_t tp_reg_no;
-	uint16_t remain_dose;
-	uint16_t used_dose;
-	uint16_t cur_flow;
-	uint16_t flight_area;    //uint: mu*10
-	uint16_t flight_length;  //uint: m
-	uint8_t reserved[RESERVED_NUM];
-}Payload_s;
-
-typedef union
-{
-	Payload_s _payload_s;
-	char paylod_array[PAYLOAD_ARRAY_LEN];
-}Message_send_union;
-
-#pragma pack(pop)  
-
-enum frameType
-{
-    STANDARDID,
-    EXTENDID
-};
-
 class AP_NewBroadcast {
 public:
+
+// 4G driver types
+enum NewBroadcast_Type {
+	NewBroadcast_TYPE_NONE  = 0,
+   	NewBroadcast_TYPE_GK_CAN  = 1,
+   	NewBroadcast_TYPE_GK_UAVCAN = 2
+
+};
     AP_NewBroadcast(AC_Sprayer& _sprayer);
     ~AP_NewBroadcast();
 
@@ -126,13 +60,12 @@ private:
     bool _initialized;
 	PX4CANManager* _parent_can_mgr;
     AC_Sprayer & sprayer;
+	AP_NewBroadcast_Backend* drive;
 
     AP_Int8  _enable;
 	AP_Int8  _reg_no[REG_NO_STRING_LEN];
-	//char  _reg_no[REG_NO_STRING_LEN];
     AP_Int32 _flight_seq;
-	//AP_Int8 _reg_no_complete;        //0:UAV registration number is not written to complete,1:complete
-	//bool _reg_no_complete;  
+
 	int32_t flight_seq_pre;
 	Location spraying_start;
 	Location spraying_end;
@@ -145,8 +78,7 @@ private:
     Message_info view;
 	Message_send_union payload;
 
-	bool send_flag;
-	int16_t send_index;	
+	bool send_flag;	
 	uint64_t send_last_time;
 		
 	static const uint16_t crc16tab[];
@@ -162,7 +94,6 @@ public:
 	MAV_RESULT handle_msg_newbroadcast_str(const mavlink_newbroadcast_str_t &packet,mavlink_channel_t chan);
     void update_view();
     void update_view_action();
-    //void update_view_reg_no();
     void update_view_reg_no(const mavlink_newbroadcast_str_t &packet,mavlink_channel_t chan);
     void update_view_flight_seq();
     void update_view_now_time();
@@ -192,12 +123,7 @@ public:
 	void update_view_flight_length();
 	void update_payload();
 
-	void sendPayload(char *pArray);
-	void sendPayload(char *pArray,uint16_t len);
-	bool sendDataStream(frameType type,char *pArray,uint16_t index,uint8_t length);
-	bool sendCrc16(frameType type);
-	uint16_t crc16_ccitt(const char *buf, int len);
-
+	uint8_t detect_backends();
 
 };
 #endif
