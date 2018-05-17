@@ -96,6 +96,9 @@ AP_NewBroadcast::~AP_NewBroadcast()
 
 void AP_NewBroadcast::init()
 {
+	if(_enable == NewBroadcast_TYPE_NONE)
+		return;
+	
 	send_flag = COMPLETE;
 	flight_seq_pre = _flight_seq.get();
 	flight_area_m2_curr = 0;
@@ -114,6 +117,8 @@ void AP_NewBroadcast::init()
 		}
 		else
 		{
+			delete drive;
+			drive = nullptr;
 			_initialized = false;
 			printf("New Broadcast init false\n");
 		}
@@ -137,6 +142,7 @@ uint8_t AP_NewBroadcast::detect_backends()
 			new_backend = new AP_NewBroadcast_CAN(payload);
 			break;
 		case NewBroadcast_TYPE_GK_UAVCAN:
+			new_backend = new AP_NewBroadcast_UAVCAN(payload);
 			break;
 		default:
 			break;

@@ -35,6 +35,7 @@
 #include <uavcan/helpers/heap_based_pool_allocator.hpp>
 
 #include "AP_NewBroadcast_CAN.h"
+#include "AP_NewBroadcast_UAVCAN.h"
 #include "NewBroadcast_Backend.h"
 
 #if NEWBROADCAST == ENABLED 

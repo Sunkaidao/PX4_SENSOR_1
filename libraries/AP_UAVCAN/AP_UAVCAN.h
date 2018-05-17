@@ -15,6 +15,7 @@
 #include <AP_GPS/GPS_Backend.h>
 #include <AP_Baro/AP_Baro_Backend.h>
 #include <AP_Compass/AP_Compass.h>
+#include <AP_NewBroadcast/NewBroadcast_Backend.h>
 
 #include <uavcan/helpers/heap_based_pool_allocator.hpp>
 
@@ -98,6 +99,11 @@ public:
     bool rc_out_sem_take();
     void rc_out_sem_give();
 
+    // synchronization for RC output
+    bool nbc_out_sem_take();
+    void nbc_out_sem_give();
+    void nbc_out_send(Message_send_union &playload,bool &send_flag,uint64_t &send_last_time);
+
 private:
     // ------------------------- GPS
     // 255 - means free node
@@ -138,6 +144,7 @@ private:
     uint8_t _rco_safety;
 
     AP_HAL::Semaphore *_rc_out_sem;
+    AP_HAL::Semaphore *_nbc_out_sem;
 
     class SystemClock: public uavcan::ISystemClock, uavcan::Noncopyable {
         SystemClock()

@@ -26,6 +26,9 @@
 #include <uavcan/equipment/actuator/Status.hpp>
 #include <uavcan/equipment/esc/RawCommand.hpp>
 
+// 4G
+#include <uavcan/equipment/webcast/Webcast.hpp>
+
 extern const AP_HAL::HAL& hal;
 
 #define debug_uavcan(level, fmt, args...) do { if ((level) <= AP_BoardConfig_CAN::get_can_debug()) { hal.console->printf(fmt, ##args); }} while (0)
@@ -277,6 +280,7 @@ static void (*air_data_st_cb_arr[2])(const uavcan::ReceivedDataStructure<uavcan:
 // publisher interfaces
 static uavcan::Publisher<uavcan::equipment::actuator::ArrayCommand>* act_out_array[MAX_NUMBER_OF_CAN_DRIVERS];
 static uavcan::Publisher<uavcan::equipment::esc::RawCommand>* esc_raw[MAX_NUMBER_OF_CAN_DRIVERS];
+static uavcan::Publisher<uavcan::equipment::webcast::Webcast>* nbc_out[MAX_NUMBER_OF_CAN_DRIVERS];
 
 AP_UAVCAN::AP_UAVCAN() :
     _node_allocator(
@@ -418,6 +422,10 @@ bool AP_UAVCAN::try_init(void)
                     esc_raw[_uavcan_i]->setTxTimeout(uavcan::MonotonicDuration::fromMSec(20));
                     esc_raw[_uavcan_i]->setPriority(uavcan::TransferPriority::OneLowerThanHighest);
 
+					  nbc_out[_uavcan_i] = new uavcan::Publisher<uavcan::equipment::webcast::Webcast>(*node);
+					  nbc_out[_uavcan_i] -> setTxTimeout(uavcan::MonotonicDuration::fromMSec(20));
+					  nbc_out[_uavcan_i] -> setPriority(uavcan::TransferPriority::OneLowerThanHighest);
+
                     /*
                      * Informing other nodes that we're ready to work.
                      * Default mode is INITIALIZING.
@@ -453,6 +461,79 @@ bool AP_UAVCAN::rc_out_sem_take()
 void AP_UAVCAN::rc_out_sem_give()
 {
     _rc_out_sem->give();
+}
+
+bool AP_UAVCAN::nbc_out_sem_take()
+{
+    bool sem_ret = _nbc_out_sem->take(10);
+    if (!sem_ret) {
+        debug_uavcan(1, "AP_UAVCAN New Broadcast semaphore fail\n\r");
+    }
+    return sem_ret;
+}
+
+void AP_UAVCAN::nbc_out_sem_give()
+{
+    _nbc_out_sem->give();
+}
+
+void AP_UAVCAN::nbc_out_send(Message_send_union &playload,bool &send_flag,uint64_t &send_last_time)
+{
+	send_flag = PROCESSING;
+	uavcan::equipment::webcast::Webcast msg;
+
+	msg.frame_header0 = playload._payload_s.frame_header0;
+	msg.frame_header1 = playload._payload_s.frame_header1;
+	msg.action = playload._payload_s.action;
+
+	for(int i = 0; i < uavcan::equipment::webcast::Webcast::REG_NO_STRING_LEN; i++)
+	{
+		msg.reg_no[i] = playload._payload_s.reg_no[i];
+	}
+
+	msg.flight_seq = playload._payload_s.flight_seq;
+	msg.now_time = playload._payload_s.now_time;
+	msg.state = playload._payload_s.state;
+	msg.flight_time = playload._payload_s.flight_time;
+	msg.longitude = playload._payload_s.longitude;
+	msg.latitude = playload._payload_s.latitude;
+	msg.height = playload._payload_s.height;
+	msg.altitude = playload._payload_s.altitude;
+	msg.path_angle = playload._payload_s.path_angle;
+	msg.pitch_angle = playload._payload_s.pitch_angle;
+	msg.roll_angle = playload._payload_s.roll_angle;
+	msg.horizontal_velocity = playload._payload_s.horizontal_velocity;
+	msg.is_nozzle_work = playload._payload_s.is_nozzle_work;
+	msg.nozzle_diameter = playload._payload_s.nozzle_diameter;
+	msg.nozzle_angle = playload._payload_s.nozzle_angle;
+	msg.nozzle_pressure = playload._payload_s.nozzle_pressure;
+	msg.spray_range = playload._payload_s.spray_range;
+
+	for(int i = 0; i < uavcan::equipment::webcast::Webcast::FLIGHT_CONTROL_STRING_LEN; i++)
+	{
+		msg.flight_control[i] = playload._payload_s.flight_control[i];
+	}
+	
+	for(int i = 0; i < uavcan::equipment::webcast::Webcast::TASK_ID_STRING_LEN; i++)
+	{
+		msg.task_id[i] = playload._payload_s.task_id[i];
+	}
+	
+	for(int i = 0; i < uavcan::equipment::webcast::Webcast::APP_VER_NO_STRING_LEN; i++)
+	{
+		msg.app_ver_no[i] = playload._payload_s.app_ver_no[i];
+	}
+
+	msg.tp_reg_no = playload._payload_s.tp_reg_no;
+	msg.remain_dose = playload._payload_s.remain_dose;
+	msg.used_dose = playload._payload_s.used_dose;
+	msg.cur_flow = playload._payload_s.cur_flow;
+	msg.flight_area = playload._payload_s.flight_area;
+	msg.flight_length = playload._payload_s.flight_length;
+
+	nbc_out[_uavcan_i]->broadcast(msg);
+	send_flag = COMPLETE;
+	send_last_time = AP_HAL::micros();
 }
 
 void AP_UAVCAN::do_cyclic(void)
