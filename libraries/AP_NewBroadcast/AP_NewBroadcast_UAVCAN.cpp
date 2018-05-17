@@ -66,6 +66,7 @@ uint8_t AP_NewBroadcast_UAVCAN :: send(bool &send_flag,uint64_t &send_last_time)
 	if(_uavcan->nbc_out_sem_take())
 	{
 		_uavcan->nbc_out_send(payload,send_flag,send_last_time);
+		_uavcan->nbc_actuators(true);
 		res = 1;
 		_uavcan->nbc_out_sem_give();
 	}

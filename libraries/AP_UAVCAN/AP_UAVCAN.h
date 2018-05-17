@@ -102,6 +102,8 @@ public:
     // synchronization for RC output
     bool nbc_out_sem_take();
     void nbc_out_sem_give();
+    void nbc_actuators(bool active);
+    void nbc_out_send();
     void nbc_out_send(Message_send_union &playload,bool &send_flag,uint64_t &send_last_time);
 
 private:
@@ -142,6 +144,7 @@ private:
     bool _initialized;
     uint8_t _rco_armed;
     uint8_t _rco_safety;
+    uint8_t _nbc_active;
 
     AP_HAL::Semaphore *_rc_out_sem;
     AP_HAL::Semaphore *_nbc_out_sem;

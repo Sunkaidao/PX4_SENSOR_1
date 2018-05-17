@@ -281,6 +281,7 @@ static void (*air_data_st_cb_arr[2])(const uavcan::ReceivedDataStructure<uavcan:
 static uavcan::Publisher<uavcan::equipment::actuator::ArrayCommand>* act_out_array[MAX_NUMBER_OF_CAN_DRIVERS];
 static uavcan::Publisher<uavcan::equipment::esc::RawCommand>* esc_raw[MAX_NUMBER_OF_CAN_DRIVERS];
 static uavcan::Publisher<uavcan::equipment::webcast::Webcast>* nbc_out[MAX_NUMBER_OF_CAN_DRIVERS];
+static uavcan::equipment::webcast::Webcast webcast_pub;
 
 AP_UAVCAN::AP_UAVCAN() :
     _node_allocator(
@@ -319,6 +320,7 @@ AP_UAVCAN::AP_UAVCAN() :
     }
 
     _rc_out_sem = hal.util->new_semaphore();
+	_nbc_out_sem = hal.util->new_semaphore();
 
     debug_uavcan(2, "AP_UAVCAN constructed\n\r");
 }
@@ -472,66 +474,74 @@ bool AP_UAVCAN::nbc_out_sem_take()
     return sem_ret;
 }
 
+void AP_UAVCAN::nbc_actuators(bool active)
+{
+    _nbc_active = active;
+}
+
 void AP_UAVCAN::nbc_out_sem_give()
 {
     _nbc_out_sem->give();
 }
 
+void AP_UAVCAN::nbc_out_send()
+{
+	nbc_out[_uavcan_i]->broadcast(webcast_pub);
+}
+
 void AP_UAVCAN::nbc_out_send(Message_send_union &playload,bool &send_flag,uint64_t &send_last_time)
 {
 	send_flag = PROCESSING;
-	uavcan::equipment::webcast::Webcast msg;
 
-	msg.frame_header0 = playload._payload_s.frame_header0;
-	msg.frame_header1 = playload._payload_s.frame_header1;
-	msg.action = playload._payload_s.action;
+	webcast_pub.frame_header0 = playload._payload_s.frame_header0;
+	webcast_pub.frame_header1 = playload._payload_s.frame_header1;
+	webcast_pub.action = playload._payload_s.action;
 
 	for(int i = 0; i < uavcan::equipment::webcast::Webcast::REG_NO_STRING_LEN; i++)
 	{
-		msg.reg_no[i] = playload._payload_s.reg_no[i];
+		webcast_pub.reg_no[i] = playload._payload_s.reg_no[i];
 	}
 
-	msg.flight_seq = playload._payload_s.flight_seq;
-	msg.now_time = playload._payload_s.now_time;
-	msg.state = playload._payload_s.state;
-	msg.flight_time = playload._payload_s.flight_time;
-	msg.longitude = playload._payload_s.longitude;
-	msg.latitude = playload._payload_s.latitude;
-	msg.height = playload._payload_s.height;
-	msg.altitude = playload._payload_s.altitude;
-	msg.path_angle = playload._payload_s.path_angle;
-	msg.pitch_angle = playload._payload_s.pitch_angle;
-	msg.roll_angle = playload._payload_s.roll_angle;
-	msg.horizontal_velocity = playload._payload_s.horizontal_velocity;
-	msg.is_nozzle_work = playload._payload_s.is_nozzle_work;
-	msg.nozzle_diameter = playload._payload_s.nozzle_diameter;
-	msg.nozzle_angle = playload._payload_s.nozzle_angle;
-	msg.nozzle_pressure = playload._payload_s.nozzle_pressure;
-	msg.spray_range = playload._payload_s.spray_range;
+	webcast_pub.flight_seq = playload._payload_s.flight_seq;
+	webcast_pub.now_time = playload._payload_s.now_time;
+	webcast_pub.state = playload._payload_s.state;
+	webcast_pub.flight_time = playload._payload_s.flight_time;
+	webcast_pub.longitude = playload._payload_s.longitude;
+	webcast_pub.latitude = playload._payload_s.latitude;
+	webcast_pub.height = playload._payload_s.height;
+	webcast_pub.altitude = playload._payload_s.altitude;
+	webcast_pub.path_angle = playload._payload_s.path_angle;
+	webcast_pub.pitch_angle = playload._payload_s.pitch_angle;
+	webcast_pub.roll_angle = playload._payload_s.roll_angle;
+	webcast_pub.horizontal_velocity = playload._payload_s.horizontal_velocity;
+	webcast_pub.is_nozzle_work = playload._payload_s.is_nozzle_work;
+	webcast_pub.nozzle_diameter = playload._payload_s.nozzle_diameter;
+	webcast_pub.nozzle_angle = playload._payload_s.nozzle_angle;
+	webcast_pub.nozzle_pressure = playload._payload_s.nozzle_pressure;
+	webcast_pub.spray_range = playload._payload_s.spray_range;
 
 	for(int i = 0; i < uavcan::equipment::webcast::Webcast::FLIGHT_CONTROL_STRING_LEN; i++)
 	{
-		msg.flight_control[i] = playload._payload_s.flight_control[i];
+		webcast_pub.flight_control[i] = playload._payload_s.flight_control[i];
 	}
 	
 	for(int i = 0; i < uavcan::equipment::webcast::Webcast::TASK_ID_STRING_LEN; i++)
 	{
-		msg.task_id[i] = playload._payload_s.task_id[i];
+		webcast_pub.task_id[i] = playload._payload_s.task_id[i];
 	}
 	
 	for(int i = 0; i < uavcan::equipment::webcast::Webcast::APP_VER_NO_STRING_LEN; i++)
 	{
-		msg.app_ver_no[i] = playload._payload_s.app_ver_no[i];
+		webcast_pub.app_ver_no[i] = playload._payload_s.app_ver_no[i];
 	}
 
-	msg.tp_reg_no = playload._payload_s.tp_reg_no;
-	msg.remain_dose = playload._payload_s.remain_dose;
-	msg.used_dose = playload._payload_s.used_dose;
-	msg.cur_flow = playload._payload_s.cur_flow;
-	msg.flight_area = playload._payload_s.flight_area;
-	msg.flight_length = playload._payload_s.flight_length;
+	webcast_pub.tp_reg_no = playload._payload_s.tp_reg_no;
+	webcast_pub.remain_dose = playload._payload_s.remain_dose;
+	webcast_pub.used_dose = playload._payload_s.used_dose;
+	webcast_pub.cur_flow = playload._payload_s.cur_flow;
+	webcast_pub.flight_area = playload._payload_s.flight_area;
+	webcast_pub.flight_length = playload._payload_s.flight_length;
 
-	nbc_out[_uavcan_i]->broadcast(msg);
 	send_flag = COMPLETE;
 	send_last_time = AP_HAL::micros();
 }
@@ -647,6 +657,17 @@ void AP_UAVCAN::do_cyclic(void)
                 }
 
                 rc_out_sem_give();
+            }
+
+            if(nbc_out_sem_take())
+            {    
+	            if(_nbc_active)
+	            {
+	            	nbc_out_send();
+					_nbc_active = false;
+	            }
+				
+				 nbc_out_sem_give();
             }
         }
     } else {
