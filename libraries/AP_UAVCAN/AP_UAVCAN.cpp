@@ -467,7 +467,7 @@ void AP_UAVCAN::rc_out_sem_give()
 
 bool AP_UAVCAN::nbc_out_sem_take()
 {
-    bool sem_ret = _nbc_out_sem->take(10);
+    bool sem_ret = _nbc_out_sem->take(HAL_SEMAPHORE_BLOCK_FOREVER);
     if (!sem_ret) {
         debug_uavcan(1, "AP_UAVCAN New Broadcast semaphore fail\n\r");
     }
