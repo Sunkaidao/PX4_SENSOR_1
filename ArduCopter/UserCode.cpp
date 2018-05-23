@@ -220,7 +220,7 @@ void Copter::userhook_init()
 	//	rewrite landinggear
 	if(edit_management.data.revision_edition != 6)
 	{	
-		edit_management.data.revision_edition = 6
+		edit_management.data.revision_edition = 6;
 		g.edition_management.set_and_save(edit_management.words);
 	}
 
