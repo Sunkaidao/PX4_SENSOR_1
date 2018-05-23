@@ -106,7 +106,7 @@ void AP_NewBroadcast::init()
 	memset( & view, 0, sizeof(view));
 	memset( & payload, 0, sizeof(payload));
 	update_view_flight_control();
-
+	update_view_reg_no();
 	
 	if(detect_backends())
 	{
@@ -167,7 +167,7 @@ MAV_RESULT AP_NewBroadcast::handle_msg_newbroadcast_str(const mavlink_newbroadca
 	 switch (packet.type) {
 		 case REG_NO: {
 
-			 update_view_reg_no(packet,chan);
+			 update_reg_no(packet,chan);
 			 result = MAV_RESULT_ACCEPTED; 
 			 break;
 		 }
@@ -236,15 +236,22 @@ void AP_NewBroadcast :: update_view_action()
     view.action = 0;
 }
 
-void AP_NewBroadcast :: update_view_reg_no(const mavlink_newbroadcast_str_t &packet,mavlink_channel_t chan)
+void AP_NewBroadcast :: update_reg_no(const mavlink_newbroadcast_str_t &packet,mavlink_channel_t chan)
 {
    	for(int i = 0; i < REG_NO_STRING_LEN; i++)
    	{
-    	view.reg_no[i] = packet.string[i];
 		_reg_no[i].set_and_save_ifchanged(packet.string[i]);
    	}
 
 	mavlink_msg_newbroadcast_str_send_struct(chan,&packet);
+}
+
+void AP_NewBroadcast :: update_view_reg_no()
+{
+   	for(int i = 0; i < REG_NO_STRING_LEN; i++)
+   	{
+    	view.reg_no[i] = _reg_no[i];
+	}
 }
 
 void AP_NewBroadcast ::update_view_task_id(const mavlink_newbroadcast_str_t &packet,mavlink_channel_t chan)
@@ -539,6 +546,7 @@ void AP_NewBroadcast :: update_view_flight_length()
 void AP_NewBroadcast :: update_view()
 {
     update_view_action();
+    update_view_reg_no();
     update_view_now_time();
     update_view_state();
     update_view_flight_time();

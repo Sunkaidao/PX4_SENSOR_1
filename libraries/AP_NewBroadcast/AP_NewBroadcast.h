@@ -95,7 +95,8 @@ public:
 	MAV_RESULT handle_msg_newbroadcast_str(const mavlink_newbroadcast_str_t &packet,mavlink_channel_t chan);
     void update_view();
     void update_view_action();
-    void update_view_reg_no(const mavlink_newbroadcast_str_t &packet,mavlink_channel_t chan);
+    void update_reg_no(const mavlink_newbroadcast_str_t &packet,mavlink_channel_t chan);
+    void update_view_reg_no();
     void update_view_flight_seq();
     void update_view_now_time();
     void update_view_state();
