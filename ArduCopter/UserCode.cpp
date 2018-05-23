@@ -218,9 +218,9 @@ void Copter::userhook_init()
 	
 	//	4G communications
 	//	rewrite landinggear
-	if(edit_management.data.revision_edition != 5)
+	if(edit_management.data.revision_edition != 6)
 	{	
-		edit_management.data.revision_edition = 5;
+		edit_management.data.revision_edition = 6
 		g.edition_management.set_and_save(edit_management.words);
 	}
 
