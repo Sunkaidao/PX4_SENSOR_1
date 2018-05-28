@@ -155,16 +155,16 @@ int AP_Flowmeter::GetDate()
 	if(((_alarm>>1)&0x01)==0x01)
 		{
 		if (_Flo_data.volume<_volume)
-				{
+			{
 				_Flo_data.warning=1;
-				}
+			}
 		}
 	if(((_alarm>>2)&0x01)==0x01)
 		{
 		if (_Flo_data.high<_high)
-				{
+			{
 				_Flo_data.warning=1;
-				}
+			}
 		}
 	
 

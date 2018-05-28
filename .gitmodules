@@ -4,6 +4,9 @@
 [submodule "modules/PX4NuttX"]
 	path = modules/PX4NuttX
 	url = git@192.168.10.241:xiazibin/PX4NuttX.git
+[submodule "modules/uavcan"]
+	path = modules/uavcan
+	url = git@192.168.10.241:baiyang/libuavcan.git
 [submodule "modules/waf"]
 	path = modules/waf
 	url = git://github.com/ArduPilot/waf.git
