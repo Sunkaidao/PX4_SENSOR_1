@@ -359,7 +359,8 @@ void AP_MotorsMatrix::output_armed_stabilizing()
 	else
 	{
 		rpy_scale = 1;
-	}
+	
+}
 
 //	if(0 == (lcl_cnt % 10))
 //		printf("sca:%4.2f ", rpy_scale);
@@ -394,7 +395,8 @@ void AP_MotorsMatrix::output_armed_stabilizing()
 //			if(0 == (lcl_cnt % 10))
 //				printf("%d:%4.2f ", i, _thrust_rpyt_out[i]);
         }
-	}
+	
+}
 
 //	if(0 == (lcl_cnt % 10))
 //		printf("\n");
@@ -722,6 +724,21 @@ void AP_MotorsMatrix::setup_motors(motor_frame_class frame_class, motor_frame_ty
                     add_motor_raw(AP_MOTORS_MOT_8, 0, 0, 0, 6);
                     success = true;
 					break;
+
+					//	added by zhangyong 20180524
+					// YuRen 4C8P
+				case MOTOR_FRAME_TYEP_NEW_OTHERS:
+        			add_motor_raw(AP_MOTORS_MOT_1, 	-1,  	0, 		-1,  	2);
+        			add_motor_raw(AP_MOTORS_MOT_2, 	1.0, 	0, 		-1,  	4);
+        			add_motor_raw(AP_MOTORS_MOT_3, 	0, 		1, 		1, 		1);
+        			add_motor_raw(AP_MOTORS_MOT_4, 	0,  	-1, 	1, 		3);
+        			add_motor_raw(AP_MOTORS_MOT_5, 	-0.44, 	0, 		0.44, 	6);
+        			add_motor_raw(AP_MOTORS_MOT_6, 	0.44,  	0, 		0.44, 	8);
+        			add_motor_raw(AP_MOTORS_MOT_7, 	0,   	0.44, 	-0.44, 	5);
+        			add_motor_raw(AP_MOTORS_MOT_8,  0,  	-0.44, 	-0.44, 	7);
+					break;
+				//	added end
+					
 				case MOTOR_FRAME_TYPE_NEW_PLUS:
                     add_motor(AP_MOTORS_MOT_1,    0,  AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  1);
                     add_motor(AP_MOTORS_MOT_2,  180,  AP_MOTORS_MATRIX_YAW_FACTOR_CCW,  5);
@@ -937,3 +954,4 @@ void AP_MotorsMatrix::thrust_compensation(void)
         _thrust_compensation_callback(_thrust_rpyt_out, AP_MOTORS_MAX_NUM_MOTORS);
     }
 }
+

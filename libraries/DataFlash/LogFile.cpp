@@ -1585,7 +1585,7 @@ void DataFlash_Class::Log_Write_Radio(const mavlink_radio_t &packet)
 // Write a Camera packet
 void DataFlash_Class::Log_Write_CameraInfo(enum LogMessages msg, const AP_AHRS &ahrs, const AP_GPS &gps, const Location &current_loc)
 {
-/*
+
     int32_t altitude, altitude_rel, altitude_gps;
     if (current_loc.flags.relative_alt) {
         altitude = current_loc.alt+ahrs.get_home().alt;
@@ -1616,7 +1616,7 @@ void DataFlash_Class::Log_Write_CameraInfo(enum LogMessages msg, const AP_AHRS &
         yaw         : (uint16_t)ahrs.yaw_sensor
     };
     WriteCriticalBlock(&pkt, sizeof(pkt));
-    */
+    
 }
 
 // Write a Camera packet

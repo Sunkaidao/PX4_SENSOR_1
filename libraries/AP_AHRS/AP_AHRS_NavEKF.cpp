@@ -85,7 +85,9 @@ void AP_AHRS_NavEKF::update(bool skip_ins_update)
     if (_ekf_type == 1) {
         _ekf_type.set(2);
     }
-    update_DCM(skip_ins_update);
+    //	shielded by zhangyong 20180516 to improve system performance 20180516
+	//update_DCM(skip_ins_update);
+	//	shielded end
     if (_ekf_type == 2) {
         // if EK2 is primary then run EKF2 first to give it CPU
         // priority

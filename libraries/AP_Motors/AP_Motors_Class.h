@@ -54,6 +54,7 @@ public:
         MOTOR_FRAME_TYPE_Y6B = 10,
         MOTOR_FRAME_TYPE_Y6F = 11, // for FireFlyY6
         //	added by ZhangYong 20180205
+        MOTOR_FRAME_TYEP_NEW_OTHERS = 12,
 		MOTOR_FRAME_TYPE_NEW_PLUS = 14,
 		MOTOR_FRAME_TYPE_NEW_X	= 15
 		//	added end

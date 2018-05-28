@@ -153,7 +153,7 @@ const AP_Param::GroupInfo AP_Proximity::var_info[] = {
     // @Units: 
     // @Range: 
     // @User: Standard
-    AP_GROUPINFO("_ENABLE", 19, AP_Proximity, _enable[0], 0),
+    //AP_GROUPINFO("_ENABLE", 19, AP_Proximity, _enable[0], 0),
     
     // added by xusiming and used for controlling the orientation of sensor's table
     // @Param: _apm
@@ -162,7 +162,7 @@ const AP_Param::GroupInfo AP_Proximity::var_info[] = {
     // @Units: cm/s
     // @Range: 0 100
     // @User: Standard
-     AP_GROUPINFO("_APM", 21, AP_Proximity,_apm[0], 40 ),
+     AP_GROUPINFO("_APM", 19, AP_Proximity,_apm[0], 40 ),
     
     // added by xusiming and used for controlling the orientation of sensor's table
     // @Param: _rate
@@ -171,7 +171,7 @@ const AP_Param::GroupInfo AP_Proximity::var_info[] = {
     // @Units: hz
     // @Range: 0 65536
     // @User: Standard
-    AP_GROUPINFO("_RATE", 22, AP_Proximity,_rate[0], 50),
+    AP_GROUPINFO("_RATE", 20, AP_Proximity,_rate[0], 50),
     
     // added by xusiming and used for controlling the orientation of sensor's table
     // @Param: ENABLE
@@ -180,7 +180,7 @@ const AP_Param::GroupInfo AP_Proximity::var_info[] = {
 	// @Units: 
 	// @Range: 0 1
 	// @User: Standard
-	AP_GROUPINFO("_TABLE_ENABLE", 23, AP_Proximity,_table_enable[0], 0),
+	AP_GROUPINFO("_TABLE_ENABLE", 21, AP_Proximity,_table_enable[0], 0),
 
 #if PROXIMITY_MAX_INSTANCES > 1
     // @Param: 2_TYPE
@@ -212,7 +212,7 @@ const AP_Param::GroupInfo AP_Proximity::var_info[] = {
     // @Units: 
     // @Range: 
     // @User: Standard
-    AP_GROUPINFO("2_ENABLE", 20, AP_Proximity, _enable[1], 0),
+    //AP_GROUPINFO("2_ENABLE", 20, AP_Proximity, _enable[1], 0),
 #endif
 
     AP_GROUPEND
@@ -235,15 +235,20 @@ void AP_Proximity::init(void)
         return;
     }
     for (uint8_t i=0; i<PROXIMITY_MAX_INSTANCES; i++) {
-        detect_instance(i);
-        if (drivers[i] != nullptr) {
-            // we loaded a driver for this instance, so it must be
-            // present (although it may not be healthy)
-            num_instances = i+1;
-        }
+		//	added by ZhangYong 20180425
+		if(0 != _type[i])
+		//	added end
+        {
+        	detect_instance(i);
+        	if (drivers[i] != nullptr) {
+            	// we loaded a driver for this instance, so it must be
+            	// present (although it may not be healthy)
+            	num_instances = i+1;
+        	}
 
-        // initialise status
-        state[i].status = Proximity_NotConnected;
+        	// initialise status
+        	state[i].status = Proximity_NotConnected;
+		}
     }
 }
 

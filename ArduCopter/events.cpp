@@ -31,7 +31,8 @@ void Copter::failsafe_radio_on_event()
 		else if((control_mode == LAND) || (control_mode == RTL))
 		{
 			//	continue landing or RTL
-		}
+		
+}
 		else 
         {
             if (g.failsafe_throttle == FS_THR_ENABLED_ALWAYS_LAND) 
@@ -72,7 +73,8 @@ void Copter::failsafe_radio_on_event()
             				{
             					set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
            					}							
-						}
+						
+}
 						
 						break;
 
@@ -91,7 +93,8 @@ void Copter::failsafe_radio_on_event()
 						{
 							
 							set_mode_land_with_pause(MODE_REASON_RADIO_FAILSAFE);
-						}
+						
+}
 						break;
             	}
 				//	modified end
@@ -287,7 +290,15 @@ void Copter::failsafe_gcs_check()
 
     // return immediately if gcs failsafe is disabled, gcs has never been connected or we are not overriding rc controls from the gcs and we are not in guided mode
     // this also checks to see if we have a GCS failsafe active, if we do, then must continue to process the logic for recovery from this state.
-    if ((!failsafe.gcs)&&(g.failsafe_gcs == FS_GCS_DISABLED || failsafe.last_heartbeat_ms == 0 || (!failsafe.rc_override_active && control_mode != GUIDED))) {
+	//	modified by ZhangYong 20180521
+	//	if we dont enable GCS failsafe, but we enabled gcs control,
+	//	when we lost gcs control signal, PX4RCInput::overried[] can not be clear,
+	//	so radio can not recontrol the copter
+	/*if ((!failsafe.gcs)&&(g.failsafe_gcs == FS_GCS_DISABLED || failsafe.last_heartbeat_ms == 0 || (!failsafe.rc_override_active && control_mode != GUIDED))) {
+        return;
+    }*/
+
+	if ((!failsafe.gcs)&&(failsafe.last_heartbeat_ms == 0 || (!failsafe.rc_override_active && control_mode != GUIDED))) {
         return;
     }
 
@@ -310,14 +321,22 @@ void Copter::failsafe_gcs_check()
         return;
     }
 
+
+	// clear overrides so that RC control can be regained with radio.
+    hal.rcin->clear_overrides();
+    failsafe.rc_override_active = false;
+
+	if(g.failsafe_gcs == FS_GCS_DISABLED)
+		return;
+	
+	//	modified end
+
     // GCS failsafe event has occurred
     // update state, log to dataflash
     set_failsafe_gcs(true);
     Log_Write_Error(ERROR_SUBSYSTEM_FAILSAFE_GCS, ERROR_CODE_FAILSAFE_OCCURRED);
 
-    // clear overrides so that RC control can be regained with radio.
-    hal.rcin->clear_overrides();
-    failsafe.rc_override_active = false;
+    
 //	printf("failsafe_gcs_check false\n");
 
 	//	added by ZhangYong to pull the throttle to bottom, and reset roll, pitch, and yaw to trim;
@@ -403,7 +422,8 @@ void Copter::failsafe_gcs_check()
 	
 						set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
 						break;
-				}
+				
+}
 				
 				break;	//	AUTO
 				
@@ -425,10 +445,12 @@ void Copter::failsafe_gcs_check()
 	
 						set_mode_RTL_or_land_with_pause(MODE_REASON_GCS_FAILSAFE);
 						break;
-				}	
+				
+}	
 				break;
 				
-        }
+        
+}
         
     }
 }
@@ -557,4 +579,5 @@ void Copter::update_events()
 {
     ServoRelayEvents.update_events();
 }
+
 

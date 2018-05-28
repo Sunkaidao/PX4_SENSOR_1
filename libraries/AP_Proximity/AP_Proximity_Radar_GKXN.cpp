@@ -45,6 +45,11 @@ void AP_Proximity_Radar_GKXN::update(void)
     if (uart == nullptr) {
         return;
     }
+
+	
+
+
+	
 	//printf("radar_gkxn\n");
 	send_sensor_command();
     // process incoming messages
@@ -118,9 +123,9 @@ bool AP_Proximity_Radar_GKXN::send_sensor_command()
 	TX_Buff[6]=pitch_lsb;
 //	printf("TX_Buff[6]=%x\n",TX_Buff[6]);
 	for(j=0;j<7; j++)
-		{
+	{
 		checkByte += TX_Buff[j];
-	    }
+	}
 	TX_Buff[7]=checkByte;
 	
 	
@@ -281,7 +286,7 @@ bool AP_Proximity_Radar_GKXN::read_sensor_data()
 			message_state=9;
 		break;
 		case 9:
-		    if (((data&0x01)!=0x01)&&(((data>>3)&0x01)!=0x01))
+		    if (((data&0x01)!=0x01)&&(((data>>2)&0x01)!=0x01))
 		    {
 		    checksum+=data;
 		    message_state=10;
@@ -336,6 +341,7 @@ bool AP_Proximity_Radar_GKXN::read_sensor_data()
 		{
 		front_warning=1;
 		}
+		
 		if(back_data_warning==0)
 		{
 		update_sector_data(180, d2);
@@ -345,6 +351,7 @@ bool AP_Proximity_Radar_GKXN::read_sensor_data()
 		back_warning=1;
 		}
 		}
+	
 	else
 		{
 		uncm_num++;
@@ -376,4 +383,5 @@ void AP_Proximity_Radar_GKXN::update_sector_data(int16_t angle_deg, uint16_t dis
         update_boundary_for_sector(sector);
     }
 }
+
 

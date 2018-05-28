@@ -21,7 +21,8 @@ bool AP_RangeFinder_Radar_ZHIBO::detect(AP_SerialManager &serial_manager)
     return serial_manager.find_serial(AP_SerialManager::SerialProtocol_Radar_ZHIBO, 0) != nullptr;
 }
 bool AP_RangeFinder_Radar_ZHIBO::get_reading(uint16_t &reading_cm)
-{	bool valid=false;
+{
+	bool valid=false;
 	uint8_t nbytes = uart->available();
 	if (uart == nullptr) {
 		   return false;
@@ -29,6 +30,7 @@ bool AP_RangeFinder_Radar_ZHIBO::get_reading(uint16_t &reading_cm)
 	
 	while (nbytes-- > 0)
 	{
+		
 		uint8_t data=uart->read();
 		switch(message_state)
 		{
@@ -43,13 +45,13 @@ bool AP_RangeFinder_Radar_ZHIBO::get_reading(uint16_t &reading_cm)
 				distance0=distance1=0;
 				checksum+=data; 
 				message_state=1;
-				reading_cm=0;
 			}
 			else if(data==0xf0)
 			{
 				message_state=0;
 				reading_cm=0x1388;
 				valid=true;
+//				printf("no target\n");
 			}
 			else
 			{
@@ -93,6 +95,7 @@ bool AP_RangeFinder_Radar_ZHIBO::get_reading(uint16_t &reading_cm)
 				reading_cm=distance0*0x80+distance1;
 				message_state=0; 
 				valid=true;
+//				printf("reading_cm=%d\n",reading_cm);
 				}
 				else
 				{
@@ -111,13 +114,15 @@ bool AP_RangeFinder_Radar_ZHIBO::get_reading(uint16_t &reading_cm)
 		}	
 		
 	}
-	
+//	printf("last_reading_cm=%d\n",reading_cm);
 	if(valid==true)
 		{
+//		printf("true\n");
 		return true;
 		}
 	else
 		{
+//		printf("false\n");
 		return false;
 		}
 	}	
@@ -133,4 +138,5 @@ void AP_RangeFinder_Radar_ZHIBO::update(void)
         set_status(RangeFinder::RangeFinder_NoData);
     }
 }
+
 
