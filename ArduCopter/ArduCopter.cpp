@@ -439,6 +439,11 @@ void Copter::ten_hz_logging_loop()
 //	printf("%d: %4.2f\n", battery.num_instances(), battery.voltage(1));
 //	added end
 
+#if BCBPMBUS == ENABLE
+	update_bcbpmbus();
+#endif
+
+
 }
 
 // twentyfive_hz_logging - should be run at 25hz
@@ -517,7 +522,7 @@ void Copter::three_hz_loop()
 
 
 #if PROJECTGKXN == ENABLED 
-	Log_Write_Sprayer(sprayer, wp_distance, flowmeter.get_warning(), flowmeter.get_packet_cnt());
+	Log_Write_Sprayer(sprayer, wp_distance, flowmeter.get_warning(), flowmeter.get_packet_cnt(),flowmeter.get_volume(),flowmeter.get_high());
 #else
 	Log_Write_Sprayer(sprayer, wp_distance, 1, 0);
 #endif
@@ -572,13 +577,13 @@ void Copter::three_hz_loop()
 	
 #endif	
 
-#if BCBMONITOR == ENABLE
-	bcbmonitor.read();
-#endif
+//#if BCBMONITOR == ENABLE
+//bcbmonitor.read();
+//#endif
 
-#if BCBPMBUS == ENABLE
-	update_bcbpmbus();
-#endif
+//#if BCBPMBUS == ENABLE
+//	update_bcbpmbus();
+//#endif
 	
 }
 

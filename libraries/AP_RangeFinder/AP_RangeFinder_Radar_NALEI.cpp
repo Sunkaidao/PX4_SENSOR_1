@@ -1,4 +1,4 @@
- #include <AP_HAL/AP_HAL.h>
+#include <AP_HAL/AP_HAL.h>
 #include "AP_RangeFinder_Radar_NALEI.h"
 #include <AP_SerialManager/AP_SerialManager.h>
 #include <ctype.h>
@@ -21,291 +21,181 @@ bool AP_RangeFinder_Radar_NALEI::detect(AP_SerialManager &serial_manager)
     return serial_manager.find_serial(AP_SerialManager::SerialProtocol_Radar_NALEI, 0) != nullptr;
 }
 bool AP_RangeFinder_Radar_NALEI::get_reading(uint16_t &reading_cm)
-{   
-	uint8_t checksum = 0x00;
-	static uint16_t distance = 0;
-	uint8_t message_state=0;
-	uint8_t message_complete=0;
-	static uint8_t message_status=0;
-	int      count=0;
-	//printf("radar get reading \n");
-	
-    if (uart == nullptr) {
+{
+	if (uart == nullptr) {
         return false;
-	//	printf("nullptr fasle\n");
     }
-  
-    // set buffer and init
+	_num_error.Time_Head_error=0;
+	_num_error.Time_Tail_error=0;
+	_num_error.Time_Invalid_data=0;
+	_num_error.Time_Payload_error=0;
+	
+	bool   valid=false;
 	int16_t nbytes = uart->available();
-//	printf("nbytes=%x",nbytes);
-	reading_cm=0;
-	distance=0;
 	while (nbytes-- > 0)
 		{
 		uint16_t data=uart->read();
-	//printf("data=%x",data);
-		
-	//printf("\n");
-	//printf("read data from radar\n");
-	//check the message is complete or not 
-	switch(message_state)
-		{
-		case 0:
-		 if(data==0xAA)
-		 	{
-		     _num_error.Time_Head_error=0;
-		     _num_error.Time_Invalid_data=0;
-			 _num_error.Time_Payload_error=0;
-			 _num_error.Time_Tail_error=0 ; 
-			 count=0;
-			 message_state=1;
-		//	 printf("case0 init \n");
-		 	}
-		 else
-		 	{
-		 	_num_error.Time_Head_error++;
-		 	message_state=0;
-		 	}
-		 break;
-		 case 1:
-		  if(data==0xAA)
-		 	{message_state=2;
-		  //   printf("case1  \n");
-		 	}
-		  else
-		 	{
-		 	_num_error.Time_Head_error++;
-		 	message_state=0;
-		 	}
-		  break;
-		  case 2:
-		  	
-		 // printf("case2 data=%x",data);
-		 	if(data==0x0A)
-		 		{
-		 	//	printf("message_status=1\n");
-		 		message_status=1;
-				message_state=3;
-		 		}
-		    else if((data==0x0B)&&(message_status==1))
-		    	{
-		    //	printf("message_status=2\n");
-		    	message_status=2;
-				message_state=4;
-		    	}
-			else if((data==0x0C)&&(message_status==2))
-				{
-			//	printf("message_status=3\n");
-				message_status=3;
-				message_state=4;
-				
-				}
-			else 
-				{
-				_num_error.Time_Invalid_data++;
-				message_state=0;
-				}
-			break;
-		    case 3:
-			//	printf("case3\n");
-			 if(data==0x06)
-				{
-				message_state=5;
-				}
-			 else 
-				{
-				_num_error.Time_Invalid_data++;
-			    message_state=0;
-				}
-			 break;
-			 case 4:
-			 //	printf("case4=%x\n",data);
-			 	if(data==0x07)
-			 		{
-			 		message_state=5;
-			 		}
+		switch(message_state)
+			{
+			case 0:
+				if(data==0xAA)
+					{
+					checksum = 0x00;
+					message_state=1;
+					count=0;
+					distance0=0;
+					distance1=0;
+					message_id=0;
+					count=0;
+					target_num=0;
+					check_number=0;
+					}
 				else
 					{
-					_num_error.Time_Invalid_data++;
-				    message_state=0;
+					_num_error.Time_Head_error++;
+					message_state=0;
 					}
-				break;
-				case 5:
-				//	printf("case5 data=%x\n",data);
-					if(data==0x01)
+			break;
+			case 1:
+				if(data==0xAA)
+					{
+					message_state=2;
+					}
+				else
+					{
+					_num_error.Time_Head_error++;
+					message_state=0;
+					}
+			break;
+			case 2:
+				message_id=data;
+				message_state=3;
+			break;
+			case 3:
+				message_id+=(data*0x100);
+				message_state=4;
+			break;
+			case 4:
+				target_num=data;
+				checksum+=data;
+				message_state=5;
+			break;
+			case 5:
+				checksum+=data;
+				message_state=6;
+			break;
+			case 6:
+				checksum+=data;
+				message_state=7;
+				distance0=data;
+			break;
+			case 7:
+				checksum+=data;
+				message_state=8;
+				distance1=data;
+			break;
+			case 8:
+				if(count<2)
+					{
+					checksum+=data;
+					message_state=8;
+					count++;
+					}
+				else
+					{
+					checksum+=data;
+					message_state=9;
+					}
+			break;
+			case 9:
+				check_number=data;
+				message_state=10;
+			break;
+			case 10:
+				if(data==0x55)
+					{
+					message_state=11;
+					}
+				else
+					{
+					_num_error.Time_Tail_error++;
+					message_state=0;
+					}
+			break;
+			case 11:
+				//check the end of message
+				if(data==0x55)
+					{
+					//check the checksum of message
+					if(checksum==check_number)
 						{
-						checksum=0;
-					    checksum+=data;
-						message_state=6;
-						count+=1;
+						//examine the id of message and update the status
+						if((message_id==0x60A)&&(message_status==0))
+							{
+							message_status=1;
+							message_state=0;
+							}
+						else if((message_id==0x70B)&&(message_status==1))
+							{
+							if(target_num!=0)
+								{
+								message_status=2;
+								}
+							else
+								{
+								message_status=0;
+								state.RangeFinder_no_target_count++;
+								}
+							message_state=0;
+							}
+						else if((message_id==0x70C)&&(message_status==2))
+							{
+							//make sure the status of message and get the distance 
+							uint16_t distance=0;
+							distance=distance0;
+							reading_cm=distance*256+distance1;
+							valid=true;
+							message_state=0;
+							message_status=0;
+							}
+						else
+							{
+							_num_error.Time_Invalid_data++;
+							message_state=0;
+							}
 						}
 					else
 						{
 						_num_error.Time_Payload_error++;
 						message_state=0;
 						}
-					break;
-				    case 6:
-					//	printf("case6 data=%x\n",data);
-						//printf("case6\n");
-					 // printf("message_status=%x",message_status);
-						if(message_status==1)
-							{ 
-						//	printf("message_status=1\n");
-							if((data==0x10)||(data==0x11)||(data==0x12)||(data==0x13))
-								{
-								checksum+=data;
-								count+=1;
-								message_state=7;
-								}
-							else
-								{
-								_num_error.Time_Payload_error++;
-						        message_state=0;
-								}
-							}
-						else if(message_status==2)
-							{
-						//	printf("message_status=2\n");
-							if((data==0x00)||(data==0x01)||(data==0x02)||(data==0x03))
-								{
-								checksum+=data;
-								count+=1;
-								message_state=7;
-								}
-							else
-								{
-								_num_error.Time_Payload_error++;
-						        message_state=0;
-							    }
-							}
-						else if(message_status==3)
-							{ 
-							// printf("message_status=3\n");
-							    checksum+=data;
-								count+=1;
-								message_state=10;
-							}
-						break;
-						case 7:
-						//	printf("case7\n");
-							if((data==0x00)&&(count<6))
-								{
-								checksum+=data;
-								count+=1;
-								message_state=7;
-								}
-							else if(count==6)
-								{
-								checksum+=data;
-								count+=1;
-								message_state=8;
-								}
-				           else
-				           	{
-				           	    _num_error.Time_Payload_error++;
-						        message_state=0;
-				           	}
-						   break;
-						   case 8:
-						  // 	printf("case8\n");
-						   	if(data==(checksum&0xFF))
-						   		{
-						   		message_state=9;
-						   		}
-							else
-								{
-								_num_error.Time_Invalid_data++;
-								message_state=0;
-								}
-							break;
-							case 9:
-							//	printf("case9\n");
-								if(data==0x55)
-						   		{
-						   		message_state=13;
-						   		}
-								else
-								{
-								_num_error.Time_Tail_error++;
-								message_state=0;
-								}
-								break;
-								case 10:
-								//	printf("case10\n");
-								 distance=data*0x100;
-								 checksum+=data;
-								 count+=1;
-								 message_state=11;
-								 break;
-								 case 11:
-								 //	printf("case11\n");
-									distance+=data;
-									checksum+=data;
-								    count+=1;
-								    message_state=12;
-									break;
-									case 12:
-									//	printf("case12 data=%x\n",data);
-										if(count<6)
-											{
-											checksum+=data;
-								            count+=1;
-								            message_state=12;
-											}
-										else if(count==6)
-											{
-											checksum+=data;
-								            count+=1;
-								            message_state=8;
-										//	printf("go to checksum");
-											}
-										else
-											{
-											_num_error.Time_Payload_error++;
-						                    message_state=0;
-											}
-										break;
-										case 13:
-										//	printf("case13\n");
-											if(data==0x55)
-												{
-												message_state=0;
-												if (message_status==01)
-													{
-												
-													//printf("radar receive the status message\n");
-													}
-												if (message_status==02)
-													{
-													//printf("radar receive the target status message\n");
-													}
-												else if(message_status==03)
-													{ message_complete=1;
-													//printf("diatance=%x\n",distance);
-													
-													
-													//printf("radar receive the distance message\n");
-													}
-												}
-											else
-								                {
-								                 _num_error.Time_Tail_error++;
-								                 message_state=0;
-												 
-								                 }
-								
+					}
+				else
+					{
+					_num_error.Time_Tail_error++;
+					message_state=0;
+					}
+			break;
+			default:
+			break;
+			}
 		}
-   	
-   }
-	if(message_complete==1)
+
+	if(valid==true)
 		{
-	//	printf("diatance=%x\n",distance);
-		reading_cm=distance;
-		
-	//	printf("reading_cm=%x\n",reading_cm);
+		state.RangeFinder_message_condition=1;
+		return true;
 		}
-	return true;
+	else
+		{
+		state.RangeFinder_unvalid_num++;
+		state.RangeFinder_message_condition=0;
+		if((_num_error.Time_Head_error!=0)||(_num_error.Time_Tail_error!=0)||(_num_error.Time_Invalid_data!=0)||(_num_error.Time_Payload_error!=0))
+			{
+			state.RangeFinder_error_count++;
+			}
+		return false;
+		}
 	}	
 	
 

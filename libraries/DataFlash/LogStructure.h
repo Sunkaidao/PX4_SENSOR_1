@@ -252,6 +252,8 @@ struct PACKED log_SPRAYER {
 	uint32_t wp_dist;
 	uint8_t fm_warn;
 	uint8_t pck_cnt;
+	double fm_vol;
+	double fm_h;
 };
 
 
@@ -654,6 +656,10 @@ struct PACKED log_RFND {
 	uint16_t dist3;
     uint8_t orient3;
 	//	added end
+	uint16_t error1;
+	uint16_t notarget1;
+	uint16_t unvaildnum1;
+	uint8_t condition1;
 };
 
 #if CHARGINGSTATION == ENABLED
@@ -1508,7 +1514,7 @@ Format characters in the format string for binary log messages
 	{ LOG_RSSI_MSG, sizeof(log_RSSI), \
       "RSSI",  "Qf",     "TimeUS,RXRSSI" }, \
 	{ LOG_SPRAYER_MSG, sizeof(log_SPRAYER), \
-      "SPY",  "QbBBBIIHIBB",     "TimeMS,ab,run,spy,tt,ot,ut,pr,wp,fm,pc" }, \
+      "SPY",  "QbBBBIIHIBBdd",     "TimeMS,ab,run,spy,tt,ot,ut,pr,wp,fm,pc,vol,h" }, \
     { LOG_CD_MSG, sizeof(log_Communication_drops), \
 	 "CD", "Qif", "TMS,D2H,CD" }, \
 	{ LOG_PADCMD_MSG, sizeof(log_PADCMD), \
@@ -1552,7 +1558,7 @@ Format characters in the format string for binary log messages
     { LOG_MODE_MSG, sizeof(log_Mode), \
       "MODE", "QMBB",         "TimeUS,Mode,ModeNum,Rsn" }, \
     { LOG_RFND_MSG, sizeof(log_RFND), \
-      "RFND", "QCBCBCB", "TimeUS,Dt1,Ot1,Dt2,Ot2,Dt3,Ot3" }, \
+      "RFND", "QCBCBCBCCCB", "TimeUS,Dt1,Ot1,Dt2,Ot2,Dt3,Ot3,Err1,NT1,unv1,Cod1" }, \
     { LOG_DF_MAV_STATS, sizeof(log_DF_MAV_Stats), \
       "DMS", "IIIIIBBBBBBBBBB",         "TimeMS,N,Dp,RT,RS,Er,Fa,Fmn,Fmx,Pa,Pmn,Pmx,Sa,Smn,Smx" }, \
     { LOG_BEACON_MSG, sizeof(log_Beacon), \

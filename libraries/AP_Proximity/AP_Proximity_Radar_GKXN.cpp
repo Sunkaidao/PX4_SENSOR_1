@@ -45,11 +45,6 @@ void AP_Proximity_Radar_GKXN::update(void)
     if (uart == nullptr) {
         return;
     }
-
-	
-
-
-	
 	//printf("radar_gkxn\n");
 	send_sensor_command();
     // process incoming messages
@@ -107,10 +102,10 @@ bool AP_Proximity_Radar_GKXN::send_sensor_command()
     {
       TX_Buff[i]=0;
 	}
-	int32_t pitch_radar=0-get_table_angle();
-	int16_t pitch_msb=( pitch_radar & 0xFF00)>>8;
-	int16_t pitch_lsb=pitch_radar&0x00FF;
-//	printf("pitch radar=%u\n",pitch_radar);
+	int16_t pitch_radar=0-get_table_angle();
+	int8_t pitch_msb=( pitch_radar & 0xFF00)>>8;
+	int8_t pitch_lsb=pitch_radar&0x00FF;
+//	printf("pitch radar=%d\n",pitch_radar);
 	TX_Buff[0]=0x55;
 	TX_Buff[1]=0x0C;
 	TX_Buff[2]=0x00;
@@ -123,9 +118,9 @@ bool AP_Proximity_Radar_GKXN::send_sensor_command()
 	TX_Buff[6]=pitch_lsb;
 //	printf("TX_Buff[6]=%x\n",TX_Buff[6]);
 	for(j=0;j<7; j++)
-	{
+		{
 		checkByte += TX_Buff[j];
-	}
+	    }
 	TX_Buff[7]=checkByte;
 	
 	
@@ -143,226 +138,151 @@ bool AP_Proximity_Radar_GKXN::send_sensor_command()
 
 bool AP_Proximity_Radar_GKXN::read_sensor_data()
 {   
-   if (uart == nullptr) {
+	if (uart == nullptr) {
         return false;
-    }
-    int16_t nbytes = uart->available();
-	uint16_t front_data_back=0;
-	uint16_t back_data_back=0;
-	int      k=0;
-	uint16_t checksum = 0x00;
-	uint8_t message_state=0;
-	int      message_complete=0;
-	uint16_t d1=0x00;
-	uint16_t d2=0x00;
-	uint8_t front_data_valid=0;
-	uint8_t back_data_valid=0;
-	uint8_t front_data_warning=0;
-	uint8_t back_data_warning=0;
-
-   while (nbytes-- > 0)  {
-		
-       uint8_t data=uart->read();
-	   switch(message_state)
-	   	{
-	   	case 0:
-	   	  if(data==0x55)
-	   	  	{_num_error.Time_Head_error=0;
-		     _num_error.Time_Invalid_data=0;
-		     _num_error.Time_Checksum_error=0 ;
-			 front_data_back=0;
-	         back_data_back=0;
-			 checksum=0x00;
-			 k=0;
-			 front_warning=0;
-			 back_warning=0;
-			 checksum+=data;
-			 front_data_warning=0;
-	         back_data_warning=0;
-			 message_complete=0;
-			 message_state=1;
-			 
-	   	  	}
-		  else
-		 	{
-		 	_num_error.Time_Head_error++;
-		 	message_state=0;
-		 	}
-		 break;
-		case 1:
-		  if(data==0x0C)
-		  	{
-		  	message_state=2;
-			checksum+=data;
-		  	}
-		  else
-		 	{
-		 	_num_error.Time_Invalid_data++;
-		 	message_state=0;
-		 	}
-		  break;
-		case 2:
-		   if(data==0x0B)
-		 	{
-		 	message_state=3;
-			checksum+=data;
-		 	}
-			else
-		 	{
-		 	_num_error.Time_Invalid_data++;
-		 	message_state=0;
-		 	}
-			break;
-		case 3:
-			if(data!=0xff)
-			{
-			front_data_back=(data<<8);
-			checksum+=data;
-			message_state=4;
-			}
-			else
-			{
-			front_data_back=(data<<8);
-			checksum+=data;
-			k=1;
-			message_state=4;
-			}
-			break;
-		case 4:
-			if((k==1)&&(data==0xff))
-			{
-		     k=0;
-			 checksum+=data;
-			 front_data_back+=data;
-			 message_state=5;
-			 front_data_valid++;
-			}
-		    else
-			{
-		     front_data_back+=data;
-			 checksum+=data;
-			 k=0;
-			 message_state=5;
-			}
-		break;
-		case 5:
-		    if(data!=0xff)
-		    {
-			back_data_back=(data<<8);
-			checksum+=data;
-		    message_state=6;
-		    }
-		    else
-		    {
-		    back_data_back=(data<<8);
-		    checksum+=data;
-			k=1;
-			message_state=6;
-			}
-		break;
-		case 6:
-	        if((k==1)&&(data==0xff))
-		    {
-		    k=0;
-			checksum+=data;
-			back_data_back+=data;
-		    message_state=7;
-			back_data_valid++;
-		    }
-		    else
-			{
-			back_data_back+=data;
-			checksum+=data;
-			k=0;
-		    message_state=7;
-			}
-		break;
-		case 7:
-			checksum+=data;
-			message_state=8;
-		break;
-		case 8:
-			checksum+=data;
-			message_state=9;
-		break;
-		case 9:
-		    if (((data&0x01)!=0x01)&&(((data>>2)&0x01)!=0x01))
-		    {
-		    checksum+=data;
-		    message_state=10;
-		    }
-			else if (((data&0x01)==0x01)&&(front_data_valid!=0))
-		    {
-		     message_state=10;
-		     checksum+=data;
-			 front_data_warning=1; 
-		    }
-			else if((((data>>2)&0x01)==0x01)&&(back_data_valid!=0))
-			{
-		     message_state=10;
-		     checksum+=data;
-			 back_data_warning=1;
-			}
-		    else
-		    {
-		    checksum+=data;
-		    message_state=10;
-		    }
-		break;
-		case 10:
-			if(data==(checksum&0xff))
-		    {
-			message_complete=1;
-			d1=front_data_back;
-			d2=back_data_back;
-		    }
-		    else
-		    {
-		    _num_error.Time_Checksum_error++;
-		    message_state=0;
-		    }
-		break;
-		default:
-			_num_error.Time_Invalid_data++;
-		break;
-	   	}
-       
-    }
-
-
-	if (message_complete==1)
+		}
+	int16_t nbytes = uart->available();
+	bool valid=false;
+	while (nbytes-- > 0)
+	{
+	//depend on 20180120 email of gkxn
+		uint8_t data=uart->read();
+		switch(message_state)
 		{
-		// record the warning message
-		if(front_data_warning==0)
+			case 0:
+				if(data==0x55)
+					{
+					checksum=0x00;
+					checksum+=data;
+					_num_error.Time_Head_error=0;
+					_num_error.Time_Invalid_data=0;
+					_num_error.Time_Checksum_error=0;
+					k=0;
+					address_code=0x00;
+					frame_longth=0x00;
+					message_state=1;
+					}
+				else
+				{
+				_num_error.Time_Head_error++;
+				message_state=0;
+				}
+			break;
+			case 1:
+				checksum+=data;
+				address_code=data;
+				message_state=2;
+			break;
+			case 2:
+				checksum+=data;
+				frame_longth=data;
+				message_state=3;
+			break;
+			case 3:
+				checksum+=data;
+				front_data_back=(data<<8);
+				message_state=4;
+			break;
+			case 4:
+				checksum+=data;
+				front_data_back+=data;
+				message_state=5;
+			break;
+			case 5:
+				checksum+=data;
+				back_data_back=(data<<8);
+				message_state=6;
+			break;
+			case 6:
+				checksum+=data;
+				back_data_back+=data;
+				message_state=7;
+			break;
+			case 7:
+				checksum+=data;
+				message_state=8;
+			break;
+			case 8:
+				checksum+=data;
+				message_state=9;
+			break;
+			case 9:
+				checksum+=data;
+				message_status=data;
+				message_state=10;
+			break;
+			case 10:
+				if(data==(checksum&0xff))
+					{
+					if (Getdata()==Right_data)
+						{
+					//	printf("true\n");
+						valid=true;
+						}
+					else
+						{
+						_num_error.Time_Invalid_data++;
+						}
+					}
+				else
+					{
+					_num_error.Time_Checksum_error++;
+					}
+				message_state=0;
+			break;
+			default:
+				_num_error.Time_Invalid_data++;
+			break;
+			}
+		}
+	if(valid==true)
 		{
 		update_sector_data(0, d1);
+		update_sector_data(180,d2);
+		return true;
 		}
-		else
-		{
-		front_warning=1;
-		}
-		
-		if(back_data_warning==0)
-		{
-		update_sector_data(180, d2);
-		}
-		else
-		{
-		back_warning=1;
-		}
-		}
-	
 	else
 		{
 		uncm_num++;
-		if((_num_error.Time_Head_error!=0)||(_num_error.Time_Checksum_error!=0)||(_num_error.Time_Invalid_data!=0))
-   	    {
-   	    error_num++;
-   	    }
+		if((_num_error.Time_Invalid_data!=0)||(_num_error.Time_Checksum_error!=0)||(_num_error.Time_Head_error!=0))
+			{
+			error_num++;
+			}
+		return false;
 		}
-    return true;
+    
 }
 
+int AP_Proximity_Radar_GKXN::Getdata()
+{
+	if(address_code!=0x0C)
+		{
+			return Invalid_data;
+		}
+	if(frame_longth!=0x0B)
+		{
+			return Invalid_data;	
+		}
+	if(((message_status&0x01)!=0x01)&&(((message_status>>2)&0x01)!=0x01))
+		{
+			d1=front_data_back;
+			d2=back_data_back;
+		}
+	else
+		{
+			if((message_status&0x01)==0x01)
+			{
+			front_warning=1;
+			}
+			if(((message_status>>2)&0x01)==0x01)
+			{
+			back_warning=1;
+			}
+			
+			return Invalid_data;
+		}
+	return Right_data;
+}
 
 uint16_t AP_Proximity_Radar_GKXN::process_distance(uint8_t buf1, uint8_t buf2)
 {
@@ -383,5 +303,4 @@ void AP_Proximity_Radar_GKXN::update_sector_data(int16_t angle_deg, uint16_t dis
         update_boundary_for_sector(sector);
     }
 }
-
 

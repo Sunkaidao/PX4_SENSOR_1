@@ -44,6 +44,5 @@ private:
 	uint8_t checksum=0x00;
     uint16_t distance0=0;
 	uint16_t distance1=0;
-	//uint8_t tick=0;
 };
 

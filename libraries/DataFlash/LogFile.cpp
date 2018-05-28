@@ -350,6 +350,10 @@ void DataFlash_Class::Log_Write_RFND(const RangeFinder &rangefinder)
         orient2       : s1 ? s1->orientation() : ROTATION_NONE,
         dist3         : s2 ? s2->distance_cm() : (uint16_t)0,
         orient3       : s2 ? s2->orientation() : ROTATION_NONE,
+				error1        : s0 ? s0->RangeFinder_error_count() : (uint16_t)0,
+        notarget1     : s0 ? s0->RangeFinder_no_target_count() : (uint16_t)0,
+        unvaildnum1   : s0 ? s0->RangeFinder_unvalid_num(): (uint16_t)0,
+        condition1    : s0 ? s0->RangeFinder_message_condition(): (uint8_t)0,
     };
     
 	//	modified end
@@ -691,8 +695,11 @@ bool DataFlash_Backend::Log_Write_Message(const char *message)
 #if SPRAYER == ENABLED
 
 //	added by ZhangYong 20170405
-void DataFlash_Class::Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_dist, uint8_t para_fm_warn, uint8_t para_pck_cnt)
+void DataFlash_Class::Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_dist, uint8_t para_fm_warn, uint8_t para_pck_cnt, uint16_t para_fm_vol, uint16_t para_fm_high)
+
 {
+	double fm_volume=para_fm_vol/100;
+	double fm_high=para_fm_high/100;
 	struct log_SPRAYER pkt = {
 		LOG_PACKET_HEADER_INIT(LOG_SPRAYER_MSG),
 		timestamp				: AP_HAL::micros64(),
@@ -705,7 +712,9 @@ void DataFlash_Class::Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_di
 		actual_pump_rate		: para_sprayer.get_actual_pump_rate(),
 		wp_dist 				: wp_dist,
 		fm_warn 				: para_fm_warn,
-		pck_cnt					: para_pck_cnt
+		pck_cnt					: para_pck_cnt,
+		fm_vol					: fm_volume,
+		fm_h					: fm_high
 	};
 	WriteBlock(&pkt, sizeof(pkt));
 }

@@ -14,6 +14,33 @@ const AP_Param::GroupInfo AP_Flowmeter::var_info[] = {
     // @Values: 0:Disabled,1:Enabled
     // @User: Standard
     AP_GROUPINFO("ENABLE",      0,  AP_Flowmeter, _enabled, 0),
+//added by xusiming in 20180514 
+//depend on the email in 20180511 and the document in 2017
+    // @Param: VOLUME
+    // @DisplayName: warning number about volume
+    // @Description: if the number reach the deadline that we will send waring message 
+    // @Values:0~10000
+    // @User: Standard
+    AP_GROUPINFO("VOLUME",      1,  AP_Flowmeter, _volume, 0),
+    // @Param: HIGH
+    // @DisplayName: warning number about high
+    // @Description:  if the number reach the deadline that we will send waring message 
+    // @Values:0~10000
+    // @User: Standard
+    AP_GROUPINFO("HIGH",      2,  AP_Flowmeter, _high, 0),
+    // @Param: TYPE
+    // @DisplayName: the waring message type
+    // @Description: 0 bit
+    // @Values:0~10000
+    // @User: Standard
+    AP_GROUPINFO("ALARM",      3,  AP_Flowmeter, _alarm, 0),
+    // @Param: TYPE
+    // @DisplayName: the time delay
+    // @Description: the delay warning 
+    // @Values:0~126
+    // @User: Standard
+    AP_GROUPINFO("TIME",      4,  AP_Flowmeter, _time, 0),
+//added end
 
     AP_GROUPEND
 };
@@ -57,6 +84,7 @@ void AP_Flowmeter::init(const AP_SerialManager& serial_manager)
 		_Flo_data.warning=0;
 		_Flo_data.mode=0;
 		_Flo_data.packet_cnt = 0;
+		_Flo_data.flag=0;
   	 	 state_tim=0;
    	 	_num_error.Time_Head_error=0;
    		_num_error.Time_Invalid_data=0;
@@ -91,6 +119,8 @@ int AP_Flowmeter::GetDate()
 {
 	uint16_t j;
 	uint8_t checksum = 0x00;
+	_Flo_data.warning=0;
+
 
 	if((Rx_Buff[0] != 0x55) && (Rx_Buff[1] != 0x03) && (Rx_Buff[2] != 11))
 	{
@@ -109,12 +139,34 @@ int AP_Flowmeter::GetDate()
 	    _num_error.Time_Parity_error++;
 		return	Parity_error;
 	}
-	_Flo_data.high =((Rx_Buff[3]<<8)+Rx_Buff[4])/100.0;
-	_Flo_data.volume =((Rx_Buff[5]<<8)+Rx_Buff[6])/100.0;
-	_Flo_data.warning = Rx_Buff[7];
+	_Flo_data.high =(Rx_Buff[3]<<8)+Rx_Buff[4];
+	_Flo_data.volume =(Rx_Buff[5]<<8)+Rx_Buff[6];
+	_Flo_data.flag = Rx_Buff[7];
 	_Flo_data.mode = Rx_Buff[8];
 
 	_Flo_data.packet_cnt ++;
+	if((_alarm&0x01)==0x01)
+		{
+		if(_Flo_data.flag!=0)
+			{
+			_Flo_data.warning=1;
+			}
+		}
+	if(((_alarm>>1)&0x01)==0x01)
+		{
+		if (_Flo_data.volume<_volume)
+				{
+				_Flo_data.warning=1;
+				}
+		}
+	if(((_alarm>>2)&0x01)==0x01)
+		{
+		if (_Flo_data.high<_high)
+				{
+				_Flo_data.warning=1;
+				}
+		}
+	
 
 	return Right_data;
 }
@@ -159,7 +211,6 @@ void AP_Flowmeter::update(const AP_SerialManager& serial_manager)
 	if(!_initialised)
 	{
 		init(serial_manager);
-	
 	}
 
 	if(!_initialised)
@@ -174,7 +225,7 @@ void AP_Flowmeter::update(const AP_SerialManager& serial_manager)
 		//hal.uartD->printf("Please input: \n");
 //		state_tim=0;
 //	}
-	
+//	printf("_Flo_data.warning=%d\n",_Flo_data.warning);
 //	state_tim++;
 }
 
@@ -187,7 +238,7 @@ uint8_t AP_Flowmeter::get_warning()
 	if(0 == _initialised)
 		return 0;
 
-	
+	//printf("_Flo_data.warning=%d\n",_Flo_data.warning);
 	return _Flo_data.warning;
 }
 
@@ -212,7 +263,7 @@ bool AP_Flowmeter::exhausted()
 	{
 		lcl_cnt ++;
 
-		if(lcl_cnt > AP_FLOWMETER_EXHAUSTED_SHRESHOLD)
+		if(lcl_cnt > (AP_FLOWMETER_EXHAUSTED_SHRESHOLD*_time))
 		{
 			lcl_cnt = 0;
 			return true;
@@ -249,4 +300,23 @@ uint8_t AP_Flowmeter::get_packet_cnt()
 	return _Flo_data.packet_cnt;
 }
 
+uint16_t AP_Flowmeter::get_volume()
+{
+	if(0 == _enabled)
+		return 0;
+
+	if(0 == _initialised)
+		return 0;
+	return _Flo_data.volume;
+}
+uint16_t AP_Flowmeter::get_high()
+{
+	if(0 == _enabled)
+			return 0;
+	
+	if(0 == _initialised)
+			return 0;
+
+	return _Flo_data.high;
+}
 

@@ -840,10 +840,12 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
 //	added end
 
 //baiyang added in 20180409
+#if NEWBROADCAST == ENABLED
 	case MSG_NEWBROADCAST_FLIGHT_STA:
 		CHECK_PAYLOAD_SIZE(NEWBROADCAST_FLIGHT_STA);
 		copter.newbroadcast.send_flight_status(chan);
 		break;
+#endif		
 //added end
 		
 	default:

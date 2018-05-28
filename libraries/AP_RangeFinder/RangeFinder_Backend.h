@@ -84,7 +84,16 @@ public:
     const Vector3f &get_pos_offset() const { return state.pos_offset; }
 
 	RangeFinder::RangeFinder_State &get_state() const {return state;}
-
+//added by xusiming in 20180508 and used for collect the status about sensor
+	uint16_t RangeFinder_error_count() const {return (state.RangeFinder_error_count*100);}
+	uint16_t RangeFinder_no_target_count() const {return (state.RangeFinder_no_target_count*100);}
+	uint16_t RangeFinder_unvalid_num() const{return (state.RangeFinder_unvalid_num*100);}
+	uint8_t RangeFinder_message_condition() const{return (state.RangeFinder_message_condition);}
+		//added by xusiming 20180510
+//    uint8_t RangeFinder_error=0;
+//	uint8_t RangeFinder_no_target=0;
+//	uint8_t RangeFinder_valid=0;
+//added end
 protected:
 
     // update status based on distance measurement

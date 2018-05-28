@@ -29,7 +29,8 @@ public:
 	AP_Flowmeter();
 
 	int8_t enabled() {return _enabled.get();}
-	
+	uint16_t get_volume();
+	uint16_t get_high();
 	void SendCMD(uint8_t CMD);
 	int GetDate();
 	void get_Flowmeter_data();
@@ -53,15 +54,24 @@ protected:
 private:
 	// parameters
     AP_Int8         _enabled;               // top level enable/disable control
-	
+	//added by xusiming in 20180514 
+	//depend on the email in 20180511
+	AP_Int16        _volume;                //if the sensor reach the number of volume that the user want to send warning message
+	AP_Int16        _high;                  //if the sensor reach the number of level that the user want to send warning message
+	AP_Int8         _alarm;              //the type of message that the user want to use
+	AP_Int8         _time;               //delay time
+	//added end
 	uint8_t Tx_Buff[4];
 	uint8_t Rx_Buff[11];
 
 	struct Flowmeter_data
 	{
-		double high;
-		double volume;
+		uint16_t high;//depend on the document in20180515 and the uint is 0.01cm
+		uint16_t volume;//depend on the document in20180515 and the uint is 0.01cm
+		//double high;
+		//double volume;
 		uint8_t	warning;
+		uint8_t flag;
 		uint8_t	mode;
 		uint8_t packet_cnt;
 	}_Flo_data;

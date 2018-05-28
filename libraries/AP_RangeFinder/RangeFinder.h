@@ -93,7 +93,10 @@ public:
         bool                   pre_arm_check;   // true if sensor has passed pre-arm checks
         uint16_t               pre_arm_distance_min;    // min distance captured during pre-arm checks
         uint16_t               pre_arm_distance_max;    // max distance captured during pre-arm checks
-
+		uint16_t               RangeFinder_error_count;      //number of error message during one loop
+		uint16_t               RangeFinder_no_target_count;   //count added by one if sensor does not find target
+		uint16_t               RangeFinder_unvalid_num;         //number of good message
+		uint8_t                RangeFinder_message_condition;  //true if the sensor get the read message and return the distance
         AP_Int8  type;
         AP_Int8  pin;
         AP_Int8  ratiometric;
@@ -168,10 +171,6 @@ public:
       the min and 2m can be captured
      */
     bool pre_arm_check() const;
-
-	int8_t get_state0_type(){return state[0].type;}
-
-
 private:
     RangeFinder_State state[RANGEFINDER_MAX_INSTANCES];
     AP_RangeFinder_Backend *drivers[RANGEFINDER_MAX_INSTANCES];
