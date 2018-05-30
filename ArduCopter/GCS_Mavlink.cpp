@@ -296,12 +296,14 @@ void Copter::send_pid_tuning(mavlink_channel_t chan)
  */
 void Copter::send_payload_status(mavlink_channel_t chan)
 {
-	static uint8_t lcl_cnt = 0;
+	static uint8_t lcl_cnt[MAVLINK_COMM_NUM_BUFFERS];
 	uint8_t payload_type = 0;
 	uint8_t payload_status[8];
 	int16_t lcl_uint16_t = 0;
+	uint8_t lcl_uint8_t = 0;
 
 	memset(payload_status, 0, 8);
+
 
 //	payload_status[2] = 0x55;
 //	payload_status[3] = 0xaa;
@@ -312,12 +314,13 @@ void Copter::send_payload_status(mavlink_channel_t chan)
 
 
 #if ((PROJECTGKXN == ENABLED)&&(SPRAYER == ENABLED)&&(FLOWMETER==ENABLED))
-	if(0 == (lcl_cnt % 2))
+	if(0 == (lcl_cnt[chan] % 2))
 	{
 		payload_type = 0b00000001;
 		payload_status[0] = flowmeter.get_warning();
 		payload_status[1] = flowmeter.get_packet_cnt();
-	//	printf("waring %d\n", flowmeter->get_warning());
+//		printf("chan %d, 1. waring %d pkt cnt %d\n", chan, flowmeter.get_warning());
+	
 	}
 	else
 	{
@@ -339,16 +342,18 @@ void Copter::send_payload_status(mavlink_channel_t chan)
 
 			payload_status[5] = sprayer.get_testing();
 
-/*			printf("run %d spray %d test %d, pr %d\n", sprayer->get_running(), \
-													sprayer->get_spraying(), \
-													sprayer->get_testing(), \
-													lcl_int16_t);
+/*			printf("chan %d, 2. run %d spray %d test %d\n", chan, \
+													sprayer.get_running(), \
+													sprayer.get_spraying(), \
+													sprayer.get_testing());
 */		
 		}
 	}
 
 
-	lcl_cnt++;
+	lcl_cnt[chan]++;
+
+//	printf("chan %d, 3. payload_type %d, cnt %d\n", chan, payload_type, lcl_cnt[chan]);
 	
 	mavlink_msg_payload_status_send(chan, \
 										AP_HAL::millis(), \
@@ -364,9 +369,9 @@ void Copter::send_payload_status(mavlink_channel_t chan)
 	
 #elif((PROJECTBCB == ENABLED)&&(BCBPMBUS == ENABLED))
 
-	for(lcl_cnt = 0; lcl_cnt < AC_BCBPMBUS_MODULE_MAX_COMPONENT; lcl_cnt++)
+	for(lcl_uint8_t = 0; lcl_uint8_t < AC_BCBPMBUS_MODULE_MAX_COMPONENT; lcl_uint8_t++)
 	{
-		if(true == copter.g2.bcbpmbus.should_report_componengt_slot_info(lcl_cnt))
+		if(true == copter.g2.bcbpmbus.should_report_componengt_slot_info(lcl_uint8_t))
 		{
 //			printf("report_BCBPMBus_Components slot %d\n", lcl_cnt);
 
@@ -396,19 +401,19 @@ void Copter::send_payload_status(mavlink_channel_t chan)
 			*/
 			//	payload_status[0] = g2.bcbpmbus.get_component_seq(lcl_cnt);
 			payload_status[0] = 0xA0;
-			payload_status[1] = g2.bcbpmbus.get_component_id(lcl_cnt);
+			payload_status[1] = g2.bcbpmbus.get_component_id(lcl_uint8_t);
 
 
-			lcl_uint16_t = g2.bcbpmbus.get_read_vin(lcl_cnt);
+			lcl_uint16_t = g2.bcbpmbus.get_read_vin(lcl_uint8_t);
 			payload_status[3] = lcl_uint16_t & 0x00FF;
 			payload_status[2] = lcl_uint16_t >> 8;
 			
 			
-			lcl_uint16_t = g2.bcbpmbus.get_read_iin(lcl_cnt);
+			lcl_uint16_t = g2.bcbpmbus.get_read_iin(lcl_uint8_t);
 			payload_status[5] = lcl_uint16_t & 0x00FF;
 			payload_status[4] = lcl_uint16_t >> 8;
 
-			lcl_uint16_t = g2.bcbpmbus.get_read_vout(lcl_cnt);
+			lcl_uint16_t = g2.bcbpmbus.get_read_vout(lcl_uint8_t);
 			payload_status[7] = lcl_uint16_t & 0x00FF;
 			payload_status[6] = lcl_uint16_t >> 8;
 
@@ -491,15 +496,15 @@ void Copter::send_payload_status(mavlink_channel_t chan)
 
 			payload_status[0] = 0xA1;
 
-			lcl_uint16_t = g2.bcbpmbus.get_read_iout(lcl_cnt);
+			lcl_uint16_t = g2.bcbpmbus.get_read_iout(lcl_uint8_t);
 			payload_status[3] = lcl_uint16_t & 0x00FF;
 			payload_status[2] = lcl_uint16_t >> 8;
 			
-			lcl_uint16_t = g2.bcbpmbus.get_read_temperature(lcl_cnt);
+			lcl_uint16_t = g2.bcbpmbus.get_read_temperature(lcl_uint8_t);
 			payload_status[5] = lcl_uint16_t & 0x00FF;
 			payload_status[4] = lcl_uint16_t >> 8;
 
-			lcl_uint16_t = g2.bcbpmbus.get_status_word(lcl_cnt);
+			lcl_uint16_t = g2.bcbpmbus.get_status_word(lcl_uint8_t);
 			payload_status[7] = lcl_uint16_t & 0x00FF;
 			payload_status[6] = lcl_uint16_t >> 8;
 
@@ -581,7 +586,7 @@ void Copter::send_payload_status(mavlink_channel_t chan)
 
 			//printf("mavlink_msg_payload_status_send %d\n", payload_status[0]);
 
-			g2.bcbpmbus.componengt_slot_info_reported(lcl_cnt);
+			g2.bcbpmbus.componengt_slot_info_reported(lcl_uint8_t);
 		}
 	}
 #endif

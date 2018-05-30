@@ -25,6 +25,7 @@
 *.o
 *.obj
 *.px4
+*.rof
 *.pyc
 *.tlog
 *.tlog.raw
