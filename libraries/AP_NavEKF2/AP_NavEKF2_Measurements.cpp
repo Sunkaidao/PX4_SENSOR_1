@@ -560,7 +560,7 @@ void NavEKF2_core::readGpsHeadData()
             gpsHeadDataNew.time_ms = MAX(gpsHeadDataNew.time_ms,imuDataDelayed.time_ms);
 
             // read the NED velocity from the GPS
-            gpsHeadDataNew.Head= _ahrs->get_gps().heading(0);
+            gpsHeadDataNew.Head= _ahrs->get_gps().heading();
 
 			//baiyang added in 20170206
 			storedGPSHead.push(gpsHeadDataNew);

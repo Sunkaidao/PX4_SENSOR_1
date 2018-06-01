@@ -303,7 +303,7 @@ void NavEKF2_core::SelectMagFusion()
 		gpsHeadDataToFuse = storedGPSHead.recall(gpsHeadDataDelayed,imuDataDelayed.time_ms);
 		if(lastTimeGpsHeadReceived_ms != 0)
 		{
-			if(!gpsHeadDataToFuse && (AP_HAL::millis() - lastTimeGpsHeadReceived_ms > 300))
+			if(AP_HAL::millis() - lastTimeGpsHeadReceived_ms > 300)
 			{
 				//Dual-antenna GPS error until the double-antenna correction yaw function is turned off before the power is turned off.
 				frontend->_head_control = 0;

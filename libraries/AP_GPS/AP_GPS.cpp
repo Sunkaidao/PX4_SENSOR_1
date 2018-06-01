@@ -683,7 +683,7 @@ void AP_GPS::update(void)
                 primary_instance = 0;
                 for (uint8_t i=1; i<GPS_MAX_RECEIVERS; i++) {
                     // choose GPS with highest state or higher number of satellites
-                    if ((state[i].status > state[primary_instance].status) ||
+                    if ((state[i].status > state[primary_instance].status) || (state[i].HeadStatus > state[primary_instance].HeadStatus) || \
                         ((state[i].status == state[primary_instance].status) && (state[i].num_sats > state[primary_instance].num_sats))) {
                         primary_instance = i;
                         _last_instance_swap_ms = now;
@@ -695,7 +695,7 @@ void AP_GPS::update(void)
                     if (i == primary_instance) {
                         continue;
                     }
-                    if (state[i].status > state[primary_instance].status) {
+                    if ((state[i].status > state[primary_instance].status) || (state[i].HeadStatus > state[primary_instance].HeadStatus)) {
                         // we have a higher status lock, or primary is set to the blended GPS, change GPS
                         primary_instance = i;
                         _last_instance_swap_ms = now;
