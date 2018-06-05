@@ -256,6 +256,24 @@ const AP_Param::GroupInfo AP_GPS::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("BLEND_TC", 21, AP_GPS, _blend_tc, 10.0f),
 
+	// @Param: DEC1 
+    // @DisplayName: DGPS heading declination 
+    // @Description: An angle to DGPS between the true north and DGPS north 
+    // @Range: -180 180 
+    // @Units: deg 
+    // @Increment: 0.5 
+    // @User: Standard 
+    AP_GROUPINFO("DEC1", 22, AP_GPS, state[0]._declination, 0.0f), 
+ 
+    // @Param: DEC2 
+    // @DisplayName: DGPS heading declination 
+    // @Description: An angle to DGPS between the true north and DGPS north 
+    // @Range: -180 180 
+    // @Units: deg 
+    // @Increment: 0.5 
+    // @User: Standard 
+    AP_GROUPINFO("DEC2", 23, AP_GPS, state[1]._declination, 0.0f), 
+
     AP_GROUPEND
 };
 

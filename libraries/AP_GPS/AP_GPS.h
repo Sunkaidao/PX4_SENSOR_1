@@ -170,6 +170,7 @@ public:
 	  	  uint16_t rtk_status;                ///< Differential GPS operating status
         #endif
         //added end
+        AP_Float _declination; 
     };
 
     //baiyang added in 20170620
@@ -427,6 +428,14 @@ public:
 	void send_mavlink_gps_head_status(mavlink_channel_t chan);
 	void send_mavlink_gps2_head_status(mavlink_channel_t chan);
 //added end
+//baiyang added in 20180411 
+  	float get_heading_declination(uint8_t instance) const {    
+        return state[instance]._declination.get();    
+    }   
+    float get_heading_declination() const {     
+        return heading(primary_instance);   
+    } 
+//added end 
 #endif
 
     // Returns the index of the first unconfigured GPS (returns GPS_ALL_CONFIGURED if all instances report as being configured)
