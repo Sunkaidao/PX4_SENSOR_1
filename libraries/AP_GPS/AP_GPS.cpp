@@ -943,7 +943,7 @@ void AP_GPS::send_mavlink_gps2_raw(mavlink_channel_t chan)
 //#ifdef GPS_YAW_CAL
 #if DGPS_HEADINGA == ENABLED
 //baiyang added in 20180108
-void AP_GPS::send_mavlink_gps_head_status(mavlink_channel_t chan)
+void AP_GPS::send_mavlink_gps_head_status(mavlink_channel_t chan,NavEKF2 &ekf2)
 {
     static uint32_t last_send_time_ms[MAVLINK_COMM_NUM_BUFFERS];
     if (status(0) > AP_GPS::NO_GPS) {
@@ -966,14 +966,14 @@ void AP_GPS::send_mavlink_gps_head_status(mavlink_channel_t chan)
 		last_send_time_ms[chan]*(uint64_t)1000, /*< Timestamp (micros since boot or Unix epoch)*/
 		Headstatus(0),                          /*< Directional value status*/
 		heading(0),                             /*< Directional value*/
-		0xff,                                   /*< EKF2 heading mode,0:Magnetic compass;1:Dual antenna GPS heading;0xff:Reserved, unused*/
+		ekf2.get_ekf_heading_mode(),             /*< EKF2 heading mode,0:Magnetic compass;1:Dual antenna GPS heading;0xff:Reserved, unused*/
 		0,
 		0,
 		0);
 
 }
 
-void AP_GPS::send_mavlink_gps2_head_status(mavlink_channel_t chan)
+void AP_GPS::send_mavlink_gps2_head_status(mavlink_channel_t chan,NavEKF2 &ekf2)
 {
 	static uint32_t last_send_time_ms[MAVLINK_COMM_NUM_BUFFERS];
 	
@@ -992,7 +992,7 @@ void AP_GPS::send_mavlink_gps2_head_status(mavlink_channel_t chan)
 		last_send_time_ms[chan]*(uint64_t)1000, /*< Timestamp (micros since boot or Unix epoch)*/
 		Headstatus(1),                          /*< Directional value status*/
 		heading(1),                             /*< Directional value*/
-		0xff,                                   /*< EKF2 heading mode,0:Magnetic compass;1:Dual antenna GPS heading;0xff:Reserved, unused*/
+		ekf2.get_ekf_heading_mode(),             /*< EKF2 heading mode,0:Magnetic compass;1:Dual antenna GPS heading;0xff:Reserved, unused*/
 		0,
 		0,
 		0);

@@ -22,6 +22,7 @@
 #include <AP_Vehicle/AP_Vehicle.h>
 #include "GPS_detect_state.h"
 #include <AP_SerialManager/AP_SerialManager.h>
+#include <AP_NavEKF2/AP_NavEKF2.h>
 //	added by ZhangYong 20180125
 #include <./../../ArduCopter/config.h>
 //	added end
@@ -425,8 +426,8 @@ public:
 
 //baiyang added in 20180108
 	//MAVLink Status Sending
-	void send_mavlink_gps_head_status(mavlink_channel_t chan);
-	void send_mavlink_gps2_head_status(mavlink_channel_t chan);
+	void send_mavlink_gps_head_status(mavlink_channel_t chan,NavEKF2 &ekf2);
+	void send_mavlink_gps2_head_status(mavlink_channel_t chan,NavEKF2 &ekf2);
 //added end
 //baiyang added in 20180411 
   	float get_heading_declination(uint8_t instance) const {    
