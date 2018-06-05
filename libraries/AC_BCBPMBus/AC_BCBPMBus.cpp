@@ -108,7 +108,7 @@ AC_BCBPMBus::AC_BCBPMBus(AP_SerialManager& _serial_manager) :
 	memset(_bcbpmbus_buffer.bytes, 0, sizeof(struct BCBPMBus_frame_struct));
 
 	
-	memset(_bcbpmbus_status, 0, (AC_BCBPMBUS_MODULE_MAX_COMPONENT * sizeof(struct BCBPMBus_status_struct)));
+	memset(_bcbpmbus_status, 0, (AC_BCBPMBUS_MODULE_MAX_COMPONENT * sizeof(struct BCBPMBus_modules_struct)));
 								
 	_bcbpmbus_sttc_err_ptr = &_bcbpmbus_sttc_err;
 	memset(_bcbpmbus_sttc_err_ptr, 0, sizeof(struct BCBPMBus_statistics_err_struct));
@@ -149,7 +149,7 @@ AC_BCBPMBus::init()
 
 		memset(_bcbpmbus_buffer.bytes, 0, sizeof(struct BCBPMBus_frame_struct));
 
-		memset(_bcbpmbus_status, 0, (AC_BCBPMBUS_MODULE_MAX_COMPONENT * sizeof(struct BCBPMBus_status_struct)));
+		memset(_bcbpmbus_status, 0, (AC_BCBPMBUS_MODULE_MAX_COMPONENT * sizeof(struct BCBPMBus_modules_struct)));
 
 		_bcbpmbus_sttc_err_ptr = &_bcbpmbus_sttc_err;
 		memset(_bcbpmbus_sttc_err_ptr, 0, sizeof(struct BCBPMBus_statistics_err_struct));
@@ -1372,7 +1372,8 @@ bool AC_BCBPMBus::set_component_slot_data(uint8_t idx)
 
 	_bcbpmbus_status[idx].should_log = true;
 
-	_bcbpmbus_status[idx].should_report = true;
+	_bcbpmbus_status[idx].should_report[0] = true;
+	_bcbpmbus_status[idx].should_report[1] = true;
 
 	_bcbpmbus_status[idx].new_data = true;
 
@@ -1434,15 +1435,18 @@ void AC_BCBPMBus::componengt_slot_info_logged(uint8_t idx)
 	_bcbpmbus_status[idx].should_log = false; 
 };
 
-void AC_BCBPMBus::componengt_slot_info_reported(uint8_t idx) 
+void AC_BCBPMBus::componengt_slot_info_reported(uint8_t idx, uint8_t chan) 
 { 
 	if(!(_enable.get()))
 		return;
 
 	if(false == _initialised)
 		return;
+
+	if(chan > MAVLINK_COMM_NUM_BUFFERS)
+		return;
 	
-	_bcbpmbus_status[idx].should_report = false; 
+	_bcbpmbus_status[idx].should_report[chan] = false; 
 };
 
 
@@ -1520,7 +1524,7 @@ bool AC_BCBPMBus::should_log_componengt_slot_info(uint8_t idx)
 	}
 }
 
-bool AC_BCBPMBus::should_report_componengt_slot_info(uint8_t idx)
+bool AC_BCBPMBus::should_report_componengt_slot_info(uint8_t idx, uint8_t chan)
 {
 	if(!(_enable.get()))
 		return false;
@@ -1534,9 +1538,14 @@ bool AC_BCBPMBus::should_report_componengt_slot_info(uint8_t idx)
 		return false;
 	}
 
+	if(chan > MAVLINK_COMM_NUM_BUFFERS)
+	{
+		return false;
+	}
+
 	if(_bcbpmbus_status[idx].occupied)
 	{
-		if(true == _bcbpmbus_status[idx].should_report)
+		if(true == _bcbpmbus_status[idx].should_report[chan])
 		{
 			return true;
 		}

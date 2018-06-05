@@ -294,7 +294,7 @@ void Copter::send_pid_tuning(mavlink_channel_t chan)
 /*
   send PID tuning message
  */
-void Copter::send_payload_status(mavlink_channel_t chan)
+void Copter::send_payload_status(mavlink_channel_t chan, enum pld_status para_pld_status)
 {
 	static uint8_t lcl_cnt[MAVLINK_COMM_NUM_BUFFERS];
 	uint8_t payload_type = 0;
@@ -304,292 +304,317 @@ void Copter::send_payload_status(mavlink_channel_t chan)
 
 	memset(payload_status, 0, 8);
 
+	payload_type = para_pld_status;
 
-//	payload_status[2] = 0x55;
-//	payload_status[3] = 0xaa;
-//	payload_status[4] = 0x55;
-//	payload_status[5] = 0xaa;
-//	payload_status[6] = 0x55;
-//	payload_status[7] = 0xaa;
-
-
-#if ((PROJECTGKXN == ENABLED)&&(SPRAYER == ENABLED)&&(FLOWMETER==ENABLED))
-	if(0 == (lcl_cnt[chan] % 2))
-	{
-		payload_type = 0b00000001;
-		payload_status[0] = flowmeter.get_warning();
-		payload_status[1] = flowmeter.get_packet_cnt();
-//		printf("chan %d, 1. waring %d pkt cnt %d\n", chan, flowmeter.get_warning());
 	
-	}
-	else
+
+	switch(para_pld_status)
 	{
-		payload_type = 0b00000010;
-
-		if(true == sprayer.get_enabled())
-		{
-			lcl_uint16_t = sprayer.get_actual_pump_rate();
-
-			payload_status[0] = lcl_uint16_t & 0x00FF;
-
-			payload_status[1] = lcl_uint16_t >> 8;
-
-			payload_status[2] = sprayer.get_enabled();
-
-			payload_status[3] = sprayer.get_running();
-
-			payload_status[4] = sprayer.get_spraying();
-
-			payload_status[5] = sprayer.get_testing();
-
-/*			printf("chan %d, 2. run %d spray %d test %d\n", chan, \
-													sprayer.get_running(), \
-													sprayer.get_spraying(), \
-													sprayer.get_testing());
-*/		
-		}
-	}
-
-
-	lcl_cnt[chan]++;
-
-//	printf("chan %d, 3. payload_type %d, cnt %d\n", chan, payload_type, lcl_cnt[chan]);
 	
-	mavlink_msg_payload_status_send(chan, \
-										AP_HAL::millis(), \
-										payload_type, \
-										payload_status[0], \
-										payload_status[1], \
-										payload_status[2], \
-										payload_status[3], \
-										payload_status[4], \
-										payload_status[5], \
-										payload_status[6], \
-										payload_status[7]);
-	
-#elif((PROJECTBCB == ENABLED)&&(BCBPMBUS == ENABLED))
+		case MSG_PLD_STATUS_FLOWMETER:
 
-	for(lcl_uint8_t = 0; lcl_uint8_t < AC_BCBPMBUS_MODULE_MAX_COMPONENT; lcl_uint8_t++)
-	{
-		if(true == copter.g2.bcbpmbus.should_report_componengt_slot_info(lcl_uint8_t))
-		{
-//			printf("report_BCBPMBus_Components slot %d\n", lcl_cnt);
+#if ((PROJECTGKXN == ENABLED)&&(FLOWMETER==ENABLED))
 
-			payload_type = 0b00000100;
-
-			/*
-			0: sequence id of the packet 0xA0, 0xA1
-			1: component id
-			----------------------
-			2: vin H byte (0xA0)
-			3: vin L byte (0xA0)
-			4: iin H byte (0xA0)
-			5: iin L byte (0xA0)
-			6: vout H byte (0xA0)
-			7: vout L byte (0xA0)
-			-----------------------
-			2: iout H byte (0xA1)
-			3: iout L byte (0xA1)
-			4: temp H byte (0xA1)
-			5: temp L byte (0xA1)
-			6: SW H byte (0xA1)
-			7: SW L byte (0xA1)		
-			//	vin = vin / 10;
-			//	iin = iin / 1000;
-			//	vout = vout / 10;
-			//	iout = iout /100;
-			*/
-			//	payload_status[0] = g2.bcbpmbus.get_component_seq(lcl_cnt);
-			payload_status[0] = 0xA0;
-			payload_status[1] = g2.bcbpmbus.get_component_id(lcl_uint8_t);
-
-
-			lcl_uint16_t = g2.bcbpmbus.get_read_vin(lcl_uint8_t);
-			payload_status[3] = lcl_uint16_t & 0x00FF;
-			payload_status[2] = lcl_uint16_t >> 8;
-			
-			
-			lcl_uint16_t = g2.bcbpmbus.get_read_iin(lcl_uint8_t);
-			payload_status[5] = lcl_uint16_t & 0x00FF;
-			payload_status[4] = lcl_uint16_t >> 8;
-
-			lcl_uint16_t = g2.bcbpmbus.get_read_vout(lcl_uint8_t);
-			payload_status[7] = lcl_uint16_t & 0x00FF;
-			payload_status[6] = lcl_uint16_t >> 8;
-
-/*			switch(lcl_cnt)
+			if(true == flowmeter.enabled())
 			{
-				case 0:
-					payload_status[1] = 0x50;
-					lcl_uint16_t = 3790;
-					payload_status[3] = lcl_uint16_t & 0x00FF;
-					payload_status[2] = lcl_uint16_t >> 8;
+				//printf("chan %d, %.8d MSG_PLD_STATUS_FLOWMETER\n", chan, AP_HAL::millis());
+				//printf("1. chan %d, %d\n", chan, payload_type);
+			
+				payload_status[0] = flowmeter.get_warning();
+				payload_status[1] = flowmeter.get_packet_cnt();
+				payload_status[2] = (flowmeter.get_volume()&0x00ff);
+				payload_status[3] = (flowmeter.get_volume()>>8);
+				payload_status[4] = (flowmeter.get_high()&0x00ff);
+				payload_status[5] = (flowmeter.get_high()>>8);
 
-					lcl_uint16_t = 4000;
-					payload_status[5] = lcl_uint16_t & 0x00FF;
-					payload_status[4] = lcl_uint16_t >> 8;
+				mavlink_msg_payload_status_send(chan, \
+												AP_HAL::millis(), \
+												payload_type, \
+												payload_status[0], \
+												payload_status[1], \
+												payload_status[2], \
+												payload_status[3], \
+												payload_status[4], \
+												payload_status[5], \
+												payload_status[6], \
+												payload_status[7]);
+			}
+#endif
+			break;
+				
+		case MSG_PLD_STATUS_SPRAYER:
+			
+#if ((PROJECTGKXN == ENABLED)&&(SPRAYER == ENABLED))
+			
 
-					lcl_uint16_t = 460;
-					payload_status[7] = lcl_uint16_t & 0x00FF;
-					payload_status[6] = lcl_uint16_t >> 8;
-					break;
-				case 1:
-					payload_status[1] = 0x51;
-					lcl_uint16_t = 3791;
-					payload_status[3] = lcl_uint16_t & 0x00FF;
-					payload_status[2] = lcl_uint16_t >> 8;
+			if(true == sprayer.get_enabled())
+			{
+				//printf("chan %d, %.8d MSG_PLD_STATUS_SPRAYER\n", chan, AP_HAL::millis());
+				//printf("2. chan %d, %d\n", chan, payload_type);
+				
+				lcl_uint16_t = sprayer.get_actual_pump_rate();
 
-					lcl_uint16_t = 4001;
-					payload_status[5] = lcl_uint16_t & 0x00FF;
-					payload_status[4] = lcl_uint16_t >> 8;
+				payload_status[0] = lcl_uint16_t & 0x00FF;
+				payload_status[1] = lcl_uint16_t >> 8;
+				payload_status[2] = sprayer.get_enabled();
+				payload_status[3] = sprayer.get_running();
+				payload_status[4] = sprayer.get_spraying();
+				payload_status[5] = sprayer.get_testing();
 
-					lcl_uint16_t = 461;
-					payload_status[7] = lcl_uint16_t & 0x00FF;
-					payload_status[6] = lcl_uint16_t >> 8;
-					break;
-				case 2:
-					payload_status[1] = 0x52;
-					lcl_uint16_t = 3792;
-					payload_status[3] = lcl_uint16_t & 0x00FF;
-					payload_status[2] = lcl_uint16_t >> 8;
+				mavlink_msg_payload_status_send(chan, \
+												AP_HAL::millis(), \
+												payload_type, \
+												payload_status[0], \
+												payload_status[1], \
+												payload_status[2], \
+												payload_status[3], \
+												payload_status[4], \
+												payload_status[5], \
+												payload_status[6], \
+												payload_status[7]);
+			}
+#endif				
+			break;
+				
+		case MSG_PLD_STATUS_PMBUS:
+			
+#if((PROJECTBCB == ENABLED)&&(BCBPMBUS == ENABLED))
+			if(true == copter.g2.bcbpmbus.should_report_componengt_slot_info(lcl_cnt[chan], chan))
+			{
+				//printf("report_BCBPMBus_Components slot %d, on chan [%d]\n", lcl_cnt[chan], chan);
+				//printf("chan %d, %.8d slot %d\n", chan, AP_HAL::millis(), lcl_cnt[chan]);
+		
+				/*
+				0: sequence id of the packet 0xA0, 0xA1
+				1: component id
+				----------------------
+				2: vin H byte (0xA0)
+				3: vin L byte (0xA0)
+				4: iin H byte (0xA0)
+				5: iin L byte (0xA0)
+				6: vout H byte (0xA0)
+				7: vout L byte (0xA0)
+				-----------------------
+				2: iout H byte (0xA1)
+				3: iout L byte (0xA1)
+				4: temp H byte (0xA1)
+				5: temp L byte (0xA1)
+				6: SW H byte (0xA1)
+				7: SW L byte (0xA1)		
+				//	vin = vin / 10;
+				//	iin = iin / 1000;
+				//	vout = vout / 10;
+				//	iout = iout /100;
+				*/
+				//	payload_status[0] = g2.bcbpmbus.get_component_seq(lcl_cnt);
+				payload_status[0] = 0xA0;
+				payload_status[1] = g2.bcbpmbus.get_component_id(lcl_cnt[chan]);
 
-					lcl_uint16_t = 4002;
-					payload_status[5] = lcl_uint16_t & 0x00FF;
-					payload_status[4] = lcl_uint16_t >> 8;
 
-					lcl_uint16_t = 462;
-					payload_status[7] = lcl_uint16_t & 0x00FF;
-					payload_status[6] = lcl_uint16_t >> 8;
-					break;
-				case 3:
-					payload_status[1] = 0x53;
-					lcl_uint16_t = 3793;
-					payload_status[3] = lcl_uint16_t & 0x00FF;
-					payload_status[2] = lcl_uint16_t >> 8;
+				lcl_uint16_t = g2.bcbpmbus.get_read_vin(lcl_cnt[chan]);
+				payload_status[3] = lcl_uint16_t & 0x00FF;
+				payload_status[2] = lcl_uint16_t >> 8;
+		
+			
+				lcl_uint16_t = g2.bcbpmbus.get_read_iin(lcl_cnt[chan]);
+				payload_status[5] = lcl_uint16_t & 0x00FF;
+				payload_status[4] = lcl_uint16_t >> 8;
 
-					lcl_uint16_t = 4003;
-					payload_status[5] = lcl_uint16_t & 0x00FF;
-					payload_status[4] = lcl_uint16_t >> 8;
+				lcl_uint16_t = g2.bcbpmbus.get_read_vout(lcl_cnt[chan]);
+				payload_status[7] = lcl_uint16_t & 0x00FF;
+				payload_status[6] = lcl_uint16_t >> 8;
 
-					lcl_uint16_t = 463;
-					payload_status[7] = lcl_uint16_t & 0x00FF;
-					payload_status[6] = lcl_uint16_t >> 8;
-					break;
-				default:
-					payload_status[1] = 0x00;
-					break;
-			}
+/*				switch(lcl_cnt)
+				{
+					case 0:
+						payload_status[1] = 0x50;
+						lcl_uint16_t = 3790;
+						payload_status[3] = lcl_uint16_t & 0x00FF;
+						payload_status[2] = lcl_uint16_t >> 8;
+						lcl_uint16_t = 4000;
+						payload_status[5] = lcl_uint16_t & 0x00FF;
+						payload_status[4] = lcl_uint16_t >> 8;
+
+						lcl_uint16_t = 460;
+						payload_status[7] = lcl_uint16_t & 0x00FF;
+						payload_status[6] = lcl_uint16_t >> 8;
+						break;
+
+					case 1:
+						payload_status[1] = 0x51;
+						lcl_uint16_t = 3791;
+						payload_status[3] = lcl_uint16_t & 0x00FF;
+						payload_status[2] = lcl_uint16_t >> 8;
+
+						lcl_uint16_t = 4001;
+						payload_status[5] = lcl_uint16_t & 0x00FF;
+						payload_status[4] = lcl_uint16_t >> 8;
+
+						lcl_uint16_t = 461;
+						payload_status[7] = lcl_uint16_t & 0x00FF;
+						payload_status[6] = lcl_uint16_t >> 8;
+						break;
+
+					case 2:
+						payload_status[1] = 0x52;
+						lcl_uint16_t = 3792;
+						payload_status[3] = lcl_uint16_t & 0x00FF;
+						payload_status[2] = lcl_uint16_t >> 8;
+						lcl_uint16_t = 4002;
+						payload_status[5] = lcl_uint16_t & 0x00FF;
+						payload_status[4] = lcl_uint16_t >> 8;
+
+						lcl_uint16_t = 462;
+						payload_status[7] = lcl_uint16_t & 0x00FF;
+						payload_status[6] = lcl_uint16_t >> 8;
+						break;
+
+					case 3:
+						payload_status[1] = 0x53;
+						lcl_uint16_t = 3793;
+						payload_status[3] = lcl_uint16_t & 0x00FF;
+						payload_status[2] = lcl_uint16_t >> 8;
+
+						lcl_uint16_t = 4003;
+						payload_status[5] = lcl_uint16_t & 0x00FF;
+							payload_status[4] = lcl_uint16_t >> 8;
+
+							lcl_uint16_t = 463;
+							payload_status[7] = lcl_uint16_t & 0x00FF;
+							payload_status[6] = lcl_uint16_t >> 8;
+							break;
+
+						default:
+							payload_status[1] = 0x00;
+							break;
+				}
 */
 			
 			
-			mavlink_msg_payload_status_send(chan, \
-										AP_HAL::millis(), \
-										payload_type, \
-										payload_status[0], \
-										payload_status[1], \
-										payload_status[2], \
-										payload_status[3], \
-										payload_status[4], \
-										payload_status[5], \
-										payload_status[6], \
-										payload_status[7]);
+					mavlink_msg_payload_status_send(chan, \
+												AP_HAL::millis(), \
+												payload_type, \
+												payload_status[0], \
+												payload_status[1], \
+												payload_status[2], \
+												payload_status[3], \
+												payload_status[4], \
+												payload_status[5], \
+												payload_status[6], \
+												payload_status[7]);
 
-			payload_status[0] = 0xA1;
+					payload_status[0] = 0xA1;
 
-			lcl_uint16_t = g2.bcbpmbus.get_read_iout(lcl_uint8_t);
-			payload_status[3] = lcl_uint16_t & 0x00FF;
-			payload_status[2] = lcl_uint16_t >> 8;
+					lcl_uint16_t = g2.bcbpmbus.get_read_iout(lcl_cnt[chan]);
+					payload_status[3] = lcl_uint16_t & 0x00FF;	
+					payload_status[2] = lcl_uint16_t >> 8;
 			
-			lcl_uint16_t = g2.bcbpmbus.get_read_temperature(lcl_uint8_t);
-			payload_status[5] = lcl_uint16_t & 0x00FF;
-			payload_status[4] = lcl_uint16_t >> 8;
-
-			lcl_uint16_t = g2.bcbpmbus.get_status_word(lcl_uint8_t);
-			payload_status[7] = lcl_uint16_t & 0x00FF;
-			payload_status[6] = lcl_uint16_t >> 8;
-
-/*			switch(lcl_cnt)
-			{
-				case 0:
-					payload_status[1] = 0x50;
-					lcl_uint16_t = 3400;
-					payload_status[3] = lcl_uint16_t & 0x00FF;
-					payload_status[2] = lcl_uint16_t >> 8;
-
-					lcl_uint16_t = 83;
+					lcl_uint16_t = g2.bcbpmbus.get_read_temperature(lcl_cnt[chan]);
 					payload_status[5] = lcl_uint16_t & 0x00FF;
 					payload_status[4] = lcl_uint16_t >> 8;
 
-					lcl_uint16_t = 0;
+					lcl_uint16_t = g2.bcbpmbus.get_status_word(lcl_cnt[chan]);
 					payload_status[7] = lcl_uint16_t & 0x00FF;
 					payload_status[6] = lcl_uint16_t >> 8;
-					break;
-				case 1:
-					payload_status[1] = 0x51;
-					lcl_uint16_t = 3401;
-					payload_status[3] = lcl_uint16_t & 0x00FF;
-					payload_status[2] = lcl_uint16_t >> 8;
 
-					lcl_uint16_t = 84;
-					payload_status[5] = lcl_uint16_t & 0x00FF;
-					payload_status[4] = lcl_uint16_t >> 8;
+/*					switch(lcl_cnt)
+					{
+						case 0:
+							payload_status[1] = 0x50;
+							lcl_uint16_t = 3400;
+							payload_status[3] = lcl_uint16_t & 0x00FF;
+							payload_status[2] = lcl_uint16_t >> 8;
 
-					lcl_uint16_t = 1;
-					payload_status[7] = lcl_uint16_t & 0x00FF;
-					payload_status[6] = lcl_uint16_t >> 8;
-					break;
-				case 2:
-					payload_status[1] = 0x52;
-					lcl_uint16_t = 3402;
-					payload_status[3] = lcl_uint16_t & 0x00FF;
-					payload_status[2] = lcl_uint16_t >> 8;
+							lcl_uint16_t = 83;
+							payload_status[5] = lcl_uint16_t & 0x00FF;
+							payload_status[4] = lcl_uint16_t >> 8;
 
-					lcl_uint16_t = 85;
-					payload_status[5] = lcl_uint16_t & 0x00FF;
-					payload_status[4] = lcl_uint16_t >> 8;
+							lcl_uint16_t = 0;
+							payload_status[7] = lcl_uint16_t & 0x00FF;
+							payload_status[6] = lcl_uint16_t >> 8;
 
-					lcl_uint16_t = 2;
-					payload_status[7] = lcl_uint16_t & 0x00FF;
-					payload_status[6] = lcl_uint16_t >> 8;
-					break;
-				case 3:
-					payload_status[1] = 0x53;
-					lcl_uint16_t = 3403;
-					payload_status[3] = lcl_uint16_t & 0x00FF;
-					payload_status[2] = lcl_uint16_t >> 8;
+							break;
 
-					lcl_uint16_t = 86;
-					payload_status[5] = lcl_uint16_t & 0x00FF;
-					payload_status[4] = lcl_uint16_t >> 8;
+						case 1:
+							payload_status[1] = 0x51;
+							lcl_uint16_t = 3401;
+							payload_status[3] = lcl_uint16_t & 0x00FF;
+							payload_status[2] = lcl_uint16_t >> 8;
 
-					lcl_uint16_t = 3;
-					payload_status[7] = lcl_uint16_t & 0x00FF;
-					payload_status[6] = lcl_uint16_t >> 8;
-					break;
-				default:
-					payload_status[1] = 0x00;
-					break;
-			}
+							lcl_uint16_t = 84;
+							payload_status[5] = lcl_uint16_t & 0x00FF;
+							payload_status[4] = lcl_uint16_t >> 8;
+
+							lcl_uint16_t = 1;
+							payload_status[7] = lcl_uint16_t & 0x00FF;
+							payload_status[6] = lcl_uint16_t >> 8;
+
+							break;
+							
+						case 2:
+							payload_status[1] = 0x52;
+							lcl_uint16_t = 3402;
+							payload_status[3] = lcl_uint16_t & 0x00FF;
+							payload_status[2] = lcl_uint16_t >> 8;
+
+							lcl_uint16_t = 85;
+							payload_status[5] = lcl_uint16_t & 0x00FF;
+							payload_status[4] = lcl_uint16_t >> 8;
+
+							lcl_uint16_t = 2;
+							payload_status[7] = lcl_uint16_t & 0x00FF;
+							payload_status[6] = lcl_uint16_t >> 8;
+
+							break;
+
+						case 3:
+							payload_status[1] = 0x53;
+							lcl_uint16_t = 3403;
+							payload_status[3] = lcl_uint16_t & 0x00FF;
+							payload_status[2] = lcl_uint16_t >> 8;
+
+							lcl_uint16_t = 86;
+							payload_status[5] = lcl_uint16_t & 0x00FF;
+							payload_status[4] = lcl_uint16_t >> 8;
+
+							lcl_uint16_t = 3;
+							payload_status[7] = lcl_uint16_t & 0x00FF;
+							payload_status[6] = lcl_uint16_t >> 8;
+							break;
+						default:
+							payload_status[1] = 0x00;
+							break;
+					}
 	*/		
+					mavlink_msg_payload_status_send(chan, \
+												AP_HAL::millis(), \
+												payload_type, \
+												payload_status[0], \
+												payload_status[1], \
+												payload_status[2], \
+												payload_status[3], \
+												payload_status[4], \
+												payload_status[5], \
+												payload_status[6], \
+												payload_status[7]);
 			
-			mavlink_msg_payload_status_send(chan, \
-										AP_HAL::millis(), \
-										payload_type, \
-										payload_status[0], \
-										payload_status[1], \
-										payload_status[2], \
-										payload_status[3], \
-										payload_status[4], \
-										payload_status[5], \
-										payload_status[6], \
-										payload_status[7]);
 
-			//printf("mavlink_msg_payload_status_send %d\n", payload_status[0]);
+					//printf("mavlink_msg_payload_status_send %d\n", payload_status[0]);
 
-			g2.bcbpmbus.componengt_slot_info_reported(lcl_uint8_t);
-		}
-	}
+					g2.bcbpmbus.componengt_slot_info_reported(lcl_cnt[chan], chan);
+			} // end of if(true == copter.g2.bcbpmbus.should_report_componengt_slot_info(lcl_cnt[chan], chan))
+
+				lcl_cnt[chan]++;
+				if(lcl_cnt[chan] >= AC_BCBPMBUS_MODULE_MAX_COMPONENT)
+					lcl_cnt[chan] = 0;
 #endif
+				break;
+			default:
+				
+				break;
+		
+	}	// end of switch(para_pld_status)
+	
 
 	//printf("%d %d %d %d %d\n", lcl_cnt, payload_type, lcl_int16_t, payload_status[0], payload_status[1]);
 }
@@ -608,6 +633,9 @@ uint32_t GCS_MAVLINK_Copter::telem_delay() const
 // try to send a message, return false if it wasn't sent
 bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
 {
+	static uint8_t lcl_cnt[MAVLINK_COMM_NUM_BUFFERS];
+
+
     if (telemetry_delayed()) {
         return false;
     }
@@ -819,9 +847,21 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
 
 	case MSG_PLD_STATUS:
 		CHECK_PAYLOAD_SIZE(PAYLOAD_STATUS);
-		copter.send_payload_status(chan);
-	
 
+#if ((PROJECTGKXN == ENABLED)&&(FLOWMETER == ENABLED))
+		if(0 == lcl_cnt[chan] % MSG_PLD_STATUS_LAST)
+			copter.send_payload_status(chan, MSG_PLD_STATUS_FLOWMETER);
+#endif
+
+#if ((PROJECTGKXN == ENABLED)&&(SPRAYER == ENABLED))
+		if(1 == lcl_cnt[chan] % MSG_PLD_STATUS_LAST)	
+			copter.send_payload_status(chan, MSG_PLD_STATUS_SPRAYER);
+#endif	
+
+#if ((PROJECTBCB == ENABLED)&&(BCBPMBUS == ENABLED))
+		copter.send_payload_status(chan, MSG_PLD_STATUS_PMBUS);
+#endif
+		lcl_cnt[chan]++;
 		break;
 
         //baiyang added in 20170713
@@ -951,7 +991,17 @@ const AP_Param::GroupInfo GCS_MAVLINK::var_info[] = {
     // @Range: 0 50
     // @Increment: 1
     // @User: Advanced
-    AP_GROUPINFO("ADSB",   9, GCS_MAVLINK, streamRates[9],  5),
+    AP_GROUPINFO("ADSB",   9, GCS_MAVLINK, streamRates[9],  0),
+
+	//	added by ZhangYong for payload sned
+	// @Param: PLD
+    // @DisplayName: PLD stream rate to ground station
+    // @Description: PLD stream rate to ground station
+    // @Units: Hz
+    // @Range: 0 50
+    // @Increment: 1
+    // @User: Advanced
+    AP_GROUPINFO("PLD",   10, GCS_MAVLINK, streamRates[10],  5),
 AP_GROUPEND
 };
 
@@ -1016,7 +1066,7 @@ GCS_MAVLINK_Copter::data_stream_send(void)
         send_message(MSG_RAW_IMU3);  // SENSOR_OFFSETS
 
 //	adde by ZhangYong 20170719
-		send_message(MSG_PLD_STATUS);
+//		send_message(MSG_PLD_STATUS);
 	//	printf("A\n");
 
 //	added end
@@ -1111,6 +1161,12 @@ GCS_MAVLINK_Copter::data_stream_send(void)
         send_message(MSG_EKF_STATUS_REPORT);
         send_message(MSG_VIBRATION);
         send_message(MSG_RPM);
+    }
+
+	if (copter.gcs_out_of_time) return;
+
+    if (stream_trigger(STREAM_PLD)) {
+        send_message(MSG_PLD_STATUS);
     }
 
     if (copter.gcs_out_of_time) return;

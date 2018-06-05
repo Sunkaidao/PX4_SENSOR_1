@@ -44,6 +44,10 @@ protected:
     bool barometer_checks(bool display_failure);
     bool rc_calibration_checks(bool display_failure);
 
+	//	added by ZhangYong 20180530 for payload checks
+	bool payload_checks(bool display_failure);
+	//	added end
+
     //void set_pre_arm_check(bool b);
     void set_pre_arm_rc_check(bool b);
 

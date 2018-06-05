@@ -80,6 +80,10 @@ void Copter::userhook_init()
 #endif		//	FXTX_AUTH == 1
     //	added end
 
+	//	added by zhangyong for gcs_mavlink chan number
+	printf("Mavlink channel number: %d\n", gcs().num_gcs());
+	//	added end
+
 #if FXTX_AUTH == 0
 	printf("License Disabled\n");
 	//	added by ZhangYong 20170705 for item_int

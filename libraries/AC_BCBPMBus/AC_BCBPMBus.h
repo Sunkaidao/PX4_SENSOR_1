@@ -80,7 +80,7 @@ public:
 		LOG_PMBUS3_MSG
 	};
 		
-	typedef struct PACKED BCBPMBus_status_struct {
+	typedef struct PACKED BCBPMBus_modules_struct {
 		uint8_t occupied;
 		uint32_t last_read;
 		uint8_t seq;
@@ -102,8 +102,8 @@ public:
 
 		bool  should_log;
 		bool  new_data;
-		bool  should_report;
-}BCBPMBUS_STATUS;
+		bool  should_report[MAVLINK_COMM_NUM_BUFFERS];
+}BCBPMBUS_MODULES;
 /*
 	typedef struct PACKED BCBPMBus_component_info_struct {
 		uint8_t component_id;
@@ -200,11 +200,11 @@ public:
 	bool should_log_componengt_slot_info(uint8_t idx);
 
 	
-	bool should_report_componengt_slot_info(uint8_t idx);
+	bool should_report_componengt_slot_info(uint8_t idx, uint8_t chan);
 
 	void componengt_slot_info_logged(uint8_t idx);
 
-	void componengt_slot_info_reported(uint8_t idx);
+	void componengt_slot_info_reported(uint8_t idx, uint8_t chan);
 
 	bool log_component_slot_info(uint8_t idx);
 
@@ -293,7 +293,7 @@ protected:
 
 //	uint32_t reserved;
 
-	BCBPMBUS_STATUS _bcbpmbus_status[AC_BCBPMBUS_MODULE_MAX_COMPONENT];
+	BCBPMBUS_MODULES _bcbpmbus_status[AC_BCBPMBUS_MODULE_MAX_COMPONENT];
 
 //	BCBPMBUS_COMPONENT_INFO _bcbpmbus_component_info, *_bcbpmbus_component_info_ptr;
 

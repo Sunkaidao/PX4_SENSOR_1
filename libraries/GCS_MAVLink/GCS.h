@@ -112,6 +112,14 @@ enum ap_message {
 
 };
 
+enum pld_status
+{
+	MSG_PLD_STATUS_FLOWMETER = 0b00000001,
+	MSG_PLD_STATUS_SPRAYER = 0b00000010,
+	MSG_PLD_STATUS_PMBUS = 0b00000100,
+	MSG_PLD_STATUS_LAST
+};
+
 ///
 /// @class	GCS_MAVLINK
 /// @brief	MAVLink transport control class
@@ -158,7 +166,8 @@ public:
     // NOTE! The streams enum below and the
     // set of AP_Int16 stream rates _must_ be
     // kept in the same order
-    enum streams {STREAM_RAW_SENSORS,
+    //	modified by ZhangYong fot PLD send 20180530
+    /*enum streams {STREAM_RAW_SENSORS,
                   STREAM_EXTENDED_STATUS,
                   STREAM_RC_CHANNELS,
                   STREAM_RAW_CONTROLLER,
@@ -168,6 +177,20 @@ public:
                   STREAM_EXTRA3,
                   STREAM_PARAMS,
                   STREAM_ADSB,
+                  NUM_STREAMS};
+	*///	modified end
+
+	enum streams {STREAM_RAW_SENSORS,
+                  STREAM_EXTENDED_STATUS,
+                  STREAM_RC_CHANNELS,
+                  STREAM_RAW_CONTROLLER,
+                  STREAM_POSITION,
+                  STREAM_EXTRA1,
+                  STREAM_EXTRA2,
+                  STREAM_EXTRA3,
+                  STREAM_PARAMS,
+                  STREAM_ADSB,
+                  STREAM_PLD,
                   NUM_STREAMS};
 
     // see if we should send a stream now. Called at 50Hz

@@ -195,7 +195,7 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
 #endif
 //	added end
 
-
+	//	modified by zhangyong for payload check
 	return_value =  barometer_checks(display_failure)
         & rc_calibration_checks(display_failure)
         & compass_checks(display_failure)
@@ -206,6 +206,7 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
         & logging_checks(display_failure)
         & parameter_checks(display_failure)
         & motor_checks(display_failure)
+        & payload_checks(display_failure)
         & ( \
         	((!copter.ap.rc_receiver_present) && (!pilot_throttle_checks(display_failure))) || \
         	((copter.ap.rc_receiver_present) && (pilot_throttle_checks(display_failure)))\
@@ -445,6 +446,77 @@ bool AP_Arming_Copter::motor_checks(bool display_failure)
     }
     return true;
 }
+
+//	added by ZhangYong 20180530 for payload checks
+bool AP_Arming_Copter::payload_checks(bool display_failure)
+{
+#if ((PROJECTGKXN == ENABLED)&&(FLOWMETER==ENABLED))
+	// check flowmeter initialised  correctly
+    if (copter.flowmeter.enabled()) 
+	{
+		//	to check the serial port configuration
+		if(nullptr == copter.serial_manager.find_serial(AP_SerialManager::SerialProtocol_FlowMeter_GKXN, 0))
+		{
+			if (display_failure) {
+            	gcs().send_text(MAV_SEVERITY_CRITICAL,"PreArm: check serial port protocol for flowmeter");
+        	}
+			
+			return false;
+		}
+		else
+		{
+			if(AP_SERIALMANAGER_FLOWMETER_GKXN_BAUD != copter.serial_manager.find_baudrate(AP_SerialManager::SerialProtocol_FlowMeter_GKXN, 0))
+			{
+				if (display_failure) {
+            		gcs().send_text(MAV_SEVERITY_CRITICAL,"PreArm: check serial port baud for flowmeter");
+				}
+
+				return false;
+			}
+		}		
+		
+		if(1 == copter.flowmeter.exhausted())
+		{
+        	if (display_failure) {
+            	gcs().send_text(MAV_SEVERITY_CRITICAL,"PreArm: liquid out");
+        	}
+			
+			return false;
+		}
+    }
+#endif
+
+#if ((PROJECTGKXN == ENABLED)&&(SPRAYER==ENABLED))
+	// check motors initialised  correctly
+    if (copter.sprayer.get_enabled()) 
+	{
+		//	to check the aux port configuration
+		if(!SRV_Channels::function_assigned(SRV_Channel::k_sprayer_pump))
+		{
+			if (display_failure) {
+            	gcs().send_text(MAV_SEVERITY_CRITICAL,"PreArm: check AUX port for sprayer pump");
+        	}
+
+			return false;
+		}
+
+		
+
+		//	to check the aux port configuration
+		if(!SRV_Channels::function_assigned(SRV_Channel::k_sprayer_spinner))
+		{
+			if (display_failure) {
+            	gcs().send_text(MAV_SEVERITY_CRITICAL,"PreArm: check AUX port for sprayer spinner");
+        	}
+
+			return false;
+		}
+    }
+#endif
+
+    return true;
+}
+//	added end
 
 bool AP_Arming_Copter::pilot_throttle_checks(bool display_failure)
 {
@@ -801,6 +873,15 @@ bool AP_Arming_Copter::arm_checks(bool display_failure, bool arming_from_gcs)
     if (!motor_checks(display_failure)) {
         return false;
     }
+
+
+	//	added by ZhangYong for payload arming check 20180531
+	if(!payload_checks(display_failure)) 
+	{
+		return false;
+	}
+		
+	//	added end
 
     // if we are using motor interlock switch and it's enabled, fail to arm
     // skip check in Throw mode which takes control of the motor interlock

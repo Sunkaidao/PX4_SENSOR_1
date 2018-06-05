@@ -144,30 +144,31 @@ int AP_Flowmeter::GetDate()
 	_Flo_data.flag = Rx_Buff[7];
 	_Flo_data.mode = Rx_Buff[8];
 
-	_Flo_data.packet_cnt ++;
-	if((_alarm&0x01)==0x01)
-		{
-		if(_Flo_data.flag!=0)
-			{
-			_Flo_data.warning=1;
-			}
-		}
-	if(((_alarm>>1)&0x01)==0x01)
-		{
-		if (_Flo_data.volume<_volume)
-			{
-				_Flo_data.warning=1;
-			}
-		}
-	if(((_alarm>>2)&0x01)==0x01)
-		{
-		if (_Flo_data.high<_high)
-			{
-				_Flo_data.warning=1;
-			}
-		}
 	
-
+	if((_alarm&0x01)==0x01)
+	{
+		if(_Flo_data.flag!=0)
+		{
+			_Flo_data.warning=1;
+		}
+	}
+	if(((_alarm>>1)&0x01)==0x01)
+	{
+		if (_Flo_data.volume<_volume)
+		{
+			_Flo_data.warning=1;
+		}
+	}
+	if(((_alarm>>2)&0x01)==0x01)
+	{
+		if (_Flo_data.high<_high)
+		{
+				_Flo_data.warning=1;
+		}
+	}
+	
+	_Flo_data.packet_cnt ++;
+	
 	return Right_data;
 }
 void AP_Flowmeter::get_Flowmeter_data()

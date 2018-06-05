@@ -918,7 +918,7 @@ private:
     void update_visual_odom();
     void send_pid_tuning(mavlink_channel_t chan);
 	//	added by ZhangYong 20180312
-	void send_payload_status(mavlink_channel_t chan);
+	void send_payload_status(mavlink_channel_t chan, enum pld_status para_pld_status);
 	//	added end
     void gcs_data_stream_send(void);
     void gcs_check_input(void);
