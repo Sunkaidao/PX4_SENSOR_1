@@ -164,11 +164,11 @@ public:
         uint8_t  rtk_num_sats;             ///< Current number of satellites used for RTK calculation
         
         //baiyang added in 20170620
-        #if DGPS_HEADINGA == ENABLED
-		    GPSHead_Status HeadStatus;          ///< #HEADINGA status
-		    float heading;                      ///< The heading is the angle from True North of the base to rover vector in a clockwise direction
-	  	  uint16_t rtk_status;                ///< Differential GPS operating status
-        #endif
+        //#if DGPS_HEADINGA == ENABLED
+		 GPSHead_Status HeadStatus;          ///< #HEADINGA status
+		 float heading;                      ///< The heading is the angle from True North of the base to rover vector in a clockwise direction
+	  	 uint16_t rtk_status;                ///< Differential GPS operating status
+        //#endif
         //added end
         AP_Float _declination; 
     };
