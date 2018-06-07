@@ -882,12 +882,12 @@ void AP_GPS::inject_data(uint8_t instance, uint8_t *data, uint16_t len)
 void AP_GPS::send_mavlink_gps_raw(mavlink_channel_t chan)
 {
     static uint32_t last_send_time_ms[MAVLINK_COMM_NUM_BUFFERS];
-    if (status() > AP_GPS::NO_GPS) {
+    if (status(0) > AP_GPS::NO_GPS) {
         // when we have a GPS then only send new data
-        if (last_send_time_ms[chan] == last_message_time_ms()) {
+        if (last_send_time_ms[chan] == last_message_time_ms(0)) {
             return;
         }
-        last_send_time_ms[chan] = last_message_time_ms();
+        last_send_time_ms[chan] = last_message_time_ms(0);
     } else {
         // when we don't have a GPS then send at 1Hz
         uint32_t now = AP_HAL::millis();
@@ -896,19 +896,19 @@ void AP_GPS::send_mavlink_gps_raw(mavlink_channel_t chan)
         }
         last_send_time_ms[chan] = now;
     }
-    const Location &loc = location();
+    const Location &loc = location(0);
     mavlink_msg_gps_raw_int_send(
         chan,
-        last_fix_time_ms()*(uint64_t)1000,
-        status(),
+        last_fix_time_ms(0)*(uint64_t)1000,
+        status(0),
         loc.lat,        // in 1E7 degrees
         loc.lng,        // in 1E7 degrees
         loc.alt * 10UL, // in mm
-        get_hdop(),
-        get_vdop(),
-        ground_speed()*100,  // cm/s
-        ground_course()*100, // 1/100 degrees
-        num_sats());
+        get_hdop(0),
+        get_vdop(0),
+        ground_speed(0)*100,  // cm/s
+        ground_course(0)*100, // 1/100 degrees
+        num_sats(0));
 }
 
 void AP_GPS::send_mavlink_gps2_raw(mavlink_channel_t chan)
@@ -946,12 +946,12 @@ void AP_GPS::send_mavlink_gps2_raw(mavlink_channel_t chan)
 void AP_GPS::send_mavlink_gps_head_status(mavlink_channel_t chan,NavEKF2 &ekf2)
 {
     static uint32_t last_send_time_ms[MAVLINK_COMM_NUM_BUFFERS];
-    if (status() > AP_GPS::NO_GPS) {
+    if (status(0) > AP_GPS::NO_GPS) {
         // when we have a GPS then only send new data
-        if (last_send_time_ms[chan] == last_message_time_ms()) {
+        if (last_send_time_ms[chan] == last_message_time_ms(0)) {
             return;
         }
-        last_send_time_ms[chan] = last_message_time_ms();
+        last_send_time_ms[chan] = last_message_time_ms(0);
     } else {
         // when we don't have a GPS then send at 1Hz
         uint32_t now = AP_HAL::millis();
@@ -964,10 +964,10 @@ void AP_GPS::send_mavlink_gps_head_status(mavlink_channel_t chan,NavEKF2 &ekf2)
     mavlink_msg_da_gps_sta_send(
 		chan,
 		last_send_time_ms[chan]*(uint64_t)1000, /*< Timestamp (micros since boot or Unix epoch)*/
-		Headstatus(),                          /*< Directional value status*/
-		heading(),                             /*< Directional value*/
+		Headstatus(0),                          /*< Directional value status*/
+		heading(0),                             /*< Directional value*/
 		ekf2.get_ekf_heading_mode(),             /*< EKF2 heading mode,0:Magnetic compass;1:Dual antenna GPS heading;0xff:Reserved, unused*/
-		0,
+		primary_instance,
 		0,
 		0);
 
@@ -993,7 +993,7 @@ void AP_GPS::send_mavlink_gps2_head_status(mavlink_channel_t chan,NavEKF2 &ekf2)
 		Headstatus(1),                          /*< Directional value status*/
 		heading(1),                             /*< Directional value*/
 		ekf2.get_ekf_heading_mode(),             /*< EKF2 heading mode,0:Magnetic compass;1:Dual antenna GPS heading;0xff:Reserved, unused*/
-		0,
+		primary_instance,
 		0,
 		0);
 
