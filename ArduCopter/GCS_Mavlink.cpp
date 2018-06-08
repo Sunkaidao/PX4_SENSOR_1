@@ -2606,6 +2606,11 @@ AP_ServoRelayEvents *GCS_MAVLINK_Copter::get_servorelayevents() const
     return &copter.ServoRelayEvents;
 }
 
+NavEKF2 *GCS_MAVLINK_Copter::get_ekf2() const
+{
+	return &copter.EKF2;
+}
+
 AP_AdvancedFailsafe *GCS_MAVLINK_Copter::get_advanced_failsafe() const
 {
 #if ADVANCED_FAILSAFE == ENABLED

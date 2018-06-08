@@ -301,6 +301,21 @@ void NavEKF2_core::SelectMagFusion()
 	if(frontend->_head_control){
 		// check for availability of gps heading data to fuse
 		gpsHeadDataToFuse = storedGPSHead.recall(gpsHeadDataDelayed,imuDataDelayed.time_ms);
+		if(lastTimeGpsHeadReceived_ms != 0)
+		{
+			if(AP_HAL::millis() - lastTimeGpsHeadReceived_ms > 300)
+			{
+				//Dual-antenna GPS error until the double-antenna correction yaw function is turned off before the power is turned off.
+				frontend->_head_control = 0;
+
+				//Use magnetic compass data to force reset yaw angle
+				magYawResetRequest = true;
+				magStateResetRequest = true;
+				gcs().send_text(MAV_SEVERITY_INFO, "EKF2 IMU%u D-GPS heading anomaly, yaw re-aligned for mag",(unsigned)imu_index);
+				//printf("EKF2 IMU%u D-GPS heading anomaly, yaw re-aligned for mag\n",(unsigned)imu_index);
+				//printf("_head_control %d\n",frontend->_head_control);
+			}
+		}
 	}
 #endif
 
