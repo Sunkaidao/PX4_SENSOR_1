@@ -1478,7 +1478,7 @@ Quaternion NavEKF2_core::calcQuatAndFieldStates(float roll, float pitch)
 		
 #ifdef GPS_YAW_CAL
 		//baiyang added in 20170116
-		float gpsHead =wrap_PI(radians(_ahrs->get_gps().heading(0)));   //_ahrs->get_gps().heading(0) gpsHeadDataDelayed.Head
+		float gpsHead =wrap_PI(radians(_ahrs->get_gps().heading()));   //_ahrs->get_gps().heading(0) gpsHeadDataDelayed.Head
         if(frontend->_head_control && (_ahrs->get_gps().Headstatus() >= AP_GPS::NARROW_INT)){
 	        yaw = gpsHead;    
         }else{

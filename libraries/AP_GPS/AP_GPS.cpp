@@ -256,6 +256,24 @@ const AP_Param::GroupInfo AP_GPS::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("BLEND_TC", 21, AP_GPS, _blend_tc, 10.0f),
 
+	// @Param: DEC1 
+    // @DisplayName: DGPS heading declination 
+    // @Description: An angle to DGPS between the true north and DGPS north 
+    // @Range: -180 180 
+    // @Units: deg 
+    // @Increment: 0.5 
+    // @User: Standard 
+    AP_GROUPINFO("DEC1", 22, AP_GPS, state[0]._declination, 0.0f), 
+ 
+    // @Param: DEC2 
+    // @DisplayName: DGPS heading declination 
+    // @Description: An angle to DGPS between the true north and DGPS north 
+    // @Range: -180 180 
+    // @Units: deg 
+    // @Increment: 0.5 
+    // @User: Standard 
+    AP_GROUPINFO("DEC2", 23, AP_GPS, state[1]._declination, 0.0f), 
+
     AP_GROUPEND
 };
 
@@ -588,6 +606,7 @@ void AP_GPS::update_instance(uint8_t instance)
     if (_type[instance] == GPS_TYPE_NONE) {
         // not enabled
         state[instance].status = NO_GPS;
+        state[instance].HeadStatus = NONE;
         state[instance].hdop = GPS_UNKNOWN_DOP;
         state[instance].vdop = GPS_UNKNOWN_DOP;
         return;
@@ -623,6 +642,7 @@ void AP_GPS::update_instance(uint8_t instance)
             drivers[instance] = nullptr;
             memset(&state[instance], 0, sizeof(state[instance]));
             state[instance].status = NO_GPS;
+            state[instance].HeadStatus = NONE;
             state[instance].hdop = GPS_UNKNOWN_DOP;
             state[instance].vdop = GPS_UNKNOWN_DOP;
             timing[instance].last_message_time_ms = tnow;
@@ -683,7 +703,7 @@ void AP_GPS::update(void)
                 primary_instance = 0;
                 for (uint8_t i=1; i<GPS_MAX_RECEIVERS; i++) {
                     // choose GPS with highest state or higher number of satellites
-                    if ((state[i].status > state[primary_instance].status) ||
+                    if ((state[i].status > state[primary_instance].status) || (state[i].HeadStatus > state[primary_instance].HeadStatus) || \
                         ((state[i].status == state[primary_instance].status) && (state[i].num_sats > state[primary_instance].num_sats))) {
                         primary_instance = i;
                         _last_instance_swap_ms = now;
@@ -695,7 +715,7 @@ void AP_GPS::update(void)
                     if (i == primary_instance) {
                         continue;
                     }
-                    if (state[i].status > state[primary_instance].status) {
+                    if ((state[i].status > state[primary_instance].status) || (state[i].HeadStatus > state[primary_instance].HeadStatus)) {
                         // we have a higher status lock, or primary is set to the blended GPS, change GPS
                         primary_instance = i;
                         _last_instance_swap_ms = now;
@@ -923,7 +943,7 @@ void AP_GPS::send_mavlink_gps2_raw(mavlink_channel_t chan)
 //#ifdef GPS_YAW_CAL
 #if DGPS_HEADINGA == ENABLED
 //baiyang added in 20180108
-void AP_GPS::send_mavlink_gps_head_status(mavlink_channel_t chan)
+void AP_GPS::send_mavlink_gps_head_status(mavlink_channel_t chan,NavEKF2 &ekf2)
 {
     static uint32_t last_send_time_ms[MAVLINK_COMM_NUM_BUFFERS];
     if (status(0) > AP_GPS::NO_GPS) {
@@ -946,14 +966,14 @@ void AP_GPS::send_mavlink_gps_head_status(mavlink_channel_t chan)
 		last_send_time_ms[chan]*(uint64_t)1000, /*< Timestamp (micros since boot or Unix epoch)*/
 		Headstatus(0),                          /*< Directional value status*/
 		heading(0),                             /*< Directional value*/
-		0xff,                                   /*< EKF2 heading mode,0:Magnetic compass;1:Dual antenna GPS heading;0xff:Reserved, unused*/
-		0,
+		ekf2.get_ekf_heading_mode(),             /*< EKF2 heading mode,0:Magnetic compass;1:Dual antenna GPS heading;0xff:Reserved, unused*/
+		primary_instance,
 		0,
 		0);
 
 }
 
-void AP_GPS::send_mavlink_gps2_head_status(mavlink_channel_t chan)
+void AP_GPS::send_mavlink_gps2_head_status(mavlink_channel_t chan,NavEKF2 &ekf2)
 {
 	static uint32_t last_send_time_ms[MAVLINK_COMM_NUM_BUFFERS];
 	
@@ -972,8 +992,8 @@ void AP_GPS::send_mavlink_gps2_head_status(mavlink_channel_t chan)
 		last_send_time_ms[chan]*(uint64_t)1000, /*< Timestamp (micros since boot or Unix epoch)*/
 		Headstatus(1),                          /*< Directional value status*/
 		heading(1),                             /*< Directional value*/
-		0xff,                                   /*< EKF2 heading mode,0:Magnetic compass;1:Dual antenna GPS heading;0xff:Reserved, unused*/
-		0,
+		ekf2.get_ekf_heading_mode(),             /*< EKF2 heading mode,0:Magnetic compass;1:Dual antenna GPS heading;0xff:Reserved, unused*/
+		primary_instance,
 		0,
 		0);
 

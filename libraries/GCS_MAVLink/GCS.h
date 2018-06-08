@@ -20,6 +20,7 @@
 #include <AP_ServoRelayEvents/AP_ServoRelayEvents.h>
 #include <AP_Camera/AP_Camera.h>
 #include <AP_AdvancedFailsafe/AP_AdvancedFailsafe.h>
+#include <AP_NavEKF2/AP_NavEKF2.h>
 //baiyang added in 20170829
 #if CHARGINGSTATION == ENABLED
 #include <AP_Task/AP_ChargingStation.h>             // ArduPilot chargingStation library
@@ -317,6 +318,7 @@ protected:
     virtual class AP_Camera *get_camera() const = 0;
     virtual AP_ServoRelayEvents *get_servorelayevents() const = 0;
     virtual AP_GPS *get_gps() const = 0;
+    virtual NavEKF2 *get_ekf2() const = 0;
     virtual AP_AdvancedFailsafe *get_advanced_failsafe() const { return nullptr; };
     virtual bool set_mode(uint8_t mode) = 0;
 

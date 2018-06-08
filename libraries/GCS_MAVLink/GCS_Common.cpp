@@ -2355,6 +2355,7 @@ void GCS_MAVLINK::send_hwstatus()
 bool GCS_MAVLINK::try_send_gps_message(const enum ap_message id)
 {
     AP_GPS *gps = get_gps();
+	NavEKF2 *ekf2 = get_ekf2();
     if (gps == nullptr) {
         return true;
     }
@@ -2389,12 +2390,12 @@ bool GCS_MAVLINK::try_send_gps_message(const enum ap_message id)
 #if DGPS_HEADINGA == ENABLED		
     case MSG_DA_GPS_STA:
 	CHECK_PAYLOAD_SIZE(DA_GPS_STA);
-	gps->send_mavlink_gps_head_status(chan);
+	gps->send_mavlink_gps_head_status(chan,*ekf2);
         ret = true;
 	break;
     case MSG_DA_GPS2_STA:
 	CHECK_PAYLOAD_SIZE(DA_GPS2_STA);
-	gps->send_mavlink_gps2_head_status(chan);
+	gps->send_mavlink_gps2_head_status(chan,*ekf2);
         ret = true;
 	break;
 #endif	
