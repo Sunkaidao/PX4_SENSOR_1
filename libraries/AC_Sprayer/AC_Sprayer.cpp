@@ -11,7 +11,7 @@ const AP_Param::GroupInfo AC_Sprayer::var_info[] = {
     // @Description: Allows you to enable (1) or disable (0) the sprayer
     // @Values: 0:Disabled,1:Enabled
     // @User: Standard
-    AP_GROUPINFO("ENABLE", 0, AC_Sprayer, _enabled, AP_PARAM_FLAG_ENABLE),
+    AP_GROUPINFO("ENABLE", 0, AC_Sprayer, _enabled, AC_SPRAYER_DEFAULT_ENABLE),
 
     // @Param: PUMP_RATE
     // @DisplayName: Pump speed
@@ -338,10 +338,11 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 		
 		//	added by ZhangYong 20170602
 		//	if we want to test the pump and spray on ground, we hope spray and pump act full speed
-		if (_flags.testing) 
+		//	shieleded by zhangyong to meet custmoer requirement 20180607
+		/*if (_flags.testing) 
 		{
 			actual_pump_rate = 10000;
-		}
+		}*/
 
 //		printf("4. %d %d\n", actual_pump_rate, _spinner_pwm);
 		
@@ -349,6 +350,8 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 		//	modified by ZhangYong
 		//	SRV_Channels::move_servo(SRV_Channel::k_sprayer_pump, pos, 0, 10000);
 		//	modified end
+		//	
+//		printf("actual_pump_rate %d\n", actual_pump_rate);
         SRV_Channels::move_servo(SRV_Channel::k_sprayer_pump, actual_pump_rate, 0, 10000);
         SRV_Channels::set_output_pwm(SRV_Channel::k_sprayer_spinner, _spinner_pwm);
 		
