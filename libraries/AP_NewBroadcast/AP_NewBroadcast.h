@@ -68,10 +68,6 @@ private:
     AP_Int32 _flight_seq;
 
 	int32_t flight_seq_pre;
-	Location spraying_start;
-	Location spraying_end;
-	Location flight_seq_originate;
-	Location flight_seq_current;
 	uint64_t flight_area_m2_curr;	
 	uint64_t flight_area_m2_pre;
 	uint64_t timer;
