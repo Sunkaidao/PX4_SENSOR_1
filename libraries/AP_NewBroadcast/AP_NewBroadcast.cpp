@@ -468,28 +468,22 @@ void AP_NewBroadcast :: update_view_cur_flow()
 void AP_NewBroadcast :: update_view_flight_area()
 {
 	static uint8_t step = 0;
-	//float distance; //uint: meter
+	static int16_t wp_start = 0; //uint: meter
 	
 	switch(step)
 	{
 		case 0:
 			if(sprayer.get_spraying()&&copter.motors->armed())
 			{
-				spraying_start.lat = copter.inertial_nav.get_latitude();
-				spraying_start.lng = copter.inertial_nav.get_longitude();
-				
+				wp_start = view.flight_length;
 				step = 1;
 				flight_area_m2_pre += flight_area_m2_curr;
 			}
 			break;
 		case 1:
 			if(sprayer.get_spraying()&&copter.motors->armed())
-			{
-				spraying_end.lat = copter.inertial_nav.get_latitude();
-				spraying_end.lng = copter.inertial_nav.get_longitude();
-				
-				flight_area_m2_curr = get_distance(spraying_start,spraying_end)*((sprayer.get_unspray_dist()-50)/100);
-				
+			{				
+				flight_area_m2_curr = (view.flight_length - wp_start)*((sprayer.get_unspray_dist()-50)/100.0f); 			
 				view.flight_area = (flight_area_m2_curr + flight_area_m2_pre)*0.015f;
 			}
 			else if(!copter.motors->armed())
@@ -507,15 +501,17 @@ void AP_NewBroadcast :: update_view_flight_area()
 void AP_NewBroadcast :: update_view_flight_length()
 {
 	static uint8_t step = 0;
+	static float velocity_xy_m = 0;
+	static float flight_length = 0;
 	
 	switch(step)
 	{
 		case 0:
 			if(flight_seq_pre != _flight_seq.get())
-			{
-				flight_seq_originate.lat = copter.inertial_nav.get_latitude();
-				flight_seq_originate.lng = copter.inertial_nav.get_longitude();
-				
+			{ 
+	          	velocity_xy_m = copter.inertial_nav.get_velocity_xy()/100.0f; 
+				view.flight_length = 0;
+				flight_length = 0;
 				step = 1;
 				flight_seq_pre = _flight_seq.get();
 			}
@@ -523,10 +519,10 @@ void AP_NewBroadcast :: update_view_flight_length()
 		case 1:
 			if(flight_seq_pre == _flight_seq.get())
 			{
-				flight_seq_current.lat = copter.inertial_nav.get_latitude();
-				flight_seq_current.lng = copter.inertial_nav.get_longitude();
-				
-				view.flight_length = get_distance(flight_seq_originate,flight_seq_current);
+				//10Hz update,so velocity_xy*0.1 
+				flight_length += velocity_xy_m*0.1f;
+				view.flight_length = flight_length;
+				velocity_xy_m = copter.inertial_nav.get_velocity_xy()/100.0f;
 
 				if(!copter.motors->armed())
 				{
