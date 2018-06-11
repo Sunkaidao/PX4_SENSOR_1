@@ -334,6 +334,11 @@ public:
 	int8_t get_ekf_heading_mode(void){ return _head_control.get();}
 	//added end
 #endif
+
+#ifdef GPS_YAW_CAL
+	int8_t get_gps_heading_health(){ return gps_heading_health;}
+	void set_gps_heading_health(int8_t status){ gps_heading_health = status;}
+#endif
  
 private:
     uint8_t num_cores; // number of allocated cores
@@ -345,6 +350,7 @@ private:
 
     uint32_t _frameTimeUsec;        // time per IMU frame
     uint8_t  _framesPerPrediction;  // expected number of IMU frames per prediction
+    int8_t gps_heading_health;
 
     // EKF Mavlink Tuneable Parameters
     AP_Int8  _enable;               // zero to disable EKF2
