@@ -71,7 +71,7 @@ AP_PtzControl::set_servo_pwm(uint16_t pitch,uint16_t yaw,uint16_t photograph,uin
 
 }
 
-void AP_PtzControl::update()
+void AP_PtzControl::update(uint8_t channel_bit_mask)
 {
 	if(!_initialised){
        return;
