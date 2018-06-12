@@ -574,7 +574,7 @@ void Copter::update_bcbpmbus()
 
 
 	//	log data
-	Log_Write_BCBPMBus_Components();
+	Log_Write_BCBPMBus();
 
 	//	check failsafe of the pmbus
 	if(false == g2.bcbpmbus.pmbus_is_OK())
@@ -603,7 +603,7 @@ void Copter::update_bcbpmbus()
 		//	0x10: timeout						(highest priority)
 
 
-		if(false == g2.bcbpmbus.components_is_OK(&slot_id, &fs_reason))
+		if(false == g2.bcbpmbus.modules_is_OK(&slot_id, &fs_reason))
 		{
 			
 #if BCBPMBUS_DEBUG > 0		
@@ -848,18 +848,12 @@ void Copter::update_bcbpmbus()
 }
 
 
-void Copter::Log_Write_BCBPMBus_Components()
+void Copter::Log_Write_BCBPMBus()
 {
-	uint8_t lcl_cnt;
-	for(lcl_cnt = 0; lcl_cnt < AC_BCBPMBUS_MODULE_MAX_COMPONENT; lcl_cnt++)
-	{
-		if(true == g2.bcbpmbus.should_log_componengt_slot_info(lcl_cnt))
-		{
-//			printf("Log_Write_BCBPMBus_Components slot %d\n", lcl_cnt);
-			Log_Write_BCBPMBus(lcl_cnt + LOG_PMBUS0_MSG);
-			g2.bcbpmbus.componengt_slot_info_logged(lcl_cnt);
-		}
-	}
+
+	Log_Write_BCBPMBus_Msg(1);
+	Log_Write_BCBPMBus_Msg(2);
+
 }
 
 

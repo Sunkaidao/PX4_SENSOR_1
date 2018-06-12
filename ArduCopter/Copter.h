@@ -964,8 +964,8 @@ private:
 
 //	added by ZhangYong
 #if BCBPMBUS == ENABLED
-	void Log_Write_BCBPMBus(uint8_t msg_type);
-	void Log_Write_BCBPMBus_Components();
+	void Log_Write_BCBPMBus_Msg(uint8_t msg_type);
+	void Log_Write_BCBPMBus();
 #endif
 //	added end
 

@@ -379,7 +379,7 @@ void Copter::send_payload_status(mavlink_channel_t chan, enum pld_status para_pl
 		case MSG_PLD_STATUS_PMBUS:
 			
 #if((PROJECTBCB == ENABLED)&&(BCBPMBUS == ENABLED))
-			if(true == copter.g2.bcbpmbus.should_report_componengt_slot_info(lcl_cnt[chan], chan))
+			if(true == copter.g2.bcbpmbus.should_report_module_slot_info(lcl_cnt[chan], chan))
 			{
 				//printf("report_BCBPMBus_Components slot %d, on chan [%d]\n", lcl_cnt[chan], chan);
 				//printf("chan %d, %.8d slot %d\n", chan, AP_HAL::millis(), lcl_cnt[chan]);
@@ -408,19 +408,19 @@ void Copter::send_payload_status(mavlink_channel_t chan, enum pld_status para_pl
 				*/
 				//	payload_status[0] = g2.bcbpmbus.get_component_seq(lcl_cnt);
 				payload_status[0] = 0xA0;
-				payload_status[1] = g2.bcbpmbus.get_component_id(lcl_cnt[chan]);
+				payload_status[1] = g2.bcbpmbus.get_module_id(lcl_cnt[chan]);
 
 
-				lcl_uint16_t = g2.bcbpmbus.get_read_vin(lcl_cnt[chan]);
+				lcl_uint16_t = g2.bcbpmbus.get_module_read_vin(lcl_cnt[chan]);
 				payload_status[3] = lcl_uint16_t & 0x00FF;
 				payload_status[2] = lcl_uint16_t >> 8;
 		
 			
-				lcl_uint16_t = g2.bcbpmbus.get_read_iin(lcl_cnt[chan]);
+				lcl_uint16_t = g2.bcbpmbus.get_module_read_iin(lcl_cnt[chan]);
 				payload_status[5] = lcl_uint16_t & 0x00FF;
 				payload_status[4] = lcl_uint16_t >> 8;
 
-				lcl_uint16_t = g2.bcbpmbus.get_read_vout(lcl_cnt[chan]);
+				lcl_uint16_t = g2.bcbpmbus.get_module_read_vout(lcl_cnt[chan]);
 				payload_status[7] = lcl_uint16_t & 0x00FF;
 				payload_status[6] = lcl_uint16_t >> 8;
 
@@ -505,15 +505,15 @@ void Copter::send_payload_status(mavlink_channel_t chan, enum pld_status para_pl
 
 					payload_status[0] = 0xA1;
 
-					lcl_uint16_t = g2.bcbpmbus.get_read_iout(lcl_cnt[chan]);
+					lcl_uint16_t = g2.bcbpmbus.get_module_read_iout(lcl_cnt[chan]);
 					payload_status[3] = lcl_uint16_t & 0x00FF;	
 					payload_status[2] = lcl_uint16_t >> 8;
 			
-					lcl_uint16_t = g2.bcbpmbus.get_read_temperature(lcl_cnt[chan]);
+					lcl_uint16_t = g2.bcbpmbus.get_module_read_temperature(lcl_cnt[chan]);
 					payload_status[5] = lcl_uint16_t & 0x00FF;
 					payload_status[4] = lcl_uint16_t >> 8;
 
-					lcl_uint16_t = g2.bcbpmbus.get_status_word(lcl_cnt[chan]);
+					lcl_uint16_t = g2.bcbpmbus.get_module_status_word(lcl_cnt[chan]);
 					payload_status[7] = lcl_uint16_t & 0x00FF;
 					payload_status[6] = lcl_uint16_t >> 8;
 
@@ -601,7 +601,7 @@ void Copter::send_payload_status(mavlink_channel_t chan, enum pld_status para_pl
 
 					//printf("mavlink_msg_payload_status_send %d\n", payload_status[0]);
 
-					g2.bcbpmbus.componengt_slot_info_reported(lcl_cnt[chan], chan);
+					g2.bcbpmbus.module_slot_info_reported(lcl_cnt[chan], chan);
 			} // end of if(true == copter.g2.bcbpmbus.should_report_componengt_slot_info(lcl_cnt[chan], chan))
 
 				lcl_cnt[chan]++;
@@ -695,16 +695,16 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
     case MSG_RADIO_IN:
         CHECK_PAYLOAD_SIZE(RC_CHANNELS);
 		//	modified by ZhangYong 20171013
-#if BCBPMBUS == DISABLED		
+//#if BCBPMBUS == DISABLED		
 		send_radio_in(copter.receiver_rssi);
 		//	modified end
-#else		
-        send_radio_in(copter.receiver_rssi, \
-        				copter.g2.bcbpmbus.get_read_temperature(0), \
-        				copter.g2.bcbpmbus.get_read_vin(0), \
-        				copter.g2.bcbpmbus.get_read_vout(0));
-#endif
-        break;
+/*#else		
+//        send_radio_in(copter.receiver_rssi, \
+//       				copter.g2.bcbpmbus.get_read_temperature(0), \
+//        				copter.g2.bcbpmbus.get_read_vin(0), \
+//        				copter.g2.bcbpmbus.get_read_vout(0));
+//#endif
+*/       break;
 
     case MSG_SERVO_OUTPUT_RAW:
         CHECK_PAYLOAD_SIZE(SERVO_OUTPUT_RAW);
