@@ -90,7 +90,7 @@
 //	modified end
 
 #ifndef RANGEFINDER_ENABLED
- # define RANGEFINDER_ENABLED DISABLED
+ # define RANGEFINDER_ENABLED ENABLED
 #endif
 
 #ifndef RANGEFINDER_HEALTH_MAX
@@ -136,7 +136,7 @@
 //	modified end
 
 #ifndef PROXIMITY_ENABLED
- # define PROXIMITY_ENABLED DISABLED
+ # define PROXIMITY_ENABLED ENABLED
 #endif
 
 #ifndef MAV_SYSTEM_ID
@@ -266,7 +266,7 @@
 //	modified by ZhangYong 20170915
 
 #ifndef SPRAYER
- # define SPRAYER  DISABLED
+ # define SPRAYER  ENABLED
 #endif
 
 
@@ -286,7 +286,7 @@
 //  PROJECT GKXN
 //	added by ZhangYong 20170712
 #ifndef PROJECTGKXN
- # define PROJECTGKXN DISABLED
+ # define PROJECTGKXN ENABLED
 #endif
 //	added ebd
 
@@ -294,7 +294,7 @@
 //  RADAR NALEI
 
 #ifndef RNGRADAR
- # define RNGRADAR DISABLED
+ # define RNGRADAR ENABLED
 #endif
 
 
@@ -309,7 +309,7 @@
 
 //	added by ZhangYong 20170720
 #ifndef PROJECTBCB
- # define PROJECTBCB ENABLED
+ # define PROJECTBCB DISABLED
 #endif
 
 #if PROJECTBCB == ENABLED
@@ -318,7 +318,7 @@
 #endif
 
 #ifndef BCBPMBUS
- # define BCBPMBUS ENABLED
+ # define BCBPMBUS DISABLED
 #endif
 #endif
 
@@ -493,7 +493,7 @@
 
 //	modified end
 #ifndef CAMERA
- # define CAMERA        DISABLE
+ # define CAMERA        DISABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -505,7 +505,7 @@
 //#endif
 
 #ifndef MOUNT
- # define MOUNT         DISABLE
+ # define MOUNT         DISABLED
 #endif
 
 
@@ -514,7 +514,7 @@
 // AUTH ()
 //
 #ifndef FXTX_AUTH
- #define FXTX_AUTH 	DISABLED
+ #define FXTX_AUTH 	ENABLED
 #endif
 
 #if FXTX_AUTH == ENABLED
@@ -525,17 +525,10 @@
 #define AUTH_ENTER_POS	(AUTH_ID_POS + AUTH_ID_LEN)
 #define AUTH_ID_ARRAY_LEN	(AUTH_ENTER_POS + 4)
 
-enum auth_result {
-	auth_result_failed = 0,
-	auth_result_denied = 1,
-	auth_result_success = 2
-};
-
 enum auth_state {
-	auth_state_initialize = 0,
-	auth_state_up_whoami = 1,
-	auth_state_up_auth = 2,
-	auth_state_down = 3
+	auth_state_failed = 0,
+	auth_state_denied = 1,
+	auth_state_success = 2
 };
 
 union auth_id_para {
@@ -909,11 +902,11 @@ union PACKED PassOSD_data_status {
 
 //	modified end
 #ifndef AC_RALLY
- #define AC_RALLY   DISABLED
+ #define AC_RALLY   ENABLED
 #endif
 
 #ifndef AC_TERRAIN
- #define AC_TERRAIN DISABLED
+ #define AC_TERRAIN ENABLED
 #endif
 
 #if AC_TERRAIN && !AC_RALLY
@@ -921,7 +914,7 @@ union PACKED PassOSD_data_status {
 #endif
 
 #ifndef AC_AVOID_ENABLED
- #define AC_AVOID_ENABLED   DISABLED
+ #define AC_AVOID_ENABLED   ENABLED
 #endif
 
 #if AC_AVOID_ENABLED && !PROXIMITY_ENABLED
@@ -988,28 +981,28 @@ union PACKED PassOSD_data_status {
 //AB Mode
 //
 #ifndef ABMODE
-  #  define ABMODE	DISABLED
+  #  define ABMODE	ENABLED
 #endif
 
 // baiyang added in 20170830
 //////////////////////////////////////////////////////////////////////////////
 //roflying fence
 #ifndef RF_FENCE
-#  define RF_FENCE	DISABLE
+#  define RF_FENCE	DISABLED
 #endif
 
 // baiyang added in 20170830
 //////////////////////////////////////////////////////////////////////////////
 //roflying camera ptz
 #ifndef PTZ_CONTROL
-#  define PTZ_CONTROL	DISABLE
+#  define PTZ_CONTROL	DISABLED
 #endif
 
 //biayang added in 20180206
 //////////////////////////////////////////////////////////////////////////////
 //After networking,upload your own information
 #ifndef NEWBROADCAST
-#  define NEWBROADCAST  DISABLED
+#  define NEWBROADCAST  ENABLED
 #endif
 
 //baiyang added in 20170829
