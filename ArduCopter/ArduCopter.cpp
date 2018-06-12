@@ -641,6 +641,28 @@ void Copter::one_hz_loop()
 		curr_gps_week_ms.time_week_ms = gps.time_week_ms();
 	}	
 
+//	printf("1. auth_state_ms = %d\n", auth_state_ms);
+//	printf("1. auth_state_timeout_cnt = %d\n", auth_state_timeout_cnt);
+
+	//	added by zhangyong to make clear the auth state 20180612
+	if(auth_state_up_auth == auth_state_ms)
+	{	
+		auth_state_timeout_cnt++;
+		
+		if(auth_state_timeout_cnt > 2)
+		{
+			auth_state_timeout_cnt = 0;
+			auth_result_ms = auth_result_failed;
+			auth_state_ms = auth_state_initialize;
+			AP_Notify::events.tune_next = auth_result_ms + 1;
+		}
+		
+	}
+
+//	printf("2. auth_state_ms = %d\n", auth_state_ms);
+//	printf("2. auth_state_timeout_cnt = %d\n", auth_state_timeout_cnt);
+	//	
+
 //	printf("A. %d, %d, %d, &%d\n", gps.status(), curr_gps_week_ms.time_week, gps.time_week_ms(), &curr_gps_week_ms);
 #endif
 
@@ -740,6 +762,7 @@ void Copter::one_hz_loop()
 
 //	printf("one_hz_loop: ap.pre_arm_check %d, motor->armed() %d\n", ap.pre_arm_check, motors->armed());
 
+	
 
 }
 

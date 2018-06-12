@@ -268,6 +268,7 @@ void Copter::userhook_50Hz()
 
     //baiyang added in 20170804
 #if PTZ_CONTROL == ENABLED
+	//	modified by zhangyong to control the shutter 20180612
 	  PtzControl.update();
 #endif // end PTZ_CONTROL == ENABLED
     //added end

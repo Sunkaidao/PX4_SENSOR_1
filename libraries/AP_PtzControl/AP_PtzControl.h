@@ -21,7 +21,8 @@ public:
 	void init();
 	~AP_PtzControl();
 	void set_servo_pwm(uint16_t pitch,uint16_t yaw,uint16_t photograph,uint16_t focus);        // Servo operated camera
-	void update();
+	//	modified by zhangyong to disable shutter when in rtl mode 20180612
+	void update(uint8_t channel_bit_mask);
 	
 private:
 	bool            _initialised; 

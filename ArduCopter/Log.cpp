@@ -696,8 +696,10 @@ void Copter::Log_Write_Beacon()
 
 //	added by ZhangYong
 #if BCBPMBUS == ENABLED
-void Copter::Log_Write_BCBPMBus(uint8_t msg_type)
+void Copter::Log_Write_BCBPMBus_Msg(uint8_t msg_type)
 {
+	uint8_t lcl_cnt;
+
     // exit immediately if feature is disabled
     if (!g2.bcbpmbus.enabled()) {
         return;
@@ -707,8 +709,37 @@ void Copter::Log_Write_BCBPMBus(uint8_t msg_type)
 	{
 		return;
 	}
+
+	switch(msg_type)
+	{
+		case 1:
+			for(lcl_cnt = 0; lcl_cnt < AC_BCBPMBUS_MODULE_MAX_COMPONENT; lcl_cnt++)
+			{
+				if(true == g2.bcbpmbus.should_log_module_slot_info(lcl_cnt))
+				{
+					//printf("AC_BCBPMBUS_MSG_ID_MODULES\n");
+					DataFlash.Log_Write_BCBPMBus_Modules(lcl_cnt + LOG_PMBUS_MOD0_MSG, g2.bcbpmbus);
+					g2.bcbpmbus.module_slot_info_logged(lcl_cnt);
+				}
+			}
+		break;
+
+		case 2:
+			if(true == g2.bcbpmbus.should_log_voltages_info())
+			{
+//				printf("AC_BCBPMBUS_MSG_ID_VOLTAGES\n");
+				DataFlash.Log_Write_BCBPMBus_Voltages(g2.bcbpmbus);
+				g2.bcbpmbus.voltages_info_logged();
+			}
+			
+			break;
+
+		default:
+			break;
+	}
+
 	
-    DataFlash.Log_Write_BCBPMBus(msg_type, g2.bcbpmbus);
+    
 }
 #endif
 
@@ -829,7 +860,7 @@ void Copter::Log_Write_Optflow() {}
 #endif
 
 #if BCBPMBUS == ENABLED
-void Copter::Log_Write_BCBPMBus(uint8_t msg_type) {}
+void Copter::Log_Write_BCBPMBus_Msg(uint8_t msg_type) {}
 #endif
 
 void Copter::start_logging() {}

@@ -1445,7 +1445,7 @@ void GCS::data_stream_send()
 		//	if want to connect to common mission planer
 		//	should sheild this state
 //#if FXTX_AUTH == 1
-//	if(copter.auth_state_ms == auth_state_success)
+//	if(copter.auth_result_ms == auth_state_success)
 //#endif
 	{
 	//	added endded
