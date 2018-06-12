@@ -623,7 +623,12 @@ private:
 
 //	union auth_id_para id_para;
 
-	auth_state auth_state_ms = auth_state_failed;
+	auth_result auth_result_ms = auth_result_failed;
+
+	auth_state auth_state_ms = auth_state_initialize;
+
+	uint8_t auth_state_timeout_cnt = 0;
+	//uint8_t auth_state_timeout_switch = 0;
 #endif
 
 

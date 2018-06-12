@@ -1214,7 +1214,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 #if FXTX_AUTH == 1
 	union auth_id_para id_para;
 	
-	static uint8_t lcl_counter = 0;
+	uint8_t lcl_counter;
 	memset(&id_para, 0, sizeof(union auth_id_para));
 
 #endif
@@ -1680,69 +1680,97 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 //	added by ZhangYong 20170705
 #if FXTX_AUTH == 1
         case MAV_CMD_AUTH_PROTOCAL:
-/*        	lcl_counter++;
-        	if(0 == (lcl_counter % 2))
-        	{
-        		result = MAV_RESULT_ACCEPTED;
-        	}
-        	else
-        	{
-        		result = MAV_RESULT_FAILED;
-        	}
+//			printf("up %d %d\n", copter.auth_state_ms, copter.auth_result_ms);
+
+			if(auth_state_initialize == copter.auth_state_ms)
+			{
+				copter.auth_state_ms = auth_state_up_whoami;
+				
+			}
+			else if(auth_state_up_auth == copter.auth_state_ms)
+			{
+			
+				copter.auth_state_ms = auth_state_down;
+/*        		lcl_counter++;
+        		if(0 == (lcl_counter % 2))
+        		{
+        			result = MAV_RESULT_ACCEPTED;
+        		}
+        		else
+        		{
+        			result = MAV_RESULT_FAILED;
+        		}
 */
 
-			//	added by ZhangYong 20161117 for duqiang debug 20161226
-			//printf("\nMAV_CMD_AUTH_PROTOCAL\n");
-			//	added end
+				//	added by ZhangYong 20161117 for duqiang debug 20161226
+				//printf("\nMAV_CMD_AUTH_PROTOCAL\n");
+				//	added end
 			
-			id_para.serial[0] = packet.param1;
-			id_para.serial[1] = packet.param2;
-			id_para.serial[2] = packet.param3;
-			id_para.serial[3] = packet.param4;
-			id_para.serial[4] = packet.param5;
+				id_para.serial[0] = packet.param1;
+				id_para.serial[1] = packet.param2;
+				id_para.serial[2] = packet.param3;
+				id_para.serial[3] = packet.param4;
+				id_para.serial[4] = packet.param5;
 
-			//printf("0w:0x%x vs 0x%x\n", id_para.serial[0], packet.param1);
+				//printf("0w:0x%x vs 0x%x\n", id_para.serial[0], packet.param1);
 
-			//	added by ZhangYong for auth access 20170418
-//			for(lcl_counter = 0; lcl_counter < 12; lcl_counter++)
-//			{
-				
-				//	added by ZhangYong 20161021
-//				printf("%d: %x vs %x\n", lcl_counter, id_para.data[lcl_counter], copter.auth_id[lcl_counter]);
-				//	added	end
-//				if(id_para.data[lcl_counter] != copter.auth_id[lcl_counter])
-//					break;
-//			}
+				//	added by ZhangYong for auth access 20170418
+/*				for(lcl_counter = 0; lcl_counter < 5; lcl_counter++)
+//				{
+//					printf("0x%x\n");				
+					//	added by ZhangYong 20161021
+//					printf("%d: %x vs %x\n", lcl_counter, id_para.data[lcl_counter], copter.auth_id[lcl_counter]);
+					//	added	end
+//					if(id_para.data[lcl_counter] != copter.auth_id[lcl_counter])
+//						break;
+				}
 
-			for(lcl_counter = 0; lcl_counter < 12; lcl_counter++)
-			{
-				
-				//	added by ZhangYong 20161021
-				//	printf("%d: %x vs %x\n", lcl_counter, id_para.data[lcl_counter], copter.auth_id[lcl_counter]);
-				//	added	end
-				if(id_para.data[lcl_counter] != copter.auth_id[lcl_counter])
-					break;
-			}
-
-			if(lcl_counter != 12)
-			{
-				result = MAV_RESULT_FAILED;
-			}
-			else
-			{
-				result = MAV_RESULT_ACCEPTED;
-
-				if(copter.curr_gps_week_ms.time_week > (uint16_t)id_para.serial[3])
+				uint8_t lcl_uint8;
+				for(lcl_uint8 = 0; lcl_uint8 < 5; lcl_uint8++);
 				{
-					result = MAV_RESULT_DENIED;
+					printf("%d:%f \n", lcl_uint8, id_para.serial[lcl_uint8]);
+				}
+				*/	
+				//for(lcl_counter = 0; lcl_counter < 12; lcl_counter++)
+				//{
+				//	printf("%d %d\n", lcl_counter, id_para.data[lcl_counter]);
+				//}
+			
+
+				for(lcl_counter = 0; lcl_counter < 12; lcl_counter++)
+				{
+				
+					/*	added by ZhangYong 20161021
+				
+					added	end*/
+					if(id_para.data[lcl_counter] != copter.auth_id[lcl_counter])
+						break;
+				}
+
+				if(lcl_counter != 12)
+				{
+					result = MAV_RESULT_FAILED;
 				}
 				else
 				{
-					if(copter.curr_gps_week_ms.time_week == (uint16_t)id_para.serial[3])
+					result = MAV_RESULT_ACCEPTED;
+
+//					printf("time_week %d: 3 %d\n", copter.curr_gps_week_ms.time_week, (uint16_t)id_para.serial[3]);
+//					printf("time_week_ms %d: 4 %d\n", copter.curr_gps_week_ms.time_week_ms, (uint32_t)id_para.serial[4]);
+					
+
+					if(copter.curr_gps_week_ms.time_week > (uint16_t)id_para.serial[3])
 					{
-						if(copter.curr_gps_week_ms.time_week_ms > (uint32_t)id_para.serial[4])
+						result = MAV_RESULT_DENIED;
+					}
+					else
+					{
+						if(copter.curr_gps_week_ms.time_week == (uint16_t)id_para.serial[3])
 						{
-							result = MAV_RESULT_DENIED;
+							if(copter.curr_gps_week_ms.time_week_ms > (uint32_t)id_para.serial[4])
+							{
+								result = MAV_RESULT_DENIED;
+							}
 						}
 					}
 				}
@@ -2073,31 +2101,55 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 		
 #if FXTX_AUTH == ENABLED
         //	added by ZhangYong
+//		printf("down %d %d\n", copter.auth_state_ms, copter.auth_result_ms);
+
         if(MAV_CMD_AUTH_PROTOCAL == packet.command)
         {
 //			printf("1\n");
-		
-        	if(MAV_RESULT_FAILED == result)
-            {
- //           	printf("2\n");
- 				gcs().send_statustext(MAV_SEVERITY_CRITICAL, 0xFF, copter.auth_msg);
+
+			if(auth_state_up_whoami == copter.auth_state_ms)
+			{
+				gcs().send_statustext(MAV_SEVERITY_CRITICAL, 0xFF, copter.auth_msg);
+				copter.auth_state_ms = auth_state_up_auth;
+				//	begin to count for timeout
+				//auth_state_timeout_switch = 1;
+				copter.auth_state_timeout_cnt = 0;
+			}
+			else if(auth_state_down == copter.auth_state_ms)
+			{
+				copter.auth_state_ms = auth_state_initialize;
+				
+        		if(MAV_RESULT_FAILED == result)
+           	 	{
+            		copter.auth_result_ms = auth_result_failed;
+ //           		printf("2\n");
+ 				
 		//		gcs().send_text(MAV_SEVERITY_CRITICAL, copter.auth_msg);
 
 
             //	send_statustext_all(auth_msg);
-			}
-			else if(MAV_RESULT_DENIED == result)
-			{
-//				printf("3\n");
-				copter.auth_state_ms = auth_state_denied;
-			}
-			else
-			{
+				}
+				else if(MAV_RESULT_DENIED == result)
+				{
+				
+	//				printf("3\n");
+					copter.auth_result_ms = auth_result_denied;
+				}
+				else
+				{
+				
 //				printf("4\n");
-				copter.auth_state_ms = auth_state_success;
-			}
+					copter.auth_result_ms = auth_result_success;
+				}
 
-			
+				//static uint8_t lcl_cnt;
+				//	added by zhangyong to make clear the process of accessing 20180612
+				AP_Notify::events.tune_next = copter.auth_result_ms + 1;
+
+				//printf("%d: %d\n", lcl_cnt, AP_Notify::events.tune_next);
+				//	added end
+
+			}
         }
         //	added end
 #endif	
@@ -2605,7 +2657,7 @@ void Copter::gcs_data_stream_send(void)
 	//	if want to connect to common mission planer
 	//	should sheild this state
 #if FXTX_AUTH == 1
-	  if(!(auth_state_ms == auth_state_success))
+	  if(!(auth_result_ms == auth_result_success))
         return;
 #endif
 
