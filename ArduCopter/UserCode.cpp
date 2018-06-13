@@ -288,7 +288,7 @@ void Copter::userhook_MediumLoop()
 #endif
 
 #if NEWBROADCAST == ENABLED
-		newbroadcast.update_view();
+	newbroadcast.update_view();
 #endif
 
 }
@@ -298,6 +298,17 @@ void Copter::userhook_MediumLoop()
 void Copter::userhook_SlowLoop()
 {
     // put your 3.3Hz code here
+#if DGPS_HEADINGA == ENABLED
+    if(!EKF2.get_gps_heading_health())
+    {
+    	set_failsafe_gps_head(true);
+    }
+    else
+    {
+    	set_failsafe_gps_head(false);
+    }
+#endif
+    
 }
 #endif
 

@@ -181,6 +181,35 @@ void Copter::set_failsafe_battery(bool b)
 }
 
 // ---------------------------------------------
+void Copter::set_failsafe_gps_head(bool b)
+{
+    //failsafe.gps_head = b;
+    //AP_Notify::flags.failsafe_battery = b;
+
+    // only act on changes
+    // -------------------
+    if(failsafe.gps_head != b) {
+
+        // store the value so we don't trip the gate twice
+        // -----------------------------------------------
+        failsafe.gps_head = b;
+
+        if (failsafe.gps_head == false) {
+            // We've regained gps head data
+            // ----------------------------
+            failsafe_gps_head_off_event();
+        }else{
+            // We've lost gps head data
+            // ------------------------
+            failsafe_gps_head_on_event();
+        }
+
+        // update AP_Notify
+        AP_Notify::flags.failsafe_radio = b;
+    }
+}
+
+// ---------------------------------------------
 void Copter::set_failsafe_gcs(bool b)
 {
     failsafe.gcs = b;
