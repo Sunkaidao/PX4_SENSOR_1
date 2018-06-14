@@ -654,6 +654,8 @@ NavEKF2::NavEKF2(const AP_AHRS *ahrs, AP_Baro &baro, const RangeFinder &rng) :
     inhibitGpsVertVelUse(false)     // true when GPS vertical velocity use is prohibited
 {
     AP_Param::setup_object_defaults(this, var_info);
+
+    gps_heading_health = true;
 }
 
 /*

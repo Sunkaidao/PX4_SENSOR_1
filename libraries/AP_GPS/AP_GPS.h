@@ -101,18 +101,14 @@ public:
         GPS_OK_FIX_3D_RTK_FIXED = GPS_FIX_TYPE_RTK_FIXED, ///< Receiving valid messages and 3D RTK Fixed
     };
 
-    //baiyang added in 20170620
-    #if DGPS_HEADINGA == ENABLED
-    		//baiyang added in 20170119
-    		/// GPS Head status codes
-    		enum GPSHead_Status {
-    			NONE = 0,			   ///< No GPS connected/detected
-    			L1_FLOAT = 1,		   ///< Receiving valid GPS messages but no lock
-    			NARROW_FLOAT = 2,	   ///< Receiving valid messages and 2D lock
-    			NARROW_INT = 3, 	   ///< Receiving valid messages and 3D lock
-    		};
-    		//added end
-    #endif
+    //baiyang added in 20170119
+    /// GPS Head status codes
+    enum GPSHead_Status {
+    	NONE = 0,			   ///< No GPS connected/detected
+    	L1_FLOAT = 1,		   ///< Receiving valid GPS messages but no lock
+    	NARROW_FLOAT = 2,	   ///< Receiving valid messages and 2D lock
+    	NARROW_INT = 3, 	   ///< Receiving valid messages and 3D lock
+    };
     //added end
     
     // GPS navigation engine settings. Not all GPS receivers support
@@ -165,11 +161,9 @@ public:
         uint8_t  rtk_num_sats;             ///< Current number of satellites used for RTK calculation
         
         //baiyang added in 20170620
-        //#if DGPS_HEADINGA == ENABLED
 		 GPSHead_Status HeadStatus;          ///< #HEADINGA status
 		 float heading;                      ///< The heading is the angle from True North of the base to rover vector in a clockwise direction
 	  	 uint16_t rtk_status;                ///< Differential GPS operating status
-        //#endif
         //added end
         AP_Float _declination; 
     };

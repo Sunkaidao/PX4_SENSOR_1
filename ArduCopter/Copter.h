@@ -415,6 +415,8 @@ private:
 		uint8_t payload;
 		//	added end
 
+        uint8_t gps_head;
+
 
 	} failsafe;
 
@@ -871,6 +873,9 @@ private:
   	bool get_failsafe_payload(FAILSAFE_PLD_TYPE failsafe_pyaload_type);
 	//	added end
     void set_failsafe_battery(bool b);
+    //baiyang added in 20180612
+    void set_failsafe_gps_head(bool b);
+    //added end
     void set_failsafe_gcs(bool b);
     void set_land_complete(bool b);
     void set_land_complete_maybe(bool b);
@@ -1193,6 +1198,10 @@ private:
 	void failsafe_payload_on_event(void);
 	void failsafe_payload_off_event(void);
 	//	added end
+    // baiyang added in 20180612
+	void failsafe_gps_head_on_event(void);
+	void failsafe_gps_head_off_event(void);
+    //added end
     void failsafe_gcs_check();
     void failsafe_gcs_off_event(void);
     void failsafe_terrain_check();
