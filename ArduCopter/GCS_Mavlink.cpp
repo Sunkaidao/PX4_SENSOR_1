@@ -1690,7 +1690,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 			else if(auth_state_up_auth == copter.auth_state_ms)
 			{
 			
-				copter.auth_state_ms = auth_state_down;
+				copter.auth_state_ms = auth_state_done;
 /*        		lcl_counter++;
         		if(0 == (lcl_counter % 2))
         		{
@@ -2115,7 +2115,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 				//auth_state_timeout_switch = 1;
 				copter.auth_state_timeout_cnt = 0;
 			}
-			else if(auth_state_down == copter.auth_state_ms)
+			else if(auth_state_done == copter.auth_state_ms)
 			{
 				copter.auth_state_ms = auth_state_initialize;
 				

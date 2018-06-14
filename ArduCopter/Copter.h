@@ -961,6 +961,9 @@ private:
     void Log_Write_Throw(ThrowModeStage stage, float velocity, float velocity_z, float accel, float ef_accel_z, bool throw_detect, bool attitude_ok, bool height_ok, bool position_ok);
     void Log_Write_Proximity();
     void Log_Write_Beacon();
+	//	added by zhangyong for log land detector 20180613
+	void Log_Write_land_detector();
+	//	added end
 
 //	added by ZhangYong
 #if BCBPMBUS == ENABLED

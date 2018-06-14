@@ -195,7 +195,8 @@ public:
     void Log_Write_AOA_SSA(AP_AHRS &ahrs);
     void Log_Write_Beacon(AP_Beacon &beacon);
 	//	added by ZhangYong 20170731
-	
+	void Log_Write_land_detector();
+	//	added end
 
 #if	BCBPMBUS == ENABLED
 	void Log_Write_BCBPMBus(uint8_t msg_type, AC_BCBPMBus &vp_bcbpmbus);
