@@ -159,11 +159,11 @@ void Copter::failsafe_gps_head_on_event(void)
         if (should_disarm_on_failsafe()) {
             init_disarm_motors();
         } else {
-            if (g.failsafe_battery_enabled == FS_GPS_HEAD_ENABLED_RTL) {
+            if (g.failsafe_gps_head == FS_GPS_HEAD_ENABLED_RTL) {
                 set_mode_RTL_or_land_with_pause(MODE_REASON_GPS_HEAD_FAILSAFE);
-            } else if(g.failsafe_battery_enabled == FS_GPS_HEAD_ENABLED_LAND){
+            } else if(g.failsafe_gps_head == FS_GPS_HEAD_ENABLED_LAND){
                 set_mode_land_with_pause(MODE_REASON_GPS_HEAD_FAILSAFE);
-            }else if(g.failsafe_battery_enabled == FS_GPS_HEAD_ENABLED_LOITER){
+            }else if(g.failsafe_gps_head == FS_GPS_HEAD_ENABLED_LOITER){
                 set_mode(LOITER,MODE_REASON_GPS_HEAD_FAILSAFE);
             }else{
                 set_mode_RTL_or_land_with_pause(MODE_REASON_GPS_HEAD_FAILSAFE);
