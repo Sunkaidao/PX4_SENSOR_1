@@ -525,10 +525,17 @@
 #define AUTH_ENTER_POS	(AUTH_ID_POS + AUTH_ID_LEN)
 #define AUTH_ID_ARRAY_LEN	(AUTH_ENTER_POS + 4)
 
+enum auth_result { 
+  auth_result_failed = 0, 
+  auth_result_denied = 1, 
+  auth_result_success = 2 
+};
+
 enum auth_state {
-	auth_state_failed = 0,
-	auth_state_denied = 1,
-	auth_state_success = 2
+	auth_state_initialize = 0, 
+	auth_state_up_whoami = 1, 
+	auth_state_up_auth = 2, 
+	auth_state_down = 3 
 };
 
 union auth_id_para {
