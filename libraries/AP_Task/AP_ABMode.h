@@ -108,6 +108,10 @@ public:
 	//Change the direction of AB
 	void invert_direction(switch_type        type = MANUAL,int8_t direction = ISRIGHT);
 
+	void set_direction_from_rc_roll();
+	bool get_direction(){return ab_mode.direction;}
+	void direction_debug();
+
 	void update_index();
 	void update_order();
 	

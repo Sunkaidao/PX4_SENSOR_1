@@ -412,7 +412,7 @@ bool AP_ABMode::abmode_start(void)
 		
 		ab_mode.is_first_start = YES;
 		ab_mode.is_calc_wp = YES;
-        ab_mode.is_start = YES;
+       //ab_mode.is_start = YES;
 	}
 	else
 	{
@@ -464,7 +464,6 @@ bool AP_ABMode::abmode_start(void)
 				index--;
 				order--;
 			}
-				
 		}
 		else if(break_mode == 2)                //Return from the current position to the flight path
 		{
@@ -521,7 +520,7 @@ bool AP_ABMode::abmode_start(void)
 
 		ab_mode.is_first_start = YES;
 		ab_mode.is_calc_wp = YES;
-        ab_mode.is_start = YES;
+       ab_mode.is_start = YES;
 	}
 
 	return true;
@@ -692,6 +691,53 @@ void AP_ABMode::adjust_yaw_test()
 */
 }
 
+//set direction,when ab mode isn't running
+void AP_ABMode:: set_direction_from_rc_roll()
+{
+	bool direction_rc = ISRIGHT;
+
+	if(ab_mode.is_start)
+	{
+		return;
+	}
+
+	if(ABMODE_RF != copter.control_mode)
+	{
+		return;
+	}
+
+	if(!ab_mode.is_record_a || !ab_mode.is_record_b)
+	{
+		return;
+	}
+
+	if(copter.channel_roll == nullptr)
+	{
+		return;
+	}
+	
+	if(copter.channel_roll->get_control_in() == 0)
+	{
+		return;
+	}
+	else if(copter.channel_roll->get_control_in() < 0)
+	{
+		direction_rc = ISLIFT;
+	}
+	else if(copter.channel_roll->get_control_in() > 0)
+	{
+		direction_rc = ISRIGHT;
+	}
+
+	if(ab_mode.direction != direction_rc)
+	{
+		//ab_mode.direction = direction_rc;
+		invert_direction(MANUAL,direction_rc);
+	}
+
+	ab_mode.is_start = YES;
+}
+
 void AP_ABMode:: invert_direction(switch_type        type,int8_t direction)
 {	
 	if(ab_mode.is_start == YES)
@@ -718,6 +764,17 @@ void AP_ABMode:: invert_direction(switch_type        type,int8_t direction)
 	}
 }
 
+void AP_ABMode:: direction_debug()
+{
+	if(get_direction() == ISRIGHT)
+	{
+		printf("ab mode: Right\n");
+	}
+	else
+	{
+		printf("ab mode: Lift\n");
+	}
+}
 
 /*
  * Param[in]:	p1 - waypoint A(Vector3d)
@@ -937,7 +994,8 @@ void AP_ABMode::update()
   	}
 
 	update_rgb();
-	
+	set_direction_from_rc_roll();
+    
 	if (!ab_mode.is_start) 
 	{
     	return;
