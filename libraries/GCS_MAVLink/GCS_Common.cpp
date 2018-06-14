@@ -1995,6 +1995,10 @@ void GCS_MAVLINK::handle_common_camera_message(const mavlink_message_t *msg)
         //deprecated.  Use MAV_CMD_DO_DIGICAM_CONFIGURE
         break;
     case MAVLINK_MSG_ID_DIGICAM_CONTROL:
+	//	added by zhangoyng for GCS AUX compliance 20180614
+	case MAVLINK_MSG_ID_COMMAND_LONG:
+	//	added end
+	
         //deprecated.  Use MAV_CMD_DO_DIGICAM_CONTROL
         camera->control_msg(msg);
         break;
@@ -2077,6 +2081,7 @@ void GCS_MAVLINK::handle_common_message(mavlink_message_t *msg)
     case MAVLINK_MSG_ID_DIGICAM_CONFIGURE:
         /* fall through */
     case MAVLINK_MSG_ID_DIGICAM_CONTROL:
+	//	added by zhangyong 	
         /* fall through */
         handle_common_camera_message(msg);
         break;

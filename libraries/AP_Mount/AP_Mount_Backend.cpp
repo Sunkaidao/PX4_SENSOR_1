@@ -39,7 +39,23 @@ void AP_Mount_Backend::control_msg(mavlink_message_t *msg)
     __mavlink_mount_control_t packet;
     mavlink_msg_mount_control_decode(msg, &packet);
 
-    control((int32_t)packet.input_a, (int32_t)packet.input_b, (int32_t)packet.input_c, _state._mode);
+    control((int32_t)packet.input_a, \
+			(int32_t)packet.input_b, \
+			(int32_t)packet.input_c, \
+			_state._mode);
+
+
+	//	added by zhangyong 
+//	printf("AP_Mount_Backend::control_msg\n");
+	__mavlink_command_long_t command_long_packet;
+	mavlink_msg_command_long_decode (msg, &command_long_packet);
+
+	control((int32_t)command_long_packet.param1, \
+			0, \
+			(int32_t)command_long_packet.param2, \
+			_state._mode);
+	//	added end
+	
 }
 
 void AP_Mount_Backend::control(int32_t pitch_or_lat, int32_t roll_or_lon, int32_t yaw_or_alt, MAV_MOUNT_MODE mount_mode)

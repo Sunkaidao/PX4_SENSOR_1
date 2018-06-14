@@ -173,10 +173,31 @@ AP_Camera::trigger_pic_cleanup()
 void
 AP_Camera::control_msg(const mavlink_message_t* msg)
 {
-    __mavlink_digicam_control_t packet;
-    mavlink_msg_digicam_control_decode(msg, &packet);
+    __mavlink_digicam_control_t digicam_control_packet;
+    mavlink_msg_digicam_control_decode(msg, &digicam_control_packet);
 
-    control(packet.session, packet.zoom_pos, packet.zoom_step, packet.focus_lock, packet.shot, packet.command_id);
+    control(digicam_control_packet.session, \
+			digicam_control_packet.zoom_pos, \
+			digicam_control_packet.zoom_step, \
+			digicam_control_packet.focus_lock, \
+			digicam_control_packet.shot, \
+			digicam_control_packet.command_id);
+
+
+	//added by zhangyong 20180614 for msg_id =76 DO_AUX_CONTROL = 227 to control the camera
+//	printf("AP_Camera::control_msg\n");
+	__mavlink_command_long_t command_long_packet;
+	mavlink_msg_command_long_decode (msg, &command_long_packet);
+
+	control(0, \
+			0, \
+			0, \
+			(float)command_long_packet.param4, \
+			(float)command_long_packet.param3, \
+			0);
+	
+	//	added end
+
 }
 
 void AP_Camera::configure(float shooting_mode, float shutter_speed, float aperture, float ISO, float exposure_type, float cmd_id, float engine_cutoff_time)
