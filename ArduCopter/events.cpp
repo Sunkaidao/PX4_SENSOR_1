@@ -147,6 +147,41 @@ void Copter::failsafe_battery_event(void)
 
 }
 
+void Copter::failsafe_gps_head_on_event(void)
+{
+    // if motors are not armed there is nothing to do
+    if( !motors->armed() ) {
+        return;
+    }
+	
+    // failsafe check
+    if (g.failsafe_gps_head != FS_GPS_HEAD_DISABLED && motors->armed()) {
+        if (should_disarm_on_failsafe()) {
+            init_disarm_motors();
+        } else {
+            if (g.failsafe_gps_head == FS_GPS_HEAD_ENABLED_RTL) {
+                set_mode_RTL_or_land_with_pause(MODE_REASON_GPS_HEAD_FAILSAFE);
+            } else if(g.failsafe_gps_head == FS_GPS_HEAD_ENABLED_LAND){
+                set_mode_land_with_pause(MODE_REASON_GPS_HEAD_FAILSAFE);
+            }else if(g.failsafe_gps_head == FS_GPS_HEAD_ENABLED_LOITER){
+                set_mode(LOITER,MODE_REASON_GPS_HEAD_FAILSAFE);
+            }else{
+                set_mode_RTL_or_land_with_pause(MODE_REASON_GPS_HEAD_FAILSAFE);
+            }
+        }
+    }
+
+    // warn the ground station and log to dataflash
+    gcs().send_text(MAV_SEVERITY_WARNING,"Gps head data not healthy,select mag");
+    Log_Write_Error(ERROR_SUBSYSTEM_FAILSAFE_GPS_HEAD, ERROR_CODE_FAILSAFE_OCCURRED);
+}
+
+void Copter::failsafe_gps_head_off_event(void)
+{
+    //log to dataflash
+    Log_Write_Error(ERROR_SUBSYSTEM_FAILSAFE_GPS_HEAD, ERROR_CODE_FAILSAFE_RESOLVED);
+}
+
 
 //	added by ZhangYong for payload failsafe 20160918
 /**/

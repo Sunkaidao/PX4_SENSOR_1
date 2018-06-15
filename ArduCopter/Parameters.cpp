@@ -212,7 +212,7 @@ const AP_Param::Info Copter::var_info[] = {
     // @Increment: 0.01
     // @User: Standard
     GSCALAR(rangefinder_gain, "RNGFND_GAIN", RANGEFINDER_GAIN_DEFAULT),
-
+    
     // @Param: FS_BATT_ENABLE
     // @DisplayName: Battery Failsafe Enable
     // @Description: Controls whether failsafe will be invoked when battery voltage or current runs low
@@ -991,6 +991,15 @@ const AP_Param::Info Copter::var_info[] = {
 	GOBJECT(newbroadcast,"NBC_", AP_NewBroadcast),
 #endif
 //added end
+
+#if DGPS_HEADINGA == ENABLED
+    // @Param: FS_GPS_HEAD
+    // @DisplayName: Dual GPS head Failsafe Enable
+    // @Description: Controls whether failsafe will be invoked when dual gps heading date timeout
+    // @Values: 0:Disabled,1:RTL,2:Land,3:Loiter
+    // @User: Standard
+    GSCALAR(failsafe_gps_head, "FS_GPSH_ACTION", FS_GPS_HEAD_DISABLED),
+#endif
 
     AP_VAREND
 };
