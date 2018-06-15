@@ -425,6 +425,16 @@ private:
         uint8_t primary_gps;        // primary gps index
     } sensor_health;
 
+
+	//	land_detector fot logging
+	struct {
+		uint8_t land_complete;
+		uint8_t land_complete_maybe;
+		uint8_t motors_limit_throttle_lower;
+		float 	land_accel_ef_filter_length;
+	};
+	//	
+
     // Motor Output
 #if FRAME_CONFIG == HELI_FRAME
  #define MOTOR_CLASS AP_MotorsHeli
@@ -1226,7 +1236,7 @@ private:
     bool heli_stabilize_init(bool ignore_checks);
     void heli_stabilize_run();
     void read_inertia();
-    bool land_complete_maybe();
+//    bool land_complete_maybe();
     void update_land_and_crash_detectors();
     void update_land_detector();
     void update_throttle_thr_mix();
