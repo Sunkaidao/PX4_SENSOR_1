@@ -411,14 +411,14 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
 #if SPRAYER == ENABLED
             sprayer.run(ch_flag == AUX_SWITCH_HIGH);
             // if we are disarmed the pilot must want to test the pump
-            if(1 == sprayer.get_vpvs_enable())
-            {
+            //if(1 == sprayer.get_vpvs_enable())
+            //{
             	sprayer.test_pump((ch_flag == AUX_SWITCH_HIGH) && !motors->armed());
-            }
-			else
-			{
-				sprayer.test_pump(ch_flag == AUX_SWITCH_HIGH);
-			}
+            //}
+			//else
+			//{
+			//	sprayer.test_pump(ch_flag == AUX_SWITCH_HIGH);
+			//}
             
 #endif
             break;

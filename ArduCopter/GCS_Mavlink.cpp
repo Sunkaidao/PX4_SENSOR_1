@@ -2059,14 +2059,16 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
                     //	modified by ZhangYong 20170602
 					//	sprayer.test_pump(!motors.armed());
                     //	modified end
-					if(1 == copter.sprayer.get_vpvs_enable())
-					{
-						copter.sprayer.test_pump(!copter.motors->armed());
-					}
-					else
-					{
-						copter.sprayer.test_pump(true);
-					}
+                   
+					
+					//if(1 == copter.sprayer.get_vpvs_enable())
+					//{
+					copter.sprayer.test_pump(!copter.motors->armed());
+					//}
+					//else
+					//{
+					//	copter.sprayer.test_pump(true);
+					//}
 					break;
                 default:
                     result = MAV_RESULT_FAILED;

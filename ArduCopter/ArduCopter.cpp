@@ -500,20 +500,13 @@ void Copter::three_hz_loop()
 
 	//	update vpvs timely
 	//	added by ZhangYong 20171011
-	if(sprayer.get_enabled())
+	/*if(sprayer.get_enabled())
 	{
 		if(sprayer.get_running())
 		{
-			if(1 == sprayer.get_vpvs_enable())
-			{
-				sprayer.test_pump(!motors->armed());
-			}
-			else
-			{
-				sprayer.test_pump(true);
-			}
+			sprayer.test_pump(!motors->armed());
 		}
-	}
+	}*/
 	//	added end
 
 
