@@ -1712,9 +1712,9 @@ void DataFlash_Class::Log_Write_Current(const AP_BattMonitor &battery)
         struct log_Current pkt = {
             LOG_PACKET_HEADER_INIT(LOG_CURRENT_MSG),
             time_us             : AP_HAL::micros64(),
-            voltage             : battery.voltage(0),
+            voltage             : vol,
             voltage_resting     : battery.voltage_resting_estimate(0),
-            current_amps        : battery.current_amps(0),
+            current_amps        : curr,
             current_total       : battery.current_total_mah(0),
             temperature         : (int16_t)(has_temp ? (temp * 100) : 0),
             resistance          : battery.get_resistance(0),
@@ -1763,7 +1763,8 @@ void DataFlash_Class::Log_Write_Current(const AP_BattMonitor &battery)
 		*/
 		//	modified end
 
-	
+	curr = battery.current_amps(1);
+	vol = battery.voltage(1);
 
     if (battery.num_instances() >= 2) {
         float temp;
@@ -1771,9 +1772,9 @@ void DataFlash_Class::Log_Write_Current(const AP_BattMonitor &battery)
         struct log_Current pkt = {
             LOG_PACKET_HEADER_INIT(LOG_CURRENT2_MSG),
             time_us             : AP_HAL::micros64(),
-            voltage             : battery.voltage(1),
+            voltage             : vol,
             voltage_resting     : battery.voltage_resting_estimate(1),
-            current_amps        : battery.current_amps(1),
+            current_amps        : curr,
             current_total       : battery.current_total_mah(1),
             temperature         : (int16_t)(has_temp ? (temp * 100) : 0),
             resistance          : battery.get_resistance(1),
@@ -2108,6 +2109,31 @@ void DataFlash_Class::Log_Write_Beacon(AP_Beacon &beacon)
     };
     WriteBlock(&pkt_beacon, sizeof(pkt_beacon));
 }
+
+
+// Write beacon sensor (position) data
+void DataFlash_Class::Log_Write_land_detector()
+{
+/*    // position
+    Vector3f pos;
+    float accuracy = 0.0f;
+    beacon.get_vehicle_position_ned(pos, accuracy);
+
+    struct log_Beacon pkt_beacon = {
+       LOG_PACKET_HEADER_INIT(LOG_BEACON_MSG),
+       time_us         : AP_HAL::micros64(),
+       health          : (uint8_t)beacon.healthy(),
+       count           : (uint8_t)beacon.count(),
+       dist0           : beacon.beacon_distance(0),
+       dist1           : beacon.beacon_distance(1),
+       dist2           : beacon.beacon_distance(2),
+       dist3           : beacon.beacon_distance(3),
+       posx            : pos.x,
+       posy            : pos.y,
+       posz            : pos.z
+    };
+    WriteBlock(&pkt_beacon, sizeof(pkt_beacon));
+*/}
 
 
 //	added by ZhangYong 20170731

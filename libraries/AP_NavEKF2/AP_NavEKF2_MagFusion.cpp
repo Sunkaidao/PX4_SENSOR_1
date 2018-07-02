@@ -311,6 +311,7 @@ void NavEKF2_core::SelectMagFusion()
 				//Use magnetic compass data to force reset yaw angle
 				magYawResetRequest = true;
 				magStateResetRequest = true;
+				frontend->gps_heading_health = false;
 				gcs().send_text(MAV_SEVERITY_INFO, "EKF2 IMU%u D-GPS heading anomaly, yaw re-aligned for mag",(unsigned)imu_index);
 				//printf("EKF2 IMU%u D-GPS heading anomaly, yaw re-aligned for mag\n",(unsigned)imu_index);
 				//printf("_head_control %d\n",frontend->_head_control);

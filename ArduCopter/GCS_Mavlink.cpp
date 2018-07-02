@@ -1607,8 +1607,11 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
             break;
 
             //baiyang added in 20170830
-            #if PTZ_CONTROL == ENABLED
+            
             		case MAV_CMD_DO_AUX_CONTROL:
+						//printf("MAV_CMD_DO_AUX_CONTROL\n");
+#if PTZ_CONTROL == ENABLED
+						
             			//	added by ZhangYong 20170306
             			//static uint8_t lcl_cnt;
             			//	added end
@@ -1624,9 +1627,20 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
             			//baiyang added in 20170720
             			copter.PtzControl.set_servo_pwm( para1, para2, para3, para4);		
             			//added end
-            			result = MAV_RESULT_ACCEPTED;
-            			break;
-            #endif
+            			
+#endif
+
+#if	CAMERA == ENABLED
+						handle_common_camera_message(msg);
+#endif
+
+#if MOUNT == ENABLED
+						copter.camera_mount.control_msg(msg);
+
+#endif
+						result = MAV_RESULT_ACCEPTED;
+					break;
+            
             //added end
             
         case MAV_CMD_MISSION_START:
@@ -1690,7 +1704,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 			else if(auth_state_up_auth == copter.auth_state_ms)
 			{
 			
-				copter.auth_state_ms = auth_state_down;
+				copter.auth_state_ms = auth_state_done;
 /*        		lcl_counter++;
         		if(0 == (lcl_counter % 2))
         		{
@@ -2117,7 +2131,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 				//auth_state_timeout_switch = 1;
 				copter.auth_state_timeout_cnt = 0;
 			}
-			else if(auth_state_down == copter.auth_state_ms)
+			else if(auth_state_done == copter.auth_state_ms)
 			{
 				copter.auth_state_ms = auth_state_initialize;
 				
@@ -2534,6 +2548,9 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
         break;
     //deprecated. Use MAV_CMD_DO_MOUNT_CONTROL
     case MAVLINK_MSG_ID_MOUNT_CONTROL:
+		//	added by zhangyong 20180614 for test purpose 
+		//	printf("MAVLINK_MSG_ID_MOUNT_CONTROL\n");
+		//	added end
         copter.camera_mount.control_msg(msg);
         break;
 #endif // MOUNT == ENABLED

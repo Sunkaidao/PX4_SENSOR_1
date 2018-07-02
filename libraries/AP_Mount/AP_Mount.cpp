@@ -642,5 +642,5 @@ void AP_Mount::send_gimbal_report(mavlink_channel_t chan)
         if (_backends[instance] != nullptr) {
             _backends[instance]->send_gimbal_report(chan);
         }
-    }    
+    }
 }

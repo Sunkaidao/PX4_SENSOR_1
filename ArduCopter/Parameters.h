@@ -408,6 +408,8 @@ public:
 		 k_param_newbroadcast = 300,
 		 #endif
 
+		 k_param_failsafe_gps_head,
+
         // the k_param_* space is 9-bits in size
         // 511: reserved
     };
@@ -447,6 +449,8 @@ public:
     AP_Float        rtl_cone_slope;
     AP_Float        rangefinder_gain;
 
+    AP_Int8         failsafe_gps_head;
+	
     AP_Int8         failsafe_battery_enabled;   // battery failsafe enabled
     AP_Float        fs_batt_voltage;            // battery voltage below which failsafe will be triggered
     AP_Float        fs_batt_mah;                // battery capacity (in mah) below which failsafe will be triggered

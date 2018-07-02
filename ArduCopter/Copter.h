@@ -415,6 +415,8 @@ private:
 		uint8_t payload;
 		//	added end
 
+        uint8_t gps_head;
+
 
 	} failsafe;
 
@@ -424,6 +426,16 @@ private:
         uint8_t compass     : 1;    // true if compass is healthy
         uint8_t primary_gps;        // primary gps index
     } sensor_health;
+
+	//	land_detector fot logging
+	struct {
+
+		uint8_t log_land_complete;
+		uint8_t log_land_complete_maybe;
+		uint8_t log_motors_limit_throttle_lower;
+		float 	log_land_accel_ef_filter_length;
+	};
+	//
 
     // Motor Output
 #if FRAME_CONFIG == HELI_FRAME
@@ -871,6 +883,9 @@ private:
   	bool get_failsafe_payload(FAILSAFE_PLD_TYPE failsafe_pyaload_type);
 	//	added end
     void set_failsafe_battery(bool b);
+    //baiyang added in 20180612
+    void set_failsafe_gps_head(bool b);
+    //added end
     void set_failsafe_gcs(bool b);
     void set_land_complete(bool b);
     void set_land_complete_maybe(bool b);
@@ -961,6 +976,10 @@ private:
     void Log_Write_Throw(ThrowModeStage stage, float velocity, float velocity_z, float accel, float ef_accel_z, bool throw_detect, bool attitude_ok, bool height_ok, bool position_ok);
     void Log_Write_Proximity();
     void Log_Write_Beacon();
+	//	added by zhangyong for log land detector 20180613
+	void Log_Write_land_detector();
+	//	added end
+
 
 //	added by ZhangYong
 #if BCBPMBUS == ENABLED
@@ -1193,6 +1212,10 @@ private:
 	void failsafe_payload_on_event(void);
 	void failsafe_payload_off_event(void);
 	//	added end
+    // baiyang added in 20180612
+	void failsafe_gps_head_on_event(void);
+	void failsafe_gps_head_off_event(void);
+    //added end
     void failsafe_gcs_check();
     void failsafe_gcs_off_event(void);
     void failsafe_terrain_check();

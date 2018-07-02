@@ -222,9 +222,9 @@ void Copter::userhook_init()
 	
 	//	4G communications
 	//	rewrite landinggear
-	if(edit_management.data.revision_edition != 6)
+	if(edit_management.data.revision_edition != 7)
 	{	
-		edit_management.data.revision_edition = 6;
+		edit_management.data.revision_edition = 7;
 		g.edition_management.set_and_save(edit_management.words);
 	}
 
@@ -269,7 +269,7 @@ void Copter::userhook_50Hz()
     //baiyang added in 20170804
 #if PTZ_CONTROL == ENABLED
 	//	modified by zhangyong to control the shutter 20180612
-	  PtzControl.update();
+	  PtzControl.update(0xff);
 #endif // end PTZ_CONTROL == ENABLED
     //added end
 
@@ -293,7 +293,7 @@ void Copter::userhook_MediumLoop()
 #endif
 
 #if NEWBROADCAST == ENABLED
-		newbroadcast.update_view();
+	newbroadcast.update_view();
 #endif
 
 }
@@ -303,6 +303,17 @@ void Copter::userhook_MediumLoop()
 void Copter::userhook_SlowLoop()
 {
     // put your 3.3Hz code here
+#if DGPS_HEADINGA == ENABLED
+    if(!EKF2.get_gps_heading_health())
+    {
+    	set_failsafe_gps_head(true);
+    }
+    else
+    {
+    	set_failsafe_gps_head(false);
+    }
+#endif
+    
 }
 #endif
 

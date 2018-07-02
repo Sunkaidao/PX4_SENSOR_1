@@ -160,6 +160,7 @@ enum mode_reason_t {
 	//	added end
 
     MODE_REASON_ABMODE_FAILSAFE,
+    MODE_REASON_GPS_HEAD_FAILSAFE,
 };
 
 // Tuning enumeration
@@ -461,6 +462,9 @@ enum DevOptions {
 //	added by ZhangYong 20160914
 #define ERROR_SUBSYSTEM_FAILSAFE_PLD		25
 //	added end
+//baiyang added in 20180612
+#define ERROR_SUBSYSTEM_FAILSAFE_GPS_HEAD   26
+//added end
 
 // general error codes
 #define ERROR_CODE_ERROR_RESOLVED           0
@@ -565,6 +569,10 @@ typedef enum Arm_Source
 #define FS_PLD_REVERSE_ROUTING_RTL			6
 //	added end
 
+#define FS_GPS_HEAD_DISABLED				0
+#define FS_GPS_HEAD_ENABLED_RTL			1
+#define FS_GPS_HEAD_ENABLED_LAND			2
+#define FS_GPS_HEAD_ENABLED_LOITER		3
 
 
 // Battery failsafe definitions (FS_BATT_ENABLE parameter)

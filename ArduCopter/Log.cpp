@@ -694,6 +694,12 @@ void Copter::Log_Write_Beacon()
     DataFlash.Log_Write_Beacon(g2.beacon);
 }
 
+void Copter::Log_Write_land_detector()
+{
+	DataFlash.Log_Write_land_detector();
+}
+
+
 //	added by ZhangYong
 #if BCBPMBUS == ENABLED
 void Copter::Log_Write_BCBPMBus_Msg(uint8_t msg_type)
@@ -849,6 +855,7 @@ void Copter::Log_Write_GuidedTarget(uint8_t target_type, const Vector3f& pos_tar
 void Copter::Log_Write_Throw(ThrowModeStage stage, float velocity, float velocity_z, float accel, float ef_accel_z, bool throw_detect, bool attitude_ok, bool height_ok, bool pos_ok) {}
 void Copter::Log_Write_Proximity() {}
 void Copter::Log_Write_Beacon() {}
+void Copter::Log_Write_land_detector() {}
 void Copter::Log_Write_Vehicle_Startup_Messages() {}
 
 #if FRAME_CONFIG == HELI_FRAME
