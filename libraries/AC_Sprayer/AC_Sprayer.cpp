@@ -329,8 +329,11 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
         pos = MAX(pos, 100 *_pump_min_pct); // ensure min pump speed
         pos = MIN(pos,10000); // clamp to range
         */
-
-		lcl_pump_rate = ground_speed * _pump_pct_1ms;
+		if(1 == _vpvs_enable)
+			lcl_pump_rate = ground_speed * _pump_pct_1ms;
+		else
+			lcl_pump_rate = 100 * _pump_pct_1ms;
+		
 		constrain_float(lcl_pump_rate, -32767, 32767);
 		pump_pct = 100 *_pump_min_pct;
 
@@ -344,7 +347,7 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 			actual_pump_rate = 10000;
 		}*/
 
-//		printf("4. %d %d\n", actual_pump_rate, _spinner_pwm);
+		printf("4. %d %d\n", actual_pump_rate, _spinner_pwm);
 		
 		//	added end
 		//	modified by ZhangYong
