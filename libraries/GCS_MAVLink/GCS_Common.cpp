@@ -1811,6 +1811,16 @@ void GCS_MAVLINK::send_accelcal_vehicle_position(uint32_t position)
     }
 }
 
+
+int16_t GCS_MAVLINK::get_streamRates(uint8_t stream_num)\
+{
+	if(stream_num >= NUM_STREAMS)
+		return 0;
+	
+	return streamRates[stream_num];
+}
+
+
 /*
   handle a MAV_CMD_PREFLIGHT_REBOOT_SHUTDOWN command 
 
@@ -2053,7 +2063,7 @@ void GCS_MAVLINK::handle_common_message(mavlink_message_t *msg)
     case MAVLINK_MSG_ID_SETUP_SIGNING:
         handle_setup_signing(msg);
         break;
-    case MAVLINK_MSG_ID_PARAM_REQUEST_READ:
+    case MAVLINK_MSG_ID_PARAM_REQUEST_READ:	//	20
         handle_param_request_read(msg);
         break;
     case MAVLINK_MSG_ID_DEVICE_OP_READ:

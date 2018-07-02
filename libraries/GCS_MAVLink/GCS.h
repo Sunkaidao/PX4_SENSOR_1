@@ -139,6 +139,11 @@ public:
     //	void        queued_param_send();
 	//	modified end
 	void        queued_param_send(bool armed);
+
+	//	added by zhangyong to hurry up paramerter transmit 20180702
+	bool		queued_param_sending();
+	//	added end
+	
     void        queued_waypoint_send();
 	//	added by ZhangYong for request item int
 	void 		queued_waypoint_int_send();
@@ -255,6 +260,8 @@ public:
     static void send_collision_all(const AP_Avoidance::Obstacle &threat, MAV_COLLISION_ACTION behaviour);
     void send_accelcal_vehicle_position(uint32_t position);
 
+	int16_t 		get_streamRates(uint8_t stream_num);
+
 //	added by ZhangYong 20170406
 
 //	void send_payload_status(uint8_t payload_type, uint8_t *payload_status) ;
@@ -307,6 +314,9 @@ public:
     // return current packet overhead for a channel
     static uint8_t packet_overhead_chan(mavlink_channel_t chan);
 
+
+	
+
 protected:
 
     // overridable method to check for packet acceptance. Allows for
@@ -334,6 +344,8 @@ protected:
 
     // saveable rate of each stream
     AP_Int16        streamRates[NUM_STREAMS];
+
+	
 
     void handle_request_data_stream(mavlink_message_t *msg, bool save);
 
@@ -423,7 +435,13 @@ private:
                                                          // queued send
     uint32_t                    _queued_parameter_send_time_ms;
 
+	//	added by zhangyong to hurry up to transmit parameter 20180702
+	//bool						_queuing_parameter;
+	//	added end
+
 	bool 						_mission_item_int;
+
+	
     /// Count the number of reportable parameters.
     ///
     /// Not all parameters can be reported via MAVlink.  We count the number

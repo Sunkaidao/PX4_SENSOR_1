@@ -763,7 +763,7 @@ void Copter::one_hz_loop()
 //	printf("one_hz_loop: ap.pre_arm_check %d, motor->armed() %d\n", ap.pre_arm_check, motors->armed());
 
 	
-
+	//printf("streamRates[para] = %d\n", gcs().chan(1).get_streamRates(8));
 }
 
 // called at 50hz
