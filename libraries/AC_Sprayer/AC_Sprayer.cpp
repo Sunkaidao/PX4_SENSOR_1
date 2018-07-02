@@ -134,7 +134,7 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 	//	added by ZhangYong 20170717
 	uint32_t unspray_distance;
 	float lcl_pump_rate;
-	int16_t pump_pct;
+	//int16_t pump_pct;
 	actual_pump_rate = 0;
 	//	added end
 
@@ -314,7 +314,7 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 
     // if testing pump output speed as if traveling at 1m/s
     if (_flags.testing) {
-        ground_speed = 100.0f;
+       
         should_be_spraying = true;
     }
 
@@ -329,15 +329,26 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
         pos = MAX(pos, 100 *_pump_min_pct); // ensure min pump speed
         pos = MIN(pos,10000); // clamp to range
         */
-		if(1 == _vpvs_enable)
-			lcl_pump_rate = ground_speed * _pump_pct_1ms;
+        if(_flags.testing)
+        {
+        	lcl_pump_rate = 10000;
+		}
 		else
-			lcl_pump_rate = 100 * _pump_pct_1ms;
-		
-		constrain_float(lcl_pump_rate, -32767, 32767);
-		pump_pct = 100 *_pump_min_pct;
+		{
+			if(1 == _vpvs_enable)
+			{
+				lcl_pump_rate = ground_speed * _pump_pct_1ms;
+			}else
+				lcl_pump_rate = 100 *_pump_min_pct;
+				
+		}
 
-		actual_pump_rate = MIN(MAX((int16_t)lcl_pump_rate, pump_pct), 10000);
+		constrain_float(lcl_pump_rate, -32767, 32767);		
+		
+		
+//		pump_pct = 
+
+		actual_pump_rate = MIN((int16_t)lcl_pump_rate, 10000);
 		
 		//	added by ZhangYong 20170602
 		//	if we want to test the pump and spray on ground, we hope spray and pump act full speed
@@ -347,7 +358,7 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 			actual_pump_rate = 10000;
 		}*/
 
-		printf("4. %d %d\n", actual_pump_rate, _spinner_pwm);
+		//printf("4. %d %d\n", actual_pump_rate, _spinner_pwm);
 		
 		//	added end
 		//	modified by ZhangYong
