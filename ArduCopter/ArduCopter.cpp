@@ -439,6 +439,8 @@ void Copter::ten_hz_logging_loop()
 //	printf("%d: %4.2f\n", battery.num_instances(), battery.voltage(1));
 //	added end
 
+	Log_Write_land_detector(&log_land_detector);
+
 #if BCBPMBUS == ENABLE
 	update_bcbpmbus();
 #endif
@@ -649,7 +651,7 @@ void Copter::one_hz_loop()
 	{	
 		auth_state_timeout_cnt++;
 		
-		if(auth_state_timeout_cnt > 2)
+		if(auth_state_timeout_cnt > 3)
 		{
 			auth_state_timeout_cnt = 0;
 			auth_result_ms = auth_result_failed;

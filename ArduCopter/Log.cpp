@@ -694,9 +694,16 @@ void Copter::Log_Write_Beacon()
     DataFlash.Log_Write_Beacon(g2.beacon);
 }
 
-void Copter::Log_Write_land_detector()
+void Copter::Log_Write_land_detector(struct Log_Land_Detector *fp_log_land_detector)
 {
-	DataFlash.Log_Write_land_detector();
+	//printf("Copter::Log_Write_land_detector\n");
+	DataFlash.Log_Write_land_detector(fp_log_land_detector->log_land_complete, \
+														fp_log_land_detector->log_land_complete_maybe, \
+														fp_log_land_detector->log_motors_limit_throttle_lower, \
+														fp_log_land_detector->log_att_is_throttle_mix_min, \
+														fp_log_land_detector->log_land_accel_ef_filter_length, \
+														fp_log_land_detector->log_descent_rate_low, \
+														fp_log_land_detector->log_rangefinder_check);
 }
 
 
@@ -855,7 +862,7 @@ void Copter::Log_Write_GuidedTarget(uint8_t target_type, const Vector3f& pos_tar
 void Copter::Log_Write_Throw(ThrowModeStage stage, float velocity, float velocity_z, float accel, float ef_accel_z, bool throw_detect, bool attitude_ok, bool height_ok, bool pos_ok) {}
 void Copter::Log_Write_Proximity() {}
 void Copter::Log_Write_Beacon() {}
-void Copter::Log_Write_land_detector() {}
+void Copter::Log_Write_land_detector(struct Log_Land_Detector *fp_log_land_detector) {}
 void Copter::Log_Write_Vehicle_Startup_Messages() {}
 
 #if FRAME_CONFIG == HELI_FRAME
