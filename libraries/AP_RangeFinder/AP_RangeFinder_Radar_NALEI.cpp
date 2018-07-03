@@ -206,7 +206,15 @@ void AP_RangeFinder_Radar_NALEI::update(void)
         last_reading_ms = AP_HAL::millis();
         update_status();
     } else if (AP_HAL::millis() - last_reading_ms > 200) {
-        set_status(RangeFinder::RangeFinder_NoData);
+        if(state.RangeFinder_working_condition){
+			if(status_radar==false){
+				set_status(RangeFinder::RangeFinder_NoData);
+			}
+		}
+		else{
+			set_status(RangeFinder::RangeFinder_Good);
+			update_status();
+			}
     }
 }
 

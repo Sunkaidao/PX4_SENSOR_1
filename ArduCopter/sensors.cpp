@@ -40,6 +40,12 @@ void Copter::read_rangefinder(void)
 
 #if RANGEFINDER_ENABLED == ENABLED
     rangefinder.update();
+//added by xusiming in 20180620 and used for nalei radar
+	bool armstatus=false;
+	armstatus=motors->armed();
+	rangefinder.get_arm(armstatus);
+//added end
+
 
     if (rangefinder.num_sensors() > 0 &&
         should_log(MASK_LOG_CTUN)) {
