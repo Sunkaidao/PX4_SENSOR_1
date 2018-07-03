@@ -2058,6 +2058,7 @@ void DataFlash_Class::Log_Write_Rally(const AP_Rally &rally)
 // Write visual odometry sensor data
 void DataFlash_Class::Log_Write_VisualOdom(float time_delta, const Vector3f &angle_delta, const Vector3f &position_delta, float confidence)
 {
+/*
     struct log_VisualOdom pkt_visualodom = {
         LOG_PACKET_HEADER_INIT(LOG_VISUALODOM_MSG),
         time_us             : AP_HAL::micros64(),
@@ -2071,7 +2072,7 @@ void DataFlash_Class::Log_Write_VisualOdom(float time_delta, const Vector3f &ang
         confidence          : confidence
     };
     WriteBlock(&pkt_visualodom, sizeof(log_VisualOdom));
-}
+*/}
 
 // Write AOA and SSA
 void DataFlash_Class::Log_Write_AOA_SSA(AP_AHRS &ahrs)
@@ -2112,28 +2113,29 @@ void DataFlash_Class::Log_Write_Beacon(AP_Beacon &beacon)
 
 
 // Write beacon sensor (position) data
-void DataFlash_Class::Log_Write_land_detector()
+void DataFlash_Class::Log_Write_land_detector(uint8_t fp_land_complete, \
+														uint8_t fp_land_complete_maybe, \
+														uint8_t fp_motors_limit_throttle_lower, \
+														uint8_t fp_att_is_throttle_mix_min, \
+														float fp_land_accel_ef_filter_length, \
+														float fp_descent_rate_low, \
+														uint8_t fp_rangefinder_check)
 {
-/*    // position
-    Vector3f pos;
-    float accuracy = 0.0f;
-    beacon.get_vehicle_position_ned(pos, accuracy);
+	//printf("DataFlash_Class::Log_Write_land_detector\n");
 
-    struct log_Beacon pkt_beacon = {
-       LOG_PACKET_HEADER_INIT(LOG_BEACON_MSG),
-       time_us         : AP_HAL::micros64(),
-       health          : (uint8_t)beacon.healthy(),
-       count           : (uint8_t)beacon.count(),
-       dist0           : beacon.beacon_distance(0),
-       dist1           : beacon.beacon_distance(1),
-       dist2           : beacon.beacon_distance(2),
-       dist3           : beacon.beacon_distance(3),
-       posx            : pos.x,
-       posy            : pos.y,
-       posz            : pos.z
+    struct log_Land_Detector pkt_ld = {
+       LOG_PACKET_HEADER_INIT(LOG_LD_MSG),
+       time_us         				: AP_HAL::micros64(),
+       land_complete          		: fp_land_complete,
+       land_complete_maybe          : fp_land_complete_maybe,
+       motors_limit_throttle_lower  : fp_motors_limit_throttle_lower,
+       att_is_throttle_mix_min      : fp_att_is_throttle_mix_min,
+       land_accel_ef_filter_length  : fp_land_accel_ef_filter_length,
+       descent_rate_low           	: fp_descent_rate_low,
+       rangefinder_check            : fp_rangefinder_check
     };
-    WriteBlock(&pkt_beacon, sizeof(pkt_beacon));
-*/}
+    WriteBlock(&pkt_ld, sizeof(pkt_ld));
+}
 
 
 //	added by ZhangYong 20170731

@@ -195,7 +195,13 @@ public:
     void Log_Write_AOA_SSA(AP_AHRS &ahrs);
     void Log_Write_Beacon(AP_Beacon &beacon);
 	//	added by ZhangYong 20170731
-	void Log_Write_land_detector();
+	void Log_Write_land_detector(uint8_t fp_land_complete, \
+														uint8_t fp_land_complete_maybe, \
+														uint8_t fp_motors_limit_throttle_lower, \
+														uint8_t fp_att_is_throttle_mix_min, \
+														float fp_land_accel_ef_filter_length, \
+														float fp_descent_rate_low, \
+														uint8_t fp_rangefinder_check);
 	//	added end
 
 #if	BCBPMBUS == ENABLED

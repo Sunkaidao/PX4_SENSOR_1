@@ -339,7 +339,7 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 			{
 				lcl_pump_rate = ground_speed * _pump_pct_1ms;
 			}else
-				lcl_pump_rate = 100 *_pump_min_pct;
+				lcl_pump_rate = 100 *_pump_pct_1ms;
 				
 		}
 
@@ -358,7 +358,7 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 			actual_pump_rate = 10000;
 		}*/
 
-		//printf("4. %d %d\n", actual_pump_rate, _spinner_pwm);
+		printf("4. %d %d\n", actual_pump_rate, _spinner_pwm);
 		
 		//	added end
 		//	modified by ZhangYong
