@@ -59,19 +59,37 @@ void Copter::update_land_detector()
         // check that collective pitch is on lower limit (should be constrained by LAND_COL_MIN)
         bool motor_at_lower_limit = motors->limit.throttle_lower;
 #else
+		//	added log for land detector by zhangyong 20180703
+        log_land_detector.log_motors_limit_throttle_lower = motors->limit.throttle_lower;
+		log_land_detector.log_att_is_throttle_mix_min = attitude_control->is_throttle_mix_min();
+		//	added end
+
         // check that the average throttle output is near minimum (less than 12.5% hover throttle)
-        bool motor_at_lower_limit = motors->limit.throttle_lower && attitude_control->is_throttle_mix_min();
+        
+        bool motor_at_lower_limit = log_land_detector.log_motors_limit_throttle_lower && log_land_detector.log_att_is_throttle_mix_min;
+
+		
 #endif
 
         // check that the airframe is not accelerating (not falling or breaking after fast forward flight)
-        bool accel_stationary = (land_accel_ef_filter.get().length() <= LAND_DETECTOR_ACCEL_MAX);
+        //	added log for land detector by zhangyong 20180703
+		log_land_detector.log_land_accel_ef_filter_length = land_accel_ef_filter.get().length();
+		//	added end
+        bool accel_stationary = (log_land_detector.log_land_accel_ef_filter_length <= LAND_DETECTOR_ACCEL_MAX);
+
+		
 
         // check that vertical speed is within 1m/s of zero
-        bool descent_rate_low = fabsf(inertial_nav.get_velocity_z()) < 100;
+        //	added log for land detector by zhangyong 20180703
+		log_land_detector.log_descent_rate_low = fabsf(inertial_nav.get_velocity_z());
+		//	added end
+        bool descent_rate_low = log_land_detector.log_descent_rate_low < 100;
 
         // if we have a healthy rangefinder only allow landing detection below 2 meters
         bool rangefinder_check = (!rangefinder_alt_ok() || rangefinder_state.alt_cm_filt.get() < LAND_RANGEFINDER_MIN_ALT_CM);
-
+		//	added log for land detector by zhangyong 20180703
+		log_land_detector.log_rangefinder_check = rangefinder_check;
+		//	added end
 		//	added by ZhangYong 20171122
 /*		printf("update_land_detector motor %d acc %d rate %d rng %d\n", motor_at_lower_limit,\
 																		accel_stationary, \
@@ -92,6 +110,11 @@ void Copter::update_land_detector()
     }
 
     set_land_complete_maybe(ap.land_complete || (land_detector_count >= LAND_DETECTOR_MAYBE_TRIGGER_SEC*scheduler.get_loop_rate_hz()));
+
+	//	added log for land detector by zhangyong 20180703
+	log_land_detector.log_land_complete = ap.land_complete;
+	log_land_detector.log_land_complete_maybe = ap.land_complete_maybe;
+	//	added end
 }
 
 // set land_complete flag and disarm motors if disarm-on-land is configured

@@ -427,15 +427,18 @@ private:
         uint8_t primary_gps;        // primary gps index
     } sensor_health;
 
-	//	land_detector fot logging
-	struct {
-
+	//	land_detector for logging
+	//	added by zhangyong 20180703
+	struct Log_Land_Detector{
 		uint8_t log_land_complete;
 		uint8_t log_land_complete_maybe;
 		uint8_t log_motors_limit_throttle_lower;
+		uint8_t log_att_is_throttle_mix_min;
 		float 	log_land_accel_ef_filter_length;
-	};
-	//
+		float  	log_descent_rate_low;
+		uint8_t log_rangefinder_check;
+	}log_land_detector;
+	//	added end
 
     // Motor Output
 #if FRAME_CONFIG == HELI_FRAME
@@ -977,7 +980,7 @@ private:
     void Log_Write_Proximity();
     void Log_Write_Beacon();
 	//	added by zhangyong for log land detector 20180613
-	void Log_Write_land_detector();
+	void Log_Write_land_detector(struct Log_Land_Detector *fp_log_land_detector);
 	//	added end
 
 
