@@ -145,6 +145,7 @@ bool AP_RangeFinder_Radar_NALEI::get_reading(uint16_t &reading_cm)
 								{
 								message_status=0;
 								state.RangeFinder_no_target_count++;
+								status_radar=true;
 								}
 							message_state=0;
 							}
@@ -207,13 +208,17 @@ void AP_RangeFinder_Radar_NALEI::update(void)
         update_status();
     } else if (AP_HAL::millis() - last_reading_ms > 200) {
         if(state.RangeFinder_working_condition){
+			set_status(RangeFinder::RangeFinder_NoData);
+		}
+		else{
 			if(status_radar==false){
 				set_status(RangeFinder::RangeFinder_NoData);
 			}
-		}
-		else{
-			set_status(RangeFinder::RangeFinder_Good);
-			update_status();
+			else{
+				set_status(RangeFinder::RangeFinder_Good);
+				update_status();
+			}
+			
 			}
     }
 }
