@@ -65,9 +65,12 @@ void Copter::update_land_detector()
 		//	added end
 
         // check that the average throttle output is near minimum (less than 12.5% hover throttle)
-        
-        bool motor_at_lower_limit = log_land_detector.log_motors_limit_throttle_lower && log_land_detector.log_att_is_throttle_mix_min;
 
+		//	modified by zhangyong to satisfy some user for disarm, some one used to move pitch & roll when just land on the ground 20180703        
+        //	bool motor_at_lower_limit = log_land_detector.log_motors_limit_throttle_lower && log_land_detector.log_att_is_throttle_mix_min;
+		//	modified end
+		
+		bool motor_at_lower_limit = log_land_detector.log_motors_limit_throttle_lower;
 		
 #endif
 
