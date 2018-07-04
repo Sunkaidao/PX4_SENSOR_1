@@ -46,10 +46,23 @@ void Copter::arm_motors_check()
 
     // full left
     }else if (tmp < -4000) {
-        if (!mode_has_manual_throttle(control_mode) && !ap.land_complete) {
-            arming_counter = 0;
-            return;
-        }
+    	if((control_mode == ALT_HOLD) || (control_mode == LOITER))
+    	{
+    	}
+		else
+		{
+        	if (!mode_has_manual_throttle(control_mode) && !ap.land_complete) {
+            	arming_counter = 0;
+            	return;
+        	}
+		}
+
+		//	shielded by zhangyong for disarm 20180704
+		//if (!mode_has_manual_throttle(control_mode) && !ap.land_complete) {
+         //   return;}
+         //   arming_counter = 0;
+		//	shielded end
+		
 
         // increase the counter to a maximum of 1 beyond the disarm delay
         if( arming_counter <= DISARM_DELAY ) {

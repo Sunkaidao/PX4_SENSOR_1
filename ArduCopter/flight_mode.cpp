@@ -396,10 +396,6 @@ bool Copter::mode_has_manual_throttle(control_mode_t mode)
     switch (mode) {
         case ACRO:
         case STABILIZE:
-		//	added by zhangyong for disarm problem 20180704
-		case LOITER:
-		case ALT_HOLD:
-		//	added end
             return true;
         default:
             return false;
