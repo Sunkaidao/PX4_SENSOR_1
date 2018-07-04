@@ -712,8 +712,10 @@ private:
     AP_Parachute parachute;
 #endif
 
+#if LG_ENABLE == ENABLED 
     // Landing Gear Controller
     AP_LandingGear landinggear;
+#endif
 
     // terrain handling
 #if AP_TERRAIN_AVAILABLE && AC_TERRAIN
@@ -925,7 +927,9 @@ private:
 
 
     void rpm_update();
+#if BUTTON_ENABLED == ENABLED	
     void button_update();
+#endif
     void init_proximity();
     void update_proximity();
     void stats_update();
@@ -1254,7 +1258,9 @@ private:
     void update_land_detector();
     void update_throttle_thr_mix();
     void update_ground_effect_detector(void);
+#if LG_ENABLE == ENABLED 	
     void landinggear_update();
+#endif
     void update_notify();
     void motor_test_output();
     bool mavlink_motor_test_check(mavlink_channel_t chan, bool check_rc);

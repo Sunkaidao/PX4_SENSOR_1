@@ -52,6 +52,11 @@ GCS_MAVLINK::queued_param_send(bool armed)
     if (_queued_parameter == nullptr) {
         return;
     }
+
+	//	added by zhangyong to hurry up parameter transmit 20180702
+	//if(_queued_parameter_index >= _queued_parameter_count)
+	//	_queuing_parameter = false;
+	//	added end
     
     uint16_t bytes_allowed;
     uint8_t count;
@@ -61,16 +66,33 @@ GCS_MAVLINK::queued_param_send(bool armed)
     // use at most 30% of bandwidth on parameters. The constant 26 is
     // 1/(1000 * 1/8 * 0.001 * 0.3)
     bytes_allowed = 57 * (tnow - _queued_parameter_send_time_ms) * 26;
+
+	//printf("1. queued_param_send bytes_allowed %d\n", bytes_allowed);
+	
     if (bytes_allowed > comm_get_txspace(chan)) {
         bytes_allowed = comm_get_txspace(chan);
     }
+
+	//printf("2. queued_param_send bytes_allowed %d\n", bytes_allowed);
+	
     count = bytes_allowed / (MAVLINK_MSG_ID_PARAM_VALUE_LEN + packet_overhead());
+
+	
 
     // when we don't have flow control we really need to keep the
     // param download very slow, or it tends to stall
-    if (!have_flow_control() && count > 5) {
-        count = 5;
+
+	//
+	//	added by zhanygong to speed up param transmit 20180702
+	//if(1 == armed)
+	//	added end
+	//{
+	if (!have_flow_control() && count > 5) {
+     	count = 5;
     }
+	//}
+
+	//printf("3. count = %d\n", count);
 
     while (_queued_parameter != nullptr && count--) {
         AP_Param      *vp;
@@ -92,6 +114,11 @@ GCS_MAVLINK::queued_param_send(bool armed)
             mav_var_type(_queued_parameter_type),
             _queued_parameter_count,
             _queued_parameter_index);
+
+		//	added by zhangyong for debug 20180702
+		//printf("queued_param_send count = %d\n", _queued_parameter_index);
+		//	added end
+		//printf("%d\n", _queued_parameter_index);
 
         _queued_parameter = AP_Param::next_scalar(&_queued_parameter_token, &_queued_parameter_type);
         _queued_parameter_index++;
@@ -116,6 +143,15 @@ GCS_MAVLINK::queued_param_send(bool armed)
         }
     }
     _queued_parameter_send_time_ms = tnow;
+}
+
+
+bool GCS_MAVLINK::queued_param_sending()
+{
+	if(_queued_parameter_index < _queued_parameter_count)
+		return true;
+	else
+		return false;
 }
 
 /*
@@ -222,6 +258,7 @@ void GCS_MAVLINK::handle_param_request_list(mavlink_message_t *msg)
     _queued_parameter = AP_Param::first(&_queued_parameter_token, &_queued_parameter_type);
     _queued_parameter_index = 0;
     _queued_parameter_count = AP_Param::count_parameters();
+//	_queuing_parameter = true;
 }
 
 void GCS_MAVLINK::handle_param_request_read(mavlink_message_t *msg)
@@ -458,4 +495,8 @@ void GCS_MAVLINK::send_parameter_reply(void)
         mav_var_type(reply.p_type),
         reply.count,
         reply.param_index);
+
+	//	addded by zhangyong for debug 20180702
+	//printf("send_parameter_reply %d\n", reply.param_index);
+	//	added end
 }

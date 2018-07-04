@@ -114,8 +114,10 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
     SCHED_TASK(one_hz_loop,            1,    100),
     SCHED_TASK(ekf_check,             10,     75),
     SCHED_TASK(gpsglitch_check,       10,     50),
+#if LG_ENABLE == ENABLED 
     SCHED_TASK(landinggear_update,    10,     75),
-    SCHED_TASK(lost_vehicle_check,    10,     50),
+#endif
+	SCHED_TASK(lost_vehicle_check,    10,     50),
     SCHED_TASK(gcs_check_input,      400,    180),
     SCHED_TASK(gcs_send_heartbeat,     1,    110),
     SCHED_TASK(gcs_send_deferred,     50,    550),
@@ -155,7 +157,9 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
 #ifdef USERHOOK_SUPERSLOWLOOP
     SCHED_TASK(userhook_SuperSlowLoop, 1,   75),
 #endif
+#if BUTTON_ENABLED == ENABLED
     SCHED_TASK(button_update,          5,    100),
+#endif
     SCHED_TASK(stats_update,           1,    100),
 };
 
@@ -762,7 +766,7 @@ void Copter::one_hz_loop()
 //	printf("one_hz_loop: ap.pre_arm_check %d, motor->armed() %d\n", ap.pre_arm_check, motors->armed());
 
 	
-
+	//printf("streamRates[para] = %d\n", gcs().chan(1).get_streamRates(8));
 }
 
 // called at 50hz

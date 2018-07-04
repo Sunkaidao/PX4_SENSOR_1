@@ -574,8 +574,11 @@ public:
     // altitude at which nav control can start in takeoff
     AP_Float wp_navalt_min;
 
+#if BUTTON_ENABLED == ENABLED
+
     // button checking
     AP_Button button;
+#endif
 
     // vehicle statistics
     AP_Stats stats;

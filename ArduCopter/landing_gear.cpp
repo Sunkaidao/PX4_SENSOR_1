@@ -2,6 +2,8 @@
 
 
 // Run landing gear controller at 10Hz
+#if LG_ENABLE == ENABLED 
+
 void Copter::landinggear_update()
 {
     // exit immediately if no landing gear output has been enabled
@@ -36,3 +38,4 @@ void Copter::landinggear_update()
 
     last_deploy_status = landinggear.deployed();
 }
+#endif

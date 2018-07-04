@@ -297,10 +297,12 @@ void Copter::gripper_update()
 /*
   update AP_Button
  */
+#if BUTTON_ENABLED == ENABLED
 void Copter::button_update(void)
 {
     g2.button.update();
 }
+#endif
 
 // initialise proximity sensor
 void Copter::init_proximity(void)

@@ -1049,14 +1049,28 @@ GCS_MAVLINK_Copter::data_stream_send(void)
 
     send_queued_parameters();
 
-    if (copter.gcs_out_of_time) return;
-
+	//	modified by zhangyong when send parameter, hurry up 20180702
+    //if (copter.gcs_out_of_time) return;
+	//	modified end
 	
+	//	modified by zhangyong wireless datalink need speed up 20180702
+	//	datalink 
+	if (copter.gcs_out_of_time || \
+		((true == queued_param_sending()) && \
+		(1 == chan) && \
+		(!copter.motors->armed()))) 
+		return;
+	//	modified end
+	//if(1 == chan)
+	//	printf("[%d] test \n", chan);
 
     if (copter.in_mavlink_delay) {
         // don't send any other stream types while in the delay callback
         return;
     }
+
+	//if(1 == chan)
+	//	printf("[%d] test1 \n", chan);
 
 	
 
@@ -1222,10 +1236,9 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 //bool return_value;
 		//	added end
 
-//	printf("handleMessage %d\n", msg->msgid);
+//	printf("%.8d handleMessage %d\n", AP_HAL::millis(),msg->msgid);
 
 	copter.DataFlash.Log_Write_PadCmd(msg);
-
 
 
     switch (msg->msgid) {
@@ -1241,6 +1254,9 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 
     case MAVLINK_MSG_ID_PARAM_REQUEST_LIST:         // MAV ID: 21
     {
+    	//	added by zhangyong for parameter optimize 20180702
+		//printf("MAVLINK_MSG_ID_PARAM_REQUEST_LIST\n");
+		//	added end
         // if we have not yet initialised (including allocating the motors
         // object) we drop this request. That prevents the GCS from getting
         // a confusing parameter count during bootup
@@ -1261,6 +1277,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 
     case MAVLINK_MSG_ID_PARAM_SET:     // 23
     {
+    	printf("MAVLINK_MSG_ID_PARAM_SET\n");
         handle_param_set(msg, &copter.DataFlash);
         break;
     }
