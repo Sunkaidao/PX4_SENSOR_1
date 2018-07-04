@@ -220,8 +220,10 @@ void Copter::init_ardupilot()
     init_precland();
 #endif
 
+#if LG_ENABLE == ENABLED 
     // initialise landing gear position
     landinggear.init();
+#endif
 
 // #ifdef USERHOOK_INIT
 //     userhook_init();

@@ -116,7 +116,7 @@ GCS_MAVLINK::queued_param_send(bool armed)
             _queued_parameter_index);
 
 		//	added by zhangyong for debug 20180702
-		printf("queued_param_send count = %d\n", _queued_parameter_index);
+		//printf("queued_param_send count = %d\n", _queued_parameter_index);
 		//	added end
 		//printf("%d\n", _queued_parameter_index);
 
@@ -497,6 +497,6 @@ void GCS_MAVLINK::send_parameter_reply(void)
         reply.param_index);
 
 	//	addded by zhangyong for debug 20180702
-	printf("send_parameter_reply %d\n", reply.param_index);
+	//printf("send_parameter_reply %d\n", reply.param_index);
 	//	added end
 }

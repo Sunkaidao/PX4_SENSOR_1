@@ -545,6 +545,7 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
             break;
 
        case AUXSW_LANDING_GEAR:
+#if LG_ENABLE == ENABLED 	   	
             switch (ch_flag) {
                 case AUX_SWITCH_LOW:
                     //landinggear.set_position(AP_LandingGear::LandingGear_Deploy);
@@ -559,6 +560,7 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
 															motors->armed());
                     break;
             }
+#endif			
             break;
 
         case AUXSW_LOST_COPTER_SOUND:

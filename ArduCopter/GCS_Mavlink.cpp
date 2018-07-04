@@ -1236,7 +1236,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 //bool return_value;
 		//	added end
 
-	printf("%.8d handleMessage %d\n", AP_HAL::millis(),msg->msgid);
+//	printf("%.8d handleMessage %d\n", AP_HAL::millis(),msg->msgid);
 
 	copter.DataFlash.Log_Write_PadCmd(msg);
 
@@ -1255,7 +1255,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
     case MAVLINK_MSG_ID_PARAM_REQUEST_LIST:         // MAV ID: 21
     {
     	//	added by zhangyong for parameter optimize 20180702
-		printf("MAVLINK_MSG_ID_PARAM_REQUEST_LIST\n");
+		//printf("MAVLINK_MSG_ID_PARAM_REQUEST_LIST\n");
 		//	added end
         // if we have not yet initialised (including allocating the motors
         // object) we drop this request. That prevents the GCS from getting

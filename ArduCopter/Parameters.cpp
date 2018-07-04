@@ -723,9 +723,12 @@ const AP_Param::Info Copter::var_info[] = {
     GOBJECT(parachute,		"CHUTE_", AP_Parachute),
 #endif
 
+#if LG_ENABLE == ENABLED 
+
     // @Group: LGR_
     // @Path: ../libraries/AP_LandingGear/AP_LandingGear.cpp
     GOBJECT(landinggear,    "LGR_", AP_LandingGear),
+#endif
 
 #if FRAME_CONFIG == HELI_FRAME
     // @Group: IM_
