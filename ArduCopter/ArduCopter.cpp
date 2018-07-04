@@ -439,7 +439,7 @@ void Copter::ten_hz_logging_loop()
 //	printf("%d: %4.2f\n", battery.num_instances(), battery.voltage(1));
 //	added end
 
-	Log_Write_land_detector(&log_land_detector);
+	
 
 #if BCBPMBUS == ENABLE
 	update_bcbpmbus();
@@ -571,6 +571,10 @@ void Copter::three_hz_loop()
 
 	
 #endif	
+
+
+	Log_Write_land_detector(&log_land_detector);
+
 
 //#if BCBMONITOR == ENABLE
 //bcbmonitor.read();
