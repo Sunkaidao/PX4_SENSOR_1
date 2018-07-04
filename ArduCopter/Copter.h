@@ -922,7 +922,9 @@ private:
 
 
     void rpm_update();
+#if BUTTON_ENABLED == ENABLED	
     void button_update();
+#endif
     void init_proximity();
     void update_proximity();
     void stats_update();

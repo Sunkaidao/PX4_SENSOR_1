@@ -370,6 +370,21 @@
  # define GRIPPER_ENABLED DISABLED
 #endif
 
+
+//////////////////////////////////////////////////////////////////////////////
+//	button
+//	modified by ZhangYong 20170915
+//#ifndef GRIPPER_ENABLED
+// # define GRIPPER_ENABLED ENABLED
+//#endif
+
+//	modified end
+
+#ifndef BUTTON_ENABLED
+ # define BUTTON_ENABLED DISABLED
+#endif
+
+
 //////////////////////////////////////////////////////////////////////////////
 // Parachute release
 //	modified by ZhangYong 20170915
@@ -493,7 +508,7 @@
 
 //	modified end
 #ifndef CAMERA
- # define CAMERA        ENABLED
+ # define CAMERA        DISABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -505,7 +520,7 @@
 //#endif
 
 #ifndef MOUNT
- # define MOUNT         ENABLED
+ # define MOUNT         DISABLED
 #endif
 
 
