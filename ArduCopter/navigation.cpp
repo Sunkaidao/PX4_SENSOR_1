@@ -45,6 +45,19 @@ void Copter::calc_wp_distance()
         wp_distance = 0;
         break;
     }
+
+	//	added by zhangyong for long edge or short edge judge 20180705
+	//	a new destination has just been set
+	if(AUTO == control_mode)
+	if(1 == wp_nav->get_wpnav_destination_set())
+	{
+#if SPRAYER == ENABLED
+		sprayer.set_short_edge();
+#endif
+		//	clear this flag for new destination and next destination
+		wp_nav->clear_wpnav_destination_set();
+	}
+	//	added end
 }
 
 // calc_wp_bearing - calculate bearing to next waypoint for reporting and autopilot decisions

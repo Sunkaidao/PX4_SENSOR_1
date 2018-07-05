@@ -127,6 +127,19 @@ void AC_Sprayer::stop_spraying()
     _flags.spraying = false;
 }
 
+
+void AC_Sprayer::set_short_edge(uint32_t wp_dist)
+{
+	uint32_t unspray_distance = _unspray_dist.get();
+	
+	if(wp_dist > unspray_distance)
+		_flags.short_edge = true;
+	else
+		_flags.short_edge = false;
+
+}
+
+
 /// update - adjust pwm of servo controlling pump speed according to the desired quantity and our horizontal speed
 void
 AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
@@ -337,7 +350,9 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 		{
 			if(1 == _vpvs_enable)
 			{
-				lcl_pump_rate = ground_speed * _pump_pct_1ms;
+				
+				lcl_pump_rate = _pump_min_pct * 100 + (ground_speed * _pump_pct_1ms.get() * 10 );
+				//printf("sprayer, %4.2f %4.2f\n", ground_speed, _pump_pct_1ms.get());
 			}else
 				lcl_pump_rate = 100 *_pump_pct_1ms;
 				
@@ -358,7 +373,7 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 			actual_pump_rate = 10000;
 		}*/
 
-		printf("4. %d %d\n", actual_pump_rate, _spinner_pwm);
+		//printf("4. %d %d\n", actual_pump_rate, _spinner_pwm);
 		
 		//	added end
 		//	modified by ZhangYong

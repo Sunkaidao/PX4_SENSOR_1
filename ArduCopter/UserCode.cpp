@@ -251,6 +251,11 @@ void Copter::userhook_init()
    newbroadcast.init();
 #endif
 
+
+	//	added by zhangyong for short or long edge judge 20180705
+	//wpnav_destination_settled = false;
+	//	added end
+
 }
 #endif // end USERHOOK_INIT
 

@@ -262,6 +262,11 @@ public:
     /// advance_wp_target_along_track - move target location along track from origin to destination
     bool advance_wp_target_along_track(float dt);
 
+	//	added by zhangyong for long edge or short edge indication 20180705
+	uint8_t get_wpnav_destination_set() {return _flags.wpnav_destination_set;}
+	void 	clear_wpnav_destination_set() {_flags.wpnav_destination_set = 0;}
+	//	added end
+
     static const struct AP_Param::GroupInfo var_info[];
 
 protected:
@@ -281,7 +286,10 @@ protected:
         uint8_t new_wp_destination      : 1;    // true if we have just received a new destination.  allows us to freeze the position controller's xy feed forward
         SegmentType segment_type        : 1;    // active segment is either straight or spline
         uint8_t wp_yaw_set              : 1;    // true if yaw target has been set
+        uint8_t wpnav_destination_set	: 1;	//	added by zhangyong for long or short edge judge 20180705
     } _flags;
+		
+
 
     /// calc_loiter_desired_velocity - updates desired velocity (i.e. feed forward) with pilot requested acceleration and fake wind resistance
     ///		updated velocity sent directly to position controller
@@ -372,4 +380,6 @@ protected:
     AP_Int8     _rangefinder_use;
     bool        _rangefinder_healthy = false;
     float       _rangefinder_alt_cm = 0.0f;
+
+	
 };

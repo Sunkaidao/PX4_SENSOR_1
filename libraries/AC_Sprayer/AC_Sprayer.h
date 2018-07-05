@@ -91,6 +91,10 @@ public:
     /// set_pump_rate - sets desired quantity of spray when travelling at 1m/s as a percentage of the pumps maximum rate
     void set_pump_rate(float pct_at_1ms) { _pump_pct_1ms.set(pct_at_1ms); }
 
+	void set_short_edge(uint32_t wp_dist);
+
+	uint8_t get_short_edge() {return _flags.short_edge; }
+
     /// update - adjusts servo positions based on speed and requested quantity
     void update(int8_t ctl_mode, uint32_t wp_dist);
 
@@ -129,11 +133,14 @@ private:
         uint8_t spraying    : 1;            ///< 1 if we are currently spraying
         uint8_t testing     : 1;            ///< 1 if we are testing the sprayer and should output a minimum value
         uint8_t running     : 1;            ///< 1 if we are permitted to run sprayer
+        uint8_t short_edge	: 1;			///< 1 if we are ing short edge, then spray should not allowed
     } _flags;
 
     // internal variables
     uint32_t        _speed_over_min_time;   ///< time at which we reached speed minimum
     uint32_t        _speed_under_min_time;  ///< time at which we fell below speed minimum
+
+	
 
     void stop_spraying();
 };

@@ -46,8 +46,9 @@ void Copter::arm_motors_check()
 
     // full left
     }else if (tmp < -4000) {
-    	if((control_mode == ALT_HOLD) || (control_mode == LOITER))
+    	/*if((control_mode == ALT_HOLD) || (control_mode == LOITER))
     	{
+    		//printf("temp\n");
     	}
 		else
 		{
@@ -55,12 +56,15 @@ void Copter::arm_motors_check()
             	arming_counter = 0;
             	return;
         	}
-		}
+		}*/
 
 		//	shielded by zhangyong for disarm 20180704
-		//if (!mode_has_manual_throttle(control_mode) && !ap.land_complete) {
-         //   return;}
-         //   arming_counter = 0;
+		if (!mode_has_manual_throttle(control_mode) && !ap.land_complete) 
+		{
+			arming_counter = 0;
+			return;
+		}
+            
 		//	shielded end
 		
 
@@ -69,8 +73,12 @@ void Copter::arm_motors_check()
             arming_counter++;
         }
 
+		//	added by zhangyong for 
+		printf("%d armed %d\n", arming_counter, motors->armed());
+
         // disarm the motors
         if (arming_counter == DISARM_DELAY && motors->armed()) {
+			printf("init_disarm_motors\n");
             init_disarm_motors();
         }
 

@@ -796,7 +796,7 @@ private:
     uint32_t esc_calibration_notify_update_ms;
 
 	//	added by ZhangYong 20170915
-//	uint32_t duration_cnt;
+	//bool wpnav_destination_settled;
 	//	added end
 
 
