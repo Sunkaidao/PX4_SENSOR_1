@@ -52,7 +52,7 @@ void Copter::calc_wp_distance()
 	if(1 == wp_nav->get_wpnav_destination_set())
 	{
 #if SPRAYER == ENABLED
-		sprayer.set_short_edge();
+		sprayer.set_short_edge(wp_distance);
 #endif
 		//	clear this flag for new destination and next destination
 		wp_nav->clear_wpnav_destination_set();

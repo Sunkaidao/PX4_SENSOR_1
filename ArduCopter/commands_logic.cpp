@@ -387,9 +387,7 @@ void Copter::do_nav_wp(const AP_Mission::Mission_Command& cmd)
     // Set wp navigation target
     auto_wp_start(target_loc);
 
-	//	added by zhangyong to judge short edge or long edge when in spraying 20180705
-	sprayer.set_short_edge();
-	//	added end
+	
 
     // if no delay set the waypoint as "fast"
     if (loiter_time_max == 0 ) {

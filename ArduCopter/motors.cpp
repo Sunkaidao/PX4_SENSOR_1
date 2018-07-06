@@ -74,11 +74,11 @@ void Copter::arm_motors_check()
         }
 
 		//	added by zhangyong for 
-		printf("%d armed %d\n", arming_counter, motors->armed());
+		//printf("%d armed %d\n", arming_counter, motors->armed());
 
         // disarm the motors
         if (arming_counter == DISARM_DELAY && motors->armed()) {
-			printf("init_disarm_motors\n");
+		//	printf("init_disarm_motors\n");
             init_disarm_motors();
         }
 
