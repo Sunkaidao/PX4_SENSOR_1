@@ -1,5 +1,7 @@
 #include "Copter.h"
 
+#if THROW_ENABLED == ENABLED
+
 
 // throw_init - initialise throw controller
 bool Copter::throw_init(bool ignore_checks)
@@ -23,6 +25,7 @@ bool Copter::throw_init(bool ignore_checks)
 
 // runs the throw to start controller
 // should be called at 100hz or more
+
 void Copter::throw_run()
 {
     /* Throw State Machine
@@ -266,3 +269,5 @@ bool Copter::throw_position_good()
     // check that our horizontal position error is within 50cm
     return (pos_control->get_horizontal_error() < 50.0f);
 }
+
+#endif

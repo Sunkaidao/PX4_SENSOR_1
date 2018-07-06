@@ -244,6 +244,9 @@
 #ifndef OPTFLOW
  # define OPTFLOW       DISABLED
 #endif
+
+
+
 #ifndef VISUAL_ODOMETRY_ENABLED
 # define VISUAL_ODOMETRY_ENABLED DISABLED
 #endif
@@ -872,6 +875,12 @@ union PACKED PassOSD_data_status {
 //////////////////////////////////////////////////////////////////////////////
 // Throw mode configuration
 //
+#ifndef THROW_ENABLED
+ # define THROW_ENABLED               DISABLED // PosHold flight mode enabled by default
+#endif
+
+
+
 #ifndef THROW_HIGH_SPEED
 # define THROW_HIGH_SPEED       500.0f  // vehicle much reach this total 3D speed in cm/s (or be free falling)
 #endif

@@ -1166,7 +1166,9 @@ private:
 
     // Throw to launch functionality
     bool throw_init(bool ignore_checks);
+#if THROW_ENABLED == ENABLED	
     void throw_run();
+#endif
     bool throw_detected();
     bool throw_attitude_good();
     bool throw_height_good();

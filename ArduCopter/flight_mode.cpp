@@ -107,9 +107,11 @@ bool Copter::set_mode(control_mode_t mode, mode_reason_t reason)
             success = brake_init(ignore_checks);
             break;
 
+#if THROW_ENABLED == ENABLED
         case THROW:
             success = throw_init(ignore_checks);
             break;
+#endif		
 
         case AVOID_ADSB:
             success = avoid_adsb_init(ignore_checks);
@@ -262,9 +264,11 @@ void Copter::update_flight_mode()
             brake_run();
             break;
 
+#if THROW_ENABLED == ENABLED
         case THROW:
             throw_run();
             break;
+#endif		
 
         case AVOID_ADSB:
             avoid_adsb_run();
