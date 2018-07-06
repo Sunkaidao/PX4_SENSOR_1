@@ -1035,6 +1035,7 @@ MAV_DISTANCE_SENSOR RangeFinder::get_mav_distance_sensor_type_orient(enum Rotati
 	
     return backend->get_mav_distance_sensor_type();
 }
+/*
 //added by xusiming in 20180620 and used for nalei radar
 void RangeFinder::get_arm(bool armed)
 {
@@ -1044,3 +1045,4 @@ void RangeFinder::get_arm(bool armed)
 		}
 }
 //added end
+*/
