@@ -85,6 +85,12 @@ AC_Sprayer::AC_Sprayer(const AP_InertialNav* inav) :
     if (_pump_pct_1ms < 0.0f || _pump_pct_1ms > 100.0f) {
         _pump_pct_1ms.set_and_save(AC_SPRAYER_DEFAULT_PUMP_RATE);
     }
+
+	// check for silly parameter values
+    if (_pump_min_pct < 0 || _pump_min_pct > 100) {
+        _pump_min_pct.set_and_save(10);
+    }
+	
     if (_spinner_pwm < 0) {
         _spinner_pwm.set_and_save(AC_SPRAYER_DEFAULT_SPINNER_PWM);
     }
@@ -126,6 +132,19 @@ void AC_Sprayer::stop_spraying()
 
     _flags.spraying = false;
 }
+
+
+void AC_Sprayer::set_short_edge(uint32_t wp_dist)
+{
+	uint32_t unspray_distance = _unspray_dist.get();
+	
+	if(wp_dist > unspray_distance)
+		_flags.short_edge = false;
+	else
+		_flags.short_edge = true;
+
+}
+
 
 /// update - adjust pwm of servo controlling pump speed according to the desired quantity and our horizontal speed
 void
@@ -337,7 +356,9 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 		{
 			if(1 == _vpvs_enable)
 			{
-				lcl_pump_rate = ground_speed * _pump_pct_1ms;
+				
+				lcl_pump_rate = float(_pump_min_pct.get()) * 100 + (ground_speed * _pump_pct_1ms.get() / 10 );
+				//printf("sprayer, %4.2f %4.2f\n", ground_speed, _pump_pct_1ms.get());
 			}else
 				lcl_pump_rate = 100 *_pump_pct_1ms;
 				

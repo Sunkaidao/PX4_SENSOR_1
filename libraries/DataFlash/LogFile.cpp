@@ -711,6 +711,7 @@ void DataFlash_Class::Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_di
 		speed_under_min_time	: para_sprayer.get_speed_under_min_time(),
 		actual_pump_rate		: para_sprayer.get_actual_pump_rate(),
 		wp_dist 				: wp_dist,
+		short_edge				: para_sprayer.get_short_edge(),
 		fm_warn 				: para_fm_warn,
 		pck_cnt					: para_pck_cnt,
 		fm_vol					: fm_volume,

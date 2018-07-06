@@ -86,7 +86,8 @@ void Copter::loiter_run()
     pos_control->set_accel_z(g.pilot_accel_z);
 
     // process pilot inputs unless we are in radio failsafe
-    if (!failsafe.radio) {
+    if (!failsafe.radio) 
+	{
         // apply SIMPLE mode transform to pilot inputs
         update_simple_mode();
 
@@ -105,7 +106,9 @@ void Copter::loiter_run()
         surface_tracking_climb_rate = constrain_float(surface_tracking_climb_rate, -g.pilot_velocity_z_max, g.pilot_velocity_z_max);
 		//	modified end
 		
-	} else {
+	}
+	else 
+	{
         // clear out pilot desired acceleration in case radio failsafe event occurs and we do not switch to RTL for some reason
         wp_nav->clear_pilot_desired_acceleration();
     }

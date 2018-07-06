@@ -650,15 +650,17 @@ void Copter::one_hz_loop()
 	//	added by zhangyong to make clear the auth state 20180612
 	if(auth_state_up_auth == auth_state_ms)
 	{	
-		auth_state_timeout_cnt++;
 		
-		if(auth_state_timeout_cnt > 3)
+		
+		if(auth_state_timeout_cnt >= 1)
 		{
 			auth_state_timeout_cnt = 0;
 			auth_result_ms = auth_result_failed;
 			auth_state_ms = auth_state_initialize;
 			AP_Notify::events.tune_next = auth_result_ms + 1;
 		}
+
+		auth_state_timeout_cnt++;
 		
 	}
 

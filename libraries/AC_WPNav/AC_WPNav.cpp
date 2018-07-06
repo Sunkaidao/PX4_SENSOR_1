@@ -141,10 +141,14 @@ AC_WPNav::AC_WPNav(const AP_InertialNav& inav, const AP_AHRS_View& ahrs, AC_PosC
     _flags.recalc_wp_leash = false;
     _flags.new_wp_destination = false;
     _flags.segment_type = SEGMENT_STRAIGHT;
+	//	added by zhangyong to indication new waynavgation_destination has just been settled
+	_flags.wpnav_destination_set = false;
 
     // sanity check some parameters
     _loiter_speed_cms = MAX(_loiter_speed_cms, WPNAV_LOITER_SPEED_MIN);
     _wp_radius_cm = MAX(_wp_radius_cm, WPNAV_WP_RADIUS_MIN);
+	//	added by zhangyong
+	//	added end
 }
 
 ///
@@ -438,6 +442,7 @@ bool AC_WPNav::set_wp_destination(const Location_Class& destination)
         return false;
     }
 
+	
     // set target as vector from EKF origin
     return set_wp_destination(dest_neu, terr_alt);
 }
@@ -514,6 +519,9 @@ bool AC_WPNav::set_wp_origin_and_destination(const Vector3f& origin, const Vecto
     _flags.segment_type = SEGMENT_STRAIGHT;
     _flags.new_wp_destination = true;   // flag new waypoint so we can freeze the pos controller's feed forward and smooth the transition
     _flags.wp_yaw_set = false;
+	//	added by zhangyong for long or short edge indication for spraying 20180705
+	_flags.wpnav_destination_set = true;
+		//	added end
 
     // initialise the limited speed to current speed along the track
     const Vector3f &curr_vel = _inav.get_velocity();
