@@ -360,7 +360,7 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 				lcl_pump_rate = float(_pump_min_pct.get()) * 100 + (ground_speed * _pump_pct_1ms.get() / 10 );
 				//printf("sprayer, %4.2f %4.2f\n", ground_speed, _pump_pct_1ms.get());
 			}else
-				lcl_pump_rate = 100 *_pump_pct_1ms;
+				lcl_pump_rate = 100 *_pump_pct_1ms.get();
 				
 		}
 
