@@ -1277,7 +1277,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 
     case MAVLINK_MSG_ID_PARAM_SET:     // 23
     {
-    	printf("MAVLINK_MSG_ID_PARAM_SET\n");
+//    	printf("MAVLINK_MSG_ID_PARAM_SET\n");
         handle_param_set(msg, &copter.DataFlash);
         break;
     }

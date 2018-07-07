@@ -99,14 +99,20 @@ void Copter::update_land_detector()
 																		descent_rate_low, \
 																		rangefinder_check);
 */
-        if (motor_at_lower_limit && accel_stationary && descent_rate_low && rangefinder_check) {
+        if (motor_at_lower_limit && accel_stationary && descent_rate_low && rangefinder_check) 
+		{
             // landed criteria met - increment the counter and check if we've triggered
-            if( land_detector_count < ((float)LAND_DETECTOR_TRIGGER_SEC)*scheduler.get_loop_rate_hz()) {
+            if( land_detector_count < ((float)LAND_DETECTOR_TRIGGER_SEC)*scheduler.get_loop_rate_hz()) 
+			{
                 land_detector_count++;
-            } else {
+            } 
+			else 
+			{
                 set_land_complete(true);
             }
-        } else {
+        } 
+		else 
+		{
             // we've sensed movement up or down so reset land_detector
             land_detector_count = 0;
         }

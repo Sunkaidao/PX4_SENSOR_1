@@ -398,8 +398,8 @@ bool Copter::mode_has_manual_throttle(control_mode_t mode)
         case STABILIZE:
 
 	//	added by zhangyong for disarm problem
-		case LOITER:
-		case ALT_HOLD:
+		//case LOITER:
+		//case ALT_HOLD:
 		//	added end
             return true;
         default:
