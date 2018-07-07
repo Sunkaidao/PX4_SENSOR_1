@@ -240,7 +240,14 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
                 if((now - _speed_over_min_time) > AC_SPRAYER_DEFAULT_TURN_ON_DELAY) 
 				{
 					//	AUTO = 3
-					if(ctl_mode == 3)
+					//if((ctl_mode == 3) && (1 =  _vpvs_enable))
+					
+					
+#if ABMODE == ENABLED
+					if((3 == ctl_mode) || (21 == ctl_mode))
+#else
+					if(3 == ctl_mode)					
+#endif
 					{
 						if(wp_dist != 0)
 						{
@@ -249,7 +256,7 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 								should_be_spraying = true;
                     			_speed_over_min_time = 0;
 						
-	}
+							}
 						}
 					}
 					else
@@ -301,7 +308,13 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 				if((now - _speed_under_min_time) > AC_SPRAYER_DEFAULT_SHUT_OFF_DELAY)
 				{
 					///	auto 3
-					if(ctl_mode == 3)
+					//if((ctl_mode == 3) && (1 =  _vpvs_enable))
+#if ABMODE == ENABLED
+					if((3 == ctl_mode) || (21 == ctl_mode))
+#else
+					if(3 == ctl_mode)					
+#endif
+
 					{	
 						if(0 != wp_dist)
 						{
@@ -360,7 +373,7 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 				lcl_pump_rate = float(_pump_min_pct.get()) * 100 + (ground_speed * _pump_pct_1ms.get() / 10 );
 				//printf("sprayer, %4.2f %4.2f\n", ground_speed, _pump_pct_1ms.get());
 			}else
-				lcl_pump_rate = 100 *_pump_pct_1ms;
+				lcl_pump_rate = 100 *_pump_pct_1ms.get();
 				
 		}
 

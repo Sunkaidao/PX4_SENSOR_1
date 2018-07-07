@@ -672,18 +672,18 @@ void Copter::do_sprayer(const AP_Mission::Mission_Command& cmd)
 			sprayer.test_pump(false);
 			break;
 		case 1:
-			//sprayer.run(true);
+			sprayer.run(true);
 //			sprayer.test_pump(true);
 			//	modified by ZhangYong 20170905
-			sprayer.run(true);
-			if(1 == sprayer.get_vpvs_enable())
-			{
+			//sprayer.run(true);
+			//if(1 == sprayer.get_vpvs_enable())
+			//{
 				sprayer.test_pump(!motors->armed());
-			}
-			else
-			{
-				sprayer.test_pump(true);
-			}
+			//}
+			//else
+			//{
+			//	sprayer.test_pump(true);
+			//}
 			//	modified end
 	
 			break;
