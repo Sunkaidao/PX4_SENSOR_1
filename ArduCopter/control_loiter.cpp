@@ -80,6 +80,7 @@ void Copter::loiter_run()
     //float target_climb_rate = 0.0f;
 	surface_tracking_climb_rate = 0;
     float takeoff_climb_rate = 0.0f;
+	static uint32_t lcl_count = 0; 
 
     // initialize vertical speed and acceleration
     pos_control->set_speed_z(-g.pilot_velocity_z_max, g.pilot_velocity_z_max);
@@ -91,20 +92,46 @@ void Copter::loiter_run()
         // apply SIMPLE mode transform to pilot inputs
         update_simple_mode();
 
-        // process pilot's roll and pitch input
-        wp_nav->set_pilot_desired_acceleration(channel_roll->get_control_in(), channel_pitch->get_control_in());
+		if(channel_throttle->get_control_in() > 0)
+		{
+        	// process pilot's roll and pitch input
+        	wp_nav->set_pilot_desired_acceleration(channel_roll->get_control_in(), channel_pitch->get_control_in());
 
-        // get pilot's desired yaw rate
-        target_yaw_rate = get_pilot_desired_yaw_rate(channel_yaw->get_control_in());
+			//if(0 == (lcl_count ++) % 10)
+			//	printf("roll %d pitch %d throttle %d\n", channel_roll->get_control_in(), channel_pitch->get_control_in(), channel_throttle->get_control_in());
 
-        // get pilot desired climb rate
-        //	modifief by ZhangYong 20180205 for surface tracking
-        //target_climb_rate = get_pilot_desired_climb_rate(channel_throttle->get_control_in());
-        //target_climb_rate = constrain_float(target_climb_rate, -g.pilot_velocity_z_max, g.pilot_velocity_z_max);
+        	// get pilot's desired yaw rate
+        	target_yaw_rate = get_pilot_desired_yaw_rate(channel_yaw->get_control_in());
+
+        	// get pilot desired climb rate
+        	//	modifief by ZhangYong 20180205 for surface tracking
+        	//target_climb_rate = get_pilot_desired_climb_rate(channel_throttle->get_control_in());
+        	//target_climb_rate = constrain_float(target_climb_rate, -g.pilot_velocity_z_max, g.pilot_velocity_z_max);
+			//	modified end
+			surface_tracking_climb_rate = get_pilot_desired_climb_rate(channel_throttle->get_control_in());
+        	surface_tracking_climb_rate = constrain_float(surface_tracking_climb_rate, -g.pilot_velocity_z_max, g.pilot_velocity_z_max);
 		//	modified end
-		surface_tracking_climb_rate = get_pilot_desired_climb_rate(channel_throttle->get_control_in());
-        surface_tracking_climb_rate = constrain_float(surface_tracking_climb_rate, -g.pilot_velocity_z_max, g.pilot_velocity_z_max);
+		}
+		else
+		{
+			// process pilot's roll and pitch input
+        	wp_nav->set_pilot_desired_acceleration(0, 0);
+
+			//if(0 == (lcl_count ++) % 10)
+			//	printf("roll %d pitch %d throttle %d\n", channel_roll->get_control_in(), channel_pitch->get_control_in(), channel_throttle->get_control_in());
+
+        	// get pilot's desired yaw rate
+        	target_yaw_rate = get_pilot_desired_yaw_rate(channel_yaw->get_control_in());
+
+        	// get pilot desired climb rate
+        	//	modifief by ZhangYong 20180205 for surface tracking
+        	//target_climb_rate = get_pilot_desired_climb_rate(channel_throttle->get_control_in());
+        	//target_climb_rate = constrain_float(target_climb_rate, -g.pilot_velocity_z_max, g.pilot_velocity_z_max);
+			//	modified end
+			surface_tracking_climb_rate = get_pilot_desired_climb_rate(0);
+        	surface_tracking_climb_rate = constrain_float(surface_tracking_climb_rate, -g.pilot_velocity_z_max, g.pilot_velocity_z_max);
 		//	modified end
+		}
 		
 	}
 	else 

@@ -240,8 +240,8 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
                 if((now - _speed_over_min_time) > AC_SPRAYER_DEFAULT_TURN_ON_DELAY) 
 				{
 					//	AUTO = 3
-					//if((ctl_mode == 3) && (1 =  _vpvs_enable))
-					
+
+				
 					
 #if ABMODE == ENABLED
 					if((3 == ctl_mode) || (21 == ctl_mode))
@@ -314,7 +314,6 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 #else
 					if(3 == ctl_mode)					
 #endif
-
 					{	
 						if(0 != wp_dist)
 						{

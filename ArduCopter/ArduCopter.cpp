@@ -652,7 +652,7 @@ void Copter::one_hz_loop()
 	{	
 		
 		
-		if(auth_state_timeout_cnt >= 1)
+		if(auth_state_timeout_cnt >= 2)
 		{
 			auth_state_timeout_cnt = 0;
 			auth_result_ms = auth_result_failed;
