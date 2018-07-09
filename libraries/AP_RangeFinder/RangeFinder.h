@@ -97,7 +97,7 @@ public:
 		uint16_t               RangeFinder_no_target_count;   //count added by one if sensor does not find target
 		uint16_t               RangeFinder_unvalid_num;         //number of not good message
 		uint8_t                RangeFinder_message_condition;  //true if the sensor get the read message and return the distance
-		bool                   RangeFinder_working_condition;  //true if the rangefinder sensor is in good working condition whatever the sensor give the reliable data of distance back
+//		bool                   RangeFinder_working_condition;  //true if the arducopter is disarmed
         AP_Int8  type;
         AP_Int8  pin;
         AP_Int8  ratiometric;

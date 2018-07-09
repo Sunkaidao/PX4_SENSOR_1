@@ -52,7 +52,7 @@ private:
 	uint8_t check_number=0;
 	uint8_t target_num=0;
 //added by xusiming in 20180620 and used for nalei radar
-	bool	status_radar=false;
+	bool status_radar=false;
 //added end
 };
 
