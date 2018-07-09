@@ -1188,7 +1188,7 @@ bool Copter::do_abmode(const AP_Mission::Mission_Command& cmd)
         {
             // set wp_nav's destination
             Location_Class dest(cmd.content.location);
-            return guided_set_destination(dest);
+            return abmode_set_destination_xy(dest);
         }
 
         case MAV_CMD_CONDITION_YAW:

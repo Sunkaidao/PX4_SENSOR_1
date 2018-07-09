@@ -162,6 +162,19 @@ public:
     ///     returns false on failure (likely caused by missing terrain data)
     bool set_wp_origin_and_destination(const Vector3f& origin, const Vector3f& destination, bool terrain_alt = false);
 
+    /// set_wp_destination_xy waypoint using location class
+    ///     returns false if conversion from location to vector from ekf origin cannot be calculated
+    bool set_wp_destination_xy(const Location_Class& destination);
+
+    /// set_wp_destination_xy waypoint using position vector (distance from ekf origin in cm)
+    ///     terrain_alt should be true if destination.z is a desired altitude above terrain
+    bool set_wp_destination_xy(const Vector3f& destination, bool terrain_alt = false);
+
+    /// set_wp_origin_and_destination_xy - set origin and destination waypoints using position vectors (distance from ekf origin in cm)
+    ///     terrain_alt should be true if origin.z and destination.z are desired altitudes above terrain (false if these are alt-above-ekf-origin)
+    ///     returns false on failure (likely caused by missing terrain data)
+    bool set_wp_origin_and_destination_xy(const Vector3f& origin, const Vector3f& destination, bool terrain_alt = false);
+
     /// shift_wp_origin_to_current_pos - shifts the origin and destination so the origin starts at the current position
     ///     used to reset the position just before takeoff
     ///     relies on set_wp_destination or set_wp_origin_and_destination having been called first
@@ -186,6 +199,9 @@ public:
 
     /// update_wpnav - run the wp controller - should be called at 100hz or higher
     bool update_wpnav();
+
+    /// update_wpnav_xy - run the wp xy axis controller - should be called at 100hz or higher
+    bool update_wpnav_xy();
 
     // check_wp_leash_length - check recalc_wp_leash flag and calls calculate_wp_leash_length() if necessary
     //  should be called after _pos_control.update_xy_controller which may have changed the position controller leash lengths
@@ -261,6 +277,10 @@ public:
 
     /// advance_wp_target_along_track - move target location along track from origin to destination
     bool advance_wp_target_along_track(float dt);
+
+    
+    /// advance_wp_target_along_track - move target location along track from origin to destination
+    bool advance_wp_target_xy_along_track(float dt);
 
     static const struct AP_Param::GroupInfo var_info[];
 

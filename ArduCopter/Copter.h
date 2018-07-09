@@ -1025,6 +1025,9 @@ private:
 #if ABMODE == ENABLED
 	bool abmode_init(bool ignore_checks);
 	void abmode_run();
+	void abmode_pos_control_run();
+	bool abmode_set_destination_xy(const Vector3f& destination, bool use_yaw = false, float yaw_cd = 0.0, bool use_yaw_rate = false, float yaw_rate_cds = 0.0, bool yaw_relative = false);
+   	bool abmode_set_destination_xy(const Location_Class& dest_loc, bool use_yaw = false, float yaw_cd = 0.0, bool use_yaw_rate = false, float yaw_rate_cds = 0.0, bool yaw_relative = false);
 #endif
 	//added end
     bool auto_init(bool ignore_checks);
