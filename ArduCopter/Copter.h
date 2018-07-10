@@ -579,6 +579,9 @@ private:
     // bearing from current location to the yaw_look_at_WP
     float yaw_look_at_WP_bearing;
 
+	//	added by zhangyong 20180709 for change altitude
+	float change_alt_finish_alt;
+
     // yaw used for YAW_LOOK_AT_HEADING yaw_mode
     int32_t yaw_look_at_heading;
 
@@ -1019,6 +1022,7 @@ private:
     bool verify_loiter_time();
     bool verify_RTL();
     bool verify_wait_delay();
+	bool verify_change_alt();
     bool verify_within_distance();
     bool verify_yaw();
     MAV_RESULT mavlink_compassmot(mavlink_channel_t chan);
@@ -1062,6 +1066,7 @@ private:
     void auto_nav_guided_run();
     bool auto_loiter_start();
     void auto_loiter_run();
+	void set_change_alt_finish_altitude(float fp_rate, float fp_finish_altitude);
     uint8_t get_default_auto_yaw_mode(bool rtl);
     void set_auto_yaw_mode(uint8_t yaw_mode);
     void set_auto_yaw_look_at_heading(float angle_deg, float turn_rate_dps, int8_t direction, bool relative_angle);
@@ -1387,6 +1392,7 @@ private:
     void do_nav_delay(const AP_Mission::Mission_Command& cmd);
     void do_wait_delay(const AP_Mission::Mission_Command& cmd);
     void do_within_distance(const AP_Mission::Mission_Command& cmd);
+	void do_change_alt(const AP_Mission::Mission_Command& cmd);
     void do_yaw(const AP_Mission::Mission_Command& cmd);
     void do_change_speed(const AP_Mission::Mission_Command& cmd);
     void do_set_home(const AP_Mission::Mission_Command& cmd);

@@ -460,8 +460,7 @@ bool AP_ChargingStation::do_gotostation() {
 
       back_to_station_midair = true;
       MSG = back_to_station;
-      gcs().send_text(MAV_SEVERITY_ERROR,
-                                       "AUTO: the base station");
+      gcs().send_text(MAV_SEVERITY_ERROR, "AUTO: the base station");
       return true;
     } else {
       // failure to set destination can only be because of missing terrain data

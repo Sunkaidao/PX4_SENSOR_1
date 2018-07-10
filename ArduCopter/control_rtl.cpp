@@ -10,7 +10,8 @@
 // rtl_init - initialise rtl controller
 bool Copter::rtl_init(bool ignore_checks)
 {
-    if (position_ok() || ignore_checks) {
+    if (position_ok() || ignore_checks) 
+	{
         // initialise waypoint and spline controller
         wp_nav->wp_and_spline_init();
         rtl_build_path(!failsafe.terrain);
@@ -19,20 +20,26 @@ bool Copter::rtl_init(bool ignore_checks)
 		//	added by ZhangYong 20161027 
 //	to end the payload operation
 #if SPRAYER == ENABLED
-	if(1 == sprayer.get_enabled())
-	{
-		if(1 == sprayer.get_running())
-			sprayer.run(false);
+		if(1 == sprayer.get_enabled())
+		{
+			if(1 == sprayer.get_running())
+				sprayer.run(false);
 
-		if(1 == sprayer.get_testing())
-			sprayer.test_pump(false);
-	}
+			if(1 == sprayer.get_testing())
+				sprayer.test_pump(false);
+		}
 #endif
 //	added end
-
+/*
+#if CAMERA == ENABLED
+		camera.trigger_pic_cleanup();
+#endif
+*/
 		
         return true;
-    }else{
+    }
+	else
+	{
         return false;
     }
 }

@@ -177,7 +177,12 @@ void Copter::guided_angle_control_start()
 // guided_set_destination - sets guided mode's target destination
 // Returns true if the fence is enabled and guided waypoint is within the fence
 // else return false if the waypoint is outside the fence
-bool Copter::guided_set_destination(const Vector3f& destination, bool use_yaw, float yaw_cd, bool use_yaw_rate, float yaw_rate_cds, bool relative_yaw)
+bool Copter::guided_set_destination(const Vector3f& destination, \
+											bool use_yaw, \
+											float yaw_cd, \
+											bool use_yaw_rate, \
+											float yaw_rate_cds, \
+											bool relative_yaw)
 {
     // ensure we are in position control mode
     if (guided_mode != Guided_WP) {
@@ -208,7 +213,12 @@ bool Copter::guided_set_destination(const Vector3f& destination, bool use_yaw, f
 // sets guided mode's target from a Location object
 // returns false if destination could not be set (probably caused by missing terrain data)
 // or if the fence is enabled and guided waypoint is outside the fence
-bool Copter::guided_set_destination(const Location_Class& dest_loc, bool use_yaw, float yaw_cd, bool use_yaw_rate, float yaw_rate_cds, bool relative_yaw)
+bool Copter::guided_set_destination(const Location_Class& dest_loc, \
+											bool use_yaw, \
+											float yaw_cd, \
+											bool use_yaw_rate, \
+											float yaw_rate_cds, \
+											bool relative_yaw)
 {
     // ensure we are in position control mode
     if (guided_mode != Guided_WP) {
@@ -224,6 +234,8 @@ bool Copter::guided_set_destination(const Location_Class& dest_loc, bool use_yaw
         return false;
     }
 #endif
+
+	//	printf("guided_set_destination lat %d, lng %d, alt %d\n", dest_loc.lat, dest_loc.lng, dest_loc.alt);
 
     if (!wp_nav->set_wp_destination(dest_loc)) {
         // failure to set destination can only be because of missing terrain data

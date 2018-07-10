@@ -66,6 +66,12 @@ bool Copter::start_command(const AP_Mission::Mission_Command& cmd)
         do_wait_delay(cmd);
         break;
 
+	//	added by zhangyong 20180709
+	case MAV_CMD_CONDITION_CHANGE_ALT:		//	113
+		do_change_alt(cmd);
+		break;
+	//	added end	
+
     case MAV_CMD_CONDITION_DISTANCE:             // 114
         do_within_distance(cmd);
         break;
@@ -253,6 +259,10 @@ bool Copter::verify_command(const AP_Mission::Mission_Command& cmd)
     ///
     case MAV_CMD_CONDITION_DELAY:
         return verify_wait_delay();
+
+	case MAV_CMD_CONDITION_CHANGE_ALT:		//	113
+		return verify_change_alt();
+		
 
     case MAV_CMD_CONDITION_DISTANCE:
         return verify_within_distance();
@@ -1085,8 +1095,24 @@ void Copter::do_within_distance(const AP_Mission::Mission_Command& cmd)
     condition_value  = cmd.content.distance.meters * 100;
 }
 
+
+void Copter::do_change_alt(const AP_Mission::Mission_Command& cmd)
+{
+	set_change_alt_finish_altitude(\
+		cmd.content.change_alt.rate,\
+		cmd.content.change_alt.finish_altitude);
+/*	set_auto_yaw_look_at_heading(
+		cmd.content.yaw.angle_deg,
+		cmd.content.yaw.turn_rate_dps,
+		cmd.content.yaw.direction,
+		cmd.content.yaw.relative_angle > 0);
+*/}
+
+
+
 void Copter::do_yaw(const AP_Mission::Mission_Command& cmd)
 {
+
 	set_auto_yaw_look_at_heading(
 		cmd.content.yaw.angle_deg,
 		cmd.content.yaw.turn_rate_dps,
@@ -1107,6 +1133,20 @@ bool Copter::verify_wait_delay()
     }
     return false;
 }
+
+
+bool Copter::verify_change_alt()
+{
+	if(labs(change_alt_finish_alt - inertial_nav.get_altitude()) <= 50)
+	{
+		return true;
+	}
+		
+	// check if we are within 50 cm of the target heading
+    
+	return false;
+}
+
 
 bool Copter::verify_within_distance()
 {
@@ -1142,10 +1182,13 @@ bool Copter::verify_yaw()
 // do_guided - start guided mode
 bool Copter::do_guided(const AP_Mission::Mission_Command& cmd)
 {
+	Location_Class dest;
+		
     // only process guided waypoint if we are in guided mode
     if (control_mode != GUIDED && !(control_mode == AUTO && auto_mode == Auto_NavGuided)) {
         return false;
     }
+	
 
     // switch to handle different commands
     switch (cmd.id) {
@@ -1153,14 +1196,39 @@ bool Copter::do_guided(const AP_Mission::Mission_Command& cmd)
         case MAV_CMD_NAV_WAYPOINT:
         {
             // set wp_nav's destination
-            Location_Class dest(cmd.content.location);
+            dest = cmd.content.location;
             return guided_set_destination(dest);
         }
 
+		
+		case MAV_CMD_CONDITION_CHANGE_ALT:
+			
+			// set wp_nav's destination
+            //dest.lat = ;
+			if(gps.status() >= AP_GPS::GPS_OK_FIX_3D)
+			{
+				do_change_alt(cmd);
+				dest = gps.location();
+				dest.flags.relative_alt = 1;
+				dest.alt = cmd.content.change_alt.finish_altitude * 100;
+
+				
+			
+				return guided_set_destination(dest);
+			
+			}
+			else
+				return false;
+			
+		
+           
+
         case MAV_CMD_CONDITION_YAW:
+			//printf("do_guided MAV_CMD_CONDITION_YAW\n");
             do_yaw(cmd);
             return true;
 
+		
         default:
             // reject unrecognised command
             return false;

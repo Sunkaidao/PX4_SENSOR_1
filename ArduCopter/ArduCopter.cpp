@@ -798,7 +798,7 @@ void Copter::update_GPS(void)
         set_system_time_from_GPS();
 
 #if CAMERA == ENABLED
-        camera.update();
+        camera.update(control_mode);
 #endif
     }
 }
