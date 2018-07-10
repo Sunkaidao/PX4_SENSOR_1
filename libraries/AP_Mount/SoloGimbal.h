@@ -68,7 +68,7 @@ public:
 
     void set_lockedToBody(bool val) { _lockedToBody = val; }
 
-    void write_logs(DataFlash_Class* dataflash);
+//    void write_logs(DataFlash_Class* dataflash);
 
     float get_log_dt() { return _log_dt; }
 

@@ -124,9 +124,10 @@ void AP_Mount_SoloGimbal::handle_gimbal_report(mavlink_channel_t chan, mavlink_m
         _params_saved = true;
     }
 
-    if (_gimbal.get_log_dt() > 1.0f/25.0f) {
+/*    if (_gimbal.get_log_dt() > 1.0f/25.0f) {
         _gimbal.write_logs(_frontend._dataflash);
     }
+*/
 }
 
 void AP_Mount_SoloGimbal::handle_param_value(mavlink_message_t *msg)
