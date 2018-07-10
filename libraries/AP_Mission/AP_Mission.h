@@ -58,6 +58,13 @@ public:
         float meters;           // distance from next waypoint in meters
     };
 
+	//	added by zhangyong 20180709
+	struct PACKED Conditional_Change_Alt_Command {
+		float rate;				//	decent/ascent rate (m/s)
+		float finish_altitude;	//	finish altitude
+	};
+	//	added end
+
     // condition yaw command structure
     struct PACKED Yaw_Command {
         float angle_deg;        // target angle in degrees (0=north, 90=east)
@@ -190,6 +197,10 @@ public:
 
         // conditional distance
         Conditional_Distance_Command distance;
+
+		//	added by zhangyong 20180709
+		Conditional_Change_Alt_Command change_alt;
+		//	added end
 
         // conditional yaw
         Yaw_Command yaw;

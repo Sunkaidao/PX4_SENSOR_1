@@ -13,6 +13,8 @@
 #if CONFIG_HAL_BOARD == HAL_BOARD_PX4
 #include <drivers/drv_hrt.h>
 #endif
+#include <../././ArduCopter/defines.h>
+
 
 #define AP_CAMERA_TRIGGER_TYPE_SERVO                0
 #define AP_CAMERA_TRIGGER_TYPE_RELAY                1
@@ -60,7 +62,7 @@ public:
     void take_picture();
 
     // Update - to be called periodically @at least 10Hz
-    void update();
+    void update(control_mode_t mode);
 
     // update camera trigger - 50Hz
     void update_trigger();

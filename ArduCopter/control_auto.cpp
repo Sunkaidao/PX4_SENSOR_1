@@ -682,6 +682,30 @@ void Copter::set_auto_yaw_mode(uint8_t yaw_mode)
     }
 }
 
+
+// set_auto_yaw_look_at_heading - sets the yaw look at heading for auto mode
+void Copter::set_change_alt_finish_altitude(float fp_rate, float fp_finish_altitude)
+{
+   //printf("set_change_alt_finish_altitude rate %4.2f, altitude %4.2f\n", fp_rate, fp_finish_altitude);
+	if(fp_rate <= 0)
+		return;
+
+	if(fp_rate >= 3)
+		return;
+
+	if(fp_finish_altitude <= 0)
+		return;
+
+	if(fp_finish_altitude >= 300)
+		return;
+
+	change_alt_finish_alt = fp_finish_altitude * 100;
+
+	
+   // TO-DO: restore support for clockwise and counter clockwise rotation held in cmd.content.yaw.direction.  1 = clockwise, -1 = counterclockwise
+}
+
+
 // set_auto_yaw_look_at_heading - sets the yaw look at heading for auto mode
 void Copter::set_auto_yaw_look_at_heading(float angle_deg, float turn_rate_dps, int8_t direction, bool relative_angle)
 {

@@ -442,6 +442,7 @@ bool AC_WPNav::set_wp_destination(const Location_Class& destination)
         return false;
     }
 
+	//printf("set_wp_destination x %4.2f, y %4.2f, z %4.2f\n", dest_neu.x, dest_neu.y, dest_neu.z);
 	
     // set target as vector from EKF origin
     return set_wp_destination(dest_neu, terr_alt);
@@ -470,6 +471,10 @@ bool AC_WPNav::set_wp_destination(const Vector3f& destination, bool terrain_alt)
         }
         origin.z -= origin_terr_offset;
     }
+
+	//printf("set_wp_destination org, x %4.2f, y %4.2f, z %4.2f\n", origin.x, origin.y, origin.z);
+
+	//printf("set_wp_destination des, x %4.2f, y %4.2f, z %4.2f\n", destination.x, destination.y, destination.z);
 
     // set origin and destination
     return set_wp_origin_and_destination(origin, destination, terrain_alt);
@@ -1287,6 +1292,7 @@ bool AC_WPNav::get_vector_NEU(const Location_Class &loc, Vector3f &vec, bool &te
 	switch(loc.get_alt_frame())
 	{
 		case Location_Class::ALT_FRAME_ABOVE_TERRAIN:
+//			printf("ALT_FRAME_ABOVE_TERRAIN\n");
 			if (!loc.get_alt_cm(Location_Class::ALT_FRAME_ABOVE_TERRAIN, terr_alt)) {
             	return false;
         	}
@@ -1296,6 +1302,7 @@ bool AC_WPNav::get_vector_NEU(const Location_Class &loc, Vector3f &vec, bool &te
 			break;
 
 		case Location_Class::ALT_FRAME_ABOVE_ORIGIN:
+//			printf("ALT_FRAME_ABOVE_ORIGIN\n");
 			if (!loc.get_alt_cm(Location_Class::ALT_FRAME_ABOVE_ORIGIN, temp_alt)) {
             	return false;
         	}
@@ -1305,6 +1312,7 @@ bool AC_WPNav::get_vector_NEU(const Location_Class &loc, Vector3f &vec, bool &te
 			break;
 
 		case Location_Class::ALT_FRAME_ABOVE_HOME:
+//			printf("ALT_FRAME_ABOVE_HOME\n");
 			if (!loc.get_alt_cm(Location_Class::ALT_FRAME_ABOVE_HOME, temp_alt)) {
             	return false;
         	}
@@ -1314,6 +1322,7 @@ bool AC_WPNav::get_vector_NEU(const Location_Class &loc, Vector3f &vec, bool &te
 			break;
 
 		default:
+//			printf("default\n");
 			if (!loc.get_alt_cm(Location_Class::ALT_FRAME_ABOVE_ORIGIN, temp_alt)) {
             	return false;
         	}

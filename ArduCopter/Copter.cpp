@@ -57,6 +57,7 @@ Copter::Copter(void) :
     rc_throttle_control_in_filter(1.0f),
     auto_yaw_mode(AUTO_YAW_LOOK_AT_NEXT_WP),
     yaw_look_at_WP_bearing(0.0f),
+    change_alt_finish_alt(0.0f),
     yaw_look_at_heading(0),
     yaw_look_at_heading_slew(0),
     yaw_look_ahead_bearing(0.0f),

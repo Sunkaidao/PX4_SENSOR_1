@@ -277,11 +277,17 @@ void AP_Camera::send_feedback(mavlink_channel_t chan)
 
 /*  update; triggers by distance moved
 */
-void AP_Camera::update()
+void AP_Camera::update(control_mode_t mode)
 {
     if (gps.status() < AP_GPS::GPS_OK_FIX_3D) {
         return;
     }
+
+	//	added by zhangyong 20180710
+	//	disable picture trigger
+	if((RTL == mode) || (LAND == mode))
+		return;
+	//	added end
 
     if (is_zero(_trigg_dist)) {
         return;
