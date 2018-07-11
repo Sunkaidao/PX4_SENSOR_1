@@ -244,6 +244,9 @@
 #ifndef OPTFLOW
  # define OPTFLOW       DISABLED
 #endif
+
+
+
 #ifndef VISUAL_ODOMETRY_ENABLED
 # define VISUAL_ODOMETRY_ENABLED DISABLED
 #endif
@@ -805,8 +808,9 @@ union PACKED PassOSD_data_status {
 // PosHold parameter defaults
 //
 #ifndef POSHOLD_ENABLED
- # define POSHOLD_ENABLED               DISABLE // PosHold flight mode enabled by default
+ # define POSHOLD_ENABLED               DISABLED // PosHold flight mode enabled by default
 #endif
+
 #ifndef POSHOLD_BRAKE_RATE_DEFAULT
  # define POSHOLD_BRAKE_RATE_DEFAULT    8       // default POSHOLD_BRAKE_RATE param value.  Rotation rate during braking in deg/sec
 #endif
@@ -872,6 +876,12 @@ union PACKED PassOSD_data_status {
 //////////////////////////////////////////////////////////////////////////////
 // Throw mode configuration
 //
+#ifndef THROW_ENABLED
+ # define THROW_ENABLED               DISABLED // PosHold flight mode enabled by default
+#endif
+
+
+
 #ifndef THROW_HIGH_SPEED
 # define THROW_HIGH_SPEED       500.0f  // vehicle much reach this total 3D speed in cm/s (or be free falling)
 #endif
