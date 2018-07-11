@@ -179,6 +179,17 @@ void AC_PosControl::set_alt_target_from_climb_rate(float climb_rate_cms, float d
     // vel_desired set to desired climb rate for reporting and land-detector
     _flags.use_desvel_ff_z = false;
     _vel_desired.z = climb_rate_cms;
+/*
+	static int step = 0;
+	step++;
+	if(step>400)
+	{
+		step = 0;
+		//printf("throttle_lower %d,throttle_upper %d,_pos_target.z %4.4f\n",_motors.limit.throttle_lower,_motors.limit.throttle_upper,_pos_target.z);
+		//printf("_vel_desired.z %4.4f\n",_vel_desired.z);
+		DataFlash_Class::instance()->Log_Write("PCA", "TimeUS,THRL,THRH,POSU,PTZ,CR", "QBBBff", AP_HAL::micros64(), (uint8_t)_motors.limit.throttle_lower,(uint8_t)_motors.limit.throttle_upper,(uint8_t)_limit.pos_up,_pos_target.z,climb_rate_cms);
+	}
+*/
 }
 
 /// set_alt_target_from_climb_rate_ff - adjusts target up or down using a climb rate in cm/s using feed-forward
@@ -215,6 +226,16 @@ void AC_PosControl::set_alt_target_from_climb_rate_ff(float climb_rate_cms, floa
     if ((_vel_desired.z<0 && (!_motors.limit.throttle_lower || force_descend)) || (_vel_desired.z>0 && !_motors.limit.throttle_upper && !_limit.pos_up)) {
         _pos_target.z += _vel_desired.z * dt;
     }
+	/*
+	static int step = 0;
+	step++;
+	if(step>400)
+	{
+		step = 0;
+		printf("throttle_lower %d,throttle_upper %d,_pos_target.z %4.4f\n",_motors.limit.throttle_lower,_motors.limit.throttle_upper,_pos_target.z);
+		printf("_vel_desired.z %4.4f\n",_vel_desired.z);
+	}
+	*/
 }
 
 /// add_takeoff_climb_rate - adjusts alt target up or down using a climb rate in cm/s
@@ -553,6 +574,21 @@ void AC_PosControl::set_pos_target(const Vector3f& position)
     //_roll_target = constrain_int32(_ahrs.roll_sensor,-_attitude_control.lean_angle_max(),_attitude_control.lean_angle_max());
     //_pitch_target = constrain_int32(_ahrs.pitch_sensor,-_attitude_control.lean_angle_max(),_attitude_control.lean_angle_max());
 }
+
+/// set_pos_target in cm from home
+void AC_PosControl::set_pos_target_xy(const float x, const float y)
+{
+    _pos_target.x = x;
+    _pos_target.y = y;
+
+    _flags.use_desvel_ff_z = false;
+    _vel_desired.z = 0.0f;
+    // initialise roll and pitch to current roll and pitch.  This avoids a twitch between when the target is set and the pos controller is first run
+    // To-Do: this initialisation of roll and pitch targets needs to go somewhere between when pos-control is initialised and when it completes it's first cycle
+    //_roll_target = constrain_int32(_ahrs.roll_sensor,-_attitude_control.lean_angle_max(),_attitude_control.lean_angle_max());
+    //_pitch_target = constrain_int32(_ahrs.pitch_sensor,-_attitude_control.lean_angle_max(),_attitude_control.lean_angle_max());
+}
+
 
 /// set_xy_target in cm from home
 void AC_PosControl::set_xy_target(float x, float y)
