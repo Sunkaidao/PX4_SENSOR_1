@@ -854,6 +854,19 @@ bool AP_Arming_Copter::arm_checks(bool display_failure, bool arming_from_gcs)
         return false;
     }
 
+	//	added by zhangyong 20180713
+	//	if external compass not exist, can not be armed
+	if(0 == _compass.get_external(_compass.get_primary()))
+	{
+		if (display_failure) 
+		{
+        	gcs().send_text(MAV_SEVERITY_CRITICAL,"Arm: external Compasses need");
+        }
+		return false;
+	}
+
+	//	added end
+
     control_mode_t control_mode = copter.control_mode;
 
     // always check if the current mode allows arming

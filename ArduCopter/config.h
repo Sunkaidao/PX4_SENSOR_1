@@ -520,7 +520,7 @@
 
 //	modified end
 #ifndef CAMERA
- # define CAMERA        ENABLED
+ # define CAMERA        DISABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -532,7 +532,7 @@
 //#endif
 
 #ifndef MOUNT
- # define MOUNT         ENABLED
+ # define MOUNT         DISABLED
 #endif
 
 

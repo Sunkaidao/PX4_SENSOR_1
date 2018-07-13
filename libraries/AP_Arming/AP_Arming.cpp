@@ -331,6 +331,17 @@ bool AP_Arming::compass_checks(bool report)
             }
             return false;
         }
+
+		//printf("compass_checks %d\n", ));
+		if(0 == _compass.get_external(_compass.get_primary()))
+		{
+			if (report) {
+                gcs().send_text(MAV_SEVERITY_CRITICAL,"PreArm: external Compasses need");
+            }
+			return false;
+		}
+
+		
     }
 
     return true;

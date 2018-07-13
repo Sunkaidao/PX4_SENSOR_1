@@ -127,6 +127,12 @@ AP_Compass_Backend *AP_Compass_HMC5843::probe(Compass &compass,
         return nullptr;
     }
 
+	//	added by zhangyong to make sure exrternal compass is OK 20180713
+	if(force_external)
+		printf("%s compass found on bus 0x%x external\n", name, bus->get_bus_id());
+	else
+		printf("%s compass found on bus 0x%x internal %d \n", name, bus->get_bus_id());//	added end
+
     return sensor;
 }
 
@@ -155,7 +161,8 @@ bool AP_Compass_HMC5843::init()
     AP_HAL::Semaphore *bus_sem = _bus->get_semaphore();
 
     if (!bus_sem || !bus_sem->take(HAL_SEMAPHORE_BLOCK_FOREVER)) {
-        hal.console->printf("HMC5843: Unable to get bus semaphore\n");
+        //hal.console->printf("HMC5843: Unable to get bus semaphore\n");
+        printf("HMC5843: Unable to get bus semaphore\n");
         return false;
     }
 
@@ -163,17 +170,20 @@ bool AP_Compass_HMC5843::init()
     _bus->set_retries(10);
     
     if (!_bus->configure()) {
-        hal.console->printf("HMC5843: Could not configure the bus\n");
+        //hal.console->printf("HMC5843: Could not configure the bus\n");
+        printf("HMC5843: Could not configure the bus\n");
         goto errout;
     }
 
     if (!_check_whoami()) {
-        hal.console->printf("HMC5843: not a HMC device\n");
+        //hal.console->printf("HMC5843: not a HMC device\n");
+        printf("HMC5843: not a HMC device\n");
         goto errout;
     }
 
     if (!_calibrate()) {
-        hal.console->printf("HMC5843: Could not calibrate sensor\n");
+        //hal.console->printf("HMC5843: Could not calibrate sensor\n");
+        printf("HMC5843: Could not calibrate sensor\n");
         goto errout;
     }
 
@@ -182,7 +192,8 @@ bool AP_Compass_HMC5843::init()
     }
 
     if (!_bus->start_measurements()) {
-        hal.console->printf("HMC5843: Could not start measurements on bus\n");
+        //hal.console->printf("HMC5843: Could not start measurements on bus\n");
+        printf("HMC5843: Could not start measurements on bus\n");
         goto errout;
     }
 
@@ -211,7 +222,8 @@ bool AP_Compass_HMC5843::init()
     _bus->register_periodic_callback(13333,
                                      FUNCTOR_BIND_MEMBER(&AP_Compass_HMC5843::_timer, void));
 
-    hal.console->printf("HMC5843 found on bus 0x%x\n", _bus->get_bus_id());
+    //hal.console->printf("HMC5843 found on bus 0x%x\n", _bus->get_bus_id());
+	printf("HMC5843 found on bus 0x%x\n", _bus->get_bus_id());
     
     return true;
 

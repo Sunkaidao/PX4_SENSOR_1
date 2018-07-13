@@ -109,6 +109,7 @@ void DataFlash_Class::handle_log_request_list(GCS_MAVLINK &link, mavlink_message
 	
 
     _log_num_logs = get_num_logs();
+	
     if (_log_num_logs == 0) {
 		//	modified by ZhangYong 20171122
 		//_log_next_list_entry = 0;

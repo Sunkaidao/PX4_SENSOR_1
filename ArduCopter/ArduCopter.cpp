@@ -769,6 +769,10 @@ void Copter::one_hz_loop()
 
 	
 	//printf("streamRates[para] = %d\n", gcs().chan(1).get_streamRates(8));
+
+	//	added by zhangyong 20180713
+	//	printf("compass_checks %d\n", compass.get_external(compass.get_primary()));
+		//	added end
 }
 
 // called at 50hz
@@ -792,7 +796,6 @@ void Copter::update_GPS(void)
             gps_updated = true;
         }
     }
-
     if (gps_updated) {
         // set system time if necessary
         set_system_time_from_GPS();

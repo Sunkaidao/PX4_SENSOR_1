@@ -264,6 +264,10 @@ public:
     uint32_t last_update_ms(void) const { return _state[get_primary()].last_update_ms; }
     uint32_t last_update_ms(uint8_t i) const { return _state[i].last_update_ms; }
 
+	//	added by zhangyong 20180713
+	int8_t 	get_external(uint8_t i)	const {return _state[i].external; }
+	//	added end
+
     static const struct AP_Param::GroupInfo var_info[];
 
     // HIL variables

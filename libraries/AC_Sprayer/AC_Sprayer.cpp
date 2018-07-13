@@ -224,6 +224,8 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
         _speed_over_min_time = 0;
     }*/
     //	modified by ZhangYong
+    if(1 == _vpvs_enable)
+    {
 
 	if(false == should_be_spraying)
 	{
@@ -336,6 +338,17 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
         // reset the speed over timer
         _speed_over_min_time = 0;
     }
+    	}
+
+	else
+	{
+		if(_flags.running)
+		{
+			should_be_spraying = true;
+		}
+		else
+			should_be_spraying = false;
+	}
 
     // if testing pump output speed as if traveling at 1m/s
     if (_flags.testing) {
