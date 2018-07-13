@@ -1717,11 +1717,16 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 			{
 				copter.auth_state_ms = auth_state_up_whoami;
 				
+				copter.Log_Write_Event(DATA_AUTH_UP_WHOAMI);
+				
 			}
 			else if(auth_state_up_auth == copter.auth_state_ms)
 			{
 			
 				copter.auth_state_ms = auth_state_done;
+
+				copter.Log_Write_Event(DATA_AUTH_UP_AUTH);
+				
 /*        		lcl_counter++;
         		if(0 == (lcl_counter % 2))
         		{
