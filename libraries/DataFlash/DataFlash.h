@@ -369,6 +369,8 @@ private:
 	//	modified by ZhangYong 20170915
 	void Log_Write_EKF2(AP_AHRS_NavEKF &ahrs, bool optFlowEnabled);
 	void Log_Write_EKF3(AP_AHRS_NavEKF &ahrs, bool optFlowEnabled);
+	//	added by zhangyong to log EKF2_NKF4
+	void Log_Write_EKF2_NKF4(AP_AHRS_NavEKF &ahrs);
 	//	modified end
     
 #endif

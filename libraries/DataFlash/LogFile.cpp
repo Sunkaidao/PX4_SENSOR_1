@@ -788,11 +788,13 @@ void DataFlash_Class::Log_Write_EKF(AP_AHRS_NavEKF &ahrs, bool optFlowEnabled)
 {
     // only log EKF2 if enabled
     if (ahrs.get_NavEKF2().activeCores() > 0) {
-        Log_Write_EKF2(ahrs, optFlowEnabled);
+//        Log_Write_EKF2(ahrs, optFlowEnabled);
+		//	added by zhangyong to log NKF4 info for EKF2 status tracking
+		Log_Write_EKF2_NKF4(ahrs);
     }
     // only log EKF3 if enabled
     if (ahrs.get_NavEKF3().activeCores() > 0) {
-        Log_Write_EKF3(ahrs, optFlowEnabled);
+//        Log_Write_EKF3(ahrs, optFlowEnabled);
     }
 }
 
@@ -1156,6 +1158,55 @@ void DataFlash_Class::Log_Write_EKF2(AP_AHRS_NavEKF &ahrs, bool optFlowEnabled)
         }
     }
 }
+
+
+
+void DataFlash_Class::Log_Write_EKF2_NKF4(AP_AHRS_NavEKF &ahrs)
+{
+    uint64_t time_us = AP_HAL::micros64();
+    // Write first EKF packet
+    
+
+    // Write fourth EKF packet
+    float velVar = 0;
+    float posVar = 0;
+    float hgtVar = 0;
+    Vector3f magVar;
+    float tasVar = 0;
+    Vector2f offset;
+    uint16_t faultStatus=0;
+    uint8_t timeoutStatus=0;
+    nav_filter_status solutionStatus {};
+    nav_gps_status gpsStatus {};
+    ahrs.get_NavEKF2().getVariances(0,velVar, posVar, hgtVar, magVar, tasVar, offset);
+    float tempVar = fmaxf(fmaxf(magVar.x,magVar.y),magVar.z);
+    ahrs.get_NavEKF2().getFilterFaults(0,faultStatus);
+    ahrs.get_NavEKF2().getFilterTimeouts(0,timeoutStatus);
+    ahrs.get_NavEKF2().getFilterStatus(0,solutionStatus);
+    ahrs.get_NavEKF2().getFilterGpsStatus(0,gpsStatus);
+    float tiltError;
+    ahrs.get_NavEKF2().getTiltError(0,tiltError);
+    int8_t primaryIndex = ahrs.get_NavEKF2().getPrimaryCoreIndex();
+    struct log_NKF4 pkt4 = {
+        LOG_PACKET_HEADER_INIT(LOG_NKF4_MSG),
+        time_us : time_us,
+        sqrtvarV : (int16_t)(100*velVar),
+        sqrtvarP : (int16_t)(100*posVar),
+        sqrtvarH : (int16_t)(100*hgtVar),
+        sqrtvarM : (int16_t)(100*tempVar),
+        sqrtvarVT : (int16_t)(100*tasVar),
+        tiltErr : (float)tiltError,
+        offsetNorth : (int8_t)(offset.x),
+        offsetEast : (int8_t)(offset.y),
+        faults : (uint16_t)(faultStatus),
+        timeouts : (uint8_t)(timeoutStatus),
+        solution : (uint16_t)(solutionStatus.value),
+        gps : (uint16_t)(gpsStatus.value),
+        primary : (int8_t)primaryIndex
+    };
+    WriteBlock(&pkt4, sizeof(pkt4));
+}
+
 
 
 void DataFlash_Class::Log_Write_EKF3(AP_AHRS_NavEKF &ahrs, bool optFlowEnabled)

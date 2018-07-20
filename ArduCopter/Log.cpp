@@ -301,7 +301,7 @@ void Copter::Log_Write_EKF_POS()
  #else
  	//	modified by ZhangYong 20170915
  	//	modified end
-    //DataFlash.Log_Write_EKF(ahrs,false);
+    DataFlash.Log_Write_EKF(ahrs,false);
  #endif
     DataFlash.Log_Write_AHRS2(ahrs);
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
