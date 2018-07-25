@@ -524,6 +524,7 @@ bool AP_ABMode::abmode_start(void)
 	}
 	else
 	{
+		gcs().send_text(MAV_SEVERITY_CRITICAL,"ABMODE: Need record B");
 		return false;
 	}
 
