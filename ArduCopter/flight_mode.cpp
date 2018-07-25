@@ -351,7 +351,8 @@ void Copter::exit_mode(control_mode_t old_control_mode, control_mode_t new_contr
 		&& motors->armed() \
 		&&(new_control_mode == STABILIZE \
 		|| new_control_mode == ALT_HOLD \
-		|| new_control_mode == LOITER))
+		|| new_control_mode == LOITER \
+		|| new_control_mode == GUIDED))
 	{
 		rf_abmode.set_break_mode(2);
 		rf_abmode.set_relay_spray();

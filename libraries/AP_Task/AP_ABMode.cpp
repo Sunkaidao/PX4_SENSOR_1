@@ -414,7 +414,7 @@ bool AP_ABMode::abmode_start(void)
 		ab_mode.is_calc_wp = YES;
        //ab_mode.is_start = YES;
 	}
-	else
+	else if (!ab_mode.is_record_a && !ab_mode.is_record_b)
 	{
 		if(break_mode == 1)                     //Return from the current location to the breakpoint
 		{
@@ -521,6 +521,10 @@ bool AP_ABMode::abmode_start(void)
 		ab_mode.is_first_start = YES;
 		ab_mode.is_calc_wp = YES;
        ab_mode.is_start = YES;
+	}
+	else
+	{
+		return false;
 	}
 
 	return true;
