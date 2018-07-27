@@ -733,6 +733,10 @@ void AP_ABMode:: set_direction_from_rc_roll()
 	{
 		direction_rc = ISRIGHT;
 	}
+	else
+	{
+		return;
+	}
 
 	if(ab_mode.direction != direction_rc)
 	{
