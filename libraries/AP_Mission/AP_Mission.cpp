@@ -22,6 +22,14 @@ const AP_Param::GroupInfo AP_Mission::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("RESTART",  1, AP_Mission, _restart, AP_MISSION_RESTART_DEFAULT),
 
+    // @Param: B_INDEX
+    // @DisplayName: breakpoint index
+    // @Description: The position of the breakpoint in the generated new airline
+    // @Range: 0 32766
+    // @Increment: 1
+    // @User: Advanced
+    AP_GROUPINFO("B_INDEX",  2, AP_Mission, _breakpoint.index, 0),
+
     AP_GROUPEND
 };
 
@@ -46,6 +54,37 @@ void AP_Mission::init()
         AP_HAL::panic("AP_Mission Content must be 12 bytes");
     }
 
+    Mission_Command cmd;
+    if (_cmd_total >= 6)
+    {
+    	for(int i = 0; i < _cmd_total; i++)
+    	{
+    		read_cmd_from_storage(i,cmd);
+			if (cmd.id == MAV_CMD_DO_CHANGE_SPEED)
+			{
+				_cmd_speed = cmd;
+			}
+		
+			if (cmd.id == MAV_CMD_CONDITION_YAW)
+			{
+				_cmd_yaw = cmd;
+			}
+			
+			if (cmd.id == MAV_CMD_DO_SPRAYER)
+			{
+				_cmd_do_spray = cmd;
+			}
+    	}
+    	//read_cmd_from_storage(AP_MISSION_CMD_SPEED_POSITION,_cmd_speed);
+		//read_cmd_from_storage(AP_MISSION_CMD_YAW_POSITION,_cmd_yaw);
+		//read_cmd_from_storage(AP_MISSION_CMD_DO_SPRAY,_cmd_do_spray);
+    }
+
+    if (_breakpoint.index != 0 && _breakpoint.index < _cmd_total && _flags.breakpoint_valid)
+    {
+    	_nav_cmd.index = _breakpoint.index;
+    }
+	
     _last_change_time_ms = AP_HAL::millis();
 }
 
@@ -74,6 +113,20 @@ void AP_Mission::stop()
 ///     previous running commands will be re-initialized
 void AP_Mission::resume()
 {
+    //
+    Mission_Command cmd;
+    if (_breakpoint.index != 0 && _breakpoint.index < _cmd_total && _flags.breakpoint_valid)
+    {
+		if (read_cmd_from_storage(_breakpoint.index,cmd))
+		{
+			cmd.p1 = 0;
+			if (write_cmd_to_storage(_breakpoint.index,cmd))
+			{
+				clear_b_index();
+			}
+		}
+    }
+	 
     // if mission had completed then start it from the first command
     if (_flags.state == MISSION_COMPLETE) {
         start();
@@ -157,6 +210,11 @@ void AP_Mission::reset()
     _prev_nav_cmd_wp_index = AP_MISSION_CMD_INDEX_NONE;
     _prev_nav_cmd_id       = AP_MISSION_CMD_ID_NONE;
     init_jump_tracking();
+
+    if (_breakpoint.index != 0 && _breakpoint.index < _cmd_total && _flags.breakpoint_valid)
+    {
+    	_nav_cmd.index = _breakpoint.index;
+    }
 }
 
 /// clear - clears out mission
@@ -328,12 +386,28 @@ int32_t AP_Mission::get_next_ground_course_cd(int32_t default_angle)
 bool AP_Mission::set_current_cmd(uint16_t index)
 {
     Mission_Command cmd;
+    Mission_Command cmd_b;
 
     // sanity check index and that we have a mission
     if (index >= (unsigned)_cmd_total || _cmd_total == 1) {
         return false;
     }
-
+    
+    if (_breakpoint.index != 0)
+    {
+    	if (_breakpoint.index != index)
+    	{
+    		if (read_cmd_from_storage(_breakpoint.index,cmd_b))
+			{
+				cmd_b.p1 = 0;
+				if (write_cmd_to_storage(_breakpoint.index,cmd_b))
+				{
+					clear_b_index();
+				}
+			}
+    	}
+    }
+		
     // stop the current running do command
     _do_cmd.index = AP_MISSION_CMD_INDEX_NONE;
     _flags.do_cmd_loaded = false;
@@ -1718,3 +1792,156 @@ bool AP_Mission::jump_to_landing_sequence(void)
     gcs().send_text(MAV_SEVERITY_WARNING, "Unable to start landing sequence");
     return false;
 }
+
+bool AP_Mission::record_breakpoint()
+{
+    struct Location current_loc;
+    Mission_Command cmd;
+
+    if (!_ahrs.get_position(current_loc) || \
+		_nav_cmd.id == MAV_CMD_NAV_TAKEOFF || \
+		_nav_cmd.id == MAV_CMD_NAV_RETURN_TO_LAUNCH)
+    {
+        goto record_breakpoint_false;
+    }
+
+	_breakpoint.index = _nav_cmd.index==AP_MISSION_CMD_INDEX_NONE?0:_nav_cmd.index;
+	_breakpoint.lat = current_loc.lat;
+	_breakpoint.lng = current_loc.lng;
+	_flags.breakpoint_valid = true;
+
+	return true;
+
+record_breakpoint_false:
+	_breakpoint.lat = 0;
+	_breakpoint.lng = 0;
+	_breakpoint.index.set_and_save_ifchanged(0);
+	_flags.breakpoint_valid = false;
+	return false;
+}
+
+int8_t AP_Mission::regenerate_airline()
+{
+    Mission_Command cmd;
+    Mission_Command cmd_b;
+    int8_t num_insert = 1;
+    int8_t insert_mask = 1;
+
+    if (_cmd_speed.id == MAV_CMD_DO_CHANGE_SPEED)
+    {
+    	num_insert ++;
+		insert_mask = insert_mask | (int8_t)(1U<<1);
+    }
+
+    if (_cmd_yaw.id == MAV_CMD_CONDITION_YAW)
+    {
+    	num_insert ++;
+		insert_mask = insert_mask | (int8_t)(1U<<2);
+    }
+
+    if (_cmd_do_spray.id == MAV_CMD_DO_SPRAYER)
+    {
+    	num_insert ++;
+		insert_mask = insert_mask | (int8_t)(1U<<3);
+    }
+	
+    int16_t _cmd_total_temp = (_cmd_total + num_insert);
+	
+    if (_cmd_total == 0 || _flags.state == MISSION_RUNNING)
+    {
+    	return 0;
+    }
+	
+    if (!_flags.breakpoint_valid || _breakpoint.index == 0)
+    {
+    	return -1;
+    }
+
+    if (_breakpoint.index >= _cmd_total)
+    {
+    	return -2;
+    }
+
+    if (_flags.do_cmd_change_airline)
+    {
+    	_flags.do_cmd_change_airline = false;
+    }
+    else
+    {
+    	return -3;
+    }
+
+    if (_cmd_total_temp >= num_commands_max())
+    {
+    	return -4;
+    }
+	
+    for ( int16_t i = _cmd_total-1; i >= _breakpoint.index; i --)
+    {
+    	if(read_cmd_from_storage(i,cmd))
+		{
+			cmd.index = i+num_insert;
+			write_cmd_to_storage(i+num_insert,cmd);
+			//printf("index %d,id %d\n",cmd.index,cmd.id);
+		}
+		else
+		{
+			clear();
+			return -5;
+		}
+
+		if (cmd.id == MAV_CMD_NAV_WAYPOINT)
+		{
+			cmd_b = cmd;
+		}
+    }
+	
+    cmd_b.index = _breakpoint.index;
+    cmd_b.content.location.lat = _breakpoint.lat;
+    cmd_b.content.location.lng = _breakpoint.lng;
+
+    if (!write_cmd_to_storage(_breakpoint.index,cmd_b))
+    {
+    	//clear();
+		return -6;
+    }
+
+    int8_t offset = 1;
+    if (_cmd_speed.id == MAV_CMD_DO_CHANGE_SPEED)
+    {
+    	_cmd_speed.index = _breakpoint.index+offset;
+    	if (!write_cmd_to_storage(_breakpoint.index+offset,_cmd_speed))
+    	{
+    		//clear();
+			//return -7;
+    	}
+		offset ++;
+    }
+
+    if (_cmd_yaw.id == MAV_CMD_CONDITION_YAW)
+    {
+    	_cmd_yaw.index = _breakpoint.index+offset;
+    	if (!write_cmd_to_storage(_breakpoint.index+offset,_cmd_yaw) )
+    	{
+    		//clear();
+			//return -8;
+    	}		
+		offset ++;
+    }
+
+    if (_cmd_do_spray.id == MAV_CMD_DO_SPRAYER)
+    {
+    	_cmd_do_spray.index = _breakpoint.index+offset;
+    	if (!write_cmd_to_storage(_breakpoint.index+offset,_cmd_do_spray) )
+    	{
+    		//clear();
+			//return -9;
+    	}
+		offset ++;
+    }
+
+    _cmd_total.set_and_save_ifchanged(_cmd_total_temp);
+    return true;
+}
+
+

@@ -477,6 +477,8 @@ void GCS_MAVLINK::handle_mission_request(AP_Mission &mission, mavlink_message_t 
             goto mission_item_send_failed;
         }
 
+        //printf("cmd.index %d, id %d\n",cmd.index,cmd.id);
+
         mavlink_mission_item_int_t ret_packet;
         memset(&ret_packet, 0, sizeof(ret_packet));
         if (!AP_Mission::mission_cmd_to_mavlink_int(cmd, ret_packet)) {
@@ -615,6 +617,10 @@ void GCS_MAVLINK::handle_mission_count(AP_Mission &mission, mavlink_message_t *m
 	//	added by ZhangYong 20170706 for mission planner debug
 	//	printf("%d VS %d\n", packet.count, mission.num_commands_max());
 	//	added end
+	mission.set_do_cmd_change_airline(false);
+	mission.set_nav_cmd_manual_obstacle_avoidance(false);
+	mission.set_breakpoint_valid(false);
+	mission.clear_b_index();
 
     // new mission arriving, truncate mission to be the same length
     mission.truncate(packet.count);

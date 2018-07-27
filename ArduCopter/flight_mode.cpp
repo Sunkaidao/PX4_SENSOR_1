@@ -302,7 +302,21 @@ void Copter::exit_mode(control_mode_t old_control_mode, control_mode_t new_contr
 
     // stop mission when we leave auto mode
     if (old_control_mode == AUTO) {
+        if (mission.state() == AP_Mission::MISSION_COMPLETE) {
+            mission.set_do_cmd_change_airline(false);
+            mission.set_nav_cmd_breakpoint(false);
+            mission.clear_b_index();
+		 }
+		
         if (mission.state() == AP_Mission::MISSION_RUNNING) {
+            if (motors->armed())
+            {
+	            if (mission.record_breakpoint())
+	            {
+	                mission.set_do_cmd_change_airline(true);
+	                mission.set_nav_cmd_breakpoint(true);
+	            }
+            }
             mission.stop();
         }
 #if MOUNT == ENABLED

@@ -37,6 +37,11 @@
 
 #define AP_MISSION_RESTART_DEFAULT          0       // resume the mission from the last command run by default
 
+#define AP_MISSION_CMD_SPEED_POSITION       2
+#define AP_MISSION_CMD_YAW_POSITION         3
+#define AP_MISSION_CMD_DO_SPRAY             5
+
+
 /// @class    AP_Mission
 /// @brief    Object managing Mission
 class AP_Mission {
@@ -269,6 +274,15 @@ public:
         Content content;
     };
 
+    // breakpoint structure
+    struct Breakpoint {
+        AP_Int16 index;
+        int32_t lat;
+        int32_t lng;
+        Yaw_Command yaw;
+        Change_Speed_Command speed;
+    };
+
     // main program function pointers
     FUNCTOR_TYPEDEF(mission_cmd_fn_t, bool, const Mission_Command&);
     FUNCTOR_TYPEDEF(mission_complete_fn_t, void);
@@ -302,6 +316,15 @@ public:
         _flags.state = MISSION_STOPPED;
         _flags.nav_cmd_loaded = false;
         _flags.do_cmd_loaded = false;
+        _flags.do_cmd_change_airline = false;
+        _flags.nav_cmd_breakpoint = true;
+        _flags.nav_cmd_manual_obstacle_avoidance = false;
+        _flags.breakpoint_valid = true;
+
+        memset( & _cmd_yaw, 0, sizeof(_cmd_yaw));
+        memset( & _cmd_speed, 0, sizeof(_cmd_speed));
+        memset( & _cmd_do_spray, 0, sizeof(_cmd_do_spray));
+        memset( & _breakpoint, 0, sizeof(_breakpoint));
     }
 
     ///
@@ -449,6 +472,28 @@ public:
     // available.
     bool jump_to_landing_sequence(void);
 
+    bool get_do_cmd_change_airline() const { return _flags.do_cmd_change_airline; }
+
+    void set_do_cmd_change_airline(bool b) { _flags.do_cmd_change_airline = b; }
+
+    bool get_nav_cmd_breakpoint() const { return _flags.nav_cmd_breakpoint; }
+
+    void set_nav_cmd_breakpoint(bool b) { _flags.nav_cmd_breakpoint = b; }
+
+    bool get_nav_cmd_manual_obstacle_avoidance() const { return _flags.nav_cmd_manual_obstacle_avoidance; }
+
+    void set_nav_cmd_manual_obstacle_avoidance(bool b) { _flags.nav_cmd_manual_obstacle_avoidance = b; }
+
+    bool get_breakpoint_valid() const { return _flags.breakpoint_valid; }
+
+    void set_breakpoint_valid(bool b) { _flags.breakpoint_valid = b; }
+
+    bool record_breakpoint();
+
+    int8_t regenerate_airline();
+
+    void clear_b_index() { _breakpoint.index.set_and_save_ifchanged(0); }
+	
     // user settable parameters
     static const struct AP_Param::GroupInfo var_info[];
 
@@ -460,6 +505,10 @@ private:
         uint8_t nav_cmd_loaded  : 1; // true if a "navigation" command has been loaded into _nav_cmd
         uint8_t do_cmd_loaded   : 1; // true if a "do"/"conditional" command has been loaded into _do_cmd
         uint8_t do_cmd_all_done : 1; // true if all "do"/"conditional" commands have been completed (stops unnecessary searching through eeprom for do commands)
+        uint8_t do_cmd_change_airline  : 1; // true if it need to use breakpoints to regenerate airline
+        uint8_t nav_cmd_breakpoint     : 1; // true if it need continues to work after flying to the breakpoint
+        uint8_t nav_cmd_manual_obstacle_avoidance     : 1; // true if it is in manual obstacle avoidance mode
+        uint8_t breakpoint_valid       : 1; // true if the breakpoint is available
     } _flags;
 
     ///
@@ -524,6 +573,10 @@ private:
     // internal variables
     struct Mission_Command  _nav_cmd;   // current "navigation" command.  It's position in the command list is held in _nav_cmd.index
     struct Mission_Command  _do_cmd;    // current "do" command.  It's position in the command list is held in _do_cmd.index
+    struct Mission_Command  _cmd_yaw;   //Used to regenerate routes for breakpoints
+    struct Mission_Command  _cmd_speed; //Used to regenerate routes for breakpoints
+    struct Mission_Command  _cmd_do_spray; //Used to regenerate routes for breakpoints
+    struct Breakpoint		  _breakpoint;
     uint16_t                _prev_nav_cmd_id;       // id of the previous "navigation" command. (WAYPOINT, LOITER_TO_ALT, ect etc)
     uint16_t                _prev_nav_cmd_index;    // index of the previous "navigation" command.  Rarely used which is why we don't store the whole command
     uint16_t                _prev_nav_cmd_wp_index; // index of the previous "navigation" command that contains a waypoint.  Rarely used which is why we don't store the whole command
