@@ -1140,7 +1140,7 @@ bool Copter::verify_change_alt()
 	if(labs(change_alt_finish_alt - inertial_nav.get_altitude()) <= 50)
 	{
 		return true;
-	}
+	}
 		
 	// check if we are within 50 cm of the target heading
     
@@ -1258,7 +1258,7 @@ bool Copter::do_abmode(const AP_Mission::Mission_Command& cmd)
         {
             // set wp_nav's destination
             Location_Class dest(cmd.content.location);
-            return guided_set_destination(dest);
+            return abmode_set_destination_xy(dest);
         }
 
         case MAV_CMD_CONDITION_YAW:
