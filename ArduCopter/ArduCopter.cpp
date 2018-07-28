@@ -595,6 +595,8 @@ void Copter::three_hz_loop()
 // one_hz_loop - runs at 1Hz
 void Copter::one_hz_loop()
 {
+	static uint8_t lcl_uint8 = 0;
+
     if (should_log(MASK_LOG_ANY)) {
         Log_Write_Data(DATA_AP_STATE, ap.value);
     }
@@ -773,6 +775,25 @@ void Copter::one_hz_loop()
 	//	added by zhangyong 20180713
 	//	printf("compass_checks %d\n", compass.get_external(compass.get_primary()));
 		//	added end
+
+
+	//	added by zhangyong 20180728
+	
+	//	added end
+
+///	printf("%d\n", lcl_uint8);
+#if LOGGING_ENABLED == ENABLED
+
+	if((29 == (lcl_uint8++) % 30) && \
+		(!motors->armed()) && \
+		(DataFlash.get_num_logs() >= DataFlash.get_num_logs_max() - 10)\
+		)
+	{
+	//printf("A\n");
+		gcs().send_text(MAV_SEVERITY_WARNING,"Warning: log numbers exceed max");
+	}
+#endif
+
 }
 
 // called at 50hz

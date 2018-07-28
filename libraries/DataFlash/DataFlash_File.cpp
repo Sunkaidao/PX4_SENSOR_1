@@ -38,7 +38,11 @@
 #endif
 extern const AP_HAL::HAL& hal;
 
-#define MAX_LOG_FILES 500U
+//	modified by zhangyong for too mant logs will delay operations 20180728
+//	#define MAX_LOG_FILES 500U
+//	modified end
+#define MAX_LOG_FILES 100U
+
 #define DATAFLASH_PAGE_SIZE 1024UL
 
 /*
@@ -827,6 +831,13 @@ uint16_t DataFlash_File::get_num_logs()
     }
     return ret;
 }
+
+
+uint16_t DataFlash_File::get_num_logs_max()
+{
+    return MAX_LOG_FILES;
+}
+
 
 /*
   stop logging
