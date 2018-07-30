@@ -55,10 +55,11 @@ void AP_Mission::init()
     }
 
     //baiyang added in 20180726
+    //These three commands should be in the first 6 waypoints.
     Mission_Command cmd;
     if (_cmd_total >= 6)
     {
-    	for(int i = 0; i < _cmd_total; i++)
+    	for(int i = 0; i < 6; i++)
     	{
     		read_cmd_from_storage(i,cmd);
 			if (cmd.id == MAV_CMD_DO_CHANGE_SPEED)
@@ -1810,7 +1811,6 @@ bool AP_Mission::record_breakpoint()
     Mission_Command cmd;
 
     if (!_ahrs.get_position(current_loc) || \
-		_nav_cmd.id == MAV_CMD_NAV_TAKEOFF || \
 		_nav_cmd.id == MAV_CMD_NAV_RETURN_TO_LAUNCH)
     {
         goto record_breakpoint_false;
