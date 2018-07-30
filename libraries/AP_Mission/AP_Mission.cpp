@@ -1811,6 +1811,7 @@ bool AP_Mission::record_breakpoint()
     Mission_Command cmd;
 
     if (!_ahrs.get_position(current_loc) || \
+		_nav_cmd.id == MAV_CMD_NAV_TAKEOFF || \
 		_nav_cmd.id == MAV_CMD_NAV_RETURN_TO_LAUNCH)
     {
         goto record_breakpoint_false;
