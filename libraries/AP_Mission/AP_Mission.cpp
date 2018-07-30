@@ -82,7 +82,7 @@ void AP_Mission::init()
 
     if (_breakpoint.index != 0 && _breakpoint.index < _cmd_total && _flags.breakpoint_valid)
     {
-    	_nav_cmd.index = _breakpoint.index;
+    	_nav_cmd.index = _breakpoint.index-1;
     }
 	
     _last_change_time_ms = AP_HAL::millis();
