@@ -1808,7 +1808,7 @@ bool AP_Mission::record_breakpoint()
         goto record_breakpoint_false;
     }
 
-	_breakpoint.index = _nav_cmd.index==AP_MISSION_CMD_INDEX_NONE?0:_nav_cmd.index;
+	_breakpoint.index.set_and_save_ifchanged(_nav_cmd.index==AP_MISSION_CMD_INDEX_NONE?0:_nav_cmd.index);
 	_breakpoint.lat = current_loc.lat;
 	_breakpoint.lng = current_loc.lng;
 	_flags.breakpoint_valid = true;
