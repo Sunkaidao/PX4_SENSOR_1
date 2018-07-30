@@ -54,6 +54,7 @@ void AP_Mission::init()
         AP_HAL::panic("AP_Mission Content must be 12 bytes");
     }
 
+    //baiyang added in 20180726
     Mission_Command cmd;
     if (_cmd_total >= 6)
     {
@@ -75,15 +76,13 @@ void AP_Mission::init()
 				_cmd_do_spray = cmd;
 			}
     	}
-    	//read_cmd_from_storage(AP_MISSION_CMD_SPEED_POSITION,_cmd_speed);
-		//read_cmd_from_storage(AP_MISSION_CMD_YAW_POSITION,_cmd_yaw);
-		//read_cmd_from_storage(AP_MISSION_CMD_DO_SPRAY,_cmd_do_spray);
     }
 
     if (_breakpoint.index != 0 && _breakpoint.index < _cmd_total && _flags.breakpoint_valid)
     {
     	_nav_cmd.index = _breakpoint.index-1;
     }
+    //added end
 	
     _last_change_time_ms = AP_HAL::millis();
 }
@@ -197,10 +196,12 @@ void AP_Mission::reset()
     _prev_nav_cmd_id       = AP_MISSION_CMD_ID_NONE;
     init_jump_tracking();
 
+    //baiyang added in 20180726
     if (_breakpoint.index != 0 && _breakpoint.index < _cmd_total && _flags.breakpoint_valid)
     {
     	_nav_cmd.index = _breakpoint.index-1;
     }
+    //added end
 }
 
 /// clear - clears out mission
@@ -257,6 +258,8 @@ void AP_Mission::update()
             // market _nav_cmd as complete (it will be started on the next iteration)
             _flags.nav_cmd_loaded = false;
 
+            //baiyang added in 20180726
+            //After executing to the breakpoint, set the breakpoint to a fast waypoint and clear the breakpoint index
             Mission_Command cmd;
             if (_breakpoint.index != 0 && \
 				_breakpoint.index < _cmd_total && \
@@ -272,7 +275,8 @@ void AP_Mission::update()
 					}
 				}
 		     }
-			
+            //added end
+            
             // immediately advance to the next mission command
             if (!advance_current_nav_cmd()) {
                 // failure to advance nav command means mission has completed
@@ -395,7 +399,9 @@ bool AP_Mission::set_current_cmd(uint16_t index)
     if (index >= (unsigned)_cmd_total || _cmd_total == 1) {
         return false;
     }
-    
+
+    //baiyang added in 20180726
+    //If you are not selecting a breakpoint, set the breakpoint to a fast waypoint
     if (_breakpoint.index != 0)
     {
     	if (_breakpoint.index != index)
@@ -410,6 +416,7 @@ bool AP_Mission::set_current_cmd(uint16_t index)
 			}
     	}
     }
+    //added end
 		
     // stop the current running do command
     _do_cmd.index = AP_MISSION_CMD_INDEX_NONE;
@@ -1796,6 +1803,7 @@ bool AP_Mission::jump_to_landing_sequence(void)
     return false;
 }
 
+//baiyang added in 20180726
 bool AP_Mission::record_breakpoint()
 {
     struct Location current_loc;
@@ -1823,6 +1831,7 @@ record_breakpoint_false:
 	return false;
 }
 
+//baiyang added in 20180726
 int8_t AP_Mission::regenerate_airline()
 {
     Mission_Command cmd;
@@ -1898,51 +1907,7 @@ int8_t AP_Mission::regenerate_airline()
 			cmd_b = cmd;
 		}
     }
-/*	
-    cmd_b.index = _breakpoint.index;
-    cmd_b.content.location.lat = _breakpoint.lat;
-    cmd_b.content.location.lng = _breakpoint.lng;
 
-    if (!write_cmd_to_storage(_breakpoint.index,cmd_b))
-    {
-    	//clear();
-		return -6;
-    }
-
-    int8_t offset = 1;
-    if (_cmd_speed.id == MAV_CMD_DO_CHANGE_SPEED)
-    {
-    	_cmd_speed.index = _breakpoint.index+offset;
-    	if (!write_cmd_to_storage(_breakpoint.index+offset,_cmd_speed))
-    	{
-    		//clear();
-			//return -7;
-    	}
-		offset ++;
-    }
-
-    if (_cmd_yaw.id == MAV_CMD_CONDITION_YAW)
-    {
-    	_cmd_yaw.index = _breakpoint.index+offset;
-    	if (!write_cmd_to_storage(_breakpoint.index+offset,_cmd_yaw) )
-    	{
-    		//clear();
-			//return -8;
-    	}		
-		offset ++;
-    }
-
-    if (_cmd_do_spray.id == MAV_CMD_DO_SPRAYER)
-    {
-    	_cmd_do_spray.index = _breakpoint.index+offset;
-    	if (!write_cmd_to_storage(_breakpoint.index+offset,_cmd_do_spray) )
-    	{
-    		//clear();
-			//return -9;
-    	}
-		offset ++;
-    }
-*/
     int8_t offset = 0;
     if (_cmd_speed.id == MAV_CMD_DO_CHANGE_SPEED)
     {
