@@ -725,13 +725,17 @@ void AP_ABMode:: set_direction_from_rc_roll()
 	{
 		return;
 	}
-	else if(copter.channel_roll->get_control_in() < 0)
+	else if(copter.channel_roll->get_control_in() < -ROLL_PITCH_YAW_INPUT_MAX/4)
 	{
 		direction_rc = ISLIFT;
 	}
-	else if(copter.channel_roll->get_control_in() > 0)
+	else if(copter.channel_roll->get_control_in() > ROLL_PITCH_YAW_INPUT_MAX/4)
 	{
 		direction_rc = ISRIGHT;
+	}
+	else
+	{
+		return;
 	}
 
 	if(ab_mode.direction != direction_rc)
