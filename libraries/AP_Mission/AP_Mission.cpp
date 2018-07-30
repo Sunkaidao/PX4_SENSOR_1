@@ -112,21 +112,7 @@ void AP_Mission::stop()
 /// resume - continues the mission execution from where we last left off
 ///     previous running commands will be re-initialized
 void AP_Mission::resume()
-{
-    //
-    Mission_Command cmd;
-    if (_breakpoint.index != 0 && _breakpoint.index < _cmd_total && _flags.breakpoint_valid)
-    {
-		if (read_cmd_from_storage(_breakpoint.index,cmd))
-		{
-			cmd.p1 = 0;
-			if (write_cmd_to_storage(_breakpoint.index,cmd))
-			{
-				clear_b_index();
-			}
-		}
-    }
-	 
+{ 
     // if mission had completed then start it from the first command
     if (_flags.state == MISSION_COMPLETE) {
         start();
@@ -213,7 +199,7 @@ void AP_Mission::reset()
 
     if (_breakpoint.index != 0 && _breakpoint.index < _cmd_total && _flags.breakpoint_valid)
     {
-    	_nav_cmd.index = _breakpoint.index;
+    	_nav_cmd.index = _breakpoint.index-1;
     }
 }
 
@@ -270,6 +256,23 @@ void AP_Mission::update()
         if (_cmd_verify_fn(_nav_cmd)) {
             // market _nav_cmd as complete (it will be started on the next iteration)
             _flags.nav_cmd_loaded = false;
+
+            Mission_Command cmd;
+            if (_breakpoint.index != 0 && \
+				_breakpoint.index < _cmd_total && \
+				_flags.breakpoint_valid && \
+				_breakpoint.index == _nav_cmd.index)
+			 {
+				if (read_cmd_from_storage(_breakpoint.index,cmd))
+				{
+					cmd.p1 = 0;
+					if (write_cmd_to_storage(_breakpoint.index,cmd))
+					{
+						clear_b_index();
+					}
+				}
+		     }
+			
             // immediately advance to the next mission command
             if (!advance_current_nav_cmd()) {
                 // failure to advance nav command means mission has completed
@@ -1895,7 +1898,7 @@ int8_t AP_Mission::regenerate_airline()
 			cmd_b = cmd;
 		}
     }
-	
+/*	
     cmd_b.index = _breakpoint.index;
     cmd_b.content.location.lat = _breakpoint.lat;
     cmd_b.content.location.lng = _breakpoint.lng;
@@ -1939,7 +1942,61 @@ int8_t AP_Mission::regenerate_airline()
     	}
 		offset ++;
     }
+*/
+    int8_t offset = 0;
+    if (_cmd_speed.id == MAV_CMD_DO_CHANGE_SPEED)
+    {
+    	_cmd_speed.index = _breakpoint.index+offset;
+    	if (write_cmd_to_storage(_breakpoint.index+offset,_cmd_speed))
+    	{
+			offset ++;
+    	}
+		else
+		{
+			clear();
+		}
+    }
 
+    if (_cmd_yaw.id == MAV_CMD_CONDITION_YAW)
+    {
+    	_cmd_yaw.index = _breakpoint.index+offset;
+    	if (write_cmd_to_storage(_breakpoint.index+offset,_cmd_yaw) )
+    	{
+			offset ++;
+    	}
+		else
+		{
+			clear();
+		}
+    }
+
+    cmd_b.index = _breakpoint.index+offset;
+    cmd_b.content.location.lat = _breakpoint.lat;
+    cmd_b.content.location.lng = _breakpoint.lng;
+
+    if (write_cmd_to_storage(_breakpoint.index+offset,cmd_b))
+    {
+		offset ++;
+    }
+    else
+    {
+		clear();
+		return -6;
+    }
+	
+    if (_cmd_do_spray.id == MAV_CMD_DO_SPRAYER)
+    {
+    	_cmd_do_spray.index = _breakpoint.index+offset;
+    	if (write_cmd_to_storage(_breakpoint.index+offset,_cmd_do_spray) )
+    	{
+			offset ++;
+    	}
+		else
+		{
+			clear();
+		}
+    }
+	
     _cmd_total.set_and_save_ifchanged(_cmd_total_temp);
     return true;
 }
