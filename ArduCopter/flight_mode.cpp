@@ -305,7 +305,7 @@ void Copter::exit_mode(control_mode_t old_control_mode, control_mode_t new_contr
         if (mission.state() == AP_Mission::MISSION_COMPLETE) {
             mission.set_do_cmd_change_airline(false);
             mission.set_nav_cmd_breakpoint(false);
-            mission.clear_b_index();
+            mission.clear_b_index_and_new_airline();
 		 }
 		
         if (mission.state() == AP_Mission::MISSION_RUNNING) {

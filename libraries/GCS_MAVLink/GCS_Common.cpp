@@ -620,7 +620,7 @@ void GCS_MAVLINK::handle_mission_count(AP_Mission &mission, mavlink_message_t *m
 	mission.set_do_cmd_change_airline(false);
 	mission.set_nav_cmd_manual_obstacle_avoidance(false);
 	mission.set_breakpoint_valid(false);
-	mission.clear_b_index();
+	mission.clear_b_index_and_new_airline();
 
     // new mission arriving, truncate mission to be the same length
     mission.truncate(packet.count);

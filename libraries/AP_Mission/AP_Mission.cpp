@@ -30,6 +30,13 @@ const AP_Param::GroupInfo AP_Mission::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("B_INDEX",  2, AP_Mission, _breakpoint.index, 0),
 
+    // @Param: B_INDEX
+    // @DisplayName: breakpoint index
+    // @Description: The position of the breakpoint in the generated new airline
+    // @Range: 0 1
+    // @User: Advanced
+    AP_GROUPINFO("B_NA",  3, AP_Mission, _breakpoint.new_airline, 0),
+
     AP_GROUPEND
 };
 
@@ -217,6 +224,9 @@ bool AP_Mission::clear()
     // remove all commands
     _cmd_total.set_and_save(0);
 
+    //remove breakpoint index
+    clear_b_index_and_new_airline();
+
     // clear index to commands
     _nav_cmd.index = AP_MISSION_CMD_INDEX_NONE;
     _do_cmd.index = AP_MISSION_CMD_INDEX_NONE;
@@ -253,6 +263,19 @@ void AP_Mission::update()
             complete();
             return;
         }
+
+        //baiyang added in 20180801
+        //Switch out the AUTO, record the breakpoint, cut into AUTO again, clear the breakpoint record
+        //_flags.do_cmd_change_airline == true,switch out the AUTO, record the breakpoint, no new route generated,and cut into the AUTO again.
+        Mission_Command cmd;
+        if (_breakpoint.index != 0 && \
+			_breakpoint.index < _cmd_total && \
+			_flags.breakpoint_valid && \
+			_flags.do_cmd_change_airline)
+		 {
+		 	clear_b_index_and_new_airline();
+		 }
+        //added end
     }else{
         // run the active nav command
         if (_cmd_verify_fn(_nav_cmd)) {
@@ -265,14 +288,15 @@ void AP_Mission::update()
             if (_breakpoint.index != 0 && \
 				_breakpoint.index < _cmd_total && \
 				_flags.breakpoint_valid && \
-				_breakpoint.index == _nav_cmd.index)
+				!_flags.do_cmd_change_airline && \
+				(_breakpoint.new_airline == 1))
 			 {
 				if (read_cmd_from_storage(_breakpoint.index,cmd))
 				{
 					cmd.p1 = 0;
 					if (write_cmd_to_storage(_breakpoint.index,cmd))
 					{
-						clear_b_index();
+						clear_b_index_and_new_airline();
 					}
 				}
 		     }
@@ -412,7 +436,7 @@ bool AP_Mission::set_current_cmd(uint16_t index)
 				cmd_b.p1 = 0;
 				if (write_cmd_to_storage(_breakpoint.index,cmd_b))
 				{
-					clear_b_index();
+					clear_b_index_and_new_airline();
 				}
 			}
     	}
@@ -1964,6 +1988,7 @@ int8_t AP_Mission::regenerate_airline()
     }
 	
     _cmd_total.set_and_save_ifchanged(_cmd_total_temp);
+	_breakpoint.new_airline.set_and_save_ifchanged(1);
     return true;
 }
 

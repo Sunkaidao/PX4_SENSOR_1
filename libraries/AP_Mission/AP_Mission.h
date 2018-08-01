@@ -277,6 +277,7 @@ public:
     // breakpoint structure
     struct Breakpoint {
         AP_Int16 index;
+        AP_Int8 new_airline;
         int32_t lat;
         int32_t lng;
         Yaw_Command yaw;
@@ -324,7 +325,6 @@ public:
         memset( & _cmd_yaw, 0, sizeof(_cmd_yaw));
         memset( & _cmd_speed, 0, sizeof(_cmd_speed));
         memset( & _cmd_do_spray, 0, sizeof(_cmd_do_spray));
-        memset( & _breakpoint, 0, sizeof(_breakpoint));
     }
 
     ///
@@ -492,7 +492,7 @@ public:
 
     int8_t regenerate_airline();
 
-    void clear_b_index() { _breakpoint.index.set_and_save_ifchanged(0); }
+    void clear_b_index_and_new_airline() { _breakpoint.index.set_and_save_ifchanged(0);_breakpoint.new_airline.set_and_save_ifchanged(0);}
 	
     // user settable parameters
     static const struct AP_Param::GroupInfo var_info[];
