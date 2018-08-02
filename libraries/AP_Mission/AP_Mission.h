@@ -278,6 +278,7 @@ public:
     struct Breakpoint {
         AP_Int16 index;
         AP_Int8 new_airline;
+        AP_Int8 offset;
         int32_t lat;
         int32_t lng;
         Yaw_Command yaw;

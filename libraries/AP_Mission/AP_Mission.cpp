@@ -30,12 +30,20 @@ const AP_Param::GroupInfo AP_Mission::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("B_INDEX",  2, AP_Mission, _breakpoint.index, 0),
 
-    // @Param: B_INDEX
-    // @DisplayName: breakpoint index
-    // @Description: The position of the breakpoint in the generated new airline
+    // @Param: B_NA
+    // @DisplayName: do new airline
+    // @Description: Regenerate the route sign
     // @Range: 0 1
     // @User: Advanced
     AP_GROUPINFO("B_NA",  3, AP_Mission, _breakpoint.new_airline, 0),
+
+    // @Param: B_OFFSET
+    // @DisplayName: breakpoint index offset
+    // @Description: The relative position of the breakpoint in the inserted waypoint
+    // @Range: 0 127
+    // @Increment: 1
+    // @User: Advanced
+    AP_GROUPINFO("B_OFFSET",  4, AP_Mission, _breakpoint.offset, 0),
 
     AP_GROUPEND
 };
@@ -285,16 +293,18 @@ void AP_Mission::update()
             //baiyang added in 20180726
             //After executing to the breakpoint, set the breakpoint to a fast waypoint and clear the breakpoint index
             Mission_Command cmd;
+            uint16_t b_index;
             if (_breakpoint.index != 0 && \
 				_breakpoint.index < _cmd_total && \
 				_flags.breakpoint_valid && \
 				!_flags.do_cmd_change_airline && \
 				(_breakpoint.new_airline == 1))
 			 {
-				if (read_cmd_from_storage(_breakpoint.index,cmd))
+			 	b_index = _breakpoint.index+_breakpoint.offset.get();
+				if (read_cmd_from_storage(b_index,cmd))
 				{
 					cmd.p1 = 0;
-					if (write_cmd_to_storage(_breakpoint.index,cmd))
+					if (write_cmd_to_storage(b_index,cmd))
 					{
 						clear_b_index_and_new_airline();
 					}
@@ -419,6 +429,7 @@ bool AP_Mission::set_current_cmd(uint16_t index)
 {
     Mission_Command cmd;
     Mission_Command cmd_b;
+    uint16_t b_index;
 
     // sanity check index and that we have a mission
     if (index >= (unsigned)_cmd_total || _cmd_total == 1) {
@@ -431,10 +442,11 @@ bool AP_Mission::set_current_cmd(uint16_t index)
     {
     	if (_breakpoint.index != index)
     	{
-    		if (read_cmd_from_storage(_breakpoint.index,cmd_b))
+    		b_index = _breakpoint.index+_breakpoint.offset.get();
+    		if (read_cmd_from_storage(b_index,cmd_b))
 			{
 				cmd_b.p1 = 0;
-				if (write_cmd_to_storage(_breakpoint.index,cmd_b))
+				if (write_cmd_to_storage(b_index,cmd))
 				{
 					clear_b_index_and_new_airline();
 				}
@@ -1936,8 +1948,8 @@ int8_t AP_Mission::regenerate_airline()
     int8_t offset = 0;
     if (_cmd_speed.id == MAV_CMD_DO_CHANGE_SPEED)
     {
-    	_cmd_speed.index = _breakpoint.index+offset;
-    	if (write_cmd_to_storage(_breakpoint.index+offset,_cmd_speed))
+    	_cmd_speed.index = _breakpoint.index + offset;
+    	if (write_cmd_to_storage(_breakpoint.index + offset,_cmd_speed))
     	{
 			offset ++;
     	}
@@ -1949,8 +1961,8 @@ int8_t AP_Mission::regenerate_airline()
 
     if (_cmd_yaw.id == MAV_CMD_CONDITION_YAW)
     {
-    	_cmd_yaw.index = _breakpoint.index+offset;
-    	if (write_cmd_to_storage(_breakpoint.index+offset,_cmd_yaw) )
+    	_cmd_yaw.index = _breakpoint.index + offset;
+    	if (write_cmd_to_storage(_breakpoint.index + offset,_cmd_yaw) )
     	{
 			offset ++;
     	}
@@ -1960,11 +1972,12 @@ int8_t AP_Mission::regenerate_airline()
 		}
     }
 
-    cmd_b.index = _breakpoint.index+offset;
+    cmd_b.index = _breakpoint.index + offset;
     cmd_b.content.location.lat = _breakpoint.lat;
     cmd_b.content.location.lng = _breakpoint.lng;
+    _breakpoint.offset.set_and_save_ifchanged(offset);
 
-    if (write_cmd_to_storage(_breakpoint.index+offset,cmd_b))
+    if (write_cmd_to_storage(_breakpoint.index + offset,cmd_b))
     {
 		offset ++;
     }
@@ -1976,8 +1989,8 @@ int8_t AP_Mission::regenerate_airline()
 	
     if (_cmd_do_spray.id == MAV_CMD_DO_SPRAYER)
     {
-    	_cmd_do_spray.index = _breakpoint.index+offset;
-    	if (write_cmd_to_storage(_breakpoint.index+offset,_cmd_do_spray) )
+    	_cmd_do_spray.index = _breakpoint.index + offset;
+    	if (write_cmd_to_storage(_breakpoint.index + offset,_cmd_do_spray) )
     	{
 			offset ++;
     	}
@@ -1988,7 +2001,7 @@ int8_t AP_Mission::regenerate_airline()
     }
 	
     _cmd_total.set_and_save_ifchanged(_cmd_total_temp);
-	_breakpoint.new_airline.set_and_save_ifchanged(1);
+    _breakpoint.new_airline.set_and_save_ifchanged(1);
     return true;
 }
 
