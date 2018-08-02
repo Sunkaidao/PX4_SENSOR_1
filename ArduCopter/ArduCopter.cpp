@@ -784,12 +784,14 @@ void Copter::one_hz_loop()
 ///	printf("%d\n", lcl_uint8);
 #if LOGGING_ENABLED == ENABLED
 
+//	printf("%d %d %d %d\n", lcl_uint8, motors->armed(), DataFlash.get_num_logs(), DataFlash.get_num_logs_max());
+
 	if((29 == (lcl_uint8++) % 30) && \
 		(!motors->armed()) && \
 		(DataFlash.get_num_logs() >= DataFlash.get_num_logs_max() - 10)\
 		)
 	{
-	//printf("A\n");
+//	 	printf("A\n");
 		gcs().send_text(MAV_SEVERITY_WARNING,"Warning: log numbers exceed max");
 	}
 #endif
