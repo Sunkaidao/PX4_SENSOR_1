@@ -888,6 +888,7 @@ bool GCS_MAVLINK::handle_mission_item(mavlink_message_t *msg, AP_Mission &missio
 			if (HAVE_PAYLOAD_SPACE(chan, MISSION_ITEM_INT)) 
 			{	
         		queued_waypoint_int_send();
+				queued_waypoint_send();
 			}
 			else 
 			{
@@ -2348,6 +2349,7 @@ bool GCS_MAVLINK::try_send_mission_message(const enum ap_message id)
 		{
 			CHECK_PAYLOAD_SIZE(MISSION_REQUEST_INT);
 			queued_waypoint_int_send();
+			queued_waypoint_send();
         }
 		else
 		{
