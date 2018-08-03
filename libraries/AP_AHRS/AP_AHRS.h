@@ -97,6 +97,7 @@ public:
         _last_trim = _trim.get();
         _rotation_autopilot_body_to_vehicle_body.from_euler(_last_trim.x, _last_trim.y, 0.0f);
         _rotation_vehicle_body_to_autopilot_body = _rotation_autopilot_body_to_vehicle_body.transposed();
+
     }
 
     // empty virtual destructor
@@ -559,6 +560,10 @@ public:
     // return calculated SSA
     float getSSA(void);
 
+	//	added by zhangyong for system tiem set to avoid gps glitch 20180802
+	uint8_t get_gps_minsats() {return _gps_minsats;}
+	//	added end
+
     virtual void update_AOA_SSA(void);
 
 protected:
@@ -622,6 +627,7 @@ protected:
     AP_InertialSensor   &_ins;
     AP_Baro             &_baro;
     const AP_GPS        &_gps;
+
 
     // a vector to capture the difference between the controller and body frames
     AP_Vector3f         _trim;
