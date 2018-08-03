@@ -336,6 +336,11 @@ void Copter::userhook_SuperSlowLoop()
 	 }//	added end
 #endif
 
+	if (!motors->armed())
+	{
+		//printf("reason err: %d\n",mission.regenerate_airline());
+		mission.regenerate_airline();
+	}
 }
 #endif
 
