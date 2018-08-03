@@ -637,13 +637,25 @@ void Copter::one_hz_loop()
 
 		//		added by ZhangYong 20161110
 #if FXTX_AUTH == ENABLED
-	if(gps.status() >=	AP_GPS::GPS_OK_FIX_3D)
+	//	modidied by zhangyong to make sure gps fix is durable
+	if((false == curr_gps_week_ms.time_week_settled) &&\
+		(gps.status() >=	AP_GPS::GPS_OK_FIX_3D) && \
+		(gps.get_hdop() <= g.gps_hdop_good) && \
+		(gps.num_sats() >= ahrs.get_gps_minsats()))
+	//	modified end			
 	{
 		//	added for debug 20161110
 		
 		//	added end
+		curr_gps_week_ms.time_week_settled = true;
 		curr_gps_week_ms.time_week = gps.time_week();
 		curr_gps_week_ms.time_week_ms = gps.time_week_ms();
+
+		//	added by zhangyong for debug
+//		printf("week %d\n", gps.time_week());
+//		printf("week_ms %d\n", gps.time_week_ms());
+
+	
 	}	
 
 //	printf("1. auth_state_ms = %d\n", auth_state_ms);

@@ -573,6 +573,7 @@ union auth_id_para {
 //	added by ZhangYong globle variable
 struct current_gps_week_ms
 {
+	bool 	time_week_settled;
 	uint32_t time_week_ms;              ///< GPS time (milliseconds from start of GPS week)
 	uint16_t time_week;                 ///< GPS week number
 };
