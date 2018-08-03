@@ -174,13 +174,17 @@ bool NavEKF3_core::calcGpsGoodToAlign(void)
     //	modified by ZhangYong to narrow the start of GPS ading
     //	bool hdopFail = (_ahrs->get_gps().get_hdop() > 250)  && (frontend->_gpsCheck & MASK_GPS_HDOP);
     //	modified end
-    bool hdopFail = (_ahrs->get_gps().get_hdop() > 200)  && (frontend->_gpsCheck & MASK_GPS_HDOP);
+    bool hdopFail = (_ahrs->get_gps().get_hdop() > 100)  && (frontend->_gpsCheck & MASK_GPS_HDOP);
 
     // Report check result as a text string and bitmask
     if (hdopFail) {
-        hal.util->snprintf(prearm_fail_string, sizeof(prearm_fail_string),
-                           "GPS HDOP %.1f (needs 2.5)", (double)(0.01f * _ahrs->get_gps().get_hdop()));
-        gpsCheckStatus.bad_hdop = true;
+		//	modified by zhangyong 20180803	
+        //hal.util->snprintf(prearm_fail_string, sizeof(prearm_fail_string),
+        //                   "GPS HDOP %.1f (needs 2.5)", (double)(0.01f * _ahrs->get_gps().get_hdop()));
+		//	modified end
+		hal.util->snprintf(prearm_fail_string, sizeof(prearm_fail_string),
+                           "GPS HDOP %.1f (needs 1.0)", (double)(0.01f * _ahrs->get_gps().get_hdop()));
+		gpsCheckStatus.bad_hdop = true;
     } else {
         gpsCheckStatus.bad_hdop = false;
     }
@@ -193,9 +197,12 @@ bool NavEKF3_core::calcGpsGoodToAlign(void)
 
     // Report check result as a text string and bitmask
     if (numSatsFail) {
-        hal.util->snprintf(prearm_fail_string, sizeof(prearm_fail_string),
-                           "GPS numsats %u (needs 6)", _ahrs->get_gps().num_sats());
-        gpsCheckStatus.bad_sats = true;
+		//	modified by zhangyong to narrow the start of GPS ading
+        //hal.util->snprintf(prearm_fail_string, sizeof(prearm_fail_string),
+        //                   "GPS numsats %u (needs 6)", _ahrs->get_gps().num_sats());
+		hal.util->snprintf(prearm_fail_string, sizeof(prearm_fail_string),
+                           "GPS numsats %u (needs 10)", _ahrs->get_gps().num_sats());
+		gpsCheckStatus.bad_sats = true;
     } else {
         gpsCheckStatus.bad_sats = false;
     }

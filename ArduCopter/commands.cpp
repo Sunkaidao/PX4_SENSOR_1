@@ -15,6 +15,15 @@ void Copter::update_home_from_EKF()
         return;
     }
 
+	//	added by zhangyong to narrow gps aiding
+	if((gps.status() < AP_GPS::GPS_OK_FIX_3D) || \
+		(gps.get_hdop() >= g.gps_hdop_good) || \
+		(gps.num_sats() <= ahrs.get_gps_minsats()))
+	{
+		return;
+	}
+	//	added end
+
     // special logic if home is set in-flight
     if (motors->armed()) {
         set_home_to_current_location_inflight();
@@ -127,14 +136,34 @@ bool Copter::far_from_EKF_origin(const Location& loc)
 // checks if we should update ahrs/RTL home position from GPS
 void Copter::set_system_time_from_GPS()
 {
+	static uint32_t lcl_cnt = 0;
+
     // exit immediately if system time already set
     if (ap.system_time_set) {
         return;
     }
 
     // if we have a 3d lock and valid location
-    if (gps.status() >= AP_GPS::GPS_OK_FIX_3D) {
-        // set system clock for log timestamps
+	//	modified by zhangyong for gps glitch 20180802
+	//if (gps.status() >= AP_GPS::GPS_OK_FIX_3D) {
+	//	modified end
+	if ((gps.status() >= AP_GPS::GPS_OK_FIX_3D)&& \
+		(gps.num_sats() >= ahrs.get_gps_minsats())&& \
+		(gps.get_hdop() <= g.gps_hdop_good)) 
+	{
+		lcl_cnt ++;
+        
+    }
+	else
+	{
+		lcl_cnt = 0;
+	}
+
+	if(lcl_cnt >= 10)
+	{
+		lcl_cnt = 0;
+		
+		// set system clock for log timestamps
         uint64_t gps_timestamp = gps.time_epoch_usec();
                 
         hal.util->set_system_clock(gps_timestamp);
@@ -144,5 +173,5 @@ void Copter::set_system_time_from_GPS()
 
         ap.system_time_set = true;
         Log_Write_Event(DATA_SYSTEM_TIME_SET);
-    }
+	}
 }

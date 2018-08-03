@@ -1791,6 +1791,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 				{
 					result = MAV_RESULT_ACCEPTED;
 
+					//	20180803
 //					printf("time_week %d: 3 %d\n", copter.curr_gps_week_ms.time_week, (uint16_t)id_para.serial[3]);
 //					printf("time_week_ms %d: 4 %d\n", copter.curr_gps_week_ms.time_week_ms, (uint32_t)id_para.serial[4]);
 					
