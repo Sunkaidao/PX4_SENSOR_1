@@ -477,6 +477,8 @@ void GCS_MAVLINK::handle_mission_request(AP_Mission &mission, mavlink_message_t 
             goto mission_item_send_failed;
         }
 
+        //printf("cmd.index %d, id %d\n",cmd.index,cmd.id);
+
         mavlink_mission_item_int_t ret_packet;
         memset(&ret_packet, 0, sizeof(ret_packet));
         if (!AP_Mission::mission_cmd_to_mavlink_int(cmd, ret_packet)) {
@@ -615,6 +617,10 @@ void GCS_MAVLINK::handle_mission_count(AP_Mission &mission, mavlink_message_t *m
 	//	added by ZhangYong 20170706 for mission planner debug
 	//	printf("%d VS %d\n", packet.count, mission.num_commands_max());
 	//	added end
+	mission.set_do_cmd_change_airline(false);
+	mission.set_nav_cmd_manual_obstacle_avoidance(false);
+	mission.set_breakpoint_valid(false);
+	mission.clear_b_index_and_new_airline();
 
     // new mission arriving, truncate mission to be the same length
     mission.truncate(packet.count);
@@ -882,6 +888,7 @@ bool GCS_MAVLINK::handle_mission_item(mavlink_message_t *msg, AP_Mission &missio
 			if (HAVE_PAYLOAD_SPACE(chan, MISSION_ITEM_INT)) 
 			{	
         		queued_waypoint_int_send();
+				queued_waypoint_send();
 			}
 			else 
 			{
@@ -2342,6 +2349,7 @@ bool GCS_MAVLINK::try_send_mission_message(const enum ap_message id)
 		{
 			CHECK_PAYLOAD_SIZE(MISSION_REQUEST_INT);
 			queued_waypoint_int_send();
+			queued_waypoint_send();
         }
 		else
 		{
