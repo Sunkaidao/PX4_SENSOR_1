@@ -94,6 +94,20 @@ void AP_Mission::init()
     	}
     }
 
+    if (_cmd_total > 1)
+    {
+    	_first_nav_cmd_index = 0;
+    	for(int i = 1; i < _cmd_total; i++)
+    	{
+    		read_cmd_from_storage(i,cmd);
+			if (cmd.id == MAV_CMD_NAV_WAYPOINT)
+			{
+				_first_nav_cmd_index = cmd.index;
+				break;
+			}
+    	}
+    }
+
     if (_breakpoint.index != 0 && _breakpoint.index < _cmd_total && _flags.breakpoint_valid)
     {
     	_nav_cmd.index = _breakpoint.index-1;
@@ -1848,7 +1862,8 @@ bool AP_Mission::record_breakpoint()
 
     if (!_ahrs.get_position(current_loc) || \
 		_nav_cmd.id == MAV_CMD_NAV_TAKEOFF || \
-		_nav_cmd.id == MAV_CMD_NAV_RETURN_TO_LAUNCH)
+		_nav_cmd.id == MAV_CMD_NAV_RETURN_TO_LAUNCH || \
+		_nav_cmd.index == _first_nav_cmd_index)
     {
         goto record_breakpoint_false;
     }
