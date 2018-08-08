@@ -695,7 +695,7 @@ bool DataFlash_Backend::Log_Write_Message(const char *message)
 #if SPRAYER == ENABLED
 
 //	added by ZhangYong 20170405
-void DataFlash_Class::Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_dist, uint8_t para_fm_warn, uint8_t para_pck_cnt, uint16_t para_fm_vol, uint16_t para_fm_high)
+void DataFlash_Class::Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_dist, uint8_t para_fm_warn, uint8_t para_pck_cnt, uint16_t para_fm_vol, uint16_t para_fm_high, uint16_t view_flight_area)
 
 {
 	double fm_volume=para_fm_vol/100;
@@ -715,7 +715,8 @@ void DataFlash_Class::Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_di
 		fm_warn 				: para_fm_warn,
 		pck_cnt					: para_pck_cnt,
 		fm_vol					: fm_volume,
-		fm_h					: fm_high
+		fm_h					: fm_high,
+		flight_area				: view_flight_area
 	};
 	WriteBlock(&pkt, sizeof(pkt));
 }

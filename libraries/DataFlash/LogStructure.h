@@ -255,6 +255,7 @@ struct PACKED log_SPRAYER {
 	uint8_t pck_cnt;
 	double fm_vol;
 	double fm_h;
+	uint16_t flight_area;
 };
 
 
@@ -1840,7 +1841,7 @@ Format characters in the format string for binary log messages
 	{ LOG_RSSI_MSG, sizeof(log_RSSI), \
       "RSSI",  "Qf",     "TimeUS,RXRSSI" }, \
 	{ LOG_SPRAYER_MSG, sizeof(log_SPRAYER), \
-      "SPY",  "QbBBBIIHIBBBdd",     "TimeMS,ab,run,spy,tt,ot,ut,pr,wp,se,fm,pc,vol,h" }, \
+      "SPY",  "QbBBBIIHIBBBddH",     "TimeMS,ab,run,spy,tt,ot,ut,pr,wp,se,fm,pc,vol,h,sa" }, \
     { LOG_CD_MSG, sizeof(log_Communication_drops), \
 	 "CD", "Qif", "TMS,D2H,CD" }, \
 	{ LOG_PADCMD_MSG, sizeof(log_PADCMD), \

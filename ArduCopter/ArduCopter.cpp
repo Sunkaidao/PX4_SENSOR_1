@@ -521,7 +521,7 @@ void Copter::three_hz_loop()
 
 
 #if PROJECTGKXN == ENABLED 
-	Log_Write_Sprayer(sprayer, wp_distance, flowmeter.get_warning(), flowmeter.get_packet_cnt(),flowmeter.get_volume(),flowmeter.get_high());
+	Log_Write_Sprayer(sprayer, wp_distance, flowmeter.get_warning(), flowmeter.get_packet_cnt(),flowmeter.get_volume(),flowmeter.get_high(), newbroadcast.get_view_flight_area());
 #else
 	Log_Write_Sprayer(sprayer, wp_distance, 1, 0);
 #endif
