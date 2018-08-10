@@ -454,7 +454,7 @@ bool AP_Mission::set_current_cmd(uint16_t index)
     //If you are not selecting a breakpoint, set the breakpoint to a fast waypoint
     if (_breakpoint.index != 0)
     {
-    	if (_breakpoint.index != index)
+    	if (_breakpoint.index != index && _breakpoint.new_airline == 1)
     	{
     		b_index = _breakpoint.index+_breakpoint.offset.get();
     		if (read_cmd_from_storage(b_index,cmd_b))
@@ -466,6 +466,10 @@ bool AP_Mission::set_current_cmd(uint16_t index)
 				}
 			}
     	}
+		if (_breakpoint.index != index)
+		{
+			clear_b_index_and_new_airline();
+		}
     }
     //added end
 		
