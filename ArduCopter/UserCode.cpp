@@ -225,9 +225,10 @@ void Copter::userhook_init()
 	//	ab mode throttle adjustable
 	//	AP_ARMING_COMPASS_MAGFIELD_MAX 1100
 	//	MAX_LOG_FILES	100
-	if(edit_management.data.revision_edition != 8)
+	//  misson recovery onboard
+	if(edit_management.data.revision_edition != 9)
 	{	
-		edit_management.data.revision_edition = 8;
+		edit_management.data.revision_edition = 9;
 		g.edition_management.set_and_save(edit_management.words);
 	}
 
