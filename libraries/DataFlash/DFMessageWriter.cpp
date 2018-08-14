@@ -91,16 +91,20 @@ void DFMessageWriter_DFLogStart::process()
     _finished = true;
 }
 
+
+void DFMessageWriter_DFLogStart::set_mission(const AP_Mission *mission)
+{
+    _writeentiremission.set_mission(mission);
+}
+
+
 void DFMessageWriter_WriteSysInfo::reset()
 {
     DFMessageWriter::reset();
     stage = ws_blockwriter_stage_init;
 }
 
-void DFMessageWriter_DFLogStart::set_mission(const AP_Mission *mission)
-{
-    _writeentiremission.set_mission(mission);
-}
+
 
 
 void DFMessageWriter_WriteSysInfo::process() {

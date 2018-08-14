@@ -172,24 +172,37 @@ bool NavEKF2_core::calcGpsGoodToAlign(void)
     }
 
     // fail if satellite geometry is poor
-    bool hdopFail = (_ahrs->get_gps().get_hdop() > 250)  && (frontend->_gpsCheck & MASK_GPS_HDOP);
+    //	modified by zhangyong to narrow the gps ading 20180803
+    //bool hdopFail = (_ahrs->get_gps().get_hdop() > 250)  && (frontend->_gpsCheck & MASK_GPS_HDOP);
+	//	modified end
+	
+	bool hdopFail = (_ahrs->get_gps().get_hdop() > 100)  && (frontend->_gpsCheck & MASK_GPS_HDOP);
 
     // Report check result as a text string and bitmask
     if (hdopFail) {
-        hal.util->snprintf(prearm_fail_string, sizeof(prearm_fail_string),
-                           "GPS HDOP %.1f (needs 2.5)", (double)(0.01f * _ahrs->get_gps().get_hdop()));
+		//	modified by zhangyong to narrow the gps aiding
+		//	hal.util->snprintf(prearm_fail_string, sizeof(prearm_fail_string),
+        //                   "GPS HDOP %.1f (needs 2.5)", (double)(0.01f * _ahrs->get_gps().get_hdop()));
+		//	modified 
+		
+	   	hal.util->snprintf(prearm_fail_string, sizeof(prearm_fail_string),
+	                        "GPS HDOP %.1f (needs 1.0)", (double)(0.01f * _ahrs->get_gps().get_hdop()));
         gpsCheckStatus.bad_hdop = true;
     } else {
         gpsCheckStatus.bad_hdop = false;
     }
 
     // fail if not enough sats
-    bool numSatsFail = (_ahrs->get_gps().num_sats() < 6) && (frontend->_gpsCheck & MASK_GPS_NSATS);
+    //	modified by zhangyong to narrow gps ading 20180803
+    //bool numSatsFail = (_ahrs->get_gps().num_sats() < frontend) && (frontend->_gpsCheck & MASK_GPS_NSATS);
+	//	modified end
+	bool numSatsFail = ((_ahrs->get_gps().num_sats() < 10) && \
+						(frontend->_gpsCheck & MASK_GPS_NSATS));
 
     // Report check result as a text string and bitmask
     if (numSatsFail) {
         hal.util->snprintf(prearm_fail_string, sizeof(prearm_fail_string),
-                           "GPS numsats %u (needs 6)", _ahrs->get_gps().num_sats());
+                           "GPS numsats %u (needs 10)", _ahrs->get_gps().num_sats());
         gpsCheckStatus.bad_sats = true;
     } else {
         gpsCheckStatus.bad_sats = false;

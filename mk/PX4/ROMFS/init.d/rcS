@@ -34,7 +34,8 @@ then
     fi
 else
     set HAVE_MICROSD 0
-    tone_alarm MNBGG
+#    tone_alarm MNBGG
+		tone_alarm 2
 fi
 
 # Look for an additional init script that allows changing the default

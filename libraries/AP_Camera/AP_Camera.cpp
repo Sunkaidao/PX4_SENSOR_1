@@ -285,7 +285,7 @@ void AP_Camera::update(control_mode_t mode)
 
 	//	added by zhangyong 20180710
 	//	disable picture trigger
-	if((RTL == mode) || (LAND == mode))
+	if(AUTO != mode)
 		return;
 	//	added end
 
@@ -302,7 +302,8 @@ void AP_Camera::update(control_mode_t mode)
         return;
     }
 
-    if (get_distance(current_loc, _last_location) < _trigg_dist) {
+    if (get_distance(current_loc, _last_location) < _trigg_dist) 
+	{
         return;
     }
 
@@ -311,7 +312,9 @@ void AP_Camera::update(control_mode_t mode)
     }
 
     uint32_t tnow = AP_HAL::millis();
-    if (tnow - _last_photo_time < (unsigned) _min_interval) {
+
+	if (tnow - _last_photo_time < (unsigned) _min_interval) 
+	{
         return;
     }
 

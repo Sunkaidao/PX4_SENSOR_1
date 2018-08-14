@@ -19,7 +19,11 @@
 
 #define AP_ARMING_COMPASS_MAGFIELD_EXPECTED 530
 #define AP_ARMING_COMPASS_MAGFIELD_MIN  185     // 0.35 * 530 milligauss
-#define AP_ARMING_COMPASS_MAGFIELD_MAX  875     // 1.65 * 530 milligauss
+//	modified by zhangyong for pre arming check more easiler
+//#define AP_ARMING_COMPASS_MAGFIELD_MAX  875     // 1.65 * 530 milligauss
+//	modified end
+#define AP_ARMING_COMPASS_MAGFIELD_MAX  1100     // 1.65 * 530 milligauss
+
 #define AP_ARMING_BOARD_VOLTAGE_MIN     4.3f
 #define AP_ARMING_BOARD_VOLTAGE_MAX     5.8f
 #define AP_ARMING_ACCEL_ERROR_THRESHOLD 0.75f
@@ -75,11 +79,12 @@ const AP_Param::GroupInfo AP_Arming::var_info[] = {
 //The function point is particularly hacky, hacky, tacky
 //but I don't want to reimplement messaging to GCS at the moment:
 AP_Arming::AP_Arming(const AP_AHRS &ahrs_ref, const AP_Baro &baro, Compass &compass,
-                     const AP_BattMonitor &battery) :
+                     const AP_BattMonitor &battery, DataFlash_Class &dateflash) :
     ahrs(ahrs_ref),
     barometer(baro),
     _compass(compass),
     _battery(battery),
+    _dateflash(dateflash),
     armed(false),
     arming_method(NONE)
 {
@@ -331,6 +336,17 @@ bool AP_Arming::compass_checks(bool report)
             }
             return false;
         }
+
+		//printf("compass_checks %d\n", ));
+		if(0 == _compass.get_external(_compass.get_primary()))
+		{
+			if (report) {
+                gcs().send_text(MAV_SEVERITY_CRITICAL,"PreArm: external Compasses need");
+            }
+			return false;
+		}
+
+		
     }
 
     return true;

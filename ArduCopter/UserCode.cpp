@@ -222,9 +222,13 @@ void Copter::userhook_init()
 	
 	//	4G communications
 	//	rewrite landinggear
-	if(edit_management.data.revision_edition != 7)
+	//	ab mode throttle adjustable
+	//	AP_ARMING_COMPASS_MAGFIELD_MAX 1100
+	//	MAX_LOG_FILES	100
+	//  misson recovery onboard
+	if(edit_management.data.revision_edition != 9)
 	{	
-		edit_management.data.revision_edition = 7;
+		edit_management.data.revision_edition = 9;
 		g.edition_management.set_and_save(edit_management.words);
 	}
 

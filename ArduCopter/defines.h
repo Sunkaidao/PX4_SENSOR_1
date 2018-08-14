@@ -458,6 +458,11 @@ enum DevOptions {
 #define DATA_AVOIDANCE_PROXIMITY_DISABLE    66
 #define DATA_GPS_PRIMARY_CHANGED            67
 
+//	adde by zhangyong for auth access 20180713
+#define DATA_AUTH_UP_WHOAMI					75
+#define DATA_AUTH_UP_AUTH					76
+//	added end
+
 // Centi-degrees to radians
 #define DEGX100 5729.57795f
 

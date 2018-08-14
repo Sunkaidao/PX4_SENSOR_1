@@ -1717,11 +1717,16 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 			{
 				copter.auth_state_ms = auth_state_up_whoami;
 				
+				copter.Log_Write_Event(DATA_AUTH_UP_WHOAMI);
+				
 			}
 			else if(auth_state_up_auth == copter.auth_state_ms)
 			{
 			
 				copter.auth_state_ms = auth_state_done;
+
+				copter.Log_Write_Event(DATA_AUTH_UP_AUTH);
+				
 /*        		lcl_counter++;
         		if(0 == (lcl_counter % 2))
         		{
@@ -1786,6 +1791,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 				{
 					result = MAV_RESULT_ACCEPTED;
 
+					//	20180803
 //					printf("time_week %d: 3 %d\n", copter.curr_gps_week_ms.time_week, (uint16_t)id_para.serial[3]);
 //					printf("time_week_ms %d: 4 %d\n", copter.curr_gps_week_ms.time_week_ms, (uint32_t)id_para.serial[4]);
 					

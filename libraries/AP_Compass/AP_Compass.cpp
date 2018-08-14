@@ -520,6 +520,10 @@ void Compass::_detect_backends(void)
         return;
     }
 
+ 
+	//	added by zhangyong for compass initialize for 20180713
+	printf("Starting driver compass init _detect_backends\n");
+	//	added end
 
     // default mask to disable some compasses
     int32_t mask_default = 1U<<DRIVER_QMC5883;
@@ -563,7 +567,7 @@ void Compass::_detect_backends(void)
         bool both_i2c_external = (AP_BoardConfig::get_board_type() == AP_BoardConfig::PX4_BOARD_PIXHAWK2);
         // external i2c bus
         ADD_BACKEND(DRIVER_HMC5883, AP_Compass_HMC5843::probe(*this, hal.i2c_mgr->get_device(1, HAL_COMPASS_HMC5843_I2C_ADDR),
-                                                              true, ROTATION_ROLL_180),
+                                                              	true, ROTATION_ROLL_180),
                     AP_Compass_HMC5843::name, true);
         // internal i2c bus
         ADD_BACKEND(DRIVER_HMC5883, AP_Compass_HMC5843::probe(*this, hal.i2c_mgr->get_device(0, HAL_COMPASS_HMC5843_I2C_ADDR),
@@ -572,7 +576,7 @@ void Compass::_detect_backends(void)
 
         //external i2c bus
         ADD_BACKEND(DRIVER_QMC5883, AP_Compass_QMC5883L::probe(*this, hal.i2c_mgr->get_device(1, HAL_COMPASS_QMC5883L_I2C_ADDR),
-                								true,ROTATION_ROLL_180),
+                												true,ROTATION_ROLL_180),
         			AP_Compass_QMC5883L::name, true);
         //internal i2c bus
         ADD_BACKEND(DRIVER_QMC5883, AP_Compass_QMC5883L::probe(*this, hal.i2c_mgr->get_device(0, HAL_COMPASS_QMC5883L_I2C_ADDR),

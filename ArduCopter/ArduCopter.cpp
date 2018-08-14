@@ -521,7 +521,7 @@ void Copter::three_hz_loop()
 
 
 #if PROJECTGKXN == ENABLED 
-	Log_Write_Sprayer(sprayer, wp_distance, flowmeter.get_warning(), flowmeter.get_packet_cnt(),flowmeter.get_volume(),flowmeter.get_high());
+	Log_Write_Sprayer(sprayer, wp_distance, flowmeter.get_warning(), flowmeter.get_packet_cnt(),flowmeter.get_volume(),flowmeter.get_high(), newbroadcast.get_view_flight_area());
 #else
 	Log_Write_Sprayer(sprayer, wp_distance, 1, 0);
 #endif
@@ -595,6 +595,8 @@ void Copter::three_hz_loop()
 // one_hz_loop - runs at 1Hz
 void Copter::one_hz_loop()
 {
+	static uint8_t lcl_uint8 = 0;
+
     if (should_log(MASK_LOG_ANY)) {
         Log_Write_Data(DATA_AP_STATE, ap.value);
     }
@@ -635,13 +637,25 @@ void Copter::one_hz_loop()
 
 		//		added by ZhangYong 20161110
 #if FXTX_AUTH == ENABLED
-	if(gps.status() >=	AP_GPS::GPS_OK_FIX_3D)
+	//	modidied by zhangyong to make sure gps fix is durable
+	if((false == curr_gps_week_ms.time_week_settled) &&\
+		(gps.status() >=	AP_GPS::GPS_OK_FIX_3D) && \
+		(gps.get_hdop() <= g.gps_hdop_good) && \
+		(gps.num_sats() >= ahrs.get_gps_minsats()))
+	//	modified end			
 	{
 		//	added for debug 20161110
 		
 		//	added end
+		curr_gps_week_ms.time_week_settled = true;
 		curr_gps_week_ms.time_week = gps.time_week();
 		curr_gps_week_ms.time_week_ms = gps.time_week_ms();
+
+		//	added by zhangyong for debug
+//		printf("week %d\n", gps.time_week());
+//		printf("week_ms %d\n", gps.time_week_ms());
+
+	
 	}	
 
 //	printf("1. auth_state_ms = %d\n", auth_state_ms);
@@ -769,6 +783,31 @@ void Copter::one_hz_loop()
 
 	
 	//printf("streamRates[para] = %d\n", gcs().chan(1).get_streamRates(8));
+
+	//	added by zhangyong 20180713
+	//	printf("compass_checks %d\n", compass.get_external(compass.get_primary()));
+		//	added end
+
+
+	//	added by zhangyong 20180728
+	
+	//	added end
+
+///	printf("%d\n", lcl_uint8);
+#if LOGGING_ENABLED == ENABLED
+
+//	printf("%d %d %d %d\n", lcl_uint8, motors->armed(), DataFlash.get_num_logs(), DataFlash.get_num_logs_max());
+
+	if((29 == (lcl_uint8++) % 30) && \
+		(!motors->armed()) && \
+		(DataFlash.get_num_logs() >= DataFlash.get_num_logs_max() - 10)\
+		)
+	{
+//	 	printf("A\n");
+		gcs().send_text(MAV_SEVERITY_WARNING,"Warning: log numbers exceed max");
+	}
+#endif
+
 }
 
 // called at 50hz
@@ -792,7 +831,6 @@ void Copter::update_GPS(void)
             gps_updated = true;
         }
     }
-
     if (gps_updated) {
         // set system time if necessary
         set_system_time_from_GPS();

@@ -6,6 +6,11 @@
 #include <AP_Param/AP_Param.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>
 #include <RC_Channel/RC_Channel.h>
+//	added by zhangyong for dataflash warning 20180728
+#include <DataFlash/DataFlash.h>
+
+
+
 
 class AP_Arming {
 public:
@@ -38,8 +43,12 @@ public:
         YES_ZERO_PWM = 2
     };
 
-    AP_Arming(const AP_AHRS &ahrs_ref, const AP_Baro &baro, Compass &compass,
+	//	modified by zhangyong 20180728
+    /*AP_Arming(const AP_AHRS &ahrs_ref, const AP_Baro &baro, Compass &compass,
               const AP_BattMonitor &battery);
+	*///	modified end
+	AP_Arming(const AP_AHRS &ahrs_ref, const AP_Baro &baro, Compass &compass,
+              const AP_BattMonitor &battery, DataFlash_Class &dateflash);
 
     // these functions should not be used by Copter which holds the armed state in the motors library
     ArmingRequired arming_required();
@@ -75,6 +84,9 @@ protected:
     const AP_Baro           &barometer;
     Compass                 &_compass;
     const AP_BattMonitor    &_battery;
+#if LOGGING_ENABLED == ENABLED
+	DataFlash_Class	&_dateflash;
+#endif
 
     // internal members
     bool                    armed:1;

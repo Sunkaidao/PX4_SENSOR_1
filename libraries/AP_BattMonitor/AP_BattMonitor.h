@@ -6,7 +6,12 @@
 #include <GCS_MAVLink/GCS_MAVLink.h>
 
 // maximum number of battery monitors
-#define AP_BATT_MONITOR_MAX_INSTANCES       2
+//#if PROJECTGKXN == ENABLED
+//	#define AP_BATT_MONITOR_MAX_INSTANCES       1
+//#else
+//	this macro definition can not be defined as 1
+	#define AP_BATT_MONITOR_MAX_INSTANCES       2
+//#endif
 
 // first monitor is always the primary monitor
 #define AP_BATT_PRIMARY_INSTANCE            0

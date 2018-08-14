@@ -7,8 +7,8 @@ class AP_Arming_Copter : public AP_Arming
 public:
     AP_Arming_Copter(const AP_AHRS_NavEKF &ahrs_ref, const AP_Baro &baro, Compass &compass,
                      const AP_BattMonitor &battery, const AP_InertialNav_NavEKF &inav,
-                     const AP_InertialSensor &ins) :
-        AP_Arming(ahrs_ref, baro, compass, battery),
+                     const AP_InertialSensor &ins, DataFlash_Class &dateflash) :
+        AP_Arming(ahrs_ref, baro, compass, battery, dateflash),
         _inav(inav),
         _ins(ins),
         _ahrs_navekf(ahrs_ref)
@@ -42,6 +42,13 @@ protected:
     bool motor_checks(bool display_failure);
     bool pilot_throttle_checks(bool display_failure);
     bool barometer_checks(bool display_failure);
+
+	//	added by  zhangyong 20180728
+#if LOGGING_ENABLED == ENABLED	
+	bool dataflash_checks(bool display_failure);
+#endif
+	//	added end
+	
     bool rc_calibration_checks(bool display_failure);
 
 	//	added by ZhangYong 20180530 for payload checks

@@ -118,6 +118,10 @@ public:
     void get_log_boundaries(uint16_t log_num, uint16_t & start_page, uint16_t & end_page);
     int16_t get_log_data(uint16_t log_num, uint16_t page, uint32_t offset, uint16_t len, uint8_t *data);
     uint16_t get_num_logs(void);
+
+	//	added by zhangyong 20180728
+	uint16_t get_num_logs_max(void);
+	//	added end
     void LogReadProcess(uint16_t log_num,
                                 uint16_t start_page, uint16_t end_page, 
                                 print_mode_fn printMode,
@@ -167,7 +171,7 @@ public:
 
 #if SPRAYER == ENABLED
 	//	added by ZhangYong 20170405
-	void Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_dist, uint8_t para_fm_warn, uint8_t para_pk_cnt,uint16_t para_fm_vol, uint16_t para_fm_high);
+	void Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_dist, uint8_t para_fm_warn, uint8_t para_pk_cnt,uint16_t para_fm_vol, uint16_t para_fm_high, uint16_t view_flight_area);
 #endif	
 	
     void Log_Write_AttitudeView(AP_AHRS_View &ahrs, const Vector3f &targets);
@@ -369,6 +373,8 @@ private:
 	//	modified by ZhangYong 20170915
 	void Log_Write_EKF2(AP_AHRS_NavEKF &ahrs, bool optFlowEnabled);
 	void Log_Write_EKF3(AP_AHRS_NavEKF &ahrs, bool optFlowEnabled);
+	//	added by zhangyong to log EKF2_NKF4
+	void Log_Write_EKF2_NKF4(AP_AHRS_NavEKF &ahrs);
 	//	modified end
     
 #endif

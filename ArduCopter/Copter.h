@@ -292,7 +292,7 @@ private:
     AP_Mission mission;
 
     // Arming/Disarming mangement class
-    AP_Arming_Copter arming {ahrs, barometer, compass, battery, inertial_nav, ins};
+    AP_Arming_Copter arming {ahrs, barometer, compass, battery, inertial_nav, ins, DataFlash};
 
     // Optical flow sensor
 #if OPTFLOW == ENABLED
@@ -957,7 +957,7 @@ private:
 #if SPRAYER == ENABLED
 
 	//	added by ZhangYong 20170405
-	void Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_dist, uint8_t para_fm_warn, uint8_t para_pk_cnt,uint16_t para_fm_vol, uint16_t para_fm_high);
+	void Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_dist, uint8_t para_fm_warn, uint8_t para_pk_cnt,uint16_t para_fm_vol, uint16_t para_fm_high, uint16_t view_flight_area);
 #endif	
     void Log_Write_Current();
     void Log_Write_Optflow();

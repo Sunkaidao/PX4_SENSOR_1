@@ -589,7 +589,7 @@ bool AP_AHRS_NavEKF::set_origin(const Location &loc)
     bool ret2 = EKF2.setOriginLLH(loc);
     bool ret3 = EKF3.setOriginLLH(loc);
 
-	printf("set_origin\n");
+//	printf("set_origin\n");
 
     // return success if active EKF's origin was set
     switch (active_EKF_type()) {

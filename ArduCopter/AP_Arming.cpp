@@ -265,6 +265,26 @@ bool AP_Arming_Copter::barometer_checks(bool display_failure)
     return ret;
 }
 
+#if LOGGING_ENABLED == ENABLED
+bool AP_Arming_Copter::dataflash_checks(bool display_failure)
+{
+	if(checks_to_perform == ARMING_CHECK_ALL)
+	{
+		if(_dateflash.get_num_logs() >= _dateflash.get_num_logs_max())
+		{
+			if (display_failure) 
+			{
+                gcs().send_text(MAV_SEVERITY_CRITICAL,"PreArm: log numbers exceed max");
+            }
+
+			return false;
+		}
+	}
+
+	return true;
+}
+#endif
+
 bool AP_Arming_Copter::compass_checks(bool display_failure)
 {
     bool ret = AP_Arming::compass_checks(display_failure);
@@ -854,6 +874,19 @@ bool AP_Arming_Copter::arm_checks(bool display_failure, bool arming_from_gcs)
         return false;
     }
 
+	//	added by zhangyong 20180713
+	//	if external compass not exist, can not be armed
+	if(0 == _compass.get_external(_compass.get_primary()))
+	{
+		if (display_failure) 
+		{
+        	gcs().send_text(MAV_SEVERITY_CRITICAL,"Arm: external Compasses need");
+        }
+		return false;
+	}
+
+	//	added end
+
     control_mode_t control_mode = copter.control_mode;
 
     // always check if the current mode allows arming
@@ -1124,6 +1157,22 @@ bool AP_Arming_Copter::arm_checks(bool display_failure, bool arming_from_gcs)
 
 #endif
 	//	added end
+
+#if LOGGING_ENABLED == ENABLED
+
+	 if (checks_to_perform == ARMING_CHECK_ALL)
+	 {
+	 	if(_dateflash.get_num_logs() >= _dateflash.get_num_logs_max())
+		{
+			if (display_failure) {
+                gcs().send_text(MAV_SEVERITY_CRITICAL,"Arm: log numbers exceed max");
+            }
+
+			return false;
+		}
+	 }
+#endif
+
 
     // check if safety switch has been pushed
     if (hal.util->safety_switch_state() == AP_HAL::Util::SAFETY_DISARMED) {
