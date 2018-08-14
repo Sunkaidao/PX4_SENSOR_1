@@ -229,7 +229,8 @@ void AP_Mission::reset()
     //baiyang added in 20180726
     if (_breakpoint.index != 0 && _breakpoint.index < _cmd_total && _flags.breakpoint_valid)
     {
-    	_nav_cmd.index = _breakpoint.index-1;
+    	//_nav_cmd.index = _breakpoint.index-1;
+		_nav_cmd.index = _breakpoint.index - _breakpoint.offset - 1;
     }
     //added end
 }
@@ -460,13 +461,13 @@ bool AP_Mission::set_current_cmd(uint16_t index)
     		if (read_cmd_from_storage(b_index,cmd_b))
 			{
 				cmd_b.p1 = 0;
-				if (write_cmd_to_storage(b_index,cmd))
+				if (write_cmd_to_storage(b_index,cmd_b))
 				{
 					clear_b_index_and_new_airline();
 				}
 			}
     	}
-		if (_breakpoint.index != index)
+		else if (_breakpoint.index != index)
 		{
 			clear_b_index_and_new_airline();
 		}
