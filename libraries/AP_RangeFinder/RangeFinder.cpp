@@ -37,6 +37,12 @@
 #include "AP_RangeFinder_Radar_ZHIBO.h"
 #endif
 //	added end
+//added by xusiming 20180718 and depend on the email(20180713)
+#if PROJECTGKXN==ENABLE
+#include "AP_RangeFinder_Radar_GKXN.h"
+//added end
+#endif
+
 
 
 extern const AP_HAL::HAL &hal;
@@ -775,13 +781,23 @@ void RangeFinder::detect_instance(uint8_t instance)
 	case RangeFinder_TYPE_Radar_ZHIBO:
 		if (AP_RangeFinder_Radar_ZHIBO::detect(serial_manager)) 
 		{
-//			printf("RangeFinder_TYPE_Radar_ZHIBO %d\n", RangeFinder_TYPE_Radar_ZHIBO);
 			state[instance].instance = instance;
 			drivers[instance] = new AP_RangeFinder_Radar_ZHIBO(state[instance], serial_manager); 
 		}
 		break;
 
 #endif
+#if PROJECTGKXN==ENABLED
+	case RangeFinder_TYPE_Radar_GKXN:
+	if (AP_RangeFinder_Radar_GKXN::detect(serial_manager)) 
+			{
+				state[instance].instance = instance;
+				drivers[instance] = new AP_RangeFinder_Radar_GKXN(state[instance], serial_manager); 
+			}
+			break;
+#endif
+
+
     default:
         break;
     }

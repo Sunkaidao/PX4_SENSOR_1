@@ -56,14 +56,14 @@ public:
     // get distance and angle to closest object (used for pre-arm check)
     //   returns true on success, false if no valid readings
     bool get_closest_object(float& angle_deg, float &distance) const;
-	// added by xusiming and used for control the orientation of radar
     // added by xusiming and used for control the orientation of radar
+    // changed by xusiming in 20180717 and depend on the email(20180713)
     bool    get_comand_orient(double_t amplitude,double_t frequency,int8_t ctstate);
 	uint8_t get_table_orient();
 	int32_t get_table_angle();
 	bool    get_valid();
-	bool get_front_warning();
-	bool get_back_warning();
+	bool get_R1_warning();
+	bool get_R3_warning();
 	uint16_t get_uncomplete();
 	uint16_t get_error();
 	//added end
@@ -114,8 +114,8 @@ protected:
     Vector2f _boundary_point[PROXIMITY_SECTORS_MAX];        // bounding polygon around the vehicle calculated conservatively for object avoidance
     // added by xusiming 20180118 and used for control
     // added by xusiming 20180118 and used for control
-    bool front_warning;
-	bool back_warning;
+    bool R1_warning;                         //warning message depend on the email(20180713)
+	bool R3_warning;                         //warning message depend on the email(20180713)
 	uint16_t uncm_num=0;
 	uint16_t error_num=0;
 	

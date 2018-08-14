@@ -698,8 +698,8 @@ bool DataFlash_Backend::Log_Write_Message(const char *message)
 void DataFlash_Class::Log_Write_Sprayer(AC_Sprayer &para_sprayer, uint32_t wp_dist, uint8_t para_fm_warn, uint8_t para_pck_cnt, uint16_t para_fm_vol, uint16_t para_fm_high)
 
 {
-	double fm_volume=para_fm_vol/100;
-	double fm_high=para_fm_high/100;
+	double fm_volume=para_fm_vol;
+	double fm_high=para_fm_high;
 	struct log_SPRAYER pkt = {
 		LOG_PACKET_HEADER_INIT(LOG_SPRAYER_MSG),
 		timestamp				: AP_HAL::micros64(),
@@ -2235,15 +2235,16 @@ void DataFlash_Class::Log_Write_GKProx(AP_Proximity &proximity)
     proximity.get_closest_object(close_ang, close_dist);
      float valid=-1;
 	 valid=proximity.get_valid_number();
-	bool front_warning=0;
-	bool back_warning=0;
-	front_warning=proximity.get_front_radar_warning();
-	back_warning=proximity.get_back_radar_warning();
+	bool R1_warning=0;
+	bool R3_warning=0;
+	R1_warning=proximity.get_R1_radar_warning();
+	R3_warning=proximity.get_R3_radar_warning();
 	uint16_t uncomplete_number=0;
 	uncomplete_number=proximity.get_radar_uncomplete();
 	uint16_t error_number=0;
 	error_number=proximity.get_radar_error();
-	 
+	int32_t table_angle;
+	table_angle=proximity.get_table_angle();
 	struct log_GKProx pkt = {
         LOG_PACKET_HEADER_INIT(LOG_GKPROX_MSG),
         timestamp     	: AP_HAL::micros64(),
@@ -2254,10 +2255,11 @@ void DataFlash_Class::Log_Write_GKProx(AP_Proximity &proximity)
         closest_angle   : close_ang,
         closest_dist    : close_dist,
         valid_num       : valid,
-        front_warn      : front_warning,
-        back_warn       : back_warning,
+        R1_warn         : R1_warning,
+        R3_warn         : R3_warning,
         unc_num         : uncomplete_number,
         error_num       : error_number, 
+        t_angle         : table_angle,
     };
     WriteBlock(&pkt, sizeof(pkt));
 

@@ -263,7 +263,6 @@ bool AP_Flowmeter::exhausted()
 	if(1 == _Flo_data.warning)
 	{
 		lcl_cnt ++;
-
 		if(lcl_cnt > (AP_FLOWMETER_EXHAUSTED_SHRESHOLD*_time))
 		{
 			lcl_cnt = 0;

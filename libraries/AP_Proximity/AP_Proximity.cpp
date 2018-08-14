@@ -442,28 +442,28 @@ bool   AP_Proximity::get_valid_number()
      return drivers[primary_instance]->get_valid();
 	//return 0;
 }
-bool   AP_Proximity::get_front_radar_warning()
+bool   AP_Proximity::get_R1_radar_warning()
 {
 	if ((drivers[primary_instance] == nullptr) || (_type[primary_instance] != Proximity_Type_Radar_GKXN)) {
 				return false;
 			}
-     return drivers[primary_instance]->get_front_warning();
+     return drivers[primary_instance]->get_R1_warning();
 	//return 0;
 }
 
-bool   AP_Proximity::get_back_radar_warning()
+bool   AP_Proximity::get_R3_radar_warning()
 {
 	if ((drivers[primary_instance] == nullptr) || (_type[primary_instance] != Proximity_Type_Radar_GKXN)) {
 				return false;
 			}
-     return drivers[primary_instance]->get_back_warning();
+     return drivers[primary_instance]->get_R3_warning();
 	//return 0;
 }
 
 uint16_t   AP_Proximity::get_radar_uncomplete()
 {
 	if ((drivers[primary_instance] == nullptr) || (_type[primary_instance] != Proximity_Type_Radar_GKXN)) {
-				return false;
+				return 0;
 			}
      return drivers[primary_instance]->get_uncomplete();
 	//return 0;
@@ -472,11 +472,21 @@ uint16_t   AP_Proximity::get_radar_uncomplete()
 uint16_t   AP_Proximity::get_radar_error()
 {
 	if ((drivers[primary_instance] == nullptr) || (_type[primary_instance] != Proximity_Type_Radar_GKXN)) {
-				return false;
+				return 0;
 			}
      return drivers[primary_instance]->get_error();
 	//return 0;
 }
+int32_t   AP_Proximity::get_table_angle()
+{
+	if ((drivers[primary_instance] == nullptr) || (_type[primary_instance] != Proximity_Type_Radar_GKXN)) {
+				return 0;
+			}
+	int32_t angle=drivers[primary_instance]->get_table_angle();
+	angle=0-angle;
+	return angle;
+}
+
 //added end
 
 

@@ -68,7 +68,7 @@ bool AP_Proximity_Backend::get_closest_object(float& angle_deg, float &distance)
     return sector_found;
 }
 //added by xusiming and used for log
-//added by xusiming and used for log
+//changed 
 bool AP_Proximity_Backend::get_comand_orient(double_t amplitude,double_t frequency,int8_t ctstate)
 {    
 //added  one parameter to control the function of the table 
@@ -166,13 +166,13 @@ uint8_t AP_Proximity_Backend::get_table_orient()
 	return orientation_flag;
 
 }
-bool AP_Proximity_Backend::get_front_warning()
+bool AP_Proximity_Backend::get_R1_warning()
 {
- return front_warning;
+ return R1_warning;
 }
-bool AP_Proximity_Backend::get_back_warning()
+bool AP_Proximity_Backend::get_R3_warning()
 {
- return back_warning;
+ return R3_warning;
 }
 uint16_t AP_Proximity_Backend::get_uncomplete()
 {

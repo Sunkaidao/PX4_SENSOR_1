@@ -101,10 +101,11 @@ public:
     //added by xusiming20180111 and used for log
     bool   get_cmd_orient();
 	bool    get_valid_number();
-	bool   get_front_radar_warning();
-	bool   get_back_radar_warning();
+	bool   get_R1_radar_warning();
+	bool   get_R3_radar_warning();
 	uint16_t get_radar_uncomplete();
 	uint16_t get_radar_error();
+	int32_t get_table_angle();
 	//added end
     // get number of objects, angle and distance - used for non-GPS avoidance
     uint8_t get_object_count() const;

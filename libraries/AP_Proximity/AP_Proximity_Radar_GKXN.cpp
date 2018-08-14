@@ -216,7 +216,6 @@ bool AP_Proximity_Radar_GKXN::read_sensor_data()
 					{
 					if (Getdata()==Right_data)
 						{
-					//	printf("true\n");
 						valid=true;
 						}
 					else
@@ -263,7 +262,13 @@ int AP_Proximity_Radar_GKXN::Getdata()
 		{
 			return Invalid_data;	
 		}
-	if(((message_status&0x01)!=0x01)&&(((message_status>>2)&0x01)!=0x01))
+	//warning message depend on the email(20180713)
+	//record the waring message of Height-finding radar though it don't have influence on avoidance
+	if(((message_status>>4)&0x01)==0x01)
+				{
+				R3_warning=1;
+				}
+	if((message_status&0x01)!=0x01)
 		{
 			d1=front_data_back;
 			d2=back_data_back;
@@ -272,15 +277,11 @@ int AP_Proximity_Radar_GKXN::Getdata()
 		{
 			if((message_status&0x01)==0x01)
 			{
-			front_warning=1;
+			R1_warning=1;
 			}
-			if(((message_status>>2)&0x01)==0x01)
-			{
-			back_warning=1;
-			}
-			
 			return Invalid_data;
 		}
+
 	return Right_data;
 }
 
