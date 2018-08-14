@@ -18,28 +18,47 @@
 ////////////////////////////////////////////////////////////////////////////////
 // EKF_check strucutre
 ////////////////////////////////////////////////////////////////////////////////
-static struct {
+//	modified by zhangyong for arming check
+/*static struct {
     uint8_t fail_count;         // number of iterations ekf or dcm have been out of tolerances
     uint8_t bad_variance : 1;   // true if ekf should be considered untrusted (fail_count has exceeded EKF_CHECK_ITERATIONS_MAX)
     uint32_t last_warn_time;    // system time of last warning in milliseconds.  Used to throttle text warnings sent to GCS
+    //	added by zhangyong for different variance
+    EKF_VARIANCE_TYPE type;
+	//	added end
 } ekf_check_state;
+*/
+
+static EKF_check_state ekf_check_state;
+
 
 // ekf_check - detects if ekf variance are out of tolerance and triggers failsafe
 // should be called at 10hz
 void Copter::ekf_check()
 {
+	//ekf_check_state.test_counter ++;
+
+	
     // exit immediately if ekf has no origin yet - this assumes the origin can never become unset
     Location temp_loc;
     if (!ahrs.get_origin(temp_loc)) {
         return;
     }
 
+	//printf("%d %d %f\n", !motors->armed(), ap.usb_connected, g.fs_ekf_thresh);
+
     // return immediately if motors are not armed, ekf check is disabled, not using ekf or usb is connected
     if (!motors->armed() || ap.usb_connected || (g.fs_ekf_thresh <= 0.0f)) {
         ekf_check_state.fail_count = 0;
         ekf_check_state.bad_variance = false;
-        AP_Notify::flags.ekf_bad = ekf_check_state.bad_variance;
+	
+		//	added by zhangyong for ekc variance 20180813
+		ekf_check_state.type = EKF_VARIANCE_NON;
+		//	added end
+		
+		AP_Notify::flags.ekf_bad = ekf_check_state.bad_variance;
         failsafe_ekf_off_event();   // clear failsafe
+        
         return;
     }
 
@@ -57,9 +76,30 @@ void Copter::ekf_check()
                 // log an error in the dataflash
                 Log_Write_Error(ERROR_SUBSYSTEM_EKFCHECK, ERROR_CODE_EKFCHECK_BAD_VARIANCE);
                 // send message to gcs
-                if ((AP_HAL::millis() - ekf_check_state.last_warn_time) > EKF_CHECK_WARNING_TIME) {
-                    gcs().send_text(MAV_SEVERITY_CRITICAL,"EKF variance");
-                    ekf_check_state.last_warn_time = AP_HAL::millis();
+                if ((AP_HAL::millis() - ekf_check_state.last_warn_time) > EKF_CHECK_WARNING_TIME) {
+					//	modified by zhangyong 
+                    //gcs().send_text(MAV_SEVERITY_CRITICAL,"EKF variance");
+					//	modified end
+					switch(ekf_check_state.type)
+					{
+						case EKF_VARIANCE_MAG:
+							gcs().send_text(MAV_SEVERITY_CRITICAL,"EKF variance MAG");
+							break;
+						case EKF_VARIANCE_VEL:
+							gcs().send_text(MAV_SEVERITY_CRITICAL,"EKF variance VEL");
+							break;
+							
+						case EKF_VARIANCE_POS:
+							gcs().send_text(MAV_SEVERITY_CRITICAL,"EKF variance POS");
+							break;
+							
+						default:
+							gcs().send_text(MAV_SEVERITY_CRITICAL,"EKF variance");
+							
+							break;
+					}
+
+				ekf_check_state.last_warn_time = AP_HAL::millis();
                 }
                 failsafe_ekf_event();
             }
@@ -72,6 +112,11 @@ void Copter::ekf_check()
             // if compass is flagged as bad and the counter reaches zero then clear flag
             if (ekf_check_state.bad_variance && ekf_check_state.fail_count == 0) {
                 ekf_check_state.bad_variance = false;
+
+				//	added by zhangong for EKF VARIANCE TYEP
+				ekf_check_state.type = EKF_VARIANCE_NON;
+				//	added end
+			
                 // log recovery in the dataflash
                 Log_Write_Error(ERROR_SUBSYSTEM_EKFCHECK, ERROR_CODE_EKFCHECK_VARIANCE_CLEARED);
                 // clear failsafe
@@ -94,11 +139,13 @@ bool Copter::ekf_over_threshold()
         return false;
     }
 
+	
     // return true immediately if position is bad
     if (!ekf_position_ok() && !optflow_position_ok()) {
         return true;
     }
 
+	
     // use EKF to get variance
     float position_variance, vel_variance, height_variance, tas_variance;
     Vector3f mag_variance;
@@ -109,14 +156,25 @@ bool Copter::ekf_over_threshold()
     uint8_t over_thresh_count = 0;
     if (mag_variance.length() >= g.fs_ekf_thresh) {
         over_thresh_count++;
+		//	added by zhangyong for ekf variance type report
+		ekf_check_state.type = EKF_VARIANCE_MAG;
+		//	added end
     }
     if (vel_variance >= g.fs_ekf_thresh) {
         over_thresh_count++;
+		//	added by zhangyong for ekf variance type report
+		ekf_check_state.type = EKF_VARIANCE_VEL;
+		//	added end
     }
+	
     if (position_variance >= g.fs_ekf_thresh) {
         over_thresh_count++;
+		//	added by zhangyong for ekf variance type report
+		ekf_check_state.type = EKF_VARIANCE_POS;
+		//	added end
     }
 
+	
     return (over_thresh_count >= 2);
 }
 

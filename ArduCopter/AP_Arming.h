@@ -42,6 +42,7 @@ protected:
     bool motor_checks(bool display_failure);
     bool pilot_throttle_checks(bool display_failure);
     bool barometer_checks(bool display_failure);
+	bool ekf_checks(bool display_failure);
 
 	//	added by  zhangyong 20180728
 #if LOGGING_ENABLED == ENABLED	

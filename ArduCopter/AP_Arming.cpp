@@ -8,6 +8,9 @@
 //added end
 #endif
 
+
+//extern EKF_check_state ekf_check_state;
+
 // performs pre-arm checks. expects to be called at 1hz.
 void AP_Arming_Copter::update(void)
 {
@@ -59,6 +62,11 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
 	bool return_value;
 	//	added end
 //#endif
+
+
+	//	added by zhangyong for ekf check 20180813
+	//ekf_checks(true);
+	//	added end
 
 
     // exit immediately if already armed
@@ -211,6 +219,7 @@ bool AP_Arming_Copter::pre_arm_checks(bool display_failure)
         	((!copter.ap.rc_receiver_present) && (!pilot_throttle_checks(display_failure))) || \
         	((copter.ap.rc_receiver_present) && (pilot_throttle_checks(display_failure)))\
           )
+        & ekf_checks(true)
 #if CHARGINGSTATION == ENABLED
         & chargingStation_checks(display_failure)
 #endif
@@ -466,6 +475,75 @@ bool AP_Arming_Copter::motor_checks(bool display_failure)
     }
     return true;
 }
+
+
+bool AP_Arming_Copter::ekf_checks(bool display_failure)
+{
+//	ekf_check_state.test_counter ++;
+
+//	
+	EKF_check_state *ekf_check_state_ptr;
+	
+	
+
+//	printf("counter %d\n", ekf_check_state_ptr->test_counter);
+
+	// exit immediately if ekf has no origin yet - this assumes the origin can never become unset
+    Location temp_loc;
+    if (!ahrs.get_origin(temp_loc)) 
+	{
+        return true;
+    }
+
+	
+	// return immediately if motors are not armed, ekf check is disabled, not using ekf or usb is connected
+	if (copter.ap.usb_connected || (copter.g.fs_ekf_thresh <= 0.0f)) 
+	{
+		return true;
+	}
+
+
+	if(checks_to_perform != ARMING_CHECK_ALL)
+	{
+		return true;
+	}
+
+	ekf_check_state_ptr = copter.get_ekf_check_state();
+
+	
+
+	if(true == ekf_check_state_ptr->bad_variance)
+	{
+		if (display_failure) 
+		{	
+			switch(ekf_check_state_ptr->type)
+			{
+			
+				case EKF_VARIANCE_MAG:
+					gcs().send_text(MAV_SEVERITY_CRITICAL,"PreArm: EKF variance MAG");
+					break;
+
+				case EKF_VARIANCE_VEL:
+					gcs().send_text(MAV_SEVERITY_CRITICAL,"PreArm: EKF variance VEL");
+					break;
+							
+				case EKF_VARIANCE_POS:
+					gcs().send_text(MAV_SEVERITY_CRITICAL,"PreArm: EKF variance POS");
+					break;
+							
+				default:
+					gcs().send_text(MAV_SEVERITY_CRITICAL,"PreArm: EKF variance");
+					break;
+			}
+		}
+		return false;
+	}
+
+	//copter.ekf_check_state.fail_count;
+	
+	return true;
+}
+
 
 //	added by ZhangYong 20180530 for payload checks
 bool AP_Arming_Copter::payload_checks(bool display_failure)
@@ -812,6 +890,8 @@ bool AP_Arming_Copter::pre_arm_proximity_check(bool display_failure)
 //  has side-effect that logging is started
 bool AP_Arming_Copter::arm_checks(bool display_failure, bool arming_from_gcs)
 {
+	EKF_check_state *ekf_check_state_ptr;
+	
     // check accels and gyro are healthy
     if ((checks_to_perform == ARMING_CHECK_ALL) || (checks_to_perform & ARMING_CHECK_INS)) {
         //check if accelerometers have calibrated and require reboot
@@ -964,7 +1044,7 @@ bool AP_Arming_Copter::arm_checks(bool display_failure, bool arming_from_gcs)
         }
     }
 
-    #if AC_FENCE == ENABLED
+#if AC_FENCE == ENABLED
     // check vehicle is within fence
     const char *fail_msg = nullptr;
     if (!copter.fence.pre_arm_check(fail_msg)) {
@@ -973,7 +1053,7 @@ bool AP_Arming_Copter::arm_checks(bool display_failure, bool arming_from_gcs)
         }
         return false;
     }
-    #endif
+#endif
 
     // check lean angle
     if ((checks_to_perform == ARMING_CHECK_ALL) || (checks_to_perform & ARMING_CHECK_INS)) {
@@ -1172,6 +1252,66 @@ bool AP_Arming_Copter::arm_checks(bool display_failure, bool arming_from_gcs)
 		}
 	 }
 #endif
+
+	
+
+	//	added by zhangyong for ekf variable check 
+	Location temp_loc;
+	
+    if (ahrs.get_origin(temp_loc) && \
+		(!copter.ap.usb_connected) && \
+		(copter.g.fs_ekf_thresh > 0.0f) && \
+		(checks_to_perform == ARMING_CHECK_ALL)) 
+	{
+		ekf_check_state_ptr = copter.get_ekf_check_state();
+
+	
+		if(true == ekf_check_state_ptr->bad_variance)
+		{
+			if (display_failure) 
+			{	
+				switch(ekf_check_state_ptr->type)
+				{
+					case EKF_VARIANCE_MAG:
+						gcs().send_text(MAV_SEVERITY_CRITICAL,"Arm: EKF variance MAG");
+						break;
+
+					case EKF_VARIANCE_VEL:
+						gcs().send_text(MAV_SEVERITY_CRITICAL,"Arm: EKF variance VEL");
+						break;
+							
+					case EKF_VARIANCE_POS:
+						gcs().send_text(MAV_SEVERITY_CRITICAL,"Arm: EKF variance POS");
+						break;
+							
+					default:
+						gcs().send_text(MAV_SEVERITY_CRITICAL,"Arm: EKF variance");
+						break;
+				}
+			}
+
+			return false;
+			
+		}
+    }
+
+	//	added by zhangyong 20180814
+	//	compass variance check 
+		// check EKF compass variance is below failsafe threshold
+    float vel_variance, pos_variance, hgt_variance, tas_variance;
+    Vector3f mag_variance;
+    Vector2f offset;
+    _ahrs_navekf.get_variances(vel_variance, pos_variance, hgt_variance, mag_variance, tas_variance, offset);
+    if (mag_variance.length() >= copter.g.fs_ekf_thresh) {
+        if (display_failure) {
+            gcs().send_text(MAV_SEVERITY_CRITICAL,"Arm: EKF compass variance");
+        }
+        return false;
+    }
+	//	
+
+	
+	//	added end
 
 
     // check if safety switch has been pushed

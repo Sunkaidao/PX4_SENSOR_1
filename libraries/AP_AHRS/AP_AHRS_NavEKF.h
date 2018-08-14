@@ -130,7 +130,10 @@ public:
     bool set_origin(const Location &loc) override;
 
     // returns the inertial navigation origin in lat/lon/alt
-    bool get_origin(Location &ret) const;
+    //	modified by zhangyong for arming check ekf
+    //	bool get_origin(Location &ret) const ;
+	//	modified end
+	bool get_origin(Location &ret) const override;
 
     bool have_inertial_nav() const override;
 

@@ -480,6 +480,13 @@ public:
     // from which to decide the origin on its own
     virtual bool set_origin(const Location &loc) { return false; }
 
+	virtual bool get_origin(Location &ret) const { return false; };
+
+	//	modified by zhangyong for arming check origin
+	//virtual struct Location get_origin() const = 0;
+	//	modified end
+	
+
     // return true if the AHRS object supports inertial navigation,
     // with very accurate position and velocity
     virtual bool have_inertial_nav(void) const {

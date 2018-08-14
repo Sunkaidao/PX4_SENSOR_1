@@ -22,7 +22,7 @@
 //	modified by zhangyong for pre arming check more easiler
 //#define AP_ARMING_COMPASS_MAGFIELD_MAX  875     // 1.65 * 530 milligauss
 //	modified end
-#define AP_ARMING_COMPASS_MAGFIELD_MAX  1100     // 1.65 * 530 milligauss
+#define AP_ARMING_COMPASS_MAGFIELD_MAX  960     // 1.65 * 530 milligauss
 
 #define AP_ARMING_BOARD_VOLTAGE_MIN     4.3f
 #define AP_ARMING_BOARD_VOLTAGE_MAX     5.8f

@@ -382,7 +382,11 @@ void Copter::do_nav_wp(const AP_Mission::Mission_Command& cmd)
 
 	    //	added by ZhangYong to meet GKXN requirement 20170627
 #if PROJECTGKXN
-	if((1 == height_replace_switch) && (0 != height_replace_alt))
+	if(\
+		(1 == height_replace_switch) && \
+		(0 != height_replace_alt) && \
+		((Location_Class::ALT_FRAME_ABOVE_ORIGIN == target_loc.get_alt_frame()) || (Location_Class::ALT_FRAME_ABOVE_HOME == target_loc.get_alt_frame()))\
+	)
 	{
 		target_loc.set_alt_cm(height_replace_alt, target_loc.get_alt_frame());
 	}		
@@ -1021,8 +1025,15 @@ bool Copter::verify_circle(const AP_Mission::Mission_Command& cmd)
         return false;
     }
 
+	//	modified by zhangyong for mission plan barrar avoidence 20180810
+	//return fabsf(circle_nav->get_angle_total()/M_2PI) >= 0.1*(float)LOWBYTE(cmd.p1);
     // check if we have completed circling
-    return fabsf(circle_nav->get_angle_total()/M_2PI) >= LOWBYTE(cmd.p1);
+#if ((FXTX_AUTH ==  ENABLED) && (PROJECTGKXN == ENABLED)) 
+    return fabsf(circle_nav->get_angle_total()/M_2PI) >= 0.1*(float)LOWBYTE(cmd.p1);
+#else
+	return fabsf(circle_nav->get_angle_total()/M_2PI) >= LOWBYTE(cmd.p1);
+#endif
+	//	modified end
 }
 
 // verify_RTL - handles any state changes required to implement RTL

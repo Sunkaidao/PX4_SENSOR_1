@@ -1282,7 +1282,7 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
         break;
     }
 
-    case MAVLINK_MSG_ID_PARAM_VALUE:
+    case MAVLINK_MSG_ID_PARAM_VALUE:		//22
     {
 #if MOUNT == ENABLED
         copter.camera_mount.handle_param_value(msg);
