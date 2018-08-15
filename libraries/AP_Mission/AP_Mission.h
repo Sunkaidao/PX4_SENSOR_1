@@ -494,6 +494,10 @@ public:
     int8_t regenerate_airline();
 
     void clear_b_index_and_new_airline() { _breakpoint.index.set_and_save_ifchanged(0);_breakpoint.new_airline.set_and_save_ifchanged(0);}
+
+    void update_spray_configuration();
+
+    void find_first_waypoint();
 	
     // user settable parameters
     static const struct AP_Param::GroupInfo var_info[];
