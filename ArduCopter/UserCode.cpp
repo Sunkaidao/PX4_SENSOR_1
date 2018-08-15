@@ -226,9 +226,9 @@ void Copter::userhook_init()
 	//	AP_ARMING_COMPASS_MAGFIELD_MAX 1100
 	//	MAX_LOG_FILES	100
 	//  misson recovery onboard
-	if(edit_management.data.revision_edition != 9)
+	if(edit_management.data.revision_edition != 10)
 	{	
-		edit_management.data.revision_edition = 9;
+		edit_management.data.revision_edition = 10;
 		g.edition_management.set_and_save(edit_management.words);
 	}
 
