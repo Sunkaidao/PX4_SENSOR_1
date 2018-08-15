@@ -862,6 +862,9 @@ bool GCS_MAVLINK::handle_mission_item(mavlink_message_t *msg, AP_Mission &missio
         send_text(MAV_SEVERITY_INFO,"Flight plan received");
         waypoint_receiving = false;
         mission_is_complete = true;
+
+        mission.update_spray_configuration();
+        mission.find_first_waypoint();
         // XXX ignores waypoint radius for individual waypoints, can
         // only set WP_RADIUS parameter
     } 
