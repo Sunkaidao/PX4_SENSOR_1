@@ -229,6 +229,8 @@ public:
         AUTOTUNE_LEVEL_ISSUE_RATE_YAW,
     };
 
+	
+
 private:
     // key aircraft parameters passed to multiple libraries
     AP_Vehicle::MultiCopter aparm;
@@ -775,8 +777,9 @@ private:
 	//	added by ZhangYong 20171114
 	//	symbol for height replace in auto mode
 	uint8_t height_replace_switch;
-	//	height want to replace centimeter
+	//	height want to replace centimeter relative
 	int32_t height_replace_alt;
+	
 	//	added end
 
 #if PROJECTGKXN == ENABLED
@@ -859,6 +862,22 @@ private:
 	//	added by ZhangYong 20180417
 	bool pre_arm_check_motor_test;
 	//	added end
+
+	////////////////////////////////////////////////////////////////////////////////
+// EKF_check strucutre
+////////////////////////////////////////////////////////////////////////////////
+//	modified by zhangyong for arming check
+/*static struct {
+    uint8_t fail_count;         // number of iterations ekf or dcm have been out of tolerances
+    uint8_t bad_variance : 1;   // true if ekf should be considered untrusted (fail_count has exceeded EKF_CHECK_ITERATIONS_MAX)
+    uint32_t last_warn_time;    // system time of last warning in milliseconds.  Used to throttle text warnings sent to GCS
+    //	added by zhangyong for different variance
+    EKF_VARIANCE_TYPE type;
+	//	added end
+} ekf_check_state;
+*/
+
+	EKF_check_state ekf_check_state;
 
     void compass_accumulate(void);
     void compass_cal_update(void);
@@ -1443,6 +1462,7 @@ public:
     void mavlink_delay_cb();
     void failsafe_check();
 	AP_SerialManager *get_serial_manager() {return &serial_manager;};
+	EKF_check_state * get_ekf_check_state() {return &ekf_check_state;}; 
 };
 
 extern const AP_HAL::HAL& hal;

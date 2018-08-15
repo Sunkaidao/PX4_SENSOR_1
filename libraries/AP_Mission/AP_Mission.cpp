@@ -69,44 +69,8 @@ void AP_Mission::init()
         AP_HAL::panic("AP_Mission Content must be 12 bytes");
     }
 
-    //baiyang added in 20180726
-    //These three commands should be in the first 6 waypoints.
-    Mission_Command cmd;
-    if (_cmd_total >= 6)
-    {
-    	for(int i = 0; i < 6; i++)
-    	{
-    		read_cmd_from_storage(i,cmd);
-			if (cmd.id == MAV_CMD_DO_CHANGE_SPEED)
-			{
-				_cmd_speed = cmd;
-			}
-		
-			if (cmd.id == MAV_CMD_CONDITION_YAW)
-			{
-				_cmd_yaw = cmd;
-			}
-			
-			if (cmd.id == MAV_CMD_DO_SPRAYER)
-			{
-				_cmd_do_spray = cmd;
-			}
-    	}
-    }
-
-    if (_cmd_total > 1)
-    {
-    	_first_nav_cmd_index = 0;
-    	for(int i = 1; i < _cmd_total; i++)
-    	{
-    		read_cmd_from_storage(i,cmd);
-			if (cmd.id == MAV_CMD_NAV_WAYPOINT)
-			{
-				_first_nav_cmd_index = cmd.index;
-				break;
-			}
-    	}
-    }
+    update_spray_configuration();
+    find_first_waypoint();
 
     if (_breakpoint.index != 0 && _breakpoint.index < _cmd_total && _flags.breakpoint_valid)
     {
@@ -227,9 +191,10 @@ void AP_Mission::reset()
     init_jump_tracking();
 
     //baiyang added in 20180726
+    //_breakpoint.index is insert position, not actual position of the breakpoint.
     if (_breakpoint.index != 0 && _breakpoint.index < _cmd_total && _flags.breakpoint_valid)
     {
-    	_nav_cmd.index = _breakpoint.index-1;
+    	_nav_cmd.index = _breakpoint.index - 1;
     }
     //added end
 }
@@ -460,13 +425,13 @@ bool AP_Mission::set_current_cmd(uint16_t index)
     		if (read_cmd_from_storage(b_index,cmd_b))
 			{
 				cmd_b.p1 = 0;
-				if (write_cmd_to_storage(b_index,cmd))
+				if (write_cmd_to_storage(b_index,cmd_b))
 				{
 					clear_b_index_and_new_airline();
 				}
 			}
     	}
-		if (_breakpoint.index != index)
+		else if (_breakpoint.index != index)
 		{
 			clear_b_index_and_new_airline();
 		}
@@ -2024,4 +1989,50 @@ int8_t AP_Mission::regenerate_airline()
     return true;
 }
 
+void AP_Mission :: update_spray_configuration()
+{
+	 //baiyang added in 20180726
+    //These three commands should be in the first 6 waypoints.
+    Mission_Command cmd;
+    if (_cmd_total >= 6)
+    {
+    	for(int i = 0; i < 6; i++)
+    	{
+    		read_cmd_from_storage(i,cmd);
+			if (cmd.id == MAV_CMD_DO_CHANGE_SPEED)
+			{
+				_cmd_speed = cmd;
+			}
+		
+			if (cmd.id == MAV_CMD_CONDITION_YAW)
+			{
+				_cmd_yaw = cmd;
+			}
+			
+			if (cmd.id == MAV_CMD_DO_SPRAYER)
+			{
+				_cmd_do_spray = cmd;
+			}
+    	}
+    }
+}
+
+void AP_Mission :: find_first_waypoint()
+{
+    Mission_Command cmd;
+	
+    if (_cmd_total > 1)
+    {
+    	_first_nav_cmd_index = 0;
+    	for(int i = 1; i < _cmd_total; i++)
+    	{
+    		read_cmd_from_storage(i,cmd);
+			if (cmd.id == MAV_CMD_NAV_WAYPOINT)
+			{
+				_first_nav_cmd_index = cmd.index;
+				break;
+			}
+    	}
+    }
+}
 

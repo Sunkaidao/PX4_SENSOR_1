@@ -182,7 +182,7 @@ void
 GCS_MAVLINK::queued_waypoint_int_send()
 {
 	//	added by ZhangYong for debug 
-	//	printf("queued_waypoint_int_send\n");
+	//	printf("queued_waypoint_int_send,i: %d\n",waypoint_request_i);
 	//	added end
 
 	if (initialised &&
@@ -862,6 +862,9 @@ bool GCS_MAVLINK::handle_mission_item(mavlink_message_t *msg, AP_Mission &missio
         send_text(MAV_SEVERITY_INFO,"Flight plan received");
         waypoint_receiving = false;
         mission_is_complete = true;
+
+        mission.update_spray_configuration();
+        mission.find_first_waypoint();
         // XXX ignores waypoint radius for individual waypoints, can
         // only set WP_RADIUS parameter
     } 
@@ -2162,6 +2165,7 @@ void GCS_MAVLINK::handle_common_mission_message(mavlink_message_t *msg)
     case MAVLINK_MSG_ID_MISSION_WRITE_PARTIAL_LIST: // MAV ID: 38
     {
         handle_mission_write_partial_list(*_mission, msg);
+		 //printf("PARTIAL_LIST\n");
         break;
     }
 
@@ -2172,6 +2176,7 @@ void GCS_MAVLINK::handle_common_mission_message(mavlink_message_t *msg)
         if (handle_mission_item(msg, *_mission)) {
             DataFlash_Class::instance()->Log_Write_EntireMission(*_mission);
         }
+		//printf("ITEM_INT\n");
         break;
     }
 
@@ -2180,12 +2185,14 @@ void GCS_MAVLINK::handle_common_mission_message(mavlink_message_t *msg)
     case MAVLINK_MSG_ID_MISSION_REQUEST:     // MAV ID: 40, 51
     {
         handle_mission_request(*_mission, msg);
+		//printf("REQUEST_INT\n");
         break;
     }
 
     case MAVLINK_MSG_ID_MISSION_SET_CURRENT:    // MAV ID: 41
     {
         handle_mission_set_current(*_mission, msg);
+		//printf("SET_CURRENT\n");
         break;
     }
 
@@ -2193,6 +2200,7 @@ void GCS_MAVLINK::handle_common_mission_message(mavlink_message_t *msg)
     case MAVLINK_MSG_ID_MISSION_REQUEST_LIST:       // MAV ID: 43
     {
         handle_mission_request_list(*_mission, msg);
+		//printf("REQUEST_LIST\n");
         break;
     }
 
@@ -2201,16 +2209,19 @@ void GCS_MAVLINK::handle_common_mission_message(mavlink_message_t *msg)
     case MAVLINK_MSG_ID_MISSION_COUNT:          // MAV ID: 44
     {
         handle_mission_count(*_mission, msg);
+		//printf("MISSION_COUNT\n");
         break;
     }
 
     case MAVLINK_MSG_ID_MISSION_CLEAR_ALL:      // MAV ID: 45
     {
         handle_mission_clear_all(*_mission, msg);
+		//printf("CLEAR_ALL\n");
         break;
     }
 
     case MAVLINK_MSG_ID_MISSION_ACK:
+		//printf("MISSION_ACK\n");
         /* not used */
         break;
     }

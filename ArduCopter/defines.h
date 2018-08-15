@@ -652,6 +652,27 @@ typedef union Edition_management {
 	uint32_t words;
 } Edition_management;
 
+//	added by zhangyong for ekf variance type
+enum EKF_VARIANCE_TYPE
+{
+	EKF_VARIANCE_NON,
+	EKF_VARIANCE_VEL,
+	EKF_VARIANCE_POS,
+	EKF_VARIANCE_HEI,
+	EKF_VARIANCE_MAG,
+	EKF_VARIANCE_TAS,
+};
+
+typedef struct {
+    uint8_t fail_count;         // number of iterations ekf or dcm have been out of tolerances
+    uint8_t bad_variance : 1;   // true if ekf should be considered untrusted (fail_count has exceeded EKF_CHECK_ITERATIONS_MAX)
+    uint32_t last_warn_time;    // system time of last warning in milliseconds.  Used to throttle text warnings sent to GCS
+    //	added by zhangyong for different variance
+    EKF_VARIANCE_TYPE type;
+	//	added end
+//	uint32_t test_counter;
+}EKF_check_state;
+
 //	added end
 
 

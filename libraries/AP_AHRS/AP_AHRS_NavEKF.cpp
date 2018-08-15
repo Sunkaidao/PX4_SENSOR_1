@@ -612,6 +612,9 @@ bool AP_AHRS_NavEKF::set_origin(const Location &loc)
     }
 }
 
+
+
+
 // return true if inertial navigation is active
 bool AP_AHRS_NavEKF::have_inertial_nav(void) const
 {
