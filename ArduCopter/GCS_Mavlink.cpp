@@ -950,6 +950,7 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
 	case MSG_COMMAND_INT:
 		CHECK_PAYLOAD_SIZE(COMMAND_INT);
 		copter.send_mission_breakpoint(chan);
+		break;
 //added end
 		
 	default:
