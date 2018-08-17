@@ -109,6 +109,7 @@ enum ap_message {
 	MSG_DA_GPS2_STA,
 //#endif
 	MSG_NEWBROADCAST_FLIGHT_STA,
+	MSG_COMMAND_INT,
     MSG_LAST // MSG_LAST must be the last entry in this enum
 
 };

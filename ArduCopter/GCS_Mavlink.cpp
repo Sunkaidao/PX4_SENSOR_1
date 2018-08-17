@@ -229,6 +229,59 @@ void NOINLINE Copter::send_rpm(mavlink_channel_t chan)
     }
 }
 
+/*
+  send breakpoint msg
+  baiyang added in 20180817
+ */
+void NOINLINE Copter::send_mission_breakpoint(mavlink_channel_t chan)
+{
+    mavlink_command_int_t packet_cmd;
+    mavlink_mission_item_int_t packet_mis;
+	
+    if(mission.get_send_breakpoint())
+    {
+    	if (AP_Mission::mission_cmd_to_mavlink_int(mission.get_nav_breakpoint_cmd(),packet_mis))
+    	{
+
+			packet_cmd.param1 = packet_mis.param1;
+			packet_cmd.param2 = mission.get_insert_mask();
+			packet_cmd.param3 = mission.get_breakpoint_index();
+			packet_cmd.param4 = mission.get_breakpoint_offset();
+			packet_cmd.x = packet_mis.x;
+			packet_cmd.y = packet_mis.y;
+			packet_cmd.z = packet_mis.z;
+			packet_cmd.command = MAV_CMD_NAV_BREAK_WAYPOINT;
+			packet_cmd.target_system = g.sysid_this_mav;
+			packet_cmd.target_component = 1;
+			packet_cmd.frame = packet_mis.frame;
+			packet_cmd.current = 0;
+			packet_cmd.autocontinue = 0;
+				
+	    	mavlink_msg_command_int_send_struct(chan,&packet_cmd);
+    	}
+    }
+}
+//added end
+
+//naiyang added in 20180817
+void NOINLINE Copter::handle_command_ack(mavlink_message_t *msg)
+{
+    mavlink_command_ack_t packet;
+    mavlink_msg_command_ack_decode(msg,&packet);
+
+    switch (packet.command) {
+
+    case MAV_CMD_NAV_BREAK_WAYPOINT:      // MAV ID: 0
+    {
+        if (packet.result == MAV_RESULT_ACCEPTED)
+        {
+        	mission.set_send_breakpoint(false);
+        }
+        break;
+    }
+    }
+}
+//added end
 
 /*
   send PID tuning message
@@ -892,6 +945,12 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
 		break;
 #endif		
 //added end
+
+//baiyang added in 20180817
+	case MSG_COMMAND_INT:
+		CHECK_PAYLOAD_SIZE(COMMAND_INT);
+		copter.send_mission_breakpoint(chan);
+//added end
 		
 	default:
 		return GCS_MAVLINK::try_send_message(id);
@@ -1119,6 +1178,10 @@ GCS_MAVLINK_Copter::data_stream_send(void)
 		send_message(MSG_NEWBROADCAST_FLIGHT_STA);
 //added end
 #endif
+//baiyang added in 20180817
+	    send_message(MSG_COMMAND_INT);
+//added end
+
 
     }
     
@@ -2198,6 +2261,9 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
     case MAVLINK_MSG_ID_COMMAND_ACK:        // MAV ID: 77
     {
         copter.command_ack_counter++;
+//baiyang added in 20180817
+        copter.handle_command_ack(msg);
+//added end
         break;
     }
 
