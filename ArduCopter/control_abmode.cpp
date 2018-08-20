@@ -112,13 +112,17 @@ void Copter::abmode_pos_control_run()
 		surface_tracking_climb_rate = get_surface_tracking_climb_rate(surface_tracking_climb_rate, pos_control->get_alt_target(), G_Dt);
 		//printf("%4.2f\n", target_climb_rate);
 
-		//pos_control->set_alt_target_from_climb_rate_ff(surface_tracking_climb_rate, G_Dt, false);
+		pos_control->set_alt_target_from_climb_rate_ff(surface_tracking_climb_rate, G_Dt, false);
+	}
+	else
+	{
+		pos_control->set_alt_target_from_climb_rate(surface_tracking_climb_rate, G_Dt, false);
 	}
 	//	added end
 	
     // update altitude target and call position controller
     //pos_control->set_alt_target_from_climb_rate_ff(surface_tracking_climb_rate, G_Dt, false);
-    pos_control->set_alt_target_from_climb_rate(surface_tracking_climb_rate, G_Dt, false);
+    //pos_control->set_alt_target_from_climb_rate(surface_tracking_climb_rate, G_Dt, false);
     pos_control->update_z_controller();
 
     // call attitude controller
