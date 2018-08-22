@@ -148,16 +148,7 @@ bool AP_ABMode::abmode_set_pos_a(void)
 	{   
 		ab_mode.a_loc.lng = copter.inertial_nav.get_longitude();
 		ab_mode.a_loc.lat = copter.inertial_nav.get_latitude();
-		
-		if(copter.rangefinder_alt_ok())
-		{
-			ab_mode.a_loc.alt = copter.rangefinder_state.alt_cm;
-		}
-		else
-		{
-			ab_mode.a_loc.alt = copter.inertial_nav.get_position().z;
-		}
-		
+		ab_mode.a_loc.alt = copter.inertial_nav.get_position().z;
 		ab_mode.a_pos = location_3d_diff_NED(home, ab_mode.a_loc);
 
 		ab_mode.is_record_a = YES;
@@ -218,16 +209,7 @@ bool AP_ABMode::abmode_set_pos_b(void)
 	{
 		ab_mode.b_loc.lng = copter.inertial_nav.get_longitude();
 		ab_mode.b_loc.lat = copter.inertial_nav.get_latitude();
-
-		if(copter.rangefinder_alt_ok())
-		{
-			ab_mode.b_loc.alt = copter.rangefinder_state.alt_cm;
-		}
-		else
-		{
-			ab_mode.b_loc.alt = copter.inertial_nav.get_position().z;
-		}
-
+		ab_mode.b_loc.alt = copter.inertial_nav.get_position().z;
 		ab_mode.b_pos = location_3d_diff_NED(home, ab_mode.b_loc);
 		
 		ab_mode.is_record_b = YES;
@@ -634,16 +616,8 @@ void AP_ABMode:: set_wp_alt_and_type(Location &cmd_location)
 	
 	temp_alt = MAX(ab_mode.a_loc.alt,ab_mode.b_loc.alt);
 	cmd_location.alt = MAX(alt_break,temp_alt);
-	
-	if(copter.rangefinder_alt_ok())
-	{
-		cmd_location.flags.relative_alt = 1;
-		cmd_location.flags.terrain_alt = 1;
-	}
-	else
-	{
-		cmd_location.flags.relative_alt = 1;
-	}
+	cmd_location.flags.relative_alt = 1;
+
 }
 
 void AP_ABMode:: adjust_yaw()

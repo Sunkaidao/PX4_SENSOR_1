@@ -619,7 +619,7 @@ bool AC_WPNav::set_wp_origin_and_destination_xy(const Vector3f& origin, const Ve
     }
 
     // initialise intermediate point to the origin
-    _pos_control.set_pos_target(origin + Vector3f(0,0,origin_terr_offset));
+    _pos_control.set_xy_target(origin.x,origin.y);
     _track_desired = 0;             // target is at beginning of track
     _flags.reached_destination = false;
     _flags.fast_waypoint = false;   // default waypoint back to slow
@@ -978,9 +978,18 @@ bool AC_WPNav::advance_wp_target_xy_along_track(float dt)
     Vector3f final_target = _origin + _pos_delta_unit * _track_desired;
     // convert final_target.z to altitude above the ekf origin
     final_target.z += terr_offset;
-    //_pos_control.set_pos_target(final_target);
-    _pos_control.set_pos_target_xy(final_target.x,final_target.y);
-    //_pos_control.set_xy_target(final_target.x,final_target.y);
+   
+    if (_rangefinder_available && _rangefinder_use) {
+        if (_rangefinder_healthy) {
+            _pos_control.set_xy_target(final_target.x,final_target.y);
+        } else {
+            _pos_control.set_pos_target_xy(final_target.x,final_target.y);
+        }
+    }
+    else
+    {
+        _pos_control.set_pos_target_xy(final_target.x,final_target.y);
+    }
 
     // check if we've reached the waypoint
     if( !_flags.reached_destination ) {
@@ -1111,7 +1120,7 @@ bool AC_WPNav::update_wpnav_xy()
             _flags.new_wp_destination = false;
             _pos_control.freeze_ff_xy();
         }
-        _pos_control.freeze_ff_z();
+        //_pos_control.freeze_ff_z();
 
         _pos_control.update_xy_controller(AC_PosControl::XY_MODE_POS_ONLY, 1.0f, false);
         check_wp_leash_length();
