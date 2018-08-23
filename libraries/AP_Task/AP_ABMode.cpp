@@ -969,6 +969,12 @@ void AP_ABMode::update_rgb()
 		rgb_timer++;
 	}
 }
+
+void AP_ABMode::update_spray_dist()
+{
+	width = (copter.sprayer.get_unspray_dist()-50)/100.0f;
+}
+
 void AP_ABMode::update()
 {
 	if (!_initialised ) 
@@ -976,6 +982,7 @@ void AP_ABMode::update()
     	return;
   	}
 
+	update_spray_dist();
 	update_rgb();
 	set_direction_from_rc_roll();
     
