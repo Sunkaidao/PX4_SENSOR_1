@@ -777,9 +777,10 @@ private:
 	//	added by ZhangYong 20171114
 	//	symbol for height replace in auto mode
 	uint8_t height_replace_switch;
-	//	height want to replace centimeter relative
-	int32_t height_replace_alt;
-	
+	//	height want to replace centimeter relative above home
+	int32_t height_replace_alt_home;
+	//	height want to replace centimeter relative above home
+	int32_t height_replace_alt_terrain;
 	//	added end
 
 #if PROJECTGKXN == ENABLED
