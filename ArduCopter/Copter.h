@@ -946,6 +946,8 @@ private:
     void send_simstate(mavlink_channel_t chan);
     void send_vfr_hud(mavlink_channel_t chan);
     void send_rpm(mavlink_channel_t chan);
+    void send_mission_breakpoint(mavlink_channel_t chan);
+    void handle_command_ack(mavlink_message_t *msg);
 
 
     void rpm_update();
