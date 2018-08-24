@@ -175,6 +175,7 @@ private:
 	Vector3d p_2;  //unit: m
 	Location target_wp;
 	Location home_loc;
+	//	added by zhangyong for
 };
 
 #endif

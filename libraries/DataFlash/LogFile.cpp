@@ -350,7 +350,7 @@ void DataFlash_Class::Log_Write_RFND(const RangeFinder &rangefinder)
         orient2       : s1 ? s1->orientation() : ROTATION_NONE,
         dist3         : s2 ? s2->distance_cm() : (uint16_t)0,
         orient3       : s2 ? s2->orientation() : ROTATION_NONE,
-				error1        : s0 ? s0->RangeFinder_error_count() : (uint16_t)0,
+		error1        : s0 ? s0->RangeFinder_error_count() : (uint16_t)0,
         notarget1     : s0 ? s0->RangeFinder_no_target_count() : (uint16_t)0,
         unvaildnum1   : s0 ? s0->RangeFinder_unvalid_num(): (uint16_t)0,
         condition1    : s0 ? s0->RangeFinder_message_condition(): (uint8_t)0,

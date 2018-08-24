@@ -769,6 +769,11 @@ void Copter::do_aux_switch_function(int8_t ch_function, uint8_t ch_flag)
 	                break;
 	            case AUX_SWITCH_LOW:
 	                rf_abmode.abmode_set_pos_a();
+					//	added by zhangyong for spraying operation 20180823
+					//	sprayer.run(true);
+					//	sprayer.test_pump(!motors->armed());
+					//	added end
+					
 	                break;
             }
             break;
