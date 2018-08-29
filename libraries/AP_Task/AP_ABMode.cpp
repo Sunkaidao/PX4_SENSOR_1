@@ -731,6 +731,212 @@ void AP_ABMode:: set_direction_from_rc_roll()
 	ab_mode.is_start = YES;
 }
 
+void AP_ABMode::set_target_position_from_rc_pitch()
+{
+	static uint8_t step_pitch = 0;
+	
+	if(ab_mode.is_first_start == YES)
+	{
+		return;
+	}
+	
+	if(ABMODE_RF != copter.control_mode)
+	{
+		return;
+	}
+
+	if(copter.channel_pitch == nullptr)
+	{
+		return;
+	}
+
+	if (copter.wp_nav->reached_wp_destination())
+	{
+		return;
+	}
+
+	switch(step_pitch)
+    {
+        case 0:
+			 //The pitch channel is pushed forward to a negative value and pushed back to a positive value.
+			 if (copter.channel_pitch->get_control_in() > (ROLL_PITCH_YAW_INPUT_MAX/4)*3)
+			 {
+				 step_pitch = 1;
+			 }
+			 else if (copter.channel_pitch->get_control_in() < (-ROLL_PITCH_YAW_INPUT_MAX/4)*3)
+			 {
+				 step_pitch = 2;
+			 }
+			 else
+			 {
+			 	 step_pitch = 0;
+			 }
+            break;
+        case 1:
+			 if (copter.channel_pitch->get_control_in() < ROLL_PITCH_YAW_INPUT_MAX/4)
+			 {
+         	     change_target_position(SHORTEN);
+                step_pitch = 0;
+			 }
+            break;
+        case 2:
+			 if (copter.channel_pitch->get_control_in() > -ROLL_PITCH_YAW_INPUT_MAX/4)
+			 {
+                change_target_position(LENGTHEN);
+                step_pitch = 0;
+			 }
+            break;
+        default:
+			 step_pitch = 0;
+		     break;
+    }
+}
+
+void AP_ABMode:: change_target_position(pitch_action act)
+{
+	int8_t order_temp = order;
+	Vector3d _pos_delta_unit;
+	Vector3d _pos_delta;
+
+	_pos_delta = p_1 - p_2;
+	_pos_delta_unit = _pos_delta / _pos_delta.length(); //uint: m
+	
+	order_temp--;
+	
+#if AB_SEQUENCE == B_TO_A
+	
+	switch(order_temp)
+	{
+		case -1:
+			if(act == LENGTHEN)
+			{
+				p_1 += _pos_delta_unit;
+			}
+			else
+			{
+				p_1 -= _pos_delta_unit;
+			}
+			target_wp = NED_diff_location_3d(p_1, home_loc);
+			break;
+		case 0:
+			if(act == LENGTHEN)
+			{
+				p_1 += _pos_delta_unit;
+			}
+			else
+			{
+				p_1 -= _pos_delta_unit;
+			}
+			target_wp = NED_diff_location_3d(p_1, home_loc);
+			break;
+		case 1:
+			if(act == LENGTHEN)
+			{
+				p_2 -= _pos_delta_unit;
+			}
+			else
+			{
+				p_2 += _pos_delta_unit;
+			}
+			target_wp = NED_diff_location_3d(p_2, home_loc);
+			break;
+		case 2:
+			if(act == LENGTHEN)
+			{
+				p_2 -= _pos_delta_unit;
+			}
+			else
+			{
+				p_2 += _pos_delta_unit;
+			}
+			target_wp = NED_diff_location_3d(p_2, home_loc);
+			break;
+		case 3:
+			if(act == LENGTHEN)
+			{
+				p_1 += _pos_delta_unit;
+			}
+			else
+			{
+				p_1 -= _pos_delta_unit;
+			}
+			target_wp = NED_diff_location_3d(p_1, home_loc);
+			break;
+	}
+#else
+	//GKXN
+	switch(order_temp)
+	{
+		case -1:
+			if(act == LENGTHEN)
+			{
+				p_2 -= _pos_delta_unit;
+			}
+			else
+			{
+				p_2 += _pos_delta_unit;
+			}
+			target_wp = NED_diff_location_3d(p_2, home_loc);
+			break;
+		case 0:
+			if(act == LENGTHEN)
+			{
+				p_2 -= _pos_delta_unit;
+			}
+			else
+			{
+				p_2 += _pos_delta_unit;
+			}
+			target_wp = NED_diff_location_3d(p_2, home_loc);
+			break;
+		case 1:
+			if(act == LENGTHEN)
+			{
+				p_1 += _pos_delta_unit;
+			}
+			else
+			{
+				p_1 -= _pos_delta_unit;
+			}
+			target_wp = NED_diff_location_3d(p_1, home_loc);
+			break;
+		case 2:
+			if(act == LENGTHEN)
+			{
+				p_1 += _pos_delta_unit;
+			}
+			else
+			{
+				p_1 -= _pos_delta_unit;
+			}
+			target_wp = NED_diff_location_3d(p_1, home_loc);
+			break;
+		case 3:
+			if(act == LENGTHEN)
+			{
+				p_2 -= _pos_delta_unit;
+			}
+			else
+			{
+				p_2 += _pos_delta_unit;
+			}
+			target_wp = NED_diff_location_3d(p_2, home_loc);
+			break;
+	}
+#endif
+
+	set_wp_cmd(POSITION, target_wp, target_cmd);
+							
+	if(!copter.do_abmode(target_cmd))
+	{
+		gcs().send_text(MAV_SEVERITY_CRITICAL,"ABMODE: do_abmode failure");
+	}
+	copter.DataFlash.Log_Write_Target_WP(target_cmd.content.location,index,ab_mode.direction,ab_mode.yaw,home_loc);
+	mark_wp_mavlink_index(index);
+	mark_wp_loc(target_cmd.content.location);
+
+}
+
 void AP_ABMode:: invert_direction(switch_type        type,int8_t direction)
 {	
 	if(ab_mode.is_start == YES)
@@ -799,7 +1005,7 @@ Vector3d AP_ABMode:: calThreePointCoord(const Vector3d p1 , const Vector3d p2 , 
   from loc1 to loc2
   It is necessary to force conversion into double type
   only use 2D
-  unit：M
+  unit: m
  */
 Vector3d AP_ABMode::location_3d_diff_NED(const struct Location &home_loc1, const struct Location &loc2)
 {
@@ -1001,6 +1207,7 @@ void AP_ABMode::update()
 	update_spray_dist();
 	update_rgb();
 	set_direction_from_rc_roll();
+	set_target_position_from_rc_pitch();
     
 	if (!ab_mode.is_start) 
 	{

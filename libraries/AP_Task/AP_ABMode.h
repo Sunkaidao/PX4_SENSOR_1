@@ -67,6 +67,12 @@ enum switch_type
 	MANUAL = 1,
 };
 
+enum pitch_action
+{
+	LENGTHEN = 0,
+	SHORTEN = 1,
+};
+
 class AP_ABMode
 {
 public:
@@ -109,6 +115,8 @@ public:
 	void invert_direction(switch_type        type = MANUAL,int8_t direction = ISRIGHT);
 
 	void set_direction_from_rc_roll();
+	void set_target_position_from_rc_pitch();
+	void change_target_position(pitch_action act);
 	bool get_direction(){return ab_mode.direction;}
 	void direction_debug();
 
