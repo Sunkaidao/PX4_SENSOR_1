@@ -723,6 +723,11 @@ bool NavEKF2::InitialiseFilter(void)
             if (_imuMask & (1U<<i)) {
                 num_cores++;
             }
+
+            if (num_cores >= EKF2_CORE_MAX)
+            {
+                break;
+            }
         }
 
         if (hal.util->available_memory() < sizeof(NavEKF2_core)*num_cores + 4096) {
@@ -746,6 +751,11 @@ bool NavEKF2::InitialiseFilter(void)
                     return false;
                 }
                 num_cores++;
+            }
+			
+            if (num_cores >= EKF2_CORE_MAX)
+            {
+                break;
             }
         }
 
