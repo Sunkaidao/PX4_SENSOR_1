@@ -344,6 +344,7 @@ void Copter::userhook_SuperSlowLoop()
 		//printf("reason err: %d\n",mission.regenerate_airline());
 		mission.regenerate_airline();
 	}
+	//printf("pitch cin: %d\n",channel_pitch->get_control_in());
 }
 #endif
 
