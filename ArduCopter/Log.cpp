@@ -210,12 +210,31 @@ void Copter::Log_Write_Control_Tuning()
 {
     // get terrain altitude
     float terr_alt = 0.0f;
+
+	//	added by zhangyong for DSAT log in different flight mode
+	int16_t desired_terr_alt = 0;
+	//	added end
+	
 #if AP_TERRAIN_AVAILABLE && AC_TERRAIN
     if (terrain.height_above_terrain(terr_alt, true)) {
         terr_alt = 0.0f;
     }
 #endif
 
+	//	added by zhangyong for DSAT log in different flight mode
+	if((AUTO == control_mode) || (GUIDED == control_mode))
+	{
+		if(NULL != wp_nav)
+			desired_terr_alt = (int16_t)wp_nav->get_wp_destination_z();
+	}
+	else
+	{
+		desired_terr_alt = target_rangefinder_alt;
+	}
+	//	added end
+
+
+	/*
     struct log_Control_Tuning pkt = {
         LOG_PACKET_HEADER_INIT(LOG_CONTROL_TUNING_MSG),
         time_us             	: AP_HAL::micros64(),
@@ -227,6 +246,29 @@ void Copter::Log_Write_Control_Tuning()
         inav_alt            	: inertial_nav.get_altitude() / 100.0f,
         baro_alt            	: baro_alt,
         desired_rangefinder_alt : (int16_t)target_rangefinder_alt,
+        rangefinder_alt     	: rangefinder_state.alt_cm,
+        terr_alt            	: terr_alt,
+        target_climb_rate   	: (int16_t)pos_control->get_vel_target_z(),
+        climb_rate          	: climb_rate,
+//		added by ZhangYong 20180111
+		rangefinder_climb_rate 	: surface_tracking_climb_rate,
+		mavlink_id33_rel_alt	: current_loc.alt
+//		added end
+    };*/
+//		mavlink_id33_rel_alt	: (int32_t)(inertial_nav.get_altitude() * 10)
+
+
+	 struct log_Control_Tuning pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_CONTROL_TUNING_MSG),
+        time_us             	: AP_HAL::micros64(),
+        throttle_in         	: attitude_control->get_throttle_in(),
+        angle_boost         	: attitude_control->angle_boost(),
+        throttle_out        	: motors->get_throttle(),
+        throttle_hover      	: motors->get_throttle_hover(),
+        desired_alt         	: pos_control->get_alt_target() / 100.0f,
+        inav_alt            	: inertial_nav.get_altitude() / 100.0f,
+        baro_alt            	: baro_alt,
+        desired_rangefinder_alt : desired_terr_alt,
         rangefinder_alt     	: rangefinder_state.alt_cm,
         terr_alt            	: terr_alt,
         target_climb_rate   	: (int16_t)pos_control->get_vel_target_z(),
@@ -622,10 +664,11 @@ struct PACKED log_GuidedTarget {
     float vel_target_x;
     float vel_target_y;
     float vel_target_z;
+	uint8_t options;
 };
 
 // Write a Guided mode target
-void Copter::Log_Write_GuidedTarget(uint8_t target_type, const Vector3f& pos_target, const Vector3f& vel_target)
+void Copter::Log_Write_GuidedTarget(uint8_t target_type, const Vector3f& pos_target, const Vector3f& vel_target, uint8_t fp_options)
 {
     struct log_GuidedTarget pkt = {
         LOG_PACKET_HEADER_INIT(LOG_GUIDEDTARGET_MSG),
@@ -636,7 +679,9 @@ void Copter::Log_Write_GuidedTarget(uint8_t target_type, const Vector3f& pos_tar
         pos_target_z    : pos_target.z,
         vel_target_x    : vel_target.x,
         vel_target_y    : vel_target.y,
-        vel_target_z    : vel_target.z
+        vel_target_z    : vel_target.z,
+        options			: fp_options,
+        
     };
     DataFlash.WriteBlock(&pkt, sizeof(pkt));
 }
@@ -803,7 +848,7 @@ const struct LogStructure Copter::log_structure[] = {
     { LOG_PRECLAND_MSG, sizeof(log_Precland),
       "PL",    "QBBffff",    "TimeUS,Heal,TAcq,pX,pY,vX,vY" },
     { LOG_GUIDEDTARGET_MSG, sizeof(log_GuidedTarget),
-      "GUID",  "QBffffff",    "TimeUS,Type,pX,pY,pZ,vX,vY,vZ" },
+      "GUID",  "QBffffffb",    "TimeUS,Type,pX,pY,pZ,vX,vY,vZ,op" },
     { LOG_THROW_MSG, sizeof(log_Throw),
       "THRO",  "QBffffbbbb",  "TimeUS,Stage,Vel,VelZ,Acc,AccEfZ,Throw,AttOk,HgtOk,PosOk" },
 };
@@ -858,7 +903,7 @@ void Copter::Log_Write_Parameter_Tuning(uint8_t param, float tuning_val, int16_t
 void Copter::Log_Write_Home_And_Origin() {}
 void Copter::Log_Sensor_Health() {}
 void Copter::Log_Write_Precland() {}
-void Copter::Log_Write_GuidedTarget(uint8_t target_type, const Vector3f& pos_target, const Vector3f& vel_target) {}
+void Copter::Log_Write_GuidedTarget(uint8_t target_type, const Vector3f& pos_target, const Vector3f& vel_target, uint8_t fp_options) {}
 void Copter::Log_Write_Throw(ThrowModeStage stage, float velocity, float velocity_z, float accel, float ef_accel_z, bool throw_detect, bool attitude_ok, bool height_ok, bool pos_ok) {}
 void Copter::Log_Write_Proximity() {}
 void Copter::Log_Write_Beacon() {}

@@ -205,8 +205,12 @@ bool Copter::guided_set_destination(const Vector3f& destination, \
     // no need to check return status because terrain data is not used
     wp_nav->set_wp_destination(destination, false);
 
+	//	added by zhangyong 20180827 for guided test
+	//printf("guided_set_destination vector\n");
+	//	added end
+
     // log target
-    Log_Write_GuidedTarget(guided_mode, destination, Vector3f());
+    Log_Write_GuidedTarget(guided_mode, destination, Vector3f(), 0);
     return true;
 }
 
@@ -220,6 +224,9 @@ bool Copter::guided_set_destination(const Location_Class& dest_loc, \
 											float yaw_rate_cds, \
 											bool relative_yaw)
 {
+
+	Location_Class terrain_location;
+
     // ensure we are in position control mode
     if (guided_mode != Guided_WP) {
         guided_pos_control_start();
@@ -237,7 +244,26 @@ bool Copter::guided_set_destination(const Location_Class& dest_loc, \
 
 	//	printf("guided_set_destination lat %d, lng %d, alt %d\n", dest_loc.lat, dest_loc.lng, dest_loc.alt);
 
-    if (!wp_nav->set_wp_destination(dest_loc)) {
+	//added by zhangyong for guided terrain follow mode 20180828
+	terrain_location = dest_loc;
+
+	//	
+	if(rangefinder_alt_ok())
+	{
+		terrain_location.flags.terrain_alt = true;
+	}	
+	//	added end
+
+	//	modified by zhangyong for guided terrain follow mode 20180828
+    /*if (!wp_nav->set_wp_destination(dest_loc)) {
+        // failure to set destination can only be because of missing terrain data
+        Log_Write_Error(ERROR_SUBSYSTEM_NAVIGATION, ERROR_CODE_FAILED_TO_SET_DESTINATION);
+        // failure is propagated to GCS with NAK
+        return false;
+    }*/
+	//	modified end
+
+	if (!wp_nav->set_wp_destination(terrain_location)) {
         // failure to set destination can only be because of missing terrain data
         Log_Write_Error(ERROR_SUBSYSTEM_NAVIGATION, ERROR_CODE_FAILED_TO_SET_DESTINATION);
         // failure is propagated to GCS with NAK
@@ -247,8 +273,16 @@ bool Copter::guided_set_destination(const Location_Class& dest_loc, \
     // set yaw state
     guided_set_yaw_state(use_yaw, yaw_cd, use_yaw_rate, yaw_rate_cds, relative_yaw);
 
+	//	added by zhangyong 20180827 for guided test
+	//printf("guided_set_destination location\n");
+	//printf("lat %d, lng %d, alt %d, options 0x%x\n", dest_loc.lat, dest_loc.lng, dest_loc.alt, dest_loc.options);
+	//	added end
+
     // log target
-    Log_Write_GuidedTarget(guided_mode, Vector3f(dest_loc.lat, dest_loc.lng, dest_loc.alt),Vector3f());
+    //	modified by zhangyong for guided terrain follow mode 20180828
+    //Log_Write_GuidedTarget(guided_mode, Vector3f(dest_loc.lat, dest_loc.lng, dest_loc.alt),Vector3f(), dest_loc.options);
+	//	modified end
+	Log_Write_GuidedTarget(guided_mode, Vector3f(terrain_location.lat, terrain_location.lng, terrain_location.alt),Vector3f(), terrain_location.options);
     return true;
 }
 
@@ -268,7 +302,7 @@ void Copter::guided_set_velocity(const Vector3f& velocity, bool use_yaw, float y
     vel_update_time_ms = millis();
 
     // log target
-    Log_Write_GuidedTarget(guided_mode, Vector3f(), velocity);
+    Log_Write_GuidedTarget(guided_mode, Vector3f(), velocity, 0);
 }
 
 // set guided mode posvel target
@@ -289,7 +323,7 @@ void Copter::guided_set_destination_posvel(const Vector3f& destination, const Ve
     pos_control->set_pos_target(guided_pos_target_cm);
 
     // log target
-    Log_Write_GuidedTarget(guided_mode, destination, velocity);
+    Log_Write_GuidedTarget(guided_mode, destination, velocity, 0);
 }
 
 // set guided mode angle target
@@ -319,7 +353,7 @@ void Copter::guided_set_angle(const Quaternion &q, float climb_rate_cms, bool us
     // log target
     Log_Write_GuidedTarget(guided_mode,
                            Vector3f(guided_angle_state.roll_cd, guided_angle_state.pitch_cd, guided_angle_state.yaw_cd),
-                           Vector3f(0.0f, 0.0f, guided_angle_state.climb_rate_cms));
+                           Vector3f(0.0f, 0.0f, guided_angle_state.climb_rate_cms), 0);
 }
 
 // guided_run - runs the guided controller

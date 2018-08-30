@@ -21,7 +21,7 @@
 #include <SRV_Channel/SRV_Channel.h>
 #include <AP_InertialNav/AP_InertialNav.h>     // Inertial Navigation library
 //	added by ZhangYong 20170717
-//#include <../././ArduCopter/defines.h>
+#include <./../../ArduCopter/defines.h>
 
 
 //	added end
@@ -51,6 +51,10 @@ public:
 
     /// Constructor
     AC_Sprayer(const AP_InertialNav* inav);
+
+	///	added by zhangyong to adjust spray speed dynamically 20180828
+	void init( float loiter_speed, float wp_speed);
+	///	added end
 
     /// run - allow or disallow spraying to occur
     void run(bool true_false);
@@ -109,6 +113,13 @@ public:
     int16_t get_unspray_dist() {return _unspray_dist.get();}
     //added end
 
+
+	float get_loiter_velocity_cms() {return _loiter_velocity_cms;}
+	float get_wp_velocity_cms() {return _wp_velocity_cms;}
+
+	void set_loiter_velocity_cms(float speed) {_loiter_velocity_cms = speed;}
+	void set_wp_velocity_cms(float speed) {_wp_velocity_cms = speed;}
+
     static const struct AP_Param::GroupInfo var_info[];
 
 private:
@@ -139,6 +150,10 @@ private:
     // internal variables
     uint32_t        _speed_over_min_time;   ///< time at which we reached speed minimum
     uint32_t        _speed_under_min_time;  ///< time at which we fell below speed minimum
+
+	//	added by zhangyong 
+	float			_loiter_velocity_cms;
+	float			_wp_velocity_cms;
 
 	
 

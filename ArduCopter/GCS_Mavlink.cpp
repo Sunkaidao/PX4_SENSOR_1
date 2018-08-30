@@ -2372,6 +2372,10 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
             }
         }
 
+		///	added by zhangyong for terrain test 20180827
+		///printf("lat %d, lng %d alt %d\n", loc.lat, loc.lng, loc.alt);
+		///	added end
+
         // prepare yaw
         float yaw_cd = 0.0f;
         bool yaw_relative = false;
@@ -2432,13 +2436,15 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 
         Vector3f pos_ned;
 
+		Location loc;
+
         if(!pos_ignore) {
             // sanity check location
             if (!check_latlng(packet.lat_int, packet.lon_int)) {
                 result = MAV_RESULT_FAILED;
                 break;
             }
-            Location loc;
+            
             loc.lat = packet.lat_int;
             loc.lng = packet.lon_int;
             loc.alt = packet.alt*100;
@@ -2464,6 +2470,8 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
             pos_ned = copter.pv_location_to_vector(loc);
         }
 
+		
+
         // prepare yaw
         float yaw_cd = 0.0f;
         bool yaw_relative = false;
@@ -2476,12 +2484,24 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
             yaw_rate_cds = ToDeg(packet.yaw_rate) * 100.0f;
         }
 
+		/*
         if (!pos_ignore && !vel_ignore && acc_ignore) {
             copter.guided_set_destination_posvel(pos_ned, Vector3f(packet.vx * 100.0f, packet.vy * 100.0f, -packet.vz * 100.0f), !yaw_ignore, yaw_cd, !yaw_rate_ignore, yaw_rate_cds, yaw_relative);
         } else if (pos_ignore && !vel_ignore && acc_ignore) {
             copter.guided_set_velocity(Vector3f(packet.vx * 100.0f, packet.vy * 100.0f, -packet.vz * 100.0f), !yaw_ignore, yaw_cd, !yaw_rate_ignore, yaw_rate_cds, yaw_relative);
         } else if (!pos_ignore && vel_ignore && acc_ignore) {
             if (!copter.guided_set_destination(pos_ned, !yaw_ignore, yaw_cd, !yaw_rate_ignore, yaw_rate_cds, yaw_relative)) {
+                result = MAV_RESULT_FAILED;
+            }
+        } else {
+            result = MAV_RESULT_FAILED;
+        }*/
+        if (!pos_ignore && !vel_ignore && acc_ignore) {
+            copter.guided_set_destination_posvel(pos_ned, Vector3f(packet.vx * 100.0f, packet.vy * 100.0f, -packet.vz * 100.0f), !yaw_ignore, yaw_cd, !yaw_rate_ignore, yaw_rate_cds, yaw_relative);
+        } else if (pos_ignore && !vel_ignore && acc_ignore) {
+            copter.guided_set_velocity(Vector3f(packet.vx * 100.0f, packet.vy * 100.0f, -packet.vz * 100.0f), !yaw_ignore, yaw_cd, !yaw_rate_ignore, yaw_rate_cds, yaw_relative);
+        } else if (!pos_ignore && vel_ignore && acc_ignore) {
+            if (!copter.guided_set_destination(loc, !yaw_ignore, yaw_cd, !yaw_rate_ignore, yaw_rate_cds, yaw_relative)) {
                 result = MAV_RESULT_FAILED;
             }
         } else {

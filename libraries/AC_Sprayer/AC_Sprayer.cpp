@@ -95,18 +95,28 @@ AC_Sprayer::AC_Sprayer(const AP_InertialNav* inav) :
         _spinner_pwm.set_and_save(AC_SPRAYER_DEFAULT_SPINNER_PWM);
     }
 
+	_loiter_velocity_cms = 50;
+	_wp_velocity_cms = 50;
+
     // To-Do: ensure that the pump and spinner servo channels are enabled
 }
 
+void AC_Sprayer::init(float loiter_speed, float wp_speed)
+{
+
+	_wp_velocity_cms = wp_speed;
+	_loiter_velocity_cms = loiter_speed;
+}
+
 	
-	void AC_Sprayer::test_pump(bool true_false) 
-	{
-		if(true_false == _flags.testing)
-			return;
-		
-		_flags.testing = true_false; 
+void AC_Sprayer::test_pump(bool true_false) 
+{
+	if(true_false == _flags.testing)
+		return;
 	
-	}	
+	_flags.testing = true_false; 
+	
+}	
 
 void AC_Sprayer::run(const bool true_false)
 {
@@ -155,6 +165,7 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 	float lcl_pump_rate;
 	//int16_t pump_pct;
 	actual_pump_rate = 0;
+	float speed_max = 500;
 	//	added end
 
 
@@ -244,7 +255,7 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 					//	AUTO = 3
 					//	ABMODE_RF = 21
 
-					if(3 == ctl_mode || 21 == ctl_mode)					
+					if(AUTO == ctl_mode || ABMODE_RF == ctl_mode)					
 					{
 						if(wp_dist != 0)
 						{
@@ -308,7 +319,7 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 					//	ABMODE_RF = 21
 					//if((ctl_mode == 3) && (1 =  _vpvs_enable))
 
-					if(3 == ctl_mode || 21 == ctl_mode)					
+					if(AUTO == ctl_mode || ABMODE_RF == ctl_mode)					
 					{	
 						if(0 != wp_dist)
 						{
@@ -374,8 +385,38 @@ AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
 		{
 			if(1 == _vpvs_enable)
 			{
+				if(0 == _loiter_velocity_cms)
+				{
+					_loiter_velocity_cms = 500;
+				}
+
+				if(0 == _wp_velocity_cms)
+				{
+					_wp_velocity_cms = 500;
+				}
+
+				switch(ctl_mode)
+				{
+					case  LOITER:
+						speed_max = _loiter_velocity_cms;
+						break;
+
+					case ABMODE_RF:
+					case AUTO:
+					case GUIDED:
+						speed_max = _wp_velocity_cms;
+						break;
+
+					default:
+						speed_max = 500;
+						break;
+				}
 				
-				lcl_pump_rate = float(_pump_min_pct.get()) * 100 + (ground_speed * _pump_pct_1ms.get() / 10 );
+			
+				//lcl_pump_rate = float(_pump_min_pct.get()) * 100 +  (ground_speed * _pump_pct_1ms.get() / 10 );
+				//	pumprate = static part + dynamic part
+				lcl_pump_rate = float(_pump_min_pct.get()) * 100 +  \
+								((100 - float(_pump_min_pct.get())) * ground_speed * _pump_pct_1ms.get() / speed_max);
 				//printf("sprayer, %4.2f %4.2f\n", ground_speed, _pump_pct_1ms.get());
 			}else
 				lcl_pump_rate = 100 *_pump_pct_1ms.get();

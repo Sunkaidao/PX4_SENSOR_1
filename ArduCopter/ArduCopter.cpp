@@ -504,18 +504,6 @@ void Copter::three_hz_loop()
 
 #if SPRAYER == ENABLED
 
-	//	update vpvs timely
-	//	added by ZhangYong 20171011
-	/*if(sprayer.get_enabled())
-	{
-		if(sprayer.get_running())
-		{
-			sprayer.test_pump(!motors->armed());
-		}
-	}*/
-	//	added end
-
-
 
     sprayer.update(control_mode, wp_distance);
 
@@ -556,7 +544,6 @@ void Copter::three_hz_loop()
 	{
 		//printf("here!\n");
 		set_failsafe_payload(FAILSAFE_PLD_TYPE_FM, true);
-	//		sprayer.enable(false);
 
 		sprayer.run(false);
 		sprayer.test_pump(false);

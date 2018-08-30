@@ -297,6 +297,10 @@ void Copter::init_ardupilot()
     // disable safety if requested
     BoardConfig.init_safety();
 
+	//	payload initialize start
+	sprayer.init(wp_nav->get_loiter_speed_xy(), wp_nav->get_speed_xy());
+	//	payload end
+
 
 //	duration_cnt = 0;
 

@@ -175,7 +175,7 @@ bool Copter::abmode_set_destination_xy(const Vector3f& destination, bool use_yaw
     wp_nav->set_wp_destination_xy(destination, false);
 
     // log target
-    Log_Write_GuidedTarget(guided_mode, destination, Vector3f());
+    //Log_Write_GuidedTarget(guided_mode, destination, Vector3f());
     return true;
 }
 
@@ -210,7 +210,7 @@ bool Copter::abmode_set_destination_xy(const Location_Class& dest_loc, bool use_
     guided_set_yaw_state(use_yaw, yaw_cd, use_yaw_rate, yaw_rate_cds, relative_yaw);
 
     // log target
-    Log_Write_GuidedTarget(guided_mode, Vector3f(dest_loc.lat, dest_loc.lng, dest_loc.alt),Vector3f());
+    //Log_Write_GuidedTarget(guided_mode, Vector3f(dest_loc.lat, dest_loc.lng, dest_loc.alt),Vector3f());
     return true;
 }
 

@@ -131,6 +131,8 @@ public:
     /// get_speed_xy - allows main code to retrieve target horizontal velocity for wp navigation
     float get_speed_xy() const { return _wp_speed_cms; }
 
+	float get_loiter_speed_xy() const {return _loiter_speed_cms; }
+
     /// get_speed_up - returns target climb speed in cm/s during missions
     float get_speed_up() const { return _wp_speed_up_cms; }
 
@@ -145,6 +147,10 @@ public:
 
     /// get_wp_destination waypoint using position vector (distance from ekf origin in cm)
     const Vector3f &get_wp_destination() const { return _destination; }
+
+	//	added by zhangyong for desired terrain follow log 
+	float	get_wp_destination_z() { return _destination.z; }
+	//	added end
 
     /// get origin using position vector (distance from ekf origin in cm)
     const Vector3f &get_wp_origin() const { return _origin; }
