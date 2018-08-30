@@ -228,7 +228,7 @@ void NavEKF2_core::SelectMagFusion()
     gpsHeadDataToFuse = storedGPSHead.recall(gpsHeadDataDelayed,imuDataDelayed.time_ms);
 
 #ifdef GPS_YAW_CAL
-	if (_head_control[core_index])
+	if (_head_control)
 	{	
 		if (lastTimeGpsHeadReceived_ms != 0)
 		{
@@ -237,7 +237,7 @@ void NavEKF2_core::SelectMagFusion()
 				lastTimeGpsHeadLost_ms = AP_HAL::millis();
 					
 				//Dual-antenna GPS error until the double-antenna correction yaw function is turned off before the power is turned off.
-				_head_control[core_index] = 0;
+				_head_control = 0;
 
 				//Use magnetic compass data to force reset yaw angle
 				magYawResetRequest = true;
@@ -245,7 +245,7 @@ void NavEKF2_core::SelectMagFusion()
 				frontend->gps_heading_health = false;
 				gcs().send_text(MAV_SEVERITY_INFO, "EKF2 IMU%u D-GPS heading anomaly, yaw re-aligned for mag",(unsigned)imu_index);
 				//printf("EKF2 IMU%u D-GPS heading anomaly, yaw re-aligned for mag\n",(unsigned)imu_index);
-				//printf("_head_control %d\n",_head_control[core_index]);
+				//printf("_head_control %d\n",_head_control);
 			}
 		}
 	}
@@ -256,7 +256,7 @@ void NavEKF2_core::SelectMagFusion()
 			if (AP_HAL::millis() - lastTimeGpsHeadReceived_ms < 220)
 			{
 				//Dual antenna GPS restores health and re-enables dual antenna orientation.
-				_head_control[core_index] = 1;
+				_head_control = 1;
 
 				//Dual antenna GPS  data to force reset yaw angle
 				magYawResetRequest = true;
@@ -264,13 +264,13 @@ void NavEKF2_core::SelectMagFusion()
 				frontend->gps_heading_health = true;;
 				gcs().send_text(MAV_SEVERITY_INFO, "EKF2 IMU%u D-GPS heading restores health",(unsigned)imu_index);
 				//printf("EKF2 IMU%u D-GPS heading restores health\n",(unsigned)imu_index);
-				//printf("_head_control %d\n",_head_control[core_index]);
+				//printf("_head_control %d\n",_head_control);
 			}
 		}
 	}
 
 	bool dataReady = false;
-	if (_head_control[core_index])
+	if (_head_control)
 	{	
 		if (lastTimeGpsHeadReceived_ms == 0)
 		{
@@ -290,7 +290,7 @@ void NavEKF2_core::SelectMagFusion()
 				shouldResetYaw = true;
 			}
 			
-			if (gpsHeadDataToFuse && _head_control[core_index])
+			if (gpsHeadDataToFuse && _head_control)
 			{
 				if (shouldResetYaw)
 				{
@@ -303,7 +303,7 @@ void NavEKF2_core::SelectMagFusion()
 	     		controlMagYawReset();
 			}
 
-			dataReady = (gpsHeadDataToFuse && statesInitialised && _head_control[core_index] && yawAlignComplete);
+			dataReady = (gpsHeadDataToFuse && statesInitialised && _head_control && yawAlignComplete);
 		}
 	}
 	else
@@ -487,7 +487,7 @@ void NavEKF2_core::FuseMagnetometer()
         QMagPred[2] = QDCM[2][0]*magN + QDCM[2][1]*magE  + QDCM[2][2]*magD + magZbias;
 		//added end
 
-		if(_head_control[core_index] && (_ahrs->get_gps().Headstatus()>= AP_GPS::NARROW_INT)){
+		if(_head_control && (_ahrs->get_gps().Headstatus()>= AP_GPS::NARROW_INT)){
 			//calculate the measurement innovation for each axis
 			for (uint8_t i = 0; i<=2; i++) {
                 innovMag[i] = MagPred[i] - QMagPred[i];
@@ -979,7 +979,7 @@ void NavEKF2_core::fuseEulerYaw()
 #ifdef GPS_YAW_CAL
 	//baiyang added in 20170116
 	float innovation;
-	if(_head_control[core_index] && (_ahrs->get_gps().status() >= AP_GPS::GPS_OK_FIX_3D) &&\
+	if(_head_control && (_ahrs->get_gps().status() >= AP_GPS::GPS_OK_FIX_3D) &&\
 		(_ahrs->get_gps().Headstatus() >= AP_GPS::NARROW_INT)){
 		// Calculate the innovation
         innovation = wrap_PI(predicted_yaw-wrap_PI(radians(gpsHeadDataDelayed.Head)) );
@@ -1252,7 +1252,7 @@ void NavEKF2_core::alignMagStateDeclination()
 #ifdef GPS_YAW_CAL
 
 	//baiyang added in 20170303
-	if(_head_control[core_index] && (_ahrs-> get_gps().Headstatus()>= AP_GPS::NARROW_INT)){
+	if(_head_control && (_ahrs-> get_gps().Headstatus()>= AP_GPS::NARROW_INT)){
 		if(is_zero(stateStruct.earth_magfield.x) && is_zero(stateStruct.earth_magfield.y) && is_zero(stateStruct.earth_magfield.z)){
 			stateStruct.earth_magfield.x = frontend->VirMagN;
 	        stateStruct.earth_magfield.y = frontend->VirMagE;

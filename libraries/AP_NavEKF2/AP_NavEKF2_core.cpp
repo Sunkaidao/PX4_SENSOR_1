@@ -54,14 +54,8 @@ bool NavEKF2_core::setup_core(NavEKF2 *_frontend, uint8_t _imu_index, uint8_t _c
     frontend = _frontend;
     imu_index = _imu_index;
     core_index = _core_index;
-    _ahrs = frontend->_ahrs;
-
-	if(core_index >= EKF2_CORE_MAX)
-	{
-		return false;
-	}
-	
-	_head_control[core_index] = frontend->_head_control;
+    _ahrs = frontend->_ahrs;	
+    _head_control = frontend->_head_control;
 
     /*
       the imu_buffer_length needs to cope with a 260ms delay at a
@@ -1490,9 +1484,9 @@ Quaternion NavEKF2_core::calcQuatAndFieldStates(float roll, float pitch)
 #ifdef GPS_YAW_CAL
 		 //baiyang added in 20170116
 		 float gpsHead = wrap_PI(radians(gpsHeadDataDelayed.Head));
-		 //printf("core%u gpsHead: %4.4f/%4.4f,hc: %d\n",core_index,gpsHead,wrap_PI(radians(gpsHeadDataDelayed.Head)),_head_control[core_index]);
+		 //printf("core%u gpsHead: %4.4f/%4.4f,hc: %d\n",core_index,gpsHead,wrap_PI(radians(gpsHeadDataDelayed.Head)),_head_control);
 
-		 if (_head_control[core_index] && (_ahrs->get_gps().Headstatus() >= AP_GPS::NARROW_INT))
+		 if (_head_control && (_ahrs->get_gps().Headstatus() >= AP_GPS::NARROW_INT))
 		 {
 	        yaw = gpsHead;
 			

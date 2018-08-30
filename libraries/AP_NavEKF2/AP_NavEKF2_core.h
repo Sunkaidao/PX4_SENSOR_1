@@ -53,9 +53,6 @@
 // mag fusion final reset altitude
 #define EKF2_MAG_FINAL_RESET_ALT 2.5f
 
-//Maximum number of instances for ekf2 core
-#define EKF2_CORE_MAX     3
-
 
 class AP_AHRS;
 
@@ -824,7 +821,7 @@ private:
     uint32_t lastTimeGpsHeadLost_ms;       // last time we lost GPS Head data
     uint32_t prelastTimeGpsHeadReceived_ms; // previous lastTimeGpsHeadReceived_ms
     bool shouldResetYaw;
-    bool _head_control[EKF2_CORE_MAX];
+    bool _head_control;
 	//added end
 #endif
 	uint32_t timeAtLastAuxEKF_ms;   // last time the auxiliary filter was run to fuse range or optical flow measurements
