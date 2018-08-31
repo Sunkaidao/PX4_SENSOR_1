@@ -257,7 +257,6 @@ void AP_Mission::update()
         Mission_Command cmd;
         if (_breakpoint.index != 0 && \
 			_breakpoint.index < _cmd_total && \
-			_flags.breakpoint_valid && \
 			_flags.do_cmd_change_airline)
 		 {
 		 	clear_b_index_and_new_airline();
@@ -275,7 +274,6 @@ void AP_Mission::update()
             uint16_t b_index;
             if (_breakpoint.index != 0 && \
 				_breakpoint.index < _cmd_total && \
-				_flags.breakpoint_valid && \
 				!_flags.do_cmd_change_airline && \
 				(_breakpoint.new_airline == 1))
 			 {
@@ -1834,7 +1832,7 @@ bool AP_Mission::record_breakpoint()
 {
     struct Location current_loc;
     Mission_Command cmd;
-
+	
     if (!_ahrs.get_position(current_loc) || \
 		_nav_cmd.id == MAV_CMD_NAV_TAKEOFF || \
 		_nav_cmd.id == MAV_CMD_NAV_RETURN_TO_LAUNCH || \
@@ -1842,11 +1840,20 @@ bool AP_Mission::record_breakpoint()
     {
         goto record_breakpoint_false;
     }
+	
+	if (_breakpoint.index != 0 && (_nav_cmd.index == (_breakpoint.index + _breakpoint.offset)))
+	{	
+	    return false;
+	}
+	else
+	{
+	    _breakpoint.index.set_and_save_ifchanged(_nav_cmd.index==AP_MISSION_CMD_INDEX_NONE?0:_nav_cmd.index);
+	    _breakpoint.lat = current_loc.lat;
+	    _breakpoint.lng = current_loc.lng;
+	    _flags.breakpoint_valid = true;
+	}
 
-	_breakpoint.index.set_and_save_ifchanged(_nav_cmd.index==AP_MISSION_CMD_INDEX_NONE?0:_nav_cmd.index);
-	_breakpoint.lat = current_loc.lat;
-	_breakpoint.lng = current_loc.lng;
-	_flags.breakpoint_valid = true;
+	//printf("b_index: %d,cmd_index: %d\n",_breakpoint.index,_nav_cmd.index);
 
 	return true;
 
