@@ -237,6 +237,8 @@ void NOINLINE Copter::send_mission_breakpoint(mavlink_channel_t chan)
 {
     mavlink_command_int_t packet_cmd;
     mavlink_mission_item_int_t packet_mis;
+
+    int16_t breakpoint_index = mission.get_nav_breakpoint_cmd().index - mission.get_breakpoint_offset();
 	
     if(mission.get_send_breakpoint())
     {
@@ -245,8 +247,8 @@ void NOINLINE Copter::send_mission_breakpoint(mavlink_channel_t chan)
 
 			packet_cmd.param1 = packet_mis.param1;
 			packet_cmd.param2 = mission.get_insert_mask();
-			packet_cmd.param3 = mission.get_breakpoint_index();
-			packet_cmd.param4 = mission.get_breakpoint_offset();
+			packet_cmd.param3 = breakpoint_index;
+			packet_cmd.param4 = mission.get_breakpoint_type();
 			packet_cmd.x = packet_mis.x;
 			packet_cmd.y = packet_mis.y;
 			packet_cmd.z = packet_mis.z;

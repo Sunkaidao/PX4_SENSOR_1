@@ -279,6 +279,7 @@ public:
         AP_Int16 index;
         AP_Int8 new_airline;
         AP_Int8 offset;
+        int8_t operation_type;    //0:insert,1:modify
         int32_t lat;
         int32_t lng;
         Yaw_Command yaw;
@@ -511,10 +512,12 @@ public:
     /// get_nav_breakpoint_cmd - returns the breakpoint nav command
     const Mission_Command& get_nav_breakpoint_cmd() const { return _nav_breakpoint_cmd; }
 
-    int16_t get_breakpoint_index() { return _breakpoint.index; }
+    int16_t get_breakpoint_index() { return _breakpoint.index.get(); }
 
-    int8_t get_breakpoint_offset() { return _breakpoint.offset; }
+    int8_t get_breakpoint_offset() { return _breakpoint.offset.get(); }
 //added end
+
+	int8_t get_breakpoint_type() { return _breakpoint.operation_type; }
 
     // user settable parameters
     static const struct AP_Param::GroupInfo var_info[];

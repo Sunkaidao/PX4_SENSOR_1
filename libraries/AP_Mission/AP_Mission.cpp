@@ -287,6 +287,7 @@ void AP_Mission::update()
 					{
 						clear_b_index_and_new_airline();
 						_nav_breakpoint_cmd = cmd;
+						_breakpoint.operation_type = 1;
 						set_send_breakpoint(true);
 					}
 				}
@@ -431,6 +432,7 @@ bool AP_Mission::set_current_cmd(uint16_t index)
 				{
 					clear_b_index_and_new_airline();
 					_nav_breakpoint_cmd = cmd_b;
+					_breakpoint.operation_type = 1;
 					set_send_breakpoint(true);
 				}
 			}
@@ -1991,6 +1993,7 @@ int8_t AP_Mission::regenerate_airline()
 	
     _cmd_total.set_and_save_ifchanged(_cmd_total_temp);
     _breakpoint.new_airline.set_and_save_ifchanged(1);
+    _breakpoint.operation_type = 0;
     set_send_breakpoint(true);
 	
     return true;
