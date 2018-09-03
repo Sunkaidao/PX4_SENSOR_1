@@ -54,7 +54,8 @@ bool NavEKF2_core::setup_core(NavEKF2 *_frontend, uint8_t _imu_index, uint8_t _c
     frontend = _frontend;
     imu_index = _imu_index;
     core_index = _core_index;
-    _ahrs = frontend->_ahrs;
+    _ahrs = frontend->_ahrs;	
+    _head_control = frontend->_head_control;
 
     /*
       the imu_buffer_length needs to cope with a 260ms delay at a
@@ -139,6 +140,11 @@ void NavEKF2_core::InitialiseVariables()
 	//baiyang added in 20170117
 	lastTimeGpsHeadReceived_ms = 0;
 	secondLastGpsHeadTime_ms = 0;
+	//added end
+	//baiyang added in 20180829
+	lastTimeGpsHeadLost_ms = 0;
+	prelastTimeGpsHeadReceived_ms = 0;
+	shouldResetYaw = false;
 	//added end
 #endif
     lastDecayTime_ms = imuSampleTime_ms;
@@ -279,11 +285,6 @@ void NavEKF2_core::InitialiseVariables()
     magStateInitComplete = false;
     magYawResetRequest = false;
     gpsYawResetRequest = false;
-#ifdef GPS_YAW_CAL
-	//baiyang aaded in 20170119
-	gpsHeadResetRequest = true;
-	//added end
-#endif
     posDownAtLastMagReset = stateStruct.position.z;
     yawInnovAtLastMagReset = 0.0f;
     quatAtLastMagReset = stateStruct.quat;
@@ -1467,6 +1468,10 @@ Quaternion NavEKF2_core::calcQuatAndFieldStates(float roll, float pitch)
         // read the magnetometer data
         readMagData();
 
+        // read Dual-antenna GPS data,baiyang added in 20180829
+        readGpsHeadData();
+        //added end
+
         // rotate the magnetic field into NED axes
         initMagNED = Tbn * magDataDelayed.mag;
 
@@ -1477,11 +1482,16 @@ Quaternion NavEKF2_core::calcQuatAndFieldStates(float roll, float pitch)
         float magDecAng = use_compass() ? _ahrs->get_compass()->get_declination() : 0;
 		
 #ifdef GPS_YAW_CAL
-		//baiyang added in 20170116
-		float gpsHead =wrap_PI(radians(_ahrs->get_gps().heading()));   //_ahrs->get_gps().heading(0) gpsHeadDataDelayed.Head
-        if(frontend->_head_control && (_ahrs->get_gps().Headstatus() >= AP_GPS::NARROW_INT)){
-	        yaw = gpsHead;    
-        }else{
+		 //baiyang added in 20170116
+		 float gpsHead = wrap_PI(radians(gpsHeadDataDelayed.Head));
+		 //printf("core%u gpsHead: %4.4f/%4.4f,hc: %d\n",core_index,gpsHead,wrap_PI(radians(gpsHeadDataDelayed.Head)),_head_control);
+
+		 if (_head_control && (_ahrs->get_gps().Headstatus() >= AP_GPS::NARROW_INT))
+		 {
+	        yaw = gpsHead;
+			
+		 }else
+		 {
 			// calculate yaw angle rel to true north
 	        yaw = magDecAng - magHeading;
         }

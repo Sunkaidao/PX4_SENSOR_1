@@ -53,6 +53,7 @@
 // mag fusion final reset altitude
 #define EKF2_MAG_FINAL_RESET_ALT 2.5f
 
+
 class AP_AHRS;
 
 class NavEKF2_core
@@ -816,6 +817,12 @@ private:
     uint32_t lastTimeGpsHeadReceived_ms; // last time we received GPS Head data
     uint32_t secondLastGpsHeadTime_ms;   // time of second last GPS Head fix used to determine how long since last update
     //added end
+    //baiyang added in 20180829
+    uint32_t lastTimeGpsHeadLost_ms;       // last time we lost GPS Head data
+    uint32_t prelastTimeGpsHeadReceived_ms; // previous lastTimeGpsHeadReceived_ms
+    bool shouldResetYaw;
+    bool _head_control;
+	//added end
 #endif
 	uint32_t timeAtLastAuxEKF_ms;   // last time the auxiliary filter was run to fuse range or optical flow measurements
     uint32_t secondLastGpsTime_ms;  // time of second last GPS fix used to determine how long since last update
@@ -1111,12 +1118,6 @@ private:
     float posDownAtLastMagReset;    // vertical position last time the mag states were reset (m)
     float yawInnovAtLastMagReset;   // magnetic yaw innovation last time the yaw and mag field states were reset (rad)
     Quaternion quatAtLastMagReset;  // quaternion states last time the mag states were reset
-
-#ifdef GPS_YAW_CAL
-	//baiyang added in 20170119
-	bool gpsHeadResetRequest;
-	//added end
-#endif
 
     // flags indicating severe numerical errors in innovation variance calculation for different fusion operations
     struct {

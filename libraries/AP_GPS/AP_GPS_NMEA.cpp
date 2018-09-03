@@ -555,13 +555,13 @@ bool AP_GPS_NMEA::_term_complete()
                 #if DGPS_HEADINGA == ENABLED
                 case _GPS_SENTENCE_HEADINGA:     
 					_last_HEADINGA_ms   = now;	
-					state.heading       = wrap_360(_new_heading/100 - state._declination.get());     
+					state.heading       = wrap_360(_new_heading/100 - state._declination);     
 					state.HeadStatus    = _status;
 					break;
 				//baiyang added in 20171016
 				case _GPS_SENTENCE_HEADING3A:     
 					_last_HEADING3A_ms = now;	
-					state.heading       = wrap_360(_new_heading/100 - state._declination.get());   
+					state.heading       = wrap_360(_new_heading/100 - state._declination);   
 					state.HeadStatus    = _status;
 					break;  
 				//added end
