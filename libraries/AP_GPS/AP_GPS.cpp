@@ -263,7 +263,7 @@ const AP_Param::GroupInfo AP_GPS::var_info[] = {
     // @Units: deg 
     // @Increment: 0.5 
     // @User: Standard 
-    AP_GROUPINFO("DEC1", 22, AP_GPS, state[0]._declination, 0.0f), 
+    AP_GROUPINFO("DEC1", 22, AP_GPS, _declination[0], 0.0f), 
  
     // @Param: DEC2 
     // @DisplayName: DGPS heading declination 
@@ -272,7 +272,7 @@ const AP_Param::GroupInfo AP_GPS::var_info[] = {
     // @Units: deg 
     // @Increment: 0.5 
     // @User: Standard 
-    AP_GROUPINFO("DEC2", 23, AP_GPS, state[1]._declination, 0.0f), 
+    AP_GROUPINFO("DEC2", 23, AP_GPS, _declination[1], 0.0f), 
 
     AP_GROUPEND
 };
@@ -308,7 +308,8 @@ void AP_GPS::init(const AP_SerialManager& serial_manager)
     for (uint8_t i=0; i<GPS_MAX_RECEIVERS; i++) {
         if (_rate_ms[i] <= 0 || _rate_ms[i] > GPS_MAX_RATE_MS) {
             _rate_ms[i] = GPS_MAX_RATE_MS;
-        }
+        }        
+        state[i]._declination = _declination[i];
     }
 }
 
@@ -645,6 +646,7 @@ void AP_GPS::update_instance(uint8_t instance)
             state[instance].HeadStatus = NONE;
             state[instance].hdop = GPS_UNKNOWN_DOP;
             state[instance].vdop = GPS_UNKNOWN_DOP;
+            state[instance]._declination = _declination[instance];
             timing[instance].last_message_time_ms = tnow;
         }
     } else {
