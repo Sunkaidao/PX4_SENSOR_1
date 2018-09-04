@@ -158,7 +158,7 @@ void AC_Sprayer::set_short_edge(uint32_t wp_dist)
 
 /// update - adjust pwm of servo controlling pump speed according to the desired quantity and our horizontal speed
 void
-AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist)
+AC_Sprayer::update(int8_t ctl_mode, uint32_t wp_dist, float loiter_speed, float wp_speed)
 {
 	//	added by ZhangYong 20170717
 	uint32_t unspray_distance;

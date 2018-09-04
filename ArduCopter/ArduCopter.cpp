@@ -505,7 +505,7 @@ void Copter::three_hz_loop()
 #if SPRAYER == ENABLED
 
 
-    sprayer.update(control_mode, wp_distance);
+    sprayer.update(control_mode, wp_distance, wp_nav->get_loiter_speed_xy(), wp_nav->get_speed_xy());
 
 
 #if PROJECTGKXN == ENABLED 

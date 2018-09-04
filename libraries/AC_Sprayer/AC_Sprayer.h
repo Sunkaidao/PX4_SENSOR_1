@@ -100,7 +100,7 @@ public:
 	uint8_t get_short_edge() {return _flags.short_edge; }
 
     /// update - adjusts servo positions based on speed and requested quantity
-    void update(int8_t ctl_mode, uint32_t wp_dist);
+    void update(int8_t ctl_mode, uint32_t wp_dist, float loiter_speed, float wp_speed);
 
 	uint16_t get_actual_pump_rate() {return actual_pump_rate;}
 
