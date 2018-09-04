@@ -810,22 +810,22 @@ void AP_ABMode:: change_target_position(pitch_action act)
 		case -1:
 			if(act == LENGTHEN)
 			{
-				p_1 += _pos_delta_unit;
+				p_1 -= _pos_delta_unit;
 			}
 			else
 			{
-				p_1 -= _pos_delta_unit;
+				p_1 += _pos_delta_unit;
 			}
 			target_wp = NED_diff_location_3d(p_1, home_loc);
 			break;
 		case 0:
 			if(act == LENGTHEN)
 			{
-				p_1 += _pos_delta_unit;
+				p_1 -= _pos_delta_unit;
 			}
 			else
 			{
-				p_1 -= _pos_delta_unit;
+				p_1 += _pos_delta_unit;
 			}
 			target_wp = NED_diff_location_3d(p_1, home_loc);
 			break;
@@ -854,11 +854,11 @@ void AP_ABMode:: change_target_position(pitch_action act)
 		case 3:
 			if(act == LENGTHEN)
 			{
-				p_1 += _pos_delta_unit;
+				p_1 -= _pos_delta_unit;
 			}
 			else
 			{
-				p_1 -= _pos_delta_unit;
+				p_1 += _pos_delta_unit;
 			}
 			target_wp = NED_diff_location_3d(p_1, home_loc);
 			break;
@@ -892,22 +892,22 @@ void AP_ABMode:: change_target_position(pitch_action act)
 		case 1:
 			if(act == LENGTHEN)
 			{
-				p_1 += _pos_delta_unit;
+				p_1 -= _pos_delta_unit;
 			}
 			else
 			{
-				p_1 -= _pos_delta_unit;
+				p_1 += _pos_delta_unit;
 			}
 			target_wp = NED_diff_location_3d(p_1, home_loc);
 			break;
 		case 2:
 			if(act == LENGTHEN)
 			{
-				p_1 += _pos_delta_unit;
+				p_1 -= _pos_delta_unit;
 			}
 			else
 			{
-				p_1 -= _pos_delta_unit;
+				p_1 += _pos_delta_unit;
 			}
 			target_wp = NED_diff_location_3d(p_1, home_loc);
 			break;
