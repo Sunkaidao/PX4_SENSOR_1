@@ -228,9 +228,9 @@ void Copter::userhook_init()
 	//  misson recovery onboard
 	//	AB mode altitude control in terrain follow
 	//	spraying operation in ABmode
-	if(edit_management.data.revision_edition != 11)
+	if(edit_management.data.revision_edition != 12)
 	{	
-		edit_management.data.revision_edition = 11;
+		edit_management.data.revision_edition = 12;
 		g.edition_management.set_and_save(edit_management.words);
 	}
 

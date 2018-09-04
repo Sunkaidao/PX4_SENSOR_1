@@ -165,7 +165,7 @@ public:
 		 float heading;                      ///< The heading is the angle from True North of the base to rover vector in a clockwise direction
 	  	 uint16_t rtk_status;                ///< Differential GPS operating status
         //added end
-        AP_Float _declination; 
+        float _declination; 
     };
 
     //baiyang added in 20170620
@@ -424,8 +424,8 @@ public:
 	void send_mavlink_gps2_head_status(mavlink_channel_t chan,NavEKF2 &ekf2);
 //added end
 //baiyang added in 20180411 
-  	float get_heading_declination(uint8_t instance) const {    
-        return state[instance]._declination.get();    
+  	float get_heading_declination(uint8_t instance) const {
+        return GPS_MAX_RECEIVERS - instance > 0 ? _declination[instance] : -1;    
     }   
     float get_heading_declination() const {     
         return heading(primary_instance);   
@@ -489,6 +489,7 @@ protected:
     AP_Int16 _delay_ms[GPS_MAX_RECEIVERS];
     AP_Int8 _blend_mask;
     AP_Float _blend_tc;
+    AP_Float _declination[GPS_MAX_RECEIVERS];
 
     uint32_t _log_gps_bit = -1;
 
