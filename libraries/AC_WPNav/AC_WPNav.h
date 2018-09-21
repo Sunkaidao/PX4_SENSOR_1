@@ -291,6 +291,7 @@ public:
 	//	added by zhangyong for long edge or short edge indication 20180705
 	uint8_t get_wpnav_destination_set() {return _flags.wpnav_destination_set;}
 	void 	clear_wpnav_destination_set() {_flags.wpnav_destination_set = 0;}
+	DN_Tunning *get_dn_tunning() {return _dn_tunning_ptr;}; 
 	//	added end
 
     static const struct AP_Param::GroupInfo var_info[];
@@ -350,6 +351,8 @@ protected:
     // set heading used for spline and waypoint navigation
     void set_yaw_cd(float heading_cd);
 
+	
+
     // references and pointers to external libraries
     const AP_InertialNav&   _inav;
     const AP_AHRS_View&     _ahrs;
@@ -406,6 +409,8 @@ protected:
     AP_Int8     _rangefinder_use;
     bool        _rangefinder_healthy = false;
     float       _rangefinder_alt_cm = 0.0f;
+
+	DN_Tunning _dn_tunning, *_dn_tunning_ptr;
 
 	
 };

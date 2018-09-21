@@ -208,6 +208,9 @@ public:
 														uint8_t fp_rangefinder_check);
 	//	added end
 
+	
+	
+
 #if	BCBPMBUS == ENABLED
 	void Log_Write_BCBPMBus(uint8_t msg_type, AC_BCBPMBus &vp_bcbpmbus);
 #endif

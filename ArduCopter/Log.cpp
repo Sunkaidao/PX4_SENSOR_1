@@ -128,6 +128,8 @@ struct PACKED log_Nav_Tuning {
     float    vel_y;
     float    desired_accel_x;
     float    desired_accel_y;
+	float  	 accel_x;
+	float 	 accel_y;
 	//	added by ZhangYong for avoidance use
 	float	 vel_bf_x;
 	float	 vel_bf_y;
@@ -142,6 +144,9 @@ void Copter::Log_Write_Nav_Tuning()
     const Vector3f &accel_target = pos_control->get_accel_target();
     const Vector3f &position = inertial_nav.get_position();
     const Vector3f &velocity = inertial_nav.get_velocity();
+	const Vector3f &accel = ahrs.get_accel_ef_blended();
+	
+	
 
 	//	added by ZhangYong 20180109 for avoidance 
 	Vector3f &velocity_bf = inertial_nav.get_velocity_bf();
@@ -178,6 +183,8 @@ void Copter::Log_Write_Nav_Tuning()
         vel_y           : velocity.y,
         desired_accel_x : accel_target.x,
         desired_accel_y : accel_target.y,
+        accel_x			: accel.x * 100,
+        accel_y			: accel.y * 100,
         vel_bf_x		: velocity_bf.x,
         vel_bf_y		: velocity_bf.y
     };
@@ -752,6 +759,57 @@ void Copter::Log_Write_land_detector(struct Log_Land_Detector *fp_log_land_detec
 }
 
 
+struct PACKED log_DN_Tunning {
+    LOG_PACKET_HEADER;
+    uint64_t time_us;
+    float log_daccelx;
+	float log_daccely;
+	uint8_t log_ldaccel;
+	float log_ldaccelx;
+	float log_ldaccely;
+	float log_dvelx;
+	float log_dvely;
+	float log_drag_speed;
+	float log_accel_min;
+	float log_desired_2speed;
+	float log_dvelbx;
+	float log_dvelby;
+	float log_dvelmx;
+	float log_dvelmy;
+};
+
+
+
+//	added by zhangyong for desired loiter velocity analyse 20180918
+void Copter::Log_Write_desired_navigation()
+{
+	DN_Tunning *lcl_dn_tunning = wp_nav->get_dn_tunning();
+
+	struct log_DN_Tunning pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_DN_MSG),
+        time_us       		: AP_HAL::micros64(),					//	1
+        log_daccelx   		: lcl_dn_tunning->daccelx,				//	2
+        log_daccely   		: lcl_dn_tunning->daccely,				//	3
+        log_ldaccel			: lcl_dn_tunning->ldaccel,				//	4
+        log_ldaccelx  		: lcl_dn_tunning->ldaccelx,				//	5
+        log_ldaccely  		: lcl_dn_tunning->ldaccely,				//	6
+        log_dvelx   		: lcl_dn_tunning->dvelx,				//	7
+        log_dvely   		: lcl_dn_tunning->dvely,				//	8
+		log_drag_speed		: lcl_dn_tunning->drag_speed,			//	9
+        log_accel_min		: lcl_dn_tunning->accel_min,			//	10
+        log_desired_2speed	: lcl_dn_tunning->desired_2speed,		//	11
+        log_dvelbx      	: lcl_dn_tunning->dvelbx,				//	12
+        log_dvelby      	: lcl_dn_tunning->dvelby,				//	13
+        log_dvelmx 			: lcl_dn_tunning->dvelmx,				//	14
+        log_dvelmy 			: lcl_dn_tunning->dvelmy				//	15
+    };
+    DataFlash.WriteBlock(&pkt, sizeof(pkt));
+	
+}
+//	added end
+
+
+
 //	added by ZhangYong
 #if BCBPMBUS == ENABLED
 void Copter::Log_Write_BCBPMBus_Msg(uint8_t msg_type)
@@ -822,7 +880,7 @@ const struct LogStructure Copter::log_structure[] = {
     { LOG_OPTFLOW_MSG, sizeof(log_Optflow),
       "OF",   "QBffff",   "TimeUS,Qual,flowX,flowY,bodyX,bodyY" },
     { LOG_NAV_TUNING_MSG, sizeof(log_Nav_Tuning),
-      "NTUN", "Qffffffffffff", "TUS,DPX,DPY,PX,PY,DVX,DVY,VX,VY,DAccX,DAccY,VBX,VBY" },
+      "NTUN", "Qffffffffffffff", "TUS,DPX,DPY,PX,PY,DVX,DVY,VX,VY,DAX,DAY,AX,AY,VBX,VBY" },
     { LOG_CONTROL_TUNING_MSG, sizeof(log_Control_Tuning),
       "CTUN", "Qffffffeccfhhfi", "TimeUS,TI,ABst,TO,TH,DAt,At,BAt,DSAt,SAt,TAt,DCRt,CRt,SCRt,MAt" },
     { LOG_PERFORMANCE_MSG, sizeof(log_Performance),
@@ -908,6 +966,9 @@ void Copter::Log_Write_Throw(ThrowModeStage stage, float velocity, float velocit
 void Copter::Log_Write_Proximity() {}
 void Copter::Log_Write_Beacon() {}
 void Copter::Log_Write_land_detector(struct Log_Land_Detector *fp_log_land_detector) {}
+//	added by zhangyong for desired navigation 20180918
+void Copter::Log_Write_desired_navigation();
+//	added end
 void Copter::Log_Write_Vehicle_Startup_Messages() {}
 
 #if FRAME_CONFIG == HELI_FRAME

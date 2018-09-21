@@ -676,3 +676,23 @@ typedef struct {
 //	added end
 
 
+//	added by zhangyong for desired navagation tunning 20180918
+typedef struct {
+    float daccelx;			//	1
+	float daccely;			//	2
+	uint8_t ldaccel;		//	3
+	float ldaccelx;			//	4
+	float ldaccely;			//	5
+	float dvelx;			//	6
+	float dvely;			//	7
+	float drag_speed;		//	8
+	float accel_min;		//	9
+	float desired_2speed;	//	10
+	float dvelbx;			//	11
+	float dvelby;			//	12
+	float dvelmx;			//	13
+	float dvelmy;			//	14
+}DN_Tunning;
+//	added end
+
+

@@ -1012,6 +1012,10 @@ private:
 	void Log_Write_land_detector(struct Log_Land_Detector *fp_log_land_detector);
 	//	added end
 
+	//	added by zhangyong for desired loiter velocity analyse 20180918
+	void Log_Write_desired_navigation();
+	//	added end
+
 
 //	added by ZhangYong
 #if BCBPMBUS == ENABLED

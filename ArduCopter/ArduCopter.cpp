@@ -407,6 +407,9 @@ void Copter::ten_hz_logging_loop()
     }
     if (should_log(MASK_LOG_NTUN) && (mode_requires_GPS(control_mode) || landing_with_GPS())) {
         Log_Write_Nav_Tuning();
+		//	added by zhangyong for desired navigation log 20180918
+		Log_Write_desired_navigation();
+		//	added end
     }
     if (should_log(MASK_LOG_IMU) || should_log(MASK_LOG_IMU_FAST) || should_log(MASK_LOG_IMU_RAW)) {
         DataFlash.Log_Write_Vibration(ins);

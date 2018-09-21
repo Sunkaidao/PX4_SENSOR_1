@@ -1061,6 +1061,10 @@ struct PACKED log_Land_Detector {
 };
 
 
+
+
+
+
 //	added by ZhangYong 20170731
 /*
 struct PACKED log_Communication_drops {
@@ -1478,10 +1482,10 @@ enum LogMessages {
     LOG_DF_MAV_STATS,
 
     LOG_MSG_SBPHEALTH,
-    LOG_MSG_SBPLLH,
-    LOG_MSG_SBPBASELINE,
-    LOG_MSG_SBPTRACKING1,
-    LOG_MSG_SBPTRACKING2,
+//    LOG_MSG_SBPLLH,
+//    LOG_MSG_SBPBASELINE,
+//    LOG_MSG_SBPTRACKING1,
+//    LOG_MSG_SBPTRACKING2,
     LOG_MSG_SBPRAWH,
     LOG_MSG_SBPRAWM,
     LOG_MSG_SBPEVENT,
@@ -1529,7 +1533,8 @@ enum LogMessages {
 	LOG_PADCMD_MSG,
 	LOG_MTR_MSG,
 	LOG_CONTROL_MSG,
-	LOG_GKPROX_MSG
+	LOG_GKPROX_MSG,
+	LOG_DN_MSG
 };
 
 
@@ -2040,7 +2045,9 @@ Format characters in the format string for binary log messages
     { LOG_RALLY_MSG, sizeof(log_Rally), \
       "RALY", "QBBLLh", "TimeUS,Tot,Seq,Lat,Lng,Alt" }, \
 	{ LOG_LD_MSG, sizeof(log_Land_Detector), \
-      "LD", "QBBBBffB", "TimeUS,lc,mlc,mtl,atm,al,dr,r" }
+      "LD", "QBBBBffB", "TimeUS,lc,mlc,mtl,atm,al,dr,r" }, \
+    {LOG_DN_MSG, sizeof(log_DN_Tunning), \
+      "DTUN", "QffBfffffffffff", "TimeUS,dax,day,l,lax,lay,dvx,dvy,ds,am,d2s,dbx,dby,dmx,dmy" }
 
 // #if SBP_HW_LOGGING
 #define LOG_SBP_STRUCTURES \

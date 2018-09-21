@@ -147,6 +147,9 @@ AC_WPNav::AC_WPNav(const AP_InertialNav& inav, const AP_AHRS_View& ahrs, AC_PosC
     // sanity check some parameters
     _loiter_speed_cms = MAX(_loiter_speed_cms, WPNAV_LOITER_SPEED_MIN);
     _wp_radius_cm = MAX(_wp_radius_cm, WPNAV_WP_RADIUS_MIN);
+
+	_dn_tunning_ptr = &_dn_tunning;
+	memset(_dn_tunning_ptr, 0, sizeof(DN_Tunning));
 	//	added by zhangyong
 	//	added end
 }
@@ -241,6 +244,10 @@ void AC_WPNav::get_loiter_stopping_point_xy(Vector3f& stopping_point) const
 ///		updated velocity sent directly to position controller
 void AC_WPNav::calc_loiter_desired_velocity(float nav_dt, float ekfGndSpdLimit)
 {
+	//	added by zhangyong for logging support
+	float loiter_speed_min_cmss;
+	float desired_2speed;
+
     // calculate a loiter speed limit which is the minimum of the value set by the WPNAV_LOITER_SPEED
     // parameter and the value set by the EKF to observe optical flow limits
     float gnd_speed_limit_cms = MIN(_loiter_speed_cms,ekfGndSpdLimit*100.0f);
@@ -260,6 +267,11 @@ void AC_WPNav::calc_loiter_desired_velocity(float nav_dt, float ekfGndSpdLimit)
     desired_accel.x = (_pilot_accel_fwd_cms*_ahrs.cos_yaw() - _pilot_accel_rgt_cms*_ahrs.sin_yaw());
     desired_accel.y = (_pilot_accel_fwd_cms*_ahrs.sin_yaw() + _pilot_accel_rgt_cms*_ahrs.cos_yaw());
 
+	//	just for tunning, zhangyong 20180918
+	_dn_tunning_ptr->daccelx = desired_accel.x;
+	_dn_tunning_ptr->daccely = desired_accel.y;
+	//	end
+
     // calculate the difference
     Vector2f des_accel_diff = (desired_accel - _loiter_desired_accel);
 
@@ -270,10 +282,21 @@ void AC_WPNav::calc_loiter_desired_velocity(float nav_dt, float ekfGndSpdLimit)
     if (_loiter_jerk_max_cmsss > 0.0f && des_accel_change_total > accel_change_max && des_accel_change_total > 0.0f) {
         des_accel_diff.x = accel_change_max * des_accel_diff.x/des_accel_change_total;
         des_accel_diff.y = accel_change_max * des_accel_diff.y/des_accel_change_total;
+
+		_dn_tunning_ptr->ldaccel = 1;
     }
+	else
+	{
+		_dn_tunning_ptr->ldaccel = 0;
+	}
 
     // adjust the desired acceleration
     _loiter_desired_accel += des_accel_diff;
+
+	//	just for tunning, zhangyong 20180918
+	_dn_tunning_ptr->ldaccelx = _loiter_desired_accel.x;
+	_dn_tunning_ptr->ldaccely = _loiter_desired_accel.y;
+	//	end
 
     // get pos_control's feed forward velocity
     const Vector3f &desired_vel_3d = _pos_control.get_desired_velocity();
@@ -283,19 +306,39 @@ void AC_WPNav::calc_loiter_desired_velocity(float nav_dt, float ekfGndSpdLimit)
     desired_vel.x += _loiter_desired_accel.x * nav_dt;
     desired_vel.y += _loiter_desired_accel.y * nav_dt;
 
+	//	just for tunning, zhangyong 20180918
+	_dn_tunning_ptr->dvelx = desired_vel.x;
+	_dn_tunning_ptr->dvely = desired_vel.y;
+	//	end
+
     float desired_speed = desired_vel.length();
 
     if (!is_zero(desired_speed)) {
         Vector2f desired_vel_norm = desired_vel/desired_speed;
         float drag_speed_delta = -_loiter_accel_cmss*nav_dt*desired_speed/gnd_speed_limit_cms;
 
+		loiter_speed_min_cmss = -_loiter_accel_min_cmss*nav_dt;
+		desired_2speed = -2.0f*desired_speed*nav_dt;
+	
         if (_pilot_accel_fwd_cms == 0 && _pilot_accel_rgt_cms == 0) {
-            drag_speed_delta = MIN(drag_speed_delta,MAX(-_loiter_accel_min_cmss*nav_dt, -2.0f*desired_speed*nav_dt));
+			//	modified by zhangyong for logging purpose
+            //	drag_speed_delta = MIN(drag_speed_delta,MAX(-_loiter_accel_min_cmss*nav_dt, -2.0f*desired_speed*nav_dt));
+			//	modified end
+			drag_speed_delta = MIN(drag_speed_delta,MAX(loiter_speed_min_cmss, desired_2speed));
         }
+
+		_dn_tunning_ptr->drag_speed = drag_speed_delta;
+		_dn_tunning_ptr->accel_min = loiter_speed_min_cmss;
+		_dn_tunning_ptr->desired_2speed = desired_2speed;
 
         desired_speed = MAX(desired_speed+drag_speed_delta,0.0f);
         desired_vel = desired_vel_norm*desired_speed;
     }
+
+	//	just for tunning, zhangyong 20180918
+	_dn_tunning_ptr->dvelbx = desired_vel.x;
+	_dn_tunning_ptr->dvelby = desired_vel.y;
+	//	end
 
     // Apply EKF limit to desired velocity -  this limit is calculated by the EKF and adjusted as required to ensure certain sensor limits are respected (eg optical flow sensing)
     float horizSpdDem = sqrtf(sq(desired_vel.x) + sq(desired_vel.y));
@@ -303,6 +346,11 @@ void AC_WPNav::calc_loiter_desired_velocity(float nav_dt, float ekfGndSpdLimit)
         desired_vel.x = desired_vel.x * gnd_speed_limit_cms / horizSpdDem;
         desired_vel.y = desired_vel.y * gnd_speed_limit_cms / horizSpdDem;
     }
+
+	//	just for tunning, zhangyong 20180918
+	_dn_tunning_ptr->dvelmx = desired_vel.x;
+	_dn_tunning_ptr->dvelmy = desired_vel.y;
+	//	end
 
     // Limit the velocity to prevent fence violations
     if (_avoid != nullptr) {
@@ -327,6 +375,7 @@ void AC_WPNav::update_loiter(float ekfGndSpdLimit, float ekfNavVelGainScaler)
 
     // run at poscontrol update rate.
     // TODO: run on user input to reduce latency, maybe if (user_input || dt >= _pos_control.get_dt_xy())
+    //	update 50Hz
     if (dt >= _pos_control.get_dt_xy()) {
         // sanity check dt
         if (dt >= 0.2f) {

@@ -438,7 +438,7 @@ AP_GPS_SBP2::logging_log_full_update()
 
     //TODO: Expand with heartbeat info.
     //TODO: Get rid of IAR NUM HYPO
-
+/*
     struct log_SbpHealth pkt = {
         LOG_PACKET_HEADER_INIT(LOG_MSG_SBPHEALTH),
         time_us                    : AP_HAL::micros64(),
@@ -447,6 +447,7 @@ AP_GPS_SBP2::logging_log_full_update()
         last_iar_num_hypotheses    : 0,
     };
     DataFlash_Class::instance()->WriteBlock(&pkt, sizeof(pkt));
+*/
 };
 
 void

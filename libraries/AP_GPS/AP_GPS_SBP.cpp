@@ -392,7 +392,7 @@ AP_GPS_SBP::_detect(struct SBP_detect_state &state, uint8_t data)
 void
 AP_GPS_SBP::logging_log_full_update()
 {
-
+/*
     if (!should_df_log()) {
         return;
     }
@@ -406,6 +406,7 @@ AP_GPS_SBP::logging_log_full_update()
     };
 
     DataFlash_Class::instance()->WriteBlock(&pkt, sizeof(pkt));
+*/
 };
 
 void
