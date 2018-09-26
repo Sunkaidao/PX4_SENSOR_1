@@ -178,6 +178,11 @@
 #include <AP_NewBroadcast/AP_NewBroadcast.h>
 #endif
 //added end
+//added by sunkaidao in 20180829
+#if AIRCHECK == ENABLED
+#include  <AP_Gassensor/AP_Gassensor.h>
+#endif
+//added end
 
 
 class Copter : public AP_HAL::HAL::Callbacks {
@@ -800,6 +805,12 @@ private:
 #endif
 //added end
 
+// added by sunkaidao in 180829
+#if AIRCHECK == ENABLED
+		AP_Gassensor gassensor;
+#endif
+// added end
+
 
     // last esc calibration notification update
     uint32_t esc_calibration_notify_update_ms;
@@ -949,6 +960,10 @@ private:
     void send_rpm(mavlink_channel_t chan);
     void send_mission_breakpoint(mavlink_channel_t chan);
     void handle_command_ack(mavlink_message_t *msg);
+	//sunkaidao added in 180904
+	//Gas collection mavlink
+	void send_sensor(mavlink_channel_t chan);
+	//sunkaidao added end 
 
 
     void rpm_update();

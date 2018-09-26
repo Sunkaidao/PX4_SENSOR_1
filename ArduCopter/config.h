@@ -1056,7 +1056,11 @@ union PACKED PassOSD_data_status {
 #define USERHOOK_SUPERSLOWLOOP
 #define USERHOOK_SLOWLOOP
 
-
+// airsensor 
+//sunkaidao added in 180828
+#ifndef AIRCHECK
+ #define AIRCHECK	ENABLED
+#endif
 
 
 

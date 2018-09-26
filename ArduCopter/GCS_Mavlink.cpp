@@ -229,6 +229,41 @@ void NOINLINE Copter::send_rpm(mavlink_channel_t chan)
     }
 }
 
+//Gas collection mavlink
+//sunkaidao added in 180904
+void NOINLINE Copter::send_sensor(mavlink_channel_t chan)
+{
+	mavlink_msg_payload_status_send(chan,
+		AP_HAL::millis(),
+		MSG_PLD_STATUS_AS,
+		0,1,
+		gassensor.MAV_DATA[0],gassensor.MAV_DATA[1],
+		gassensor.MAV_DATA[2],gassensor.MAV_DATA[3],
+		gassensor.MAV_DATA[4],gassensor.MAV_DATA[5]);
+	mavlink_msg_payload_status_send(chan,
+		AP_HAL::millis(),
+		MSG_PLD_STATUS_AS,
+		0,2,
+		gassensor.MAV_DATA[6],gassensor.MAV_DATA[7],
+		gassensor.MAV_DATA[8],gassensor.MAV_DATA[9],
+		gassensor.MAV_DATA[10],gassensor.MAV_DATA[11]);
+	mavlink_msg_payload_status_send(chan,
+		AP_HAL::millis(),
+		MSG_PLD_STATUS_AS,
+		0,3,
+		gassensor.MAV_DATA[12],gassensor.MAV_DATA[13],
+		gassensor.MAV_DATA[14],gassensor.MAV_DATA[15],
+		gassensor.MAV_DATA[16],gassensor.MAV_DATA[17]);
+	mavlink_msg_payload_status_send(chan,
+		AP_HAL::millis(),
+		MSG_PLD_STATUS_AS,
+		0,4,
+		gassensor.MAV_DATA[18],gassensor.MAV_DATA[19],
+		gassensor.MAV_DATA[20],gassensor.MAV_DATA[21],
+		gassensor.MAV_DATA[22],gassensor.MAV_DATA[23]);
+}
+
+
 /*
   send breakpoint msg
   baiyang added in 20180817
@@ -954,7 +989,16 @@ bool GCS_MAVLINK_Copter::try_send_message(enum ap_message id)
 		copter.send_mission_breakpoint(chan);
 		break;
 //added end
-		
+
+//sunkaidao added in 180904
+#if AIRCHECK == ENABLED
+	case MSG_SENSOR:
+		CHECK_PAYLOAD_SIZE(PAYLOAD_STATUS);
+		copter.send_sensor(chan);
+		break;
+	//added end
+#endif
+
 	default:
 		return GCS_MAVLINK::try_send_message(id);
 		break;
@@ -1185,6 +1229,11 @@ GCS_MAVLINK_Copter::data_stream_send(void)
 	    send_message(MSG_COMMAND_INT);
 //added end
 
+//sunkaidao added in 180904
+#if AIRCHECK == ENABLED
+		send_message(MSG_SENSOR);
+#endif
+//added end
 
     }
     

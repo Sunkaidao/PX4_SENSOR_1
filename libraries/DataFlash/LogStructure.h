@@ -717,6 +717,24 @@ struct PACKED log_PADCMD {
 };
 //	added end
 
+//	added by sunkaidao 20180904
+struct PACKED log_Sensor {
+    LOG_PACKET_HEADER;
+	uint64_t time_us;
+	float CO;
+	float SO2;
+	float NO2;
+	float O3;
+	float X1;
+	float X2;
+	float CO2;
+	float PM1_0;
+	float PM2_5;
+	float PM10;
+	float TEMP;
+	float HUM;
+};
+//	added end
 
 
 
@@ -1534,7 +1552,12 @@ enum LogMessages {
 	LOG_MTR_MSG,
 	LOG_CONTROL_MSG,
 	LOG_GKPROX_MSG,
-	LOG_DN_MSG
+	LOG_DN_MSG,
+
+//sunkaidao added in 180904
+	LOG_SENSOR_MSG
+//added end
+
 };
 
 
@@ -1841,7 +1864,9 @@ Format characters in the format string for binary log messages
       "IMU",  IMU_FMT,     IMU_LABELS }, \
     { LOG_MESSAGE_MSG, sizeof(log_Message), \
       "MSG",  "QZ",     "TimeUS,Message"}, \
-    { LOG_RCIN_MSG, sizeof(log_RCIN), \
+	{ LOG_SENSOR_MSG, sizeof(log_Sensor), \
+	  "SEN",  "Qffffffffffff",	"TimeUS,CO,SO2,NO2,O3,X1,X2,CO2,PM1,PM25,PM10,TEMP,HUM" }, \
+	{ LOG_RCIN_MSG, sizeof(log_RCIN), \
       "RCIN",  "QHHHHHHHHHHHHHH",     "TimeUS,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14" }, \
     { LOG_RCOUT_MSG, sizeof(log_RCOUT), \
       "RCOU",  "QHHHHHHHHHHHHHH",     "TimeUS,C1,C2,C3,C4,C5,C6,C7,C8,C9,C10,C11,C12,C13,C14" }, \
