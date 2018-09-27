@@ -180,7 +180,7 @@ public:
         SerialProtocol_Radar_GKXN=21 ,
 //#endif
 //sunkaidao added in 180829
-	SerialProtocol_Airsensor=22,	
+		SerialProtocol_Airsensor=22,	
 //added end
 
 //#if CHARGINGSTATION == ENABLED

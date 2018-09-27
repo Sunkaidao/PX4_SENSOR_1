@@ -65,6 +65,7 @@ private:
 	uint8_t rxdata12_len;
 	uint8_t rxdata6_len;
 	uint8_t rx_len_flag;
+	uint8_t tx_six;
 	enum Gassensor_CMD {
 			fixed = 0x00,
 			onboard =0x01

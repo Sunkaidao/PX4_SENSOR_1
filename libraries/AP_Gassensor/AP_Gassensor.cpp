@@ -27,6 +27,7 @@ const AP_Param::GroupInfo AP_Flowmeter::var_info[] = {
 AP_Gassensor::AP_Gassensor()
 {
 	_initialised = false;
+	tx_six=1;
 
 	//AP_Param::setup_object_defaults(this, var_info);
 
@@ -123,13 +124,17 @@ void AP_Gassensor::update(const AP_SerialManager& serial_manager,DataFlash_Class
 	if(!_initialised)
 	{
 		init(serial_manager);//serial init 
-		SendCMD(onboard);//tx-03 00
+		
 		//get_sensor6();//rx-03 00
 	}
 
 	if(!_initialised)
 		return;
- 	
+	if(tx_six==1)
+	{
+		SendCMD(onboard);//tx-03 00
+		tx_six=2;
+	}
 	SendCMD(fixed);//tx-03 80
 	get_sensor12();//rx-03 80
 	log(DataFlash);//log
