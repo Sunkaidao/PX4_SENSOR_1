@@ -1,35 +1,13 @@
 #include <AP_Gassensor/AP_Gassensor.h>
-#include <AP_HAL/AP_HAL.h>
 #include <AP_SerialManager/AP_SerialManager.h>
 #include <AP_Math/crc.h>
 #include <ctype.h>
 #include <stdio.h>
 
 
-
-
-
-extern const AP_HAL::HAL& hal;
-
-/*
-const AP_Param::GroupInfo AP_Flowmeter::var_info[] = {
-    // @Param: ENABLE
-    // @DisplayName: Sprayer enable/disable
-    // @Description: Allows you to enable (1) or disable (0) the flowmeter
-    // @Values: 0:Disabled,1:Enabled
-    // @User: Standard
-    AP_GROUPINFO("ENABLE",      0,  AP_Flowmeter, _enabled, 0),
-
-    AP_GROUPEND
-};
-*/
-
 AP_Gassensor::AP_Gassensor()
 {
 	_initialised = false;
-	tx_six=1;
-
-	//AP_Param::setup_object_defaults(this, var_info);
 
 //	printf("0.%d", _initialised);
 	
@@ -77,46 +55,28 @@ void AP_Gassensor::SendCMD(uint8_t CMD)
 	}
 	else 
 	{
-
 	Tx_Buff[3]=0x00;
 	}
 	Tx_Buff[4]=0x00;
 	if (CMD==0X00)
 	{
 	Tx_Buff[5]=0x0C;
+	Tx_Buff[6]=0x44;
+	Tx_Buff[7]=0x63;
 	}
 	else 
 	{
-
 	Tx_Buff[5]=0x1E;
+	Tx_Buff[6]=0xC5;
+	Tx_Buff[7]=0x86;
 	}
-	for (i = 0; i < 6; i++)
-	{
-		crc ^= Tx_Buff[i];
-		for (b = 0; b < 8; b++)
-		{
-			bool f = crc & 1;
-			crc >>= 1;
-			crc = crc&0x7fff;
-			if (f)
-				crc ^= 0xa001;
-		}
-	}
-		//printf("crc=%x\n");
-	checksum_msb =( crc & 0xFF00)>>8;
-	checksum_lsb = crc & 0x00FF;
-	Tx_Buff[6]=checksum_lsb;
-	Tx_Buff[7]=checksum_msb;
-/*缺少第九位 换行位*/
 	Tx_Buff[8]=0x0d;
-	uint8_t a=0x0a;
+	Tx_Buff[9]=0x0a;
 
-	for(i=0;i<9;i++)
+	for(i=0;i<10;i++)
 	{
 		uart->write(Tx_Buff[i]);
 	}
-	
-	uart->write(a);
 }
 
 void AP_Gassensor::update(const AP_SerialManager& serial_manager,DataFlash_Class DataFlash)
@@ -130,46 +90,11 @@ void AP_Gassensor::update(const AP_SerialManager& serial_manager,DataFlash_Class
 
 	if(!_initialised)
 		return;
-	if(tx_six==1)
-	{
-		SendCMD(onboard);//tx-03 00
-		tx_six=2;
-	}
 	SendCMD(fixed);//tx-03 80
 	get_sensor12();//rx-03 80
 	log(DataFlash);//log
-	SEN_Mav_data();//Mavkink data
 	
 }
-void AP_Gassensor::SEN_Mav_data()
-{
-	MAV_DATA[0]=rx_data12[3];
-	MAV_DATA[1]=rx_data12[4];
-	MAV_DATA[2]=rx_data12[5];
-	MAV_DATA[3]=rx_data12[6];
-	MAV_DATA[4]=rx_data12[7];
-	MAV_DATA[5]=rx_data12[8];
-	MAV_DATA[6]=rx_data12[9];
-	MAV_DATA[7]=rx_data12[10];
-	MAV_DATA[8]=rx_data12[11];
-	MAV_DATA[9]=rx_data12[12];
-	MAV_DATA[10]=rx_data12[13];
-	MAV_DATA[11]=rx_data12[14];
-	MAV_DATA[12]=rx_data12[15];
-	MAV_DATA[13]=rx_data12[16];
-	MAV_DATA[14]=rx_data12[17];
-	MAV_DATA[15]=rx_data12[18];
-	MAV_DATA[16]=rx_data12[19];
-	MAV_DATA[17]=rx_data12[20];
-	MAV_DATA[18]=rx_data12[21];
-	MAV_DATA[19]=rx_data12[22];
-	MAV_DATA[20]=rx_data12[23];
-	MAV_DATA[21]=rx_data12[24];
-	MAV_DATA[22]=rx_data12[25];
-	MAV_DATA[23]=rx_data12[26];
-
-}
-
 void AP_Gassensor::get_sensor6()
 {
 	
@@ -286,8 +211,8 @@ void AP_Gassensor::get_sensor12()
 		Sensor12_data[0],Sensor12_data[1],Sensor12_data[2],Sensor12_data[3],Sensor12_data[4],
 		Sensor12_data[5],Sensor12_data[6],Sensor12_data[7],Sensor12_data[8],Sensor12_data[9],
 		Sensor12_data[10],Sensor12_data[11],Sensor12_data[12]);
-	}
 	*/
+	
 	}
 	//else
 		//uart->printf("error %f\n",Sensor12_data[12]);

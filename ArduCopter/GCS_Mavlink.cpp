@@ -237,30 +237,30 @@ void NOINLINE Copter::send_sensor(mavlink_channel_t chan)
 		AP_HAL::millis(),
 		MSG_PLD_STATUS_AS,
 		0,1,
-		gassensor.MAV_DATA[0],gassensor.MAV_DATA[1],
-		gassensor.MAV_DATA[2],gassensor.MAV_DATA[3],
-		gassensor.MAV_DATA[4],gassensor.MAV_DATA[5]);
+		gassensor.rx_data12[3],gassensor.rx_data12[4],
+		gassensor.rx_data12[5],gassensor.rx_data12[6],
+		gassensor.rx_data12[7],gassensor.rx_data12[8]);
 	mavlink_msg_payload_status_send(chan,
 		AP_HAL::millis(),
 		MSG_PLD_STATUS_AS,
 		0,2,
-		gassensor.MAV_DATA[6],gassensor.MAV_DATA[7],
-		gassensor.MAV_DATA[8],gassensor.MAV_DATA[9],
-		gassensor.MAV_DATA[10],gassensor.MAV_DATA[11]);
+		gassensor.rx_data12[9],gassensor.rx_data12[10],
+		gassensor.rx_data12[11],gassensor.rx_data12[12],
+		gassensor.rx_data12[13],gassensor.rx_data12[14]);
 	mavlink_msg_payload_status_send(chan,
 		AP_HAL::millis(),
 		MSG_PLD_STATUS_AS,
 		0,3,
-		gassensor.MAV_DATA[12],gassensor.MAV_DATA[13],
-		gassensor.MAV_DATA[14],gassensor.MAV_DATA[15],
-		gassensor.MAV_DATA[16],gassensor.MAV_DATA[17]);
+		gassensor.rx_data12[15],gassensor.rx_data12[16],
+		gassensor.rx_data12[17],gassensor.rx_data12[18],
+		gassensor.rx_data12[19],gassensor.rx_data12[20]);
 	mavlink_msg_payload_status_send(chan,
 		AP_HAL::millis(),
 		MSG_PLD_STATUS_AS,
 		0,4,
-		gassensor.MAV_DATA[18],gassensor.MAV_DATA[19],
-		gassensor.MAV_DATA[20],gassensor.MAV_DATA[21],
-		gassensor.MAV_DATA[22],gassensor.MAV_DATA[23]);
+		gassensor.rx_data12[21],gassensor.rx_data12[22],
+		gassensor.rx_data12[23],gassensor.rx_data12[24],
+		gassensor.rx_data12[25],gassensor.rx_data12[26]);
 }
 
 
